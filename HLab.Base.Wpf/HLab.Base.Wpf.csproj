@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>HLab.Base</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Update="DateEx.xaml.cs">
+      <DependentUpon>DateEx.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="DetailView.xaml.cs">
+      <DependentUpon>DetailView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Calendar.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="DateEx.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="DetailView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>

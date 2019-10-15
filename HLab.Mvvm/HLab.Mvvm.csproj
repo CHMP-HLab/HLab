@@ -1,0 +1,34 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Platforms>AnyCPU;x64;x86</Platforms>
+    <LangVersion>latest</LangVersion>
+    <Version>2.0.0.2-dev0371</Version>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MSBump" Version="2.3.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="System.ComponentModel.Annotations" Version="4.6.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
+    <ProjectReference Include="..\HLab.Core.Annotations\HLab.Core.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.DependencyInjection\HLab.DependencyInjection.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Microsoft.CSharp">
+      <HintPath>C:\Program Files (x86)\Reference Assemblies\Microsoft\Framework\.NETFramework\v4.7.2\Microsoft.CSharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

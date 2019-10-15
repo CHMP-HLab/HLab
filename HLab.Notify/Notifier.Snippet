@@ -1,0 +1,32 @@
+﻿<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+  <CodeSnippet Format="1.0.0">
+    <Header>
+      <Title>Property</Title>
+      <Shortcut>_pp</Shortcut>
+      <Description>Code snippet for property notifier</Description>
+      <Author>Mathieu GRENET</Author>
+      <SnippetTypes>
+        <SnippetType>Expansion</SnippetType>
+      </SnippetTypes>
+    </Header>
+    <Snippet>
+      <Declarations>
+        <Literal>
+          <ID>name</ID>
+          <ToolTip>Property Name</ToolTip>
+          <Default>_property</Default>
+        </Literal>
+        <Literal>
+          <ID>type</ID>
+          <ToolTip>Property Type</ToolTip>
+          <Default>string</Default>
+        </Literal>
+      </Declarations>
+      <Code Language="csharp">
+        <![CDATA[
+                    IProperty<$type$> $name$ = H.Property<$type$>(c => c.Default(default($type$)));
+                ]]>
+      </Code>
+    </Snippet>
+  </CodeSnippet>
+</CodeSnippets>

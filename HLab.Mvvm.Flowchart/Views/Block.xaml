@@ -1,0 +1,114 @@
+﻿<UserControl x:Class="HLab.Mvvm.Flowchart.Views.BlockView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HLab.Mvvm.Flowchart.Views"
+             xmlns:viewModel="clr-namespace:HLab.Mvvm.Flowchart.ViewModel"
+             xmlns:icons="clr-namespace:HLab.Mvvm.Wpf.Icons;assembly=HLab.Mvvm.Wpf.NetCore"
+             xmlns:wpf="clr-namespace:HLab.Mvvm.Wpf;assembly=HLab.Mvvm.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="325.5" d:DesignWidth="328.5"
+             
+             VerticalAlignment="Top"
+             HorizontalAlignment="Left"
+             Margin="{Binding Margin}"
+             d:DataContext="{d:DesignInstance Type=viewModel:BlockViewModel, IsDesignTimeCreatable=True}"
+             LayoutUpdated="BlockView_OnLayoutUpdated"
+             >
+    <UserControl.Resources>
+        <local:ColorToGradientConverter x:Key="ColorToGradientConverter"/>
+        <local:ColorToBorderConverter x:Key="ColorToBorderConverter"/>
+        <SolidColorBrush x:Key="{x:Static SystemColors.HighlightBrushKey}"
+                             Color="Transparent"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Border Visibility="{Binding SelectedVisibility,FallbackValue=Collapsed}" BorderThickness="3" BorderBrush="{Binding Model.Color,Converter={StaticResource ColorToBorderConverter}}" Margin="-5" Grid.RowSpan="2" CornerRadius="10"><Border.Effect><BlurEffect Radius="5" KernelType="Gaussian"></BlurEffect></Border.Effect></Border>
+        
+        <Grid
+            Grid.Row="0">
+            <Border 
+                CornerRadius="5,5,0,0" 
+                BorderBrush="{Binding Model.Color,Converter={StaticResource ColorToBorderConverter}}" 
+                BorderThickness="1,1,0,0"
+                Background="{Binding Model.Color,Converter={StaticResource ColorToGradientConverter}}"
+                MouseLeftButtonDown="UIElement_OnMouseLeftButtonDown"
+                MouseLeftButtonUp="UIElement_OnMouseLeftButtonUp"
+                MouseMove="UIElement_OnMouseMove"
+                />
+            <StackPanel VerticalAlignment="Center" Orientation="Horizontal">
+                <icons:IconView
+                    IsHitTestVisible="False"
+                    Margin="3"
+                    Opacity="0.7"
+                    Foreground="White"
+                    IconService="{Binding IconService}"
+                    Id="{Binding Model.IconName}" Height="20"/>
+                <TextBox 
+                    Background="Transparent"
+                    TextWrapping="Wrap"
+                    MaxWidth="150"
+                    BorderThickness="0"
+                    Text ="{Binding Model.Name, FallbackValue=Test}"
+                    FontWeight="Bold" 
+                    Margin="5" 
+                    Foreground="White"/>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1">
+                <Border Background="Black" Opacity="0.5"/>
+            <Grid wpf:ViewLocator.ViewMode ="{Binding ViewMode}"
+            >
+                
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+
+                <ItemsControl  
+                    
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center"
+                    Background="Transparent" 
+                    BorderBrush="Transparent" 
+                    Grid.Column="0" 
+                    ItemsSource="{Binding LeftGroups}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <WrapPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                </ItemsControl>
+                
+                <ContentControl 
+                    HorizontalAlignment="Center"
+                    Grid.Column="1"
+                    wpf:ViewLocator.ViewClass ="{x:Type local:IViewClassBlockContent}"
+                    Content="{Binding Model}"/>
+
+                <ItemsControl  
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Background="Transparent" 
+                    BorderBrush="Transparent" 
+                    Grid.Column="2" 
+                    ItemsSource="{Binding RightGroups}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <StackPanel Orientation="Vertical"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+
+                </ItemsControl>
+            </Grid>
+        </Grid>
+    </Grid>
+</UserControl>

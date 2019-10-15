@@ -1,0 +1,37 @@
+﻿using System.ComponentModel;
+using System.Threading;
+
+namespace HLab.Notify.PropertyChanged
+{
+    public class PropertyDouble : IPropertyValue<double>
+    {
+        private double _value;
+        public double Get() => _value;
+
+        public bool Set(double value)
+        {
+            if (_value == value) return false;
+
+            var old = Interlocked.Exchange(ref _value, value);
+            if (old != value)
+            {
+                _holder.OnPropertyChanged();
+                return true;
+            }
+            else return false;
+        }
+
+        public bool Set(System.Func<object, double> setter)
+        {
+            return Set(setter(_holder.Parent));
+        }
+
+        private readonly PropertyHolder<double> _holder;
+
+        public PropertyDouble(PropertyHolder<double> holder)
+        {
+            _holder = holder;
+        }
+    }
+
+}

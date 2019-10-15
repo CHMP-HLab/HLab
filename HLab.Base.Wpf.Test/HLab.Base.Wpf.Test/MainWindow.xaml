@@ -1,0 +1,22 @@
+﻿<Window x:Class="HLab.Base.Wpf.Test.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:wpf="clr-namespace:HLab.Base.Wpf;assembly=HLab.Base.Wpf"
+        mc:Ignorable="d"
+        Background="Black"
+        Title="MainWindow" Height="450" Width="800">
+    <Grid>
+        <wpf:NumTextBox 
+            MinValue="0"
+            MaxValue="31"
+            Margin="348,181,347,216.5" 
+            Width =" 100" Height="25" RenderTransformOrigin="0.5,0.5">
+        </wpf:NumTextBox>
+        <wpf:NumTextBox Margin="0,25,0,0" Width =" 100" Height="25"></wpf:NumTextBox>
+
+    <wpf:DateEx Height="25"></wpf:DateEx>
+
+    </Grid>
+</Window>

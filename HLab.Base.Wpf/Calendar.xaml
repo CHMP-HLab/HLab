@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--This file is NOT compatible with Silverlight-->
+<ResourceDictionary 
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
+<Viewbox x:Key="Calendar" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform">
+  <Canvas Name="Capa_1" Width="612" Height="612" Canvas.Left="0" Canvas.Top="0">
+    <Canvas.RenderTransform>
+      <TranslateTransform X="0" Y="0"/>
+    </Canvas.RenderTransform>
+    <Canvas.Resources/>
+    <!--Unknown tag: metadata-->
+    <!--Unknown tag: sodipodi:namedview-->
+    <Canvas Name="g22">
+      <Canvas Name="g20">
+                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
+          <Path.Data>
+            <PathGeometry Figures="M153 114.75h1.592c15.845 0 28.688-12.842 28.688-28.688V76.5V28.688C183.28 12.842 170.437 0 154.592 0H153    c-15.845 0-28.688 12.842-28.688 28.688V76.5v9.562C124.312 101.908 137.155 114.75 153 114.75z" FillRule="NonZero"/>
+          </Path.Data>
+        </Path>
+                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
+          <Path.Data>
+            <PathGeometry Figures="M449.438 114.75h1.592c15.846 0 28.688-12.842 28.688-28.688V76.5V28.688C479.717 12.842 466.875 0 451.029 0h-1.592    c-15.845 0-28.688 12.842-28.688 28.688V76.5v9.562C420.75 101.908 433.593 114.75 449.438 114.75z" FillRule="NonZero"/>
+          </Path.Data>
+        </Path>
+                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path6" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
+          <Path.Data>
+            <PathGeometry Figures="M535.5 76.5h-27.096v9.562c0 31.638-25.737 57.375-57.375 57.375h-1.592c-31.638 0-57.375-25.737-57.375-57.375V76.5    H211.967v9.562c0 31.638-25.738 57.375-57.375 57.375H153c-31.638 0-57.375-25.737-57.375-57.375V76.5H76.5    C34.253 76.5 0 110.753 0 153v382.5C0 577.747 34.253 612 76.5 612h459c42.247 0 76.5-34.253 76.5-76.5V153    C612 110.753 577.747 76.5 535.5 76.5z M573.75 535.5c0 21.104-17.146 38.25-38.25 38.25h-459c-21.085 0-38.25-17.146-38.25-38.25    v-306h535.5V535.5z" FillRule="NonZero"/>
+          </Path.Data>
+        </Path>
+                    <Ellipse Opacity="0.5" Canvas.Left="106" Canvas.Top="278.1" Width="94" Height="94" Name="circle8" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}"/>
+                    <Ellipse Opacity="0.5" Canvas.Left="259" Canvas.Top="278.1" Width="94" Height="94" Name="circle10" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}"/>
+                    <Ellipse Opacity="0.5" Canvas.Left="412" Canvas.Top="278.1" Width="94" Height="94" Name="circle12" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}"/>
+                    <Ellipse Opacity="0.5" Canvas.Left="106" Canvas.Top="431.1" Width="94" Height="94" Name="circle14" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}"/>
+                    <Ellipse Opacity="0.5" Canvas.Left="259" Canvas.Top="431.1" Width="94" Height="94" Name="circle16" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}"/>
+                    <Ellipse Opacity="0.5" Canvas.Left="412" Canvas.Top="431.1" Width="94" Height="94" Name="circle18" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}"/>
+      </Canvas>
+    </Canvas>
+
+  </Canvas>
+</Viewbox>
+</ResourceDictionary>

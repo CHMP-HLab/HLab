@@ -1,0 +1,87 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>HLab.Mvvm</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Icons\colors.xml" />
+    <None Remove="Icons\html2xaml.xslt" />
+    <None Remove="Icons\svg2xaml.old.xsl" />
+    <None Remove="Icons\svg2xaml.xsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Icons\svg2xaml.old.xsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\colors.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\html2xaml.xslt" />
+    <EmbeddedResource Include="Icons\svg2xaml.xsl">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Html\" />
+    <Folder Include="Notifications\" />
+    <Folder Include="_old_\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
+    <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm\HLab.Mvvm.csproj" />
+    <ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DefaultWindow.xaml.cs">
+      <DependentUpon>DefaultWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Icons\IconView.xaml.cs">
+      <DependentUpon>IconView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="NotFoundView.xaml.cs">
+      <DependentUpon>NotFoundView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="ProgressLoadingView.xaml.cs">
+      <DependentUpon>ProgressLoadingView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\OkCancelView.xaml.cs">
+      <DependentUpon>OkCancelView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\YesNoView.xaml.cs">
+      <DependentUpon>YesNoView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="DefaultWindow.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Icons\IconView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="NotFoundView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="ProgressLoadingView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\OkCancelView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\YesNoView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>

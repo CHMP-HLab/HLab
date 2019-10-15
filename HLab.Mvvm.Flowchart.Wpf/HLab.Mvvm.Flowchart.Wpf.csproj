@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>HLab.Mvvm.Flowchart</RootNamespace>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Folder Include="Design\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Wpf\HLab.Mvvm.Wpf.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Views\Block.xaml.cs">
+      <DependentUpon>Block.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\GraphEditorView.xaml.cs">
+      <DependentUpon>GraphEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\GraphToolbox.xaml.cs">
+      <DependentUpon>GraphToolbox.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PinGroupView.xaml.cs">
+      <DependentUpon>PinGroupView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="Views\PinView.xaml.cs">
+      <DependentUpon>PinView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Views\Block.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\GraphEditorView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\GraphToolbox.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\PinGroupView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Views\PinView.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>
