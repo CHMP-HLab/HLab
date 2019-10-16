@@ -1,4 +1,4 @@
-﻿<Window 
+﻿<mah:MetroWindow 
     x:Class="HLab.Mvvm.DefaultWindow"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -6,11 +6,16 @@
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:icons="clr-namespace:HLab.Mvvm.Icons"
     xmlns:lang="clr-namespace:HLab.Mvvm.Lang"
+    xmlns:mah="http://metro.mahapps.com/winfx/xaml/controls"
     mc:Ignorable="d" 
     d:DesignHeight="450" d:DesignWidth="800"
     Title ="{Binding Title}"
     icons:IconView.IconService="{Binding IconService}"
+    icons:IconView.ForegroundMatchColor="Black"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
     MouseDown="DefaultWindow_OnMouseDown"
+    ShowTitleBar="False"
+    ShowSystemMenu="True"
+
 >
-</Window>
+</mah:MetroWindow>

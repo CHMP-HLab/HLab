@@ -43,6 +43,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="MahApps.Metro">
+      <HintPath>C:\Users\mathieu.AD\.nuget\packages\mahapps.metro\2.0.0-alpha0490\lib\netcoreapp3.0\MahApps.Metro.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="DefaultWindow.xaml.cs">
       <DependentUpon>DefaultWindow.xaml</DependentUpon>
     </Compile>

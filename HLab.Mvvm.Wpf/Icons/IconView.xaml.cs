@@ -40,7 +40,8 @@ namespace HLab.Mvvm.Icons
             H.Property<Color>()
                 .Default(Colors.Black)
                 .OnChange((s, e) => s.Update(s.IconService, s.Id, e.NewValue, s.BackgroundMatchColor))
-                .Register();
+                .Inherits.AffectsRender
+                .RegisterAttached();
 
         public Color ForegroundMatchColor
         {
@@ -52,7 +53,8 @@ namespace HLab.Mvvm.Icons
             H.Property<Color>()
                 .Default(Colors.White)
                 .OnChange((s, e) => s.Update(s.IconService, s.Id, s.ForegroundMatchColor, e.NewValue))
-                .Register();
+                .Inherits.AffectsRender
+                .RegisterAttached();
         public Color BackgroundMatchColor
         {
             get => (Color)GetValue(BackgroundMatchColorProperty);
@@ -61,12 +63,12 @@ namespace HLab.Mvvm.Icons
 
         public IIconService IconService
         {
-            get => (IIconService)GetValue(IconServiceProperty); set => 
-                SetValue(IconServiceProperty, value);
+            get => (IIconService)GetValue(IconServiceProperty); 
+            set => SetValue(IconServiceProperty, value);
         }
 
         private static IIconService _designTimeService = null;
-        public void Update(IIconService service, string name, Color foreMatch, Color backMatch)
+        public async void Update(IIconService service, string name, Color foreMatch, Color backMatch)
         {
             if (service == null)
             {
@@ -86,7 +88,7 @@ namespace HLab.Mvvm.Icons
                 //return;
             }
             if (string.IsNullOrWhiteSpace(name)) return;
-            Content = (UIElement)service.GetIcon(name, StringColor(foreMatch), StringColor(backMatch));
+            Content = (UIElement) await service.GetIcon(name, StringColor(foreMatch), StringColor(backMatch));
         }
 
         private string StringColor(Color color)
@@ -103,6 +105,14 @@ namespace HLab.Mvvm.Icons
             obj.SetValue(IconServiceProperty, value);
         }
 
+        public static Color GetForegroundMatchColor(DependencyObject obj)
+        {
+            return (Color)obj.GetValue(ForegroundMatchColorProperty);
+        }
+        public static void SetForegroundMatchColor(DependencyObject obj, Color value)
+        {
+            obj.SetValue(ForegroundMatchColorProperty, value);
+        }
 
     }
 }

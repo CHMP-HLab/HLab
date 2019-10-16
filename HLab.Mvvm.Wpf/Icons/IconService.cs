@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
@@ -28,14 +29,14 @@ namespace HLab.Mvvm.Icons
             Icon = new IconHelper(this);
         }
 
-        public object GetIcon(string name, string backMatch, string foreMatch)
+        public async Task<object> GetIcon(string name, string backMatch, string foreMatch)
         {
 
             if (string.IsNullOrWhiteSpace(name)) return null;
 
             if (_cache.TryGetValue(name.ToLower(), out var iconProvider))
             {
-                return iconProvider?.Get(backMatch, foreMatch);
+                return await iconProvider?.Get(backMatch, foreMatch);
             }
 
             return null;
@@ -155,9 +156,9 @@ namespace HLab.Mvvm.Icons
 
 
 
-        public BitmapSource GetIconBitmap(string name, Size size)
+        public async Task<BitmapSource> GetIconBitmap(string name, Size size)
         {
-            var visual = (UIElement)GetIcon(name, "", "");
+            var visual =(UIElement) await GetIcon(name, "", "");
 
             var grid = new Grid { Width = size.Width, Height = size.Height };
             var viewbox = new Viewbox
@@ -185,24 +186,22 @@ namespace HLab.Mvvm.Icons
             return BitmapFrame.Create(renderBitmap);
         }
 
-        public object FromSvgString(string svg, string foreMatch, string backMatch)
+        public async Task<object> FromSvgString(string svg, string foreMatch, string backMatch)
         {
             if (svg == null) return null;
             byte[] byteArray = Encoding.ASCII.GetBytes(svg);
-            using (MemoryStream stream = new MemoryStream(byteArray))
-            {
-                return FromSvgStream(stream, foreMatch, backMatch);
-            }
+            await using MemoryStream stream = new MemoryStream(byteArray);
+            return await FromSvgStream(stream, foreMatch, backMatch);
         }
 
-        public UIElement FromXamlStream(Stream xamlStream, string foreMatch, string backMatch)
+        public async Task<UIElement> FromXamlStream(Stream xamlStream, string foreMatch, string backMatch)
         {
             var foreMatch2 = foreMatch?.Replace("#FF", "#");
             var backMatch2 = backMatch?.Replace("#FF", "#");
 
             using (StreamReader reader = new StreamReader(xamlStream))
             {
-                var xaml = reader.ReadToEnd();
+                var xaml = await reader.ReadToEndAsync();
 
                 if (!string.IsNullOrEmpty(foreMatch))
                     xaml = xaml
@@ -237,36 +236,33 @@ namespace HLab.Mvvm.Icons
             }
         }
 
-        public UIElement FromSvgStream(Stream svg, string foreMatch, string backMatch)
+        public async Task<UIElement> FromSvgStream(Stream svg, string foreMatch, string backMatch)
         {
             if (svg == null) return null;
-            using (var s = new MemoryStream())
+            await using var s = new MemoryStream();
+
+            XmlReaderSettings settings = new XmlReaderSettings
             {
-                XmlReaderSettings settings = new XmlReaderSettings
+                DtdProcessing = DtdProcessing.Parse,
+                MaxCharactersFromEntities = 1024
+            };
+
+            using var svgReader = XmlReader.Create(svg, settings);
+            try
+            {
+                using (var w = XmlWriter.Create(s))
                 {
-                    DtdProcessing = DtdProcessing.Parse,
-                    MaxCharactersFromEntities = 1024
-                };
-
-                using (var svgReader = XmlReader.Create(svg, settings))
-                {
-                    try
-                    {
-                        using (var w = XmlWriter.Create(s))
-                        {
-                            TransformSvg.Transform(svgReader, w);
-                        }
-
-                        s.Seek(0, SeekOrigin.Begin);
-                        //var sz = Encoding.UTF8.GetString(s.ToArray());
-
-                        return FromXamlStream(s, foreMatch, backMatch);
-                    }
-                    catch (IOException)
-                    {
-                        return null;
-                    }
+                    TransformSvg.Transform(svgReader, w);
                 }
+
+                s.Seek(0, SeekOrigin.Begin);
+                //var sz = Encoding.UTF8.GetString(s.ToArray());
+
+                return await FromXamlStream(s, foreMatch, backMatch);
+            }
+            catch (IOException)
+            {
+                return null;
             }
         }
     }

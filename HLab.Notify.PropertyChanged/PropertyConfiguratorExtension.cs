@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq.Expressions;
+using System.Threading.Tasks;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
@@ -31,6 +32,28 @@ namespace HLab.Notify.PropertyChanged
 
         }
 
+        public static NotifyConfigurator<TClass, TMember> 
+            Set<TClass, TMember, T>(this NotifyConfigurator<TClass, TMember> c, Func<TClass, Task<T>> setter)
+            where TClass : class//, INotifyPropertyChanged
+            where TMember : PropertyHolder<T>
+        {
+
+            if (c.CurrentTrigger.TriggerOnList.Count == 0)
+            {
+                return c.On().Do((target, property) => property.SetProperty(new PropertyValueLazy<T>(property, o =>
+                {
+                    var t = setter((TClass) o);
+                    t.Wait();
+                    return t.Result;
+                })));
+            }
+
+            return c.Do(async (target, property) =>
+            {
+                property.PropertyValue.Set(await setter(target));
+            });
+
+        }
         /// <summary>
         /// Alter property value
         /// </summary>

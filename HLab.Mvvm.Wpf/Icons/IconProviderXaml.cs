@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Resources;
+using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Icons
@@ -16,19 +17,20 @@ namespace HLab.Mvvm.Icons
         //}
         public IconProviderXaml(Assembly assembly, string name, IIconService icons)
         { _assembly = assembly; _name = name; _icons = icons; }
-        public object Get(string foreMatch, string backMatch)
+        public async Task<object> Get(string foreMatch, string backMatch)
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
-            //using (var s = new MemoryStream())
+            var resourceManager = new ResourceManager(_assembly.GetName().Name + ".g", _assembly);
+            await using (
+                var xamlStream = resourceManager.GetStream(_name + ".xaml"))
             {
-                var resourceManager = new ResourceManager(_assembly.GetName().Name + ".g", _assembly);
-                using (
-                    var xamlStream = resourceManager.GetStream(_name + ".xaml"))
-                {
-                    if (xamlStream == null) return null;
-                    return (_icons as IconService)?.FromXamlStream(xamlStream, foreMatch, backMatch);
-                }
+                if (xamlStream == null) return null;
+
+                if(_icons is IconService icons)
+                    return await icons.FromXamlStream(xamlStream, foreMatch, backMatch);
+
+                return null;
             }
         }
     }

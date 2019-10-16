@@ -15,8 +15,8 @@ namespace HLab.Mvvm
         private void DefaultWindow_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             // MahMetro
-            //if (e.ChangedButton == MouseButton.Left)
-            //    this.DragMove();
+            if (e.ChangedButton == MouseButton.Left)
+                this.DragMove();
         }
     }
 

@@ -1,5 +1,6 @@
 ﻿using System.Reflection;
 using System.Resources;
+using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Icons
@@ -14,19 +15,22 @@ namespace HLab.Mvvm.Icons
 
 
 
-        public object Get(string foreMatch, string backMatch)
+        public async Task<object> Get(string foreMatch, string backMatch)
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
                 var resourceManager = new ResourceManager(_assembly.GetName().Name + ".g", _assembly);
 
-                using (
+                await using (
                         //var svg =
                         //    _assembly.GetManifestResourceStream(_assembly.GetName().Name + /*".Icons." +*/
                         //                                        _name.Replace("/", ".") + ".svg"))
                         var svg = resourceManager.GetStream(_name + ".svg") )
                 {
-                    return (_icons as IconService)?.FromSvgStream(svg, foreMatch, backMatch);
+                    if(_icons is IconService icon)
+                        return await icon.FromSvgStream(svg, foreMatch, backMatch);
+
+                    return null;
                 }
             
         }

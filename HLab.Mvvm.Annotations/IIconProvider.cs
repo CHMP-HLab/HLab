@@ -1,8 +1,10 @@
 ﻿
+using System.Threading.Tasks;
+
 namespace HLab.Mvvm.Annotations
 {
     public interface IIconProvider
     {
-        object Get(string backMatch, string foreMatch);
+        Task<object> Get(string backMatch, string foreMatch);
     }
 }

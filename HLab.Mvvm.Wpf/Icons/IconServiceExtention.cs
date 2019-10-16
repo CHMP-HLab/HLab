@@ -1,13 +1,14 @@
-﻿using System.Windows;
+﻿using System.Threading.Tasks;
+using System.Windows;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Icons
 {
     public static class IconServiceExtension
     {
-        public static object GetIcon(this IIconService service, string id, double height)
+        public static async Task<object> GetIcon(this IIconService service, string id, double height)
         {
-            var icon = service.GetIcon(id);
+            var icon = await service.GetIcon(id);
 
             if (icon is FrameworkElement fe)
             {

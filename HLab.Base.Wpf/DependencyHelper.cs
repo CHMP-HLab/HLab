@@ -33,13 +33,16 @@ namespace HLab.Base
             _propertyMetadata,
             _validateValueCallback
             );
-        public DependencyProperty RegisterAttached() => DependencyProperty.RegisterAttached(
+        public DependencyProperty RegisterAttached<T>() => DependencyProperty.RegisterAttached(
             _name,
             typeof(TValue),
-            typeof(TClass),
+            typeof(T),
             _propertyMetadata,
             _validateValueCallback
             );
+
+        public DependencyProperty RegisterAttached() => RegisterAttached<TClass>();
+
         public DependencyPropertyKey RegisterReadOnly() => DependencyProperty.RegisterReadOnly(
             _name,
             typeof(TValue),

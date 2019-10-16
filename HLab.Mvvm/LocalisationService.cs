@@ -9,6 +9,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace HLab.Mvvm
 {
@@ -17,9 +18,9 @@ namespace HLab.Mvvm
     {
         private CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
 
-        public string Localize(string value) => Localize(Culture.IetfLanguageTag.ToLower(), value);
+        public async Task<string>  Localize(string value) => await Localize(Culture.IetfLanguageTag.ToLower(), value);
 
-        public string Localize(string tag, string code)
+        public async Task<string> Localize(string tag, string code)
         {
             string result = code;
             bool quality = false;
@@ -52,7 +53,7 @@ namespace HLab.Mvvm
 
             foreach (var service in _services)
             {
-                var value = service.Localize(tag, code);
+                var value = await service.Localize(tag, code);
                 if (value != null) return value;
             }
 
