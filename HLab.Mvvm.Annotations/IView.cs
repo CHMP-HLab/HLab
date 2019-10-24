@@ -39,6 +39,7 @@ namespace HLab.Mvvm.Annotations
     public interface IViewClassDefault  : IViewClass{ }
     public interface IViewClassListItem  : IViewClass{ }
     public interface IViewClassContent  : IViewClass{ }
+    public interface IViewModelDesign { }
 
     public interface IView
     {

@@ -25,7 +25,8 @@ namespace HLab.Mvvm
 
         public async void Update(Func<Task<object>> getter)
         {
-            Content = (UIElement) await getter();
+            if(getter!=null)
+                Content = await getter();
         }
     }
 }

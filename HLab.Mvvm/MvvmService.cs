@@ -149,7 +149,7 @@ namespace HLab.Mvvm
             , Type viewMode
             /*, Type regFrom = null*/)
         {
-            var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom));
+            var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom).Where(t => !typeof(IViewModelDesign).IsAssignableFrom(t)));
             //var linkedTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(linkedType.IsAssignableFrom));
 
             foreach (var bt in basesTypes)
