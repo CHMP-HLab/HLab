@@ -21,7 +21,9 @@ namespace HLab.Core
         {
             Container = container;
         }
-        public void Boot()
+
+        private bool _configured = false;
+        public void Configure()
         {
 //            Container.AutoConfigure<IService>(c => c.As<IService>().Singleton());
             Container.AutoConfigure<IBootloader>(c => c.As<IBootloader>());
@@ -31,6 +33,13 @@ namespace HLab.Core
             LoadModules();
 
             Container.ExportInitialize<IInitializer>((c, a, o) => o.Initialize(c, a));
+
+            _configured = true;
+        }
+
+        public void Boot()
+        {
+            if(_configured==false) Configure();
 
             foreach (var injection in Container.Locate<IEnumerable<IConfigureInjection>>(this))
             {
@@ -162,6 +171,8 @@ namespace HLab.Core
             {
                 Container.ExportAssembly(assembly);
             }
+
+            Container.StaticInjection();
 
             //var directory = AppDomain.CurrentDomain.BaseDirectory;
             //if (directory!=null) // on android 

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -11,7 +12,7 @@ namespace HLab.Base
     public class AsyncDictionary<TKey,T>
     {
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
-        private readonly Dictionary<TKey,T> _cache = new Dictionary<TKey,T>();
+        private readonly ConcurrentDictionary<TKey,T> _cache = new ConcurrentDictionary<TKey,T>();
 
         public async Task<T> GetOrAdd(TKey key, Func<object, Task<T>> factory)
         {
@@ -33,8 +34,7 @@ namespace HLab.Base
             await _semaphore.WaitAsync();    
             try
             {
-                _cache.Remove(key);
-                return _cache.TryGetValue(key, out var value) 
+                return _cache.TryRemove(key, out var value) 
                     ? Tuple.Create(true,value) 
                     : Tuple.Create(false,default(T));
             }

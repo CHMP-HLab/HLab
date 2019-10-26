@@ -10,7 +10,7 @@
     <StartupObject />
     <Deterministic>false</Deterministic>
     <AssemblyVersion>2.0.0</AssemblyVersion>
-    <Version>2.0.0.3-dev0368</Version>
+    <Version>2.0.0.3-dev0371</Version>
   </PropertyGroup>
 
   <ItemGroup>

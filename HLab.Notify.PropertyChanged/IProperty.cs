@@ -2,6 +2,16 @@
 
 namespace HLab.Notify.PropertyChanged
 {
+    public interface IForeign<T> : IChildObject
+    {
+        IProperty<int?> Id { get; }
+        //IProperty<T> Value{ get; }
+
+        T Get();
+        void Set(T value);
+    }
+
+
     public interface IProperty<T> : IProperty, IChildObject
     {
         bool Set(T value);

@@ -17,5 +17,7 @@ namespace HLab.DependencyInjection.Annotations
 
         void ExportAssembly(Assembly assembly);
         void ExportInitialize<T>(Action<IRuntimeImportContext, object[], T> action);
+
+        void StaticInjection();
     }
 }

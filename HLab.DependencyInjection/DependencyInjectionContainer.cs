@@ -63,13 +63,15 @@ namespace HLab.DependencyInjection
             list.Add(action);
         }
 
-
+        public void StaticInjection() => _staticInjection?.Invoke();
+        private Action _staticInjection = null;
              
         public void ExportAssembly(Assembly assembly)
         {
-            var types = assembly.GetTypesSafe().Where(t => t.IsClass && !t.IsAbstract);
+            var types = assembly.GetTypesSafe().Where(t => t.IsClass && (!t.IsAbstract || t.IsSealed));
             foreach (var type in types)
             {
+
                 foreach (var k in _autoConfigure)
                 {
                     if (k.Key.IsAssignableFrom(type))
@@ -82,6 +84,38 @@ namespace HLab.DependencyInjection
                 }
                 catch(FileNotFoundException)
                 { }
+
+                var flag = BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public;
+
+                var properties = type.GetProperties(flag).Where(p => p.GetCustomAttributes<ImportAttribute>().Any());
+                if(type.Name.Contains("WorkflowAnalysisExtension"))
+                { }
+                foreach (var p in properties)
+                {
+                    _staticInjection += () => p.SetValue(null,Locate(p.PropertyType)) ;
+                }
+                var fields = type.GetFields(flag).Where(p => p.GetCustomAttributes<ImportAttribute>().Any());
+                foreach (var f in fields)
+                {
+                    _staticInjection += () => f.SetValue(null,Locate(f.FieldType));
+                }
+                var methods = type.GetMethods(flag).Where(p => p.GetCustomAttributes<ImportAttribute>().Any());
+                foreach (var m in methods)
+                {
+                    var parameters = m.GetParameters();
+
+
+                    _staticInjection += () =>
+                    {
+                        var param = new object[parameters.Length];
+                        for (int i = 0; i < parameters.Length; i++)
+                        {
+                            param[i] = Locate(parameters[i].ParameterType);
+                        }
+
+                        m.Invoke(null, param);
+                    } ;
+                }
             }
 
         }
