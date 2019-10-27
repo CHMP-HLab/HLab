@@ -1,0 +1,69 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+
+namespace HLab.Base
+{
+
+    public static class ObjectsExtension
+    {
+        class ObjectHelper<T>
+        {
+            private static readonly Action<T, T> _copyPrimitivesTo = GetCopyTo(true);
+            private static readonly Action<T, T> _copyTo = GetCopyTo(false);
+
+            public static void CopyPrimitivesTo(T source, T target)
+            {
+                if (target != null && source != null && !ReferenceEquals(source, target))
+                {
+                    _copyPrimitivesTo?.Invoke(source, target);
+                }
+            }
+            public static void CopyTo(T source, T target)
+            {
+                if (target != null && source != null && !ReferenceEquals(source, target))
+                {
+                    _copyTo?.Invoke(source, target);
+                }
+            }
+
+            private static Action<T, T> GetCopyTo(bool primitivesOnly)
+            {
+                Action<T, T> action = null;
+                foreach (var info in typeof(T).GetProperties().Where(p => p.CanWrite))
+                {
+                    var t = info.PropertyType;
+                    if (t.IsConstructedGenericType)
+                    {
+                        if (info.PropertyType.GetGenericTypeDefinition() == typeof(Nullable<>))
+                        {
+                            t = t.GetGenericArguments()[0];
+                        }
+                    }
+
+                    if (!primitivesOnly
+                        ||t.IsPrimitive
+                        || t == typeof(string)
+                        || t == typeof(DateTime)
+                        || t == typeof(Byte[])
+                    )
+                        action += (source, target) =>
+                            info.SetValue(target, info.GetValue(source));
+                }
+
+                return action;
+            }
+        }
+
+
+        public static void CopyPrimitivesTo<T>(this T source, T target)
+        {
+                ObjectHelper<T>.CopyPrimitivesTo(source, target);
+        }
+        public static void CopyTo<T>(this T source, T target)
+        {
+                ObjectHelper<T>.CopyTo(source, target);
+        }
+    }
+}

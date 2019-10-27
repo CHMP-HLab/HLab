@@ -26,6 +26,7 @@ namespace HLab.Notify.PropertyChanged
 {
     public enum Persistency
     {
+        None,
         OnChange,
         OnSave
     }

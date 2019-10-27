@@ -6,25 +6,48 @@ using System.Reflection;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public class Persister
+    public class Persister :N<Persister>
     {
         protected readonly ConcurrentBag<PropertyInfo> Dirty = new ConcurrentBag<PropertyInfo>();
-        public bool IsDirty => Dirty.Count > 0;
+        public bool IsDirty
+        {
+            get => _isDirty.Get();
+            protected set => _isDirty.Set(value);
+        }
+
+        private readonly IProperty<bool> _isDirty = H.Property<bool>();
 
         public bool Loading { get; private set; } = false;
 
         protected readonly object Target;
-        public Persister(INotifyPropertyChanged target)
+        public Persister(object target,bool isDirty = true)
         {
             Target = target;
-            foreach (var property in Target.GetType().GetProperties())
+
+            if (isDirty)
             {
-                foreach (var unused in property.GetCustomAttributes().OfType<PersistentAttribute>())
+                foreach (var property in Target.GetType().GetProperties())
                 {
-                    Dirty.Add(property);
+                    var persistency = CheckPersistency(property);
+                    if (persistency != Persistency.None)
+                    {
+                        Dirty.Add(property);
+                        _isDirty.Set(true);
+                    }
                 }
             }
-            target.PropertyChanged += Obj_PropertyChanged;
+            if(target is INotifyPropertyChanged npc)
+                npc.PropertyChanged += Obj_PropertyChanged;
+        }
+
+        protected virtual Persistency CheckPersistency(PropertyInfo property)
+        {
+            foreach (var attr in property.GetCustomAttributes().OfType<PersistentAttribute>())
+            {
+                return attr.Persistency;
+            }
+
+            return Persistency.None;
         }
 
         private void Obj_PropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -32,19 +55,18 @@ namespace HLab.Notify.PropertyChanged
             var property = Target.GetType().GetProperty(e.PropertyName);
             if (property == null) return;
 
-            foreach (var attr in property.GetCustomAttributes().OfType<PersistentAttribute>())
+            var persistency = CheckPersistency(property);
+            switch (persistency)
             {
-                switch (attr.Persistency)
-                {
-                    case Persistency.OnChange:
-                        Save(property);
-                        break;
-                    case Persistency.OnSave:
-                        Dirty.Add(property);
-                        break;
-                    default:
-                        throw new ArgumentOutOfRangeException();
-                }
+                case Persistency.OnChange:
+                    Save(property);
+                    break;
+                case Persistency.OnSave:
+                    Dirty.Add(property);
+                    _isDirty.Set(true);
+                    break;
+                default:
+                    break;
             }
         }
 
@@ -57,6 +79,7 @@ namespace HLab.Notify.PropertyChanged
                     Save(e);
                 }
             }
+            _isDirty.Set(false);
         }
 
         public virtual void Load()
@@ -71,6 +94,7 @@ namespace HLab.Notify.PropertyChanged
                 }
             }
             while(Dirty.TryTake(out var unused2));
+            _isDirty.Set(false);
 
             Loading = false;
         }
