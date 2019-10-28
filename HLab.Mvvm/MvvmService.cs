@@ -45,12 +45,16 @@ namespace HLab.Mvvm
 
         public Type GetLinkedType(Type getType, Type viewMode, Type viewClass)
         {
+            if (getType.IsConstructedGenericType)
+            {
+                getType = getType.GetGenericTypeDefinition();
+            }
+
             if(_entries.TryGetValue(getType, out var best))
             {
                 var result = best.GetLinked(viewClass, viewMode);
                 if (result.LinkedType != null) return result.LinkedType;
             }
-
 
             var level = int.MaxValue;
             Type linkedType = null;
@@ -164,9 +168,6 @@ namespace HLab.Mvvm
             , Type viewMode
             )
         {
-            if (baseType.Name.Contains("Workflow")) { };
-
-
             var e = _entries.GetOrAdd(
                 baseType,
                 (t) => {

@@ -5,7 +5,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <LangVersion>latest</LangVersion>
-    <Version>2.0.0.2-dev0439</Version>
+    <Version>2.0.0.2-dev0445</Version>
   </PropertyGroup>
 
   <ItemGroup>

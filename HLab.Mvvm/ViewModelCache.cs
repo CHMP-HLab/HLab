@@ -85,10 +85,12 @@ namespace HLab.Mvvm
                     context = vm.MvvmContext;
                 }
             }
-
             var linkedType = _mvvm.GetLinkedType(baseObject?.GetType(), viewMode, viewClass);
 
-            if (linkedType == null) return null;
+            if (linkedType == null)
+            {
+                return null;
+            }
 
             // we don't want to cache views cause they cannot be used twice
             if (baseObject != null && !typeof(IView).IsAssignableFrom(linkedType))
