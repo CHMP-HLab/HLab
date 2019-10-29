@@ -3,23 +3,32 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using HLab.Base;
 
 namespace HLab.Notify.PropertyChanged
 {
     public class Persister :N<Persister>
     {
-        protected readonly ConcurrentBag<PropertyInfo> Dirty = new ConcurrentBag<PropertyInfo>();
+        protected ConcurrentHashSet<PropertyInfo> Dirty { get; } = new ConcurrentHashSet<PropertyInfo>();
         public bool IsDirty
         {
             get => _isDirty.Get();
             protected set => _isDirty.Set(value);
         }
 
+        public void Reset()
+        {
+            while (Dirty.TryTake(out var e))
+            {
+            }
+            IsDirty = false;
+        }
+
         private readonly IProperty<bool> _isDirty = H.Property<bool>();
 
         public bool Loading { get; private set; } = false;
 
-        protected readonly object Target;
+        protected object Target {get; }
         public Persister(object target,bool isDirty = true)
         {
             Target = target;
@@ -72,12 +81,9 @@ namespace HLab.Notify.PropertyChanged
 
         public virtual void Save()
         {
-            while (!Dirty.IsEmpty)
+            while (Dirty.TryTake(out var e))
             {
-                if (Dirty.TryTake(out var e))
-                {
-                    Save(e);
-                }
+                Save(e);
             }
             _isDirty.Set(false);
         }

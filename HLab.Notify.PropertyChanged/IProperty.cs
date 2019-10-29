@@ -7,7 +7,11 @@ namespace HLab.Notify.PropertyChanged
         IProperty<int?> Id { get; }
         //IProperty<T> Value{ get; }
 
-        T Get();
+#if DEBUG
+        T Get([CallerMemberName]string name = null);
+#else        
+        T Get() => Value.Get();
+#endif
         void Set(T value);
     }
 
