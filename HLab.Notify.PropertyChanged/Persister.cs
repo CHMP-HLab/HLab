@@ -61,6 +61,9 @@ namespace HLab.Notify.PropertyChanged
 
         private void Obj_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
+            if(e.PropertyName.Contains("Country"))
+            { }
+
             var property = Target.GetType().GetProperty(e.PropertyName);
             if (property == null) return;
 

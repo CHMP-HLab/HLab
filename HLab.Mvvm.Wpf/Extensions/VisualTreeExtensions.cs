@@ -26,9 +26,9 @@ using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Media;
 
-namespace HLab.Mvvm.Extentions
+namespace HLab.Mvvm.Extensions
 {
-    public static class VisualTreeExt
+    public static class VisualTreeExtensions
     {
         public static bool HasChild(this DependencyObject parent, DependencyObject searchchild)
         {

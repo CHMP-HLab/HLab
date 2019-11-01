@@ -1,4 +1,5 @@
-﻿using HLab.Core.Annotations;
+﻿using System;
+using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using System.Collections.Concurrent;
@@ -18,7 +19,9 @@ namespace HLab.Mvvm
     {
         private CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
 
-        public async Task<string>  Localize(string value) => await Localize(Culture.IetfLanguageTag.ToLower(), value);
+        public Task<string> Localize(string value) => Localize(Culture.IetfLanguageTag.ToLowerInvariant(), value);
+
+        private const StringComparison culture = StringComparison.InvariantCulture;
 
         public async Task<string> Localize(string tag, string code)
         {
@@ -33,7 +36,7 @@ namespace HLab.Mvvm
                 quality = false;
                 foreach (var c in codes.Skip(1))
                 {
-                    var pos = c.IndexOf('=');
+                    var pos = c.IndexOf('=',StringComparison.InvariantCulture);
                     if (pos < 0)
                     {
                         result = c;
@@ -41,7 +44,7 @@ namespace HLab.Mvvm
                         break;
                     }
 
-                    if (c.StartsWith(tag))
+                    if (c.StartsWith(tag,StringComparison.InvariantCulture))
                     {
                         result = c.Substring(pos + 1);
                         quality = true;
@@ -53,7 +56,7 @@ namespace HLab.Mvvm
 
             foreach (var service in _services)
             {
-                var value = await service.Localize(tag, code);
+                var value = await service.Localize(tag, code).ConfigureAwait(false);
                 if (value != null) return value;
             }
 

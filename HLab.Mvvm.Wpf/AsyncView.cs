@@ -26,7 +26,7 @@ namespace HLab.Mvvm
         public async void Update(Func<Task<object>> getter)
         {
             if(getter!=null)
-                Content = await getter();
+                Content = await getter().ConfigureAwait(true);
         }
     }
 }

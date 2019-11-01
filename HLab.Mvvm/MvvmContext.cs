@@ -33,7 +33,7 @@ namespace HLab.Mvvm
     [Export(typeof(IMvvmContext))]
     public class MvvmContext : IMvvmContext, IInitializer
     {
-        private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<object>>> _creators = new ConcurrentDictionary<Type, ConcurrentQueue<Action<object>>>();
+        private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext,object>>> _creators = new ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext,object>>>();
 
         private readonly Lazy<ViewModelCache> _cache;
 
@@ -60,8 +60,14 @@ namespace HLab.Mvvm
 
         public IMvvmContext AddCreator<T>(Action<T> action)
         {
-            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<object>>());
-            list.Enqueue(e => action((T) e));
+            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext,object>>());
+            list.Enqueue((ctx,e) => action((T) e));
+            return this;
+        }
+        public IMvvmContext AddCreator<T>(Action<IMvvmContext,T> action)
+        {
+            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext,object>>());
+            list.Enqueue((ctx,e) => action(ctx,(T) e));
             return this;
         }
 
@@ -75,7 +81,7 @@ namespace HLab.Mvvm
             {
                 foreach (var creator in kv.Value)
                 {
-                    creator(linked);
+                    creator(this,linked);
                 }
             }
         }

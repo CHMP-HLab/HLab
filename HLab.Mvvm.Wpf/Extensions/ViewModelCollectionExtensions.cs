@@ -25,9 +25,9 @@ using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 
-namespace HLab.Mvvm.Extentions
+namespace HLab.Mvvm.Extensions
 {
-    public static class ViewModelCollectionExt
+    public static class ViewModelCollectionExtensions
     {
         public static FrameworkElement GetActualView(this INotifyPropertyChanged vm, FrameworkElement element = null)
         {

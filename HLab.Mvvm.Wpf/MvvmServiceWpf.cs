@@ -43,7 +43,6 @@ namespace HLab.Mvvm
                 Application.Current.Resources.MergedDictionaries.Add(_dictionary);
             });
 
-            t.Wait();
 
             ViewHelperFactory.Register<IView>(v=>new ViewHelperWpf((FrameworkElement)v));
         }

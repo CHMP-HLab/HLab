@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Windows;
 
-namespace HLab.Mvvm.Extentions
+namespace HLab.Mvvm.Extensions
 {
-    public static class ViewModeExtentions
+    public static class ViewModeExtensions
     {
         public static Type GetViewMode(UIElement element)
         {
