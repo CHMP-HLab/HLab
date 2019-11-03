@@ -4,7 +4,7 @@
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <Version>2.0.0.2-dev0387</Version>
+    <Version>2.0.0.2-dev0390</Version>
     <RootNamespace>HLab.DependencyInjection.Annotations</RootNamespace>
   </PropertyGroup>
 
