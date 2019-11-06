@@ -47,12 +47,12 @@ namespace HLab.Core
             }
 
             var prebootloaders = Sort(Container.Locate<IEnumerable<IBootloader>>(this)).Reverse().ToList();
-            var postbootloaders = Sort(Container.Locate<IEnumerable<IPostBootloader>>(this)).Reverse().ToList();
-
             foreach (var boot in prebootloaders)
             {
                 boot.Load();
             }
+
+            var postbootloaders = Sort(Container.Locate<IEnumerable<IPostBootloader>>(this)).Reverse().ToList();
             foreach (var boot in postbootloaders)
             {
                 boot.Load();
