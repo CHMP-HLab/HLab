@@ -68,7 +68,7 @@ namespace HLab.Mvvm
                 .RegisterAttached();
 
         public static readonly DependencyProperty ModelProperty = H.Property<object>()
-            .BindsTwoWayByDefault
+            //.BindsTwoWayByDefault
             .OnChange((vl, a) =>
             {
                 vl.Update(a.OldValue, vl.ViewMode, vl.ViewClass);
