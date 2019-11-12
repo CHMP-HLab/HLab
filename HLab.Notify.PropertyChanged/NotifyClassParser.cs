@@ -49,17 +49,33 @@ namespace HLab.Notify.PropertyChanged
 
             private void TargetOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
             {
-                if (args.OldItems != null)
-                    foreach (var item in args.OldItems)
-                    {
-                        RemoveItem(sender, item);
-                    }
-                if (args.NewItems != null)
-                    foreach (var item in args.NewItems)
-                    {
-                        AddItem(sender, item);
-                    }
+                switch (args.Action)
+                {
+                    case NotifyCollectionChangedAction.Add:
+                        if (args.NewItems != null)
+                            foreach (var item in args.NewItems)
+                            {
+                                AddItem(sender, item);
+                            }
+                        else throw new Exception("NewItems was null");
+                        break;
 
+                    case NotifyCollectionChangedAction.Remove:
+                        if (args.OldItems != null)
+                            foreach (var item in args.OldItems)
+                            {
+                                RemoveItem(sender, item);
+                            }
+                        else throw new Exception("OldItems was null");
+                        break;
+
+                    case NotifyCollectionChangedAction.Move:
+                    case NotifyCollectionChangedAction.Replace:
+                    case NotifyCollectionChangedAction.Reset:
+                        throw new NotImplementedException();
+                    default:
+                        throw new ArgumentOutOfRangeException();
+                }
             }
 
             public void InitialRegisterValue()

@@ -1,7 +1,9 @@
-﻿namespace HLab.Base
+﻿using System.Threading;
+
+namespace HLab.Base
 {
     public interface ILockable
     {
-        Locker Lock { get; }
+        ReaderWriterLockSlim Lock { get; }
     }
 }

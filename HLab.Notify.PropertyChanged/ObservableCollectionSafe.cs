@@ -1,9 +1,11 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Threading;
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
 
@@ -30,7 +32,9 @@ namespace HLab.Notify.PropertyChanged
 
         private readonly List<T> _list = new List<T>();
 
-        private readonly Locker _lock = new Locker(true);
+        //TODO : remove recursion
+        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _changedQueue = new ConcurrentQueue<NotifyCollectionChangedEventArgs>();
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -62,13 +66,21 @@ namespace HLab.Notify.PropertyChanged
         {
             int r = 0;
             int idx = 0;
-            using (_lock.Write)
+            _lock.EnterWriteLock();
+            try
             {
                 idx = _list.Count;
-                r = ((IList)_list).Add(value);
+                r = ((IList) _list).Add(value);
+                _changedQueue.Enqueue(
+                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, idx));
+                return r;
+
             }
-            OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, idx));
-            return r;
+            finally
+            {
+
+                OnCollectionChanged();
+            }
         }
 
         public virtual void Add(T item)
@@ -291,17 +303,36 @@ namespace HLab.Notify.PropertyChanged
         public T this[int index]
         {
             get {
-                using (_lock.Read) {
+                _lock.EnterReadLock();
+                try
+                {
                     return _list[index];
+                }
+                finally
+                {
+                    _lock.ExitReadLock();
                 }
             }
             set {
-                using (_lock.Write) {
+                _lock.EnterWriteLock();
+                try
+                {
                     _list[index] = value;
                     Count = _list.Count;
+                    _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+                        value, index));
                 }
-                OnCollectionChanged(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, index));
+                finally
+                {
+                    if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                    OnCollectionChanged();
+                }
             }
+        }
+        private void OnCollectionChanged()
+        {
+            while (_changedQueue.TryDequeue(out var a))
+                OnCollectionChanged(a);
         }
 
         public void SetParent(object parent,INotifyClassParser parser, Action<PropertyChangedEventArgs> action)

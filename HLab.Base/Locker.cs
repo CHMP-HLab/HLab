@@ -31,11 +31,9 @@ namespace HLab.Base
             }
             public void Dispose()
             {
-                if (_sync != null)
-                {
-                    _sync.ExitReadLock();
-                    _sync = null;
-                }
+                if (_sync == null) return;
+                _sync.ExitReadLock();
+                _sync = null;
             }
         }
         private sealed class WriteLockToken : IDisposable
@@ -48,11 +46,9 @@ namespace HLab.Base
             }
             public void Dispose()
             {
-                if (_sync != null)
-                {
-                    _sync.ExitWriteLock();
-                    _sync = null;
-                }
+                if (_sync == null) return;
+                _sync.ExitWriteLock();
+                _sync = null;
             }
         }
         private sealed class UpgradableLockToken : IDisposable, IUpgradableLockToken
@@ -71,17 +67,15 @@ namespace HLab.Base
 
             public void Dispose()
             {
-                if (_sync != null)
+                if (_sync == null) return;
+                if(_sync.IsWriteLockHeld)
+                    _sync.ExitWriteLock();
+                else
                 {
-                    if(_sync.IsWriteLockHeld)
-                        _sync.ExitWriteLock();
-                    else
-                    {
-                        _sync.ExitUpgradeableReadLock();
-                    }
-                    _sync.Dispose();
-                    _sync = null;
+                    _sync.ExitUpgradeableReadLock();
                 }
+                _sync.Dispose();
+                _sync = null;
             }
         }
 
