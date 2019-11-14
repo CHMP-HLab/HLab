@@ -196,15 +196,20 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
+        protected void RemoveAtNolock(int index)
+        {
+                var value = _list[index];
+                _list.RemoveAt(index);
+                _count.Set(_list.Count);
+                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, value, index));
+        }
+
         public void RemoveAt(int index)
         {
             _lock.EnterWriteLock();
             try
             {
-                var value = _list[index];
-                _list.RemoveAt(index);
-                _count.Set(_list.Count);
-                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, value, index));
+                RemoveAtNolock(index);
             }
             finally
             {
@@ -230,15 +235,20 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
+        protected void InsertNoLock(int index, T item)
+        {
+                Debug.Assert(index <= _list.Count);
+                _list.Insert(index, item);
+                _count.Set(_list.Count);
+                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+        }
+
         public virtual void Insert(int index, T item)
         {
             _lock.EnterWriteLock();
             try
             {
-                Debug.Assert(index <= _list.Count);
-                _list.Insert(index, item);
-                _count.Set(_list.Count);
-                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+                InsertNoLock(index,item);
             }
             finally
             {
@@ -427,7 +437,7 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        ReaderWriterLockSlim  ILockable.Lock => _lock;
+        public ReaderWriterLockSlim  Lock => _lock;
 
         object IList.this[int index]
         {
@@ -492,7 +502,7 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        private void OnCollectionChanged()
+        protected void OnCollectionChanged()
         {
                 while (_changedQueue.TryDequeue(out var a))
                     OnCollectionChanged(a);

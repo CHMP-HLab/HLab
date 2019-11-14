@@ -54,19 +54,35 @@ namespace HLab.Mvvm.Observables
 
         public static T GetOrAdd<T>(this IList<T> col, Func<T, bool> comparator, Func<T> getter)
         {
-//            using(var lck = (col as ILockable)?.GetUpgradableLocker())
-            using (var lck = (col as ILockable)?.Lock.Write)
+            var lck = (col as ILockable)?.Lock;
+            lck?.EnterReadLock();
+            try
+            {
+                var item = col.FirstOrDefault(comparator);
+                if (item != null) return item;
+            }
+            finally
+            {
+                lck?.ExitReadLock();
+            }
+
+
+            lck?.EnterWriteLock();
+            try
             {
                 var item = col.FirstOrDefault(comparator);
 
                 if (item == null)
                 {
-                    //lck?.Write();
                     item = getter();
                     col.Add(item);
                 }
 
                 return item;
+            }
+            finally
+            {
+                lck?.ExitWriteLock();
             }
         }
 
