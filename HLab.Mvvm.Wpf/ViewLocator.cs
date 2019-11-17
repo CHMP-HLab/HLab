@@ -28,13 +28,15 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using HLab.Base;
 using HLab.Mvvm.Annotations;
-using H = HLab.Base.DependencyHelper<HLab.Mvvm.ViewLocator>;
 namespace HLab.Mvvm
 {
+    using H = DependencyHelper<ViewLocator>;
+
     /// <inheritdoc />
     /// <summary>
     /// Logique d'interaction pour EntityViewLocator.xaml
     /// </summary>
+    /// 
     public class ViewLocator : UserControl
     {
         public static readonly DependencyProperty ViewModeProperty =
@@ -68,7 +70,6 @@ namespace HLab.Mvvm
                 .RegisterAttached();
 
         public static readonly DependencyProperty ModelProperty = H.Property<object>()
-            //.BindsTwoWayByDefault
             .OnChange((vl, a) =>
             {
                 vl.Update(a.OldValue, vl.ViewMode, vl.ViewClass);
@@ -90,19 +91,6 @@ namespace HLab.Mvvm
         public static void SetViewClass(DependencyObject obj, Type value) 
             => obj.SetValue(ViewClassProperty, value);
         
-        //public static ViewModeContext GetViewModeContext(DependencyObject obj)
-        //{
-        //    return (ViewModeContext)obj.GetValue(ViewModeContextProperty);
-        //}
-        //public static void SetViewModeContext(DependencyObject obj, ViewModeContext value)
-        //{
-        //    obj.SetValue(ViewModeContextProperty, value);
-        //}
-
-        //protected void OnViewModeContextChanged()
-        //{
-        //    ViewModeContextChanged?.Invoke(this,new EventArgs());
-        //}
 
         public object Model
         {
@@ -135,6 +123,7 @@ namespace HLab.Mvvm
                Mode = BindingMode.OneWay
             };
             BindingOperations.SetBinding(this, ModelProperty, b);
+            Update(Model, ViewMode, ViewClass);
         }
 
         protected void Update(object oldModel, Type oldViewMode, Type oldViewClass)
@@ -148,15 +137,6 @@ namespace HLab.Mvvm
 
             var view = GetView();
 
-            //FrameworkElement r = view;
-            //var n = 0;
-            //while (r != null)
-            //{
-            //    r = r.FindParent(view.GetType());
-            //    n++;
-            //}
-
-            //if(n<5)
             Content = view;
             if (view != null)
             {
@@ -171,12 +151,7 @@ namespace HLab.Mvvm
             if (Model == null) return null;
             if (ViewMode == typeof(ViewModeCollapsed)) return null;
 
-            if (ViewMode == null || ViewClass == null) return null; //return (FrameworkElement)MvvmContext.Mvvm.GetNotFoundView(Model.GetType(), ViewMode, ViewClass);
-
-            //if (!Model.GetType().IsClass)
-            //{
-            //    return new ContentControl {Content = Model};
-            //}
+            if (ViewMode == null || ViewClass == null) return null;
 
             return (FrameworkElement)MvvmContext.GetView(Model, ViewMode, ViewClass);
         }
