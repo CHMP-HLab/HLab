@@ -8,11 +8,11 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel Orientation="Horizontal">
         <RadioButton Checked="Button_OnChecked" Name="ButtonNo" BorderBrush="#80000000">
-            <lang:Localize  Id="No" />
+            <lang:Localize  Id="{}{No}" />
         </RadioButton>
         <Label/>
         <RadioButton Name="ButtonYes" BorderBrush="#80000000">
-            <lang:Localize  Id="Yes" />
+            <lang:Localize  Id="{}{Yes}" />
         </RadioButton>
     </StackPanel>
 </UserControl>

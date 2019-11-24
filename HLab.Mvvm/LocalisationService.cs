@@ -10,6 +10,7 @@ using System.Dynamic;
 using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace HLab.Mvvm
@@ -23,7 +24,7 @@ namespace HLab.Mvvm
 
         private const StringComparison culture = StringComparison.InvariantCulture;
 
-        public async Task<string> Localize(string tag, string code)
+        public async Task<string> LocalizeItem(string tag, string code)
         {
             string result = code;
             bool quality = false;
@@ -80,6 +81,45 @@ namespace HLab.Mvvm
         {
             _services.Add(service);
         }
+
+        public async Task<string> Localize(string tag, string text)
+        {
+            tag = tag.ToLower();
+            var matches = Regex.Matches(text, @"\{[^}]*}");
+            foreach (Match match in matches)
+            {
+                var value = match.Value.Substring(1, match.Length - 2);
+                var parts = value.Split("=");
+                if (parts.Length > 1)
+                {
+                    var p = parts[0].ToLower();
+                    if (p == tag || p == tag.Substring(0, 2))
+                    {
+                        text = text.Replace(match.Value, parts[1]);
+                        continue;
+                    }
+                    text = text.Replace(match.Value, "");
+                    continue;
+                }
+
+
+                var loc = await LocalizeItem(tag, value);
+                text = text.Replace(match.Value,loc);
+            }
+
+            return text;
+        }
+
+        public static String KeepLanguage(String text, String lang)
+        {
+            return Regex.Replace(text, @"\{" + lang + @"=([\s|!-\|~-■]*)}", "$1");
+        }
+
+        public static string CleanUpLanguage(string text)
+        {
+            return Regex.Replace(text,@"\{..=[\s|!-\|~-■]*}", "");
+        }
+
     }
 
 }

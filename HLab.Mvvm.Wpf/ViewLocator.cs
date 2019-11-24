@@ -86,11 +86,13 @@ namespace HLab.Mvvm
         public static void SetViewMode(DependencyObject obj, Type value)
             => obj.SetValue(ViewModeProperty, value);
 
-        public static Type GetViewClass(DependencyObject obj) 
-            => (Type)obj.GetValue(ViewClassProperty);
         public static void SetViewClass(DependencyObject obj, Type value) 
             => obj.SetValue(ViewClassProperty, value);
         
+        public static IMvvmContext GetMvvmContext(DependencyObject obj) 
+            => (IMvvmContext)obj.GetValue(MvvmContextProperty);
+        public static void SetMvvmContext(DependencyObject obj, IMvvmContext value)
+            => obj.SetValue(MvvmContextProperty, value);
 
         public object Model
         {

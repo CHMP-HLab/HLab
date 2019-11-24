@@ -7,6 +7,7 @@ using H = HLab.Base.DependencyHelper<HLab.Mvvm.Lang.Localize>;
 
 namespace HLab.Mvvm.Lang
 {
+    [ContentProperty(nameof(Id))]
     public class Localize : TextBlock
     {
         public Localize()

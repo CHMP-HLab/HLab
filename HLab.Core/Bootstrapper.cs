@@ -122,8 +122,6 @@ namespace HLab.Core
 
             try
             {
-
-                //var assembly = Assembly.LoadFile(path);
                 var assembly = Assembly.Load(path);
 
                 foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
