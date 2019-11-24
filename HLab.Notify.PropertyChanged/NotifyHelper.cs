@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -28,7 +29,8 @@ namespace HLab.Notify.PropertyChanged
 
         public static PropertyHolder<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<TClass,T>> c, [CallerMemberName]string name = null)
             => Property(Name(name), c);
-        
+
+
         public static IProperty<T> Property<T>([CallerMemberName]string name = null) => Property<T>(Name(name),c => c);
 
         // COMMAND 

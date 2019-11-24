@@ -168,6 +168,8 @@ namespace HLab.Mvvm
             , Type viewMode
             )
         {
+            if (typeof(IViewModelDesign).IsAssignableFrom(linkedType)) return;
+
             var e = _entries.GetOrAdd(
                 baseType,
                 (t) => {

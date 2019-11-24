@@ -121,6 +121,9 @@ namespace HLab.Notify.PropertyChanged
         {
             return c.TriggerExpression(expr).Set(expr.Compile());
         }
+        //public static PropertyHolder<TMember> Bind<TClass,TMember,T>(this NotifyHelper<TClass> helper, Expression<Func<TClass, T>> expr) 
+        //    where TClass : class, INotifyPropertyChanged
+        //    => NotifyHelper<TClass>.Property<TMember>(c => c.OneWayBind(expr));
 
     }
 }
