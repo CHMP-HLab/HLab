@@ -8,7 +8,7 @@ using HLab.DependencyInjection.Annotations;
 
 namespace HLab.Notify
 {
-    [Export(typeof(IEventHandlerService)),Singleton]
+    [Export(typeof(IEventHandlerService)), Singleton]
     public class EventHandlerServiceWpf : IEventHandlerService
     {
         public void Invoke(Delegate eventHandler, object source, EventArgs args)
@@ -19,27 +19,32 @@ namespace HLab.Notify
             async void BeginInvoke(Delegate d)
             {
                 //Debug.Print(args.ToString());
-                    switch (d.Target)
-                    {
-                        case DispatcherObject dispatcherObject:
-                            await dispatcherObject.Dispatcher.BeginInvoke(DispatcherPriority.DataBind, d, source, args);
-                            break;
+                switch (d.Target)
+                {
+                    case DispatcherObject dispatcherObject:
+                        await dispatcherObject.Dispatcher.BeginInvoke(DispatcherPriority.DataBind, d, source, args);
+                        break;
 
-                        case ISynchronizeInvoke s:
-                            s.BeginInvoke(d, new object[] { source, args });
-                            break;
+                    case ISynchronizeInvoke s:
+                        s.BeginInvoke(d, new object[] { source, args });
+                        break;
 
-                        default:
-
-                             Application.Current?.Dispatcher.BeginInvoke(DispatcherPriority.DataBind, d, source, args);
-                        
-                            //d.Method.Invoke(d.Target, new object[] { source, args });
-                            //d.DynamicInvoke(source, args); // note : this does not execute handler in target thread's context
-                            break;
-                   }
+                    default:
+                        try
+                        {
+                            d.DynamicInvoke(source, args);
+                        }
+                        catch
+                        {
+                            Application.Current?.Dispatcher.BeginInvoke(DispatcherPriority.DataBind, d, source, args);
+                        }
+                        //d.Method.Invoke(d.Target, new object[] { source, args });
+                        //d.DynamicInvoke(source, args); // note : this does not execute handler in target thread's context
+                        break;
+                }
             }
 
-            foreach(var d in delegates) BeginInvoke(d);
+            foreach (var d in delegates) BeginInvoke(d);
 
             //Parallel.ForEach(delegates, BeginInvoke);
         }
