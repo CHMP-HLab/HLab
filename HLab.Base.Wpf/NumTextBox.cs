@@ -66,7 +66,7 @@ namespace HLab.Base
         {
             base.OnPreviewTextInput(e);
             Regex regex = new Regex(@"^[-+]?\d*$");
-            e.Handled = regex.IsMatch(e.Text);
+            e.Handled = !regex.IsMatch(e.Text);
 
         }
 
