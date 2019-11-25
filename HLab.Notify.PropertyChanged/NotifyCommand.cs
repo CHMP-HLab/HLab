@@ -47,7 +47,7 @@ namespace HLab.Notify.PropertyChanged
 
             _canExecute = value;
 
-            CanExecuteChanged?.Invoke(this, new EventArgs());
+            NotifyHelper.EventHandlerService.Invoke(CanExecuteChanged,this,new EventArgs());
 
             return value;
         }
