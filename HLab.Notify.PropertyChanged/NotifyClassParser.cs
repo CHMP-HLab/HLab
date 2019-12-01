@@ -72,7 +72,9 @@ namespace HLab.Notify.PropertyChanged
                     case NotifyCollectionChangedAction.Move:
                     case NotifyCollectionChangedAction.Replace:
                     case NotifyCollectionChangedAction.Reset:
-                        throw new NotImplementedException();
+                            RegisterValue?.Invoke(sender, new RegisterValueEventArgs(null, null));
+                            PropertyChanged?.Invoke(sender, new PropertyChangedEventArgs("Item"));
+                        break;
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
