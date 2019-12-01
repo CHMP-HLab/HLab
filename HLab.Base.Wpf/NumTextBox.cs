@@ -93,10 +93,12 @@ namespace HLab.Base
                 }
                 else if (i*10 > MaxValue && s == Text.Length)
                 {
+                    Value = i;
                     e.Handled = MoveNext();
                     return;
                 }
 
+                Value = i;
                 e.Handled = true;
                 return;
             }
