@@ -4,7 +4,7 @@
     <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <RootNamespace>HLab.Mvvm</RootNamespace>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
   <ItemGroup>

@@ -18,14 +18,18 @@ namespace HLab.Base
         private class H : DependencyHelper<DateEx> { }
 
         public static readonly DependencyProperty DateProperty =
-            H.Property<DateTime?>().OnChange((e, a) =>
+            H.Property<DateTime?>()
+            .BindsTwoWayByDefault
+            .OnChange((e, a) =>
             {
                 e.Set(a.NewValue, e.DayValid);
                 e.Calendar.DisplayDate = a.NewValue??DateTime.Now;
             }).Register();
 
         public static readonly DependencyProperty DayValidProperty =
-            H.Property<bool>().OnChange((e, a) =>
+            H.Property<bool>()
+            .BindsTwoWayByDefault
+            .OnChange((e, a) =>
             {
                 e.Set(e.Date, a.NewValue);
             }).Register();
@@ -81,7 +85,7 @@ namespace HLab.Base
             set => SetValue(IsReadOnlyProperty, value);
         }
 
-        private void OnValueChange(object sender, RoutedEventArgs e)
+        private void OnValueChange(object sender, EventArgs e)
         {
             var year = TextYear.Value;
             var month = TextMonth.Value;
@@ -90,6 +94,8 @@ namespace HLab.Base
 
             if (month > 12) month = 12;
             if (month < 1) month = 1;
+            if (year < 1) year = 1;
+            if (year > 9999) year = 9999;
 
             if (EmptyDayAllowed)
             {
@@ -108,8 +114,6 @@ namespace HLab.Base
                 }
             }
 
-            if (year < 0) year = 0;
-            if (year > 9999) year = 9999;
 
             TextYear.Value = year;
             TextMonth.Value = month;

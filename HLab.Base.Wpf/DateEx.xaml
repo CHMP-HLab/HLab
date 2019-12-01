@@ -41,6 +41,7 @@
                 MinValue="0"
                 MaxValue="31"
             Background="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=Background, Mode=OneWay}"
+                ValueChanged="OnValueChange"
             /><Popup 
                 Name="Popup" 
                 StaysOpen="False">
@@ -56,7 +57,9 @@
             x:Name="TextMonth" 
             Grid.Column="1"
             MinValue="0"
-            MaxValue="12"/>
+            MaxValue="12"
+            ValueChanged="OnValueChange"
+            />
 
         <base:NumTextBox 
             Margin ="3,0,0,0"
@@ -65,7 +68,9 @@
             Grid.Column="2"
             MinValue="0"
             MaxValue="9999"
-            HorizontalContentAlignment="Center"/>
+            HorizontalContentAlignment="Center"
+            ValueChanged="OnValueChange"
+            />
 
         <Button 
             Margin ="3,0,0,0"
