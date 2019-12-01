@@ -20,7 +20,7 @@ namespace HLab.Mvvm
     {
         private CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
 
-        public Task<string> Localize(string value) => Localize(Culture.IetfLanguageTag.ToLowerInvariant(), value);
+        public Task<string> LocalizeAsync(string value) => LocalizeAsync(Culture.IetfLanguageTag.ToLowerInvariant(), value);
 
         private const StringComparison culture = StringComparison.InvariantCulture;
 
@@ -57,7 +57,7 @@ namespace HLab.Mvvm
 
             foreach (var service in _services)
             {
-                var value = await service.Localize(tag, code).ConfigureAwait(false);
+                var value = await service.LocalizeAsync(tag, code).ConfigureAwait(false);
                 if (value != null) return value;
             }
 
@@ -82,7 +82,7 @@ namespace HLab.Mvvm
             _services.Add(service);
         }
 
-        public async Task<string> Localize(string tag, string text)
+        public async Task<string> LocalizeAsync(string tag, string text)
         {
             tag = tag.ToLower();
             var matches = Regex.Matches(text, @"\{[^}]*}");
@@ -102,8 +102,7 @@ namespace HLab.Mvvm
                     continue;
                 }
 
-
-                var loc = await LocalizeItem(tag, value);
+                var loc = await LocalizeItem(tag, value).ConfigureAwait(false);
                 text = text.Replace(match.Value,loc);
             }
 

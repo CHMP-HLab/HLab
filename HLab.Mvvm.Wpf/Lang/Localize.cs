@@ -57,24 +57,17 @@ namespace HLab.Mvvm.Lang
             set => SetValue(LocalizationServiceProperty, value);
         }
 
-        public async void Update(XmlLanguage lang, ILocalizationService service, string name, string format)
+        public async void Update(XmlLanguage lang, ILocalizationService service, string source, string format)
         {
-            if (string.IsNullOrEmpty(name))
+            if(service==null) service = new LocalizationService();
+
+            if (string.IsNullOrWhiteSpace(source))
             {
                 Text = "";
                 return;
             }
 
-            var localized = name.Replace("^", "");
-            if (string.IsNullOrWhiteSpace(name)) return;
-            if (service != null)
-            {
-                localized = await service.Localize(lang.IetfLanguageTag, name);
-            }
-            else
-            {
-                
-            }
+            var localized = await service.LocalizeAsync(lang.IetfLanguageTag, source).ConfigureAwait(true);
 
             if (string.IsNullOrEmpty(format))
                 Text = localized;

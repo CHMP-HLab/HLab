@@ -12,7 +12,7 @@ namespace HLab.Mvvm
         {
             if(value is ILocalizationService l)
             {
-                return l.Localize((string)parameter);
+                return l.LocalizeAsync((string)parameter);
             }
             if (parameter is string s)
                 return s;
