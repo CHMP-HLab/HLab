@@ -34,7 +34,8 @@ namespace HLab.Notify.PropertyChanged
     }
 
     public abstract class N<T> : NotifierBase
-        where T : N<T>
+        //where T : N<T>
+        where T : class
     {
         protected class H : NotifyHelper<T> { }
         protected N()
@@ -45,7 +46,7 @@ namespace HLab.Notify.PropertyChanged
         {
         }
 
-        protected void Initialize() => H.Initialize((T) this,OnPropertyChanged);
+        protected void Initialize() => H.Initialize( this as T,OnPropertyChanged);
     }
 
 }
