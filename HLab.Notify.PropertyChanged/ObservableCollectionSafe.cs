@@ -387,14 +387,14 @@ namespace HLab.Notify.PropertyChanged
         {
             get
             {
-                _lock.ExitReadLock();
+                _lock.EnterReadLock();
                 try
                 {
                     return _list[index];
                 }
                 finally
                 {
-                    if(_lock.IsReadLockHeld) _lock.ExitReadLock();
+                    _lock.ExitReadLock();
                 }
             }
             set
@@ -409,7 +409,7 @@ namespace HLab.Notify.PropertyChanged
                 }
                 finally
                 {
-                    if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
+                    _lock.ExitWriteLock();
                     OnCollectionChanged();
                 }
             }
