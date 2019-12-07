@@ -15,7 +15,7 @@ namespace HLab.Mvvm.Icons
             InitializeComponent();
         }
 
-        public static readonly DependencyProperty IdProperty = 
+        public static readonly DependencyProperty PathProperty = 
             H.Property<string>()
             .OnChange((s, e) => s.Update(s.IconService, e.NewValue, s.ForegroundMatchColor, s.BackgroundMatchColor))
             .AffectsRender
@@ -25,21 +25,21 @@ namespace HLab.Mvvm.Icons
             H.Property<IIconService>()
             .OnChange((s,e)=>
             {
-                    s.Update(e.NewValue, s.Id, s.ForegroundMatchColor, s.BackgroundMatchColor);
+                    s.Update(e.NewValue, s.Path, s.ForegroundMatchColor, s.BackgroundMatchColor);
             })
             .Inherits.AffectsRender
             .RegisterAttached();
 
-        public string Id
+        public string Path
         {
-            get => (string)GetValue(IdProperty);
-            set => SetValue(IdProperty, value);
+            get => (string)GetValue(PathProperty);
+            set => SetValue(PathProperty, value);
         }
 
         public static readonly DependencyProperty ForegroundMatchColorProperty =
             H.Property<Color>()
                 .Default(Colors.Black)
-                .OnChange((s, e) => s.Update(s.IconService, s.Id, e.NewValue, s.BackgroundMatchColor))
+                .OnChange((s, e) => s.Update(s.IconService, s.Path, e.NewValue, s.BackgroundMatchColor))
                 .Inherits.AffectsRender
                 .RegisterAttached();
 
@@ -52,7 +52,7 @@ namespace HLab.Mvvm.Icons
         public static readonly DependencyProperty BackgroundMatchColorProperty =
             H.Property<Color>()
                 .Default(Colors.White)
-                .OnChange((s, e) => s.Update(s.IconService, s.Id, s.ForegroundMatchColor, e.NewValue))
+                .OnChange((s, e) => s.Update(s.IconService, s.Path, s.ForegroundMatchColor, e.NewValue))
                 .Inherits.AffectsRender
                 .RegisterAttached();
         public Color BackgroundMatchColor
@@ -88,7 +88,7 @@ namespace HLab.Mvvm.Icons
                 //return;
             }
             if (string.IsNullOrWhiteSpace(name)) return;
-            Content = (UIElement) await service.GetIcon(name, StringColor(foreMatch), StringColor(backMatch));
+            Content = (UIElement) await service.GetIconAsync(name).ConfigureAwait(true);
         }
 
         private string StringColor(Color color)

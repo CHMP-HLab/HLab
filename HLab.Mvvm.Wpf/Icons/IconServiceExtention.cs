@@ -8,7 +8,7 @@ namespace HLab.Mvvm.Icons
     {
         public static async Task<object> GetIcon(this IIconService service, string id, double height)
         {
-            var icon = await service.GetIcon(id);
+            var icon = await service.GetIconAsync(id);
 
             if (icon is FrameworkElement fe)
             {

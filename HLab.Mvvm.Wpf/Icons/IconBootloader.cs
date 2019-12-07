@@ -31,18 +31,23 @@ namespace HLab.Mvvm.Icons
                     var resources = resourceManager.GetResourceSet(CultureInfo.CurrentUICulture, true, true);
                     foreach (var rkey in resources)
                     {
-                        var r = ((DictionaryEntry)rkey).Key.ToString();
+                        var r = ((DictionaryEntry)rkey).Key.ToString().ToLower();
 
-                        var s = r.Replace(assembly.ManifestModule.Name.Replace(".exe", "") + ".", "");
-                        if (r.EndsWith(".xaml"))
+                        var resourcePath = r.Replace(assembly.ManifestModule.Name.Replace(".exe", "") + ".", "");
+                        if (resourcePath.EndsWith(".xaml"))
                         {
-                            var n = s.Replace(".xaml", "").ToLower();
-                            _icons.AddIconProvider(n, new IconProviderXaml(assembly, n, _icons));
+                            var n = resourcePath.Remove(resourcePath.Length-5);
+                            _icons.AddIconProvider(n, new IconProviderXaml(resourceManager, resourcePath, _icons));
                         }
-                        else if (r.EndsWith(".svg"))
+                        else if (resourcePath.EndsWith(".svg"))
                         {
-                            var n = s.Replace(".svg", "").ToLower();
-                            _icons.AddIconProvider(n, new IconProviderSvg(assembly, n, _icons));
+                            var n = resourcePath.Remove(resourcePath.Length-4);
+                            _icons.AddIconProvider(n, new IconProviderSvg(resourceManager, resourcePath, _icons));
+                        }
+                        else if (resourcePath.EndsWith(".baml"))
+                        {
+                            var n = resourcePath.Remove(resourcePath.Length-5);
+                            _icons.AddIconProvider(n, new IconProviderXaml(resourceManager, resourcePath, _icons));
                         }
                     }
                 }

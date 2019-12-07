@@ -13,7 +13,7 @@ namespace HLab.Mvvm.Icons
         }
         public override bool TryGetMember(GetMemberBinder binder, out object result)
         {
-            result = _service.GetIcon(binder.Name.Replace("_","/"));
+            result = _service.GetIconAsync(binder.Name.Replace("_","/"));
             return true;
         }
 

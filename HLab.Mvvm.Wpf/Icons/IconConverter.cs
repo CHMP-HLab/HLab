@@ -12,7 +12,7 @@ namespace HLab.Mvvm.Icons
         {
             if(value is IIconService l)
             {
-                return l.GetIcon((string)parameter);
+                return l.GetIconAsync((string)parameter);
             }
 
             return null;

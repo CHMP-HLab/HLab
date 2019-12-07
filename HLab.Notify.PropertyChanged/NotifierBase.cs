@@ -1,8 +1,5 @@
-﻿using System;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using HLab.Base;
-using HLab.DependencyInjection.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {

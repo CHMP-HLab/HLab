@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -7,6 +8,7 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -29,15 +31,17 @@ namespace HLab.Mvvm.Icons
             Icon = new IconHelper(this);
         }
 
-        public async Task<object> GetIcon(string name, string backMatch, string foreMatch)
+        public async Task<object> GetIconAsync(string path)
         {
 
-            if (string.IsNullOrWhiteSpace(name)) return null;
+            if (string.IsNullOrWhiteSpace(path)) return null;
 
-            if (_cache.TryGetValue(name.ToLower(), out var iconProvider))
+            if (_cache.TryGetValue(path.ToLower(), out var iconProvider))
             {
-                return await iconProvider?.Get(backMatch, foreMatch);
+                return await iconProvider.GetAsync().ConfigureAwait(false);
             }
+
+            Debug.Print("Icon not found : " + path);
 
             return null;
         }
@@ -156,9 +160,9 @@ namespace HLab.Mvvm.Icons
 
 
 
-        public async Task<BitmapSource> GetIconBitmap(string name, Size size)
+        public async Task<BitmapSource> GetIconBitmapAsync(string name, Size size)
         {
-            var visual =(UIElement) await GetIcon(name, "", "");
+            var visual =(UIElement) await GetIconAsync(name).ConfigureAwait(true);
 
             var grid = new Grid { Width = size.Width, Height = size.Height };
             var viewbox = new Viewbox
@@ -173,7 +177,6 @@ namespace HLab.Mvvm.Icons
 
             grid.Measure(size);
             grid.Arrange(new Rect(size));
-            //grid.UpdateLayout();
 
             var renderBitmap =
                 new RenderTargetBitmap(
@@ -186,62 +189,131 @@ namespace HLab.Mvvm.Icons
             return BitmapFrame.Create(renderBitmap);
         }
 
-        public async Task<object> FromSvgString(string svg, string foreMatch, string backMatch)
+        public async Task<object> FromSvgStringAsync(string svg)
         {
             if (svg == null) return null;
-            byte[] byteArray = Encoding.ASCII.GetBytes(svg);
-            await using MemoryStream stream = new MemoryStream(byteArray);
-            return await FromSvgStream(stream, foreMatch, backMatch);
+            var byteArray = Encoding.ASCII.GetBytes(svg);
+            await using var stream = new MemoryStream(byteArray);
+            return await FromSvgStreamAsync(stream).ConfigureAwait(false);
         }
 
-        public async Task<UIElement> FromXamlStream(Stream xamlStream, string foreMatch, string backMatch)
+        public async Task<UIElement> FromXamlStreamAsync(Stream xamlStream)
         {
-            var foreMatch2 = foreMatch?.Replace("#FF", "#");
-            var backMatch2 = backMatch?.Replace("#FF", "#");
+            //var foreMatch2 = foreMatch?.Replace("#FF", "#");
+            //var backMatch2 = backMatch?.Replace("#FF", "#");
 
-            using (StreamReader reader = new StreamReader(xamlStream))
+            //using var reader = new StreamReader(xamlStream);
+            //var xaml = await reader.ReadToEndAsync().ConfigureAwait(false);
+            /*
+            if (!string.IsNullOrEmpty(foreMatch))
+                xaml = xaml
+                        .Replace(foreMatch,
+                            "{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}")
+                        .Replace(foreMatch2,
+                            "{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}")
+                    ;
+
+            if (!string.IsNullOrEmpty(backMatch))
+                xaml = xaml
+                        .Replace(backMatch,
+                            "{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=white}")
+                        .Replace(backMatch2,
+                            "{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=white}")
+                    ;
+*/
+            var foreColor = Colors.Black;
+            var backColor = Colors.White;
+
+            try
             {
-                var xaml = await reader.ReadToEndAsync();
+                var tcs=new TaskCompletionSource<UIElement>();
+                var xr = new XamlReader();
 
-                if (!string.IsNullOrEmpty(foreMatch))
-                    xaml = xaml
-                         .Replace(foreMatch,
-                        "{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}")
-                       .Replace(foreMatch2,
-                        "{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}")
-                        ;
-
-                if (!string.IsNullOrEmpty(backMatch))
-                    xaml = xaml
-                         .Replace(backMatch,
-                        "{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=white}")
-                       .Replace(backMatch2,
-                        "{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=white}")
-                        ;
-
-
-                try
+                object obj = null;
+                
+                xr.LoadCompleted += (o, e) =>
                 {
-                    var icon = (UIElement)XamlReader.Parse(xaml);
-                    return icon;
-                }
-                catch (XamlParseException e)
-                {
-                    return new Viewbox { ToolTip = "Error" };
-                }
-                catch (IOException)
-                {
-                    return null;
-                }
+                    if (obj is UIElement icon)
+                    {
+                        tcs.SetResult(icon);
+                        SetBinding(icon,foreColor,backColor);
+                    }
+
+                };
+
+                obj = xr.LoadAsync(xamlStream);
+
+                return await tcs.Task.ConfigureAwait(false);
+            }
+            catch (XamlParseException e)
+            {
+                return new Viewbox { ToolTip = "Error" };
+            }
+            catch (IOException)
+            {
+                return null;
             }
         }
 
-        public async Task<UIElement> FromSvgStream(Stream svg, string foreMatch, string backMatch)
+        private static void SetBinding(Visual ui, Color foreColor, Color backColor)
+        {
+            var foreBinding = new Binding("Foreground")
+            {
+                RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
+                    typeof(Control), 1)
+            };
+            var backBinding = new Binding("Background")
+            {
+                RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
+                    typeof(Control), 1)
+            };
+            SetBinding(ui,foreColor,backColor,foreBinding,backBinding);
+        }
+
+        private static void SetBinding(Visual ui, Color foreColor, Color backColor, Binding foreBinding, Binding backBinding)
+        {
+
+            if (ui is System.Windows.Shapes.Shape shape)
+            {
+                if (shape.Fill is SolidColorBrush brush)
+                {
+                    if (brush.Color == foreColor)
+                    {
+                        shape.SetBinding(System.Windows.Shapes.Shape.FillProperty, foreBinding);
+                    }
+                    if (brush.Color == backColor)
+                    {
+                        shape.SetBinding(System.Windows.Shapes.Shape.FillProperty, backBinding);
+                    }
+                }
+                if (shape.Stroke is SolidColorBrush strokeBrush)
+                {
+                    if (strokeBrush.Color == foreColor)
+                    {
+                        shape.SetBinding(System.Windows.Shapes.Shape.StrokeProperty, foreBinding);
+                    }
+                    if (strokeBrush.Color == backColor)
+                    {
+                        shape.SetBinding(System.Windows.Shapes.Shape.StrokeProperty, backBinding);
+                    }
+                }
+            }
+
+
+
+            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(ui); i++)
+            {
+                var childVisual = (Visual)VisualTreeHelper.GetChild(ui, i);
+                SetBinding(childVisual, foreColor, backColor, foreBinding, backBinding);
+            }
+
+        }
+
+        public async Task<UIElement> FromSvgStreamAsync(Stream svg)
         {
             if (svg == null) return null;
-            await using var s = new MemoryStream();
 
-            XmlReaderSettings settings = new XmlReaderSettings
+            var settings = new XmlReaderSettings
             {
                 DtdProcessing = DtdProcessing.Parse,
                 MaxCharactersFromEntities = 1024
@@ -250,15 +322,15 @@ namespace HLab.Mvvm.Icons
             using var svgReader = XmlReader.Create(svg, settings);
             try
             {
+                await using var s = new MemoryStream();
                 using (var w = XmlWriter.Create(s))
                 {
                     TransformSvg.Transform(svgReader, w);
                 }
 
                 s.Seek(0, SeekOrigin.Begin);
-                //var sz = Encoding.UTF8.GetString(s.ToArray());
 
-                return await FromXamlStream(s, foreMatch, backMatch);
+                return await FromXamlStreamAsync(s).ConfigureAwait(false);
             }
             catch (IOException)
             {
