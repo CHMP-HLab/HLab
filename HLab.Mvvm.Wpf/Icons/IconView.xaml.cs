@@ -2,9 +2,9 @@
 using System.Windows.Controls;
 using System.Windows.Media;
 using HLab.Mvvm.Annotations;
-using H = HLab.Base.DependencyHelper<HLab.Mvvm.Icons.IconView>;
 namespace HLab.Mvvm.Icons
 {
+    using H = Base.DependencyHelper<IconView>;
     /// <summary>
     /// Logique d'interaction pour Icon.xaml
     /// </summary>
