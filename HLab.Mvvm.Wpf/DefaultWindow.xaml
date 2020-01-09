@@ -13,9 +13,8 @@
     icons:IconView.IconService="{Binding IconService}"
     icons:IconView.ForegroundMatchColor="Black"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
-    MouseDown="DefaultWindow_OnMouseDown"
     ShowTitleBar="False"
     ShowSystemMenu="True"
-
 >
+
 </mah:MetroWindow>
