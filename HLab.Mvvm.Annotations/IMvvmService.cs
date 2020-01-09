@@ -40,7 +40,6 @@ namespace HLab.Mvvm.Annotations
         IView GetNotFoundView(Type getType, Type viewMode, Type viewClass);
 
         IMvvmContext GetNewContext(IMvvmContext parent, string name);
-        void SetMainView(IView view);
         void Register();
         void PrepareView(object view);
     }

@@ -29,7 +29,6 @@ namespace HLab.Mvvm
 
         public IMvvmContext GetNewContext(IMvvmContext parent, string name) => _getNewContext(parent, name);
 
-        public abstract void SetMainView(IView view);
 
         protected MvvmService()
         {
@@ -228,7 +227,7 @@ namespace HLab.Mvvm
         private class MvvmBaseEntry
         {
             public readonly Type BaseType;
-            private HashSet<MvvmLinkedEntry> _list = new HashSet<MvvmLinkedEntry>();
+            private readonly HashSet<MvvmLinkedEntry> _list = new HashSet<MvvmLinkedEntry>();
             public MvvmBaseEntry(Type baseType)
             {
                 BaseType = baseType;

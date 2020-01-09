@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
+using HLab.Mvvm.Views;
 
 namespace HLab.Mvvm
 {
@@ -18,13 +19,6 @@ namespace HLab.Mvvm
         //{
         //}
 
-        private readonly Window _mainWindow = new DefaultWindow();
-        public override void SetMainView(IView view)
-        {
-            _mainWindow.Content = view;
-            _mainWindow.DataContext = (view as FrameworkElement)?.DataContext;
-            _mainWindow.Show();
-        }
 
         public  void RegisterWithProgress()
         {
@@ -36,7 +30,8 @@ namespace HLab.Mvvm
                 DataContext = vm,
             };
 
-            SetMainView(progressWindow);
+            progressWindow.AsWindow().Show();
+            //SetMainView(progressWindow);
 
             var t = Task.Run(() => {
                 base.Register();
