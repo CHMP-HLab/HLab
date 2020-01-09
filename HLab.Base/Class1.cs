@@ -7,7 +7,10 @@ namespace HLab.Base
 {
     public static class PredicateBuilder {
 
-        public static Expression<Func<T, bool>> And<T>(this Expression<Func<T, bool>> a, Expression<Func<T, bool>> b) {    
+        public static Expression<Func<T, bool>> AndAlso<T>(this Expression<Func<T, bool>> a, Expression<Func<T, bool>> b)
+        {
+            if (a == null) return b;
+            if (b == null) return a;
 
             var p = a.Parameters[0];
 
@@ -17,7 +20,9 @@ namespace HLab.Base
             return Expression.Lambda<Func<T, bool>>(body, p);
         }
 
-        public static Expression<Func<T, bool>> Or<T>(this Expression<Func<T, bool>> a, Expression<Func<T, bool>> b) {    
+        public static Expression<Func<T, bool>> OrElse<T>(this Expression<Func<T, bool>> a, Expression<Func<T, bool>> b) {    
+            if (a == null) return b;
+            if (b == null) return a;
 
             var p = a.Parameters[0];
 
