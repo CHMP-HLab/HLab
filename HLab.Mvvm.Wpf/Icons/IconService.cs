@@ -199,28 +199,6 @@ namespace HLab.Mvvm.Icons
 
         public async Task<UIElement> FromXamlStreamAsync(Stream xamlStream)
         {
-            //var foreMatch2 = foreMatch?.Replace("#FF", "#");
-            //var backMatch2 = backMatch?.Replace("#FF", "#");
-
-            //using var reader = new StreamReader(xamlStream);
-            //var xaml = await reader.ReadToEndAsync().ConfigureAwait(false);
-            /*
-            if (!string.IsNullOrEmpty(foreMatch))
-                xaml = xaml
-                        .Replace(foreMatch,
-                            "{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}")
-                        .Replace(foreMatch2,
-                            "{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}")
-                    ;
-
-            if (!string.IsNullOrEmpty(backMatch))
-                xaml = xaml
-                        .Replace(backMatch,
-                            "{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=white}")
-                        .Replace(backMatch2,
-                            "{Binding Path=Background, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=white}")
-                    ;
-*/
             var foreColor = Colors.Black;
             var backColor = Colors.White;
 
@@ -233,12 +211,9 @@ namespace HLab.Mvvm.Icons
                 
                 xr.LoadCompleted += (o, e) =>
                 {
-                    if (obj is UIElement icon)
-                    {
-                        tcs.SetResult(icon);
-                        SetBinding(icon,foreColor,backColor);
-                    }
-
+                    if (!(obj is UIElement icon)) return;
+                    tcs.SetResult(icon);
+                    SetBinding(icon,foreColor,backColor);
                 };
 
                 obj = xr.LoadAsync(xamlStream);
@@ -247,41 +222,42 @@ namespace HLab.Mvvm.Icons
             }
             catch (XamlParseException e)
             {
-                return new Viewbox { ToolTip = "Error" };
+                return new Viewbox { ToolTip = e.Message };
             }
-            catch (IOException)
+            catch (IOException e)
             {
-                return null;
+                return new Viewbox { ToolTip = e.Message };
             }
         }
 
-        private static void SetBinding(Visual ui, Color foreColor, Color backColor)
+        private static void SetBinding(DependencyObject ui, Color foreColor, Color backColor)
         {
             var foreBinding = new Binding("Foreground")
             {
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
                     typeof(Control), 1)
             };
+
             var backBinding = new Binding("Background")
             {
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
                     typeof(Control), 1)
             };
+
             SetBinding(ui,foreColor,backColor,foreBinding,backBinding);
         }
 
-        private static void SetBinding(Visual ui, Color foreColor, Color backColor, Binding foreBinding, Binding backBinding)
+        private static void SetBinding(DependencyObject ui, Color foreColor, Color backColor, BindingBase foreBinding, BindingBase backBinding)
         {
-
             if (ui is System.Windows.Shapes.Shape shape)
             {
-                if (shape.Fill is SolidColorBrush brush)
+                if (shape.Fill is SolidColorBrush fillBrush)
                 {
-                    if (brush.Color == foreColor)
+                    if (fillBrush.Color == foreColor)
                     {
                         shape.SetBinding(System.Windows.Shapes.Shape.FillProperty, foreBinding);
                     }
-                    if (brush.Color == backColor)
+                    else if (fillBrush.Color == backColor)
                     {
                         shape.SetBinding(System.Windows.Shapes.Shape.FillProperty, backBinding);
                     }
@@ -292,14 +268,12 @@ namespace HLab.Mvvm.Icons
                     {
                         shape.SetBinding(System.Windows.Shapes.Shape.StrokeProperty, foreBinding);
                     }
-                    if (strokeBrush.Color == backColor)
+                    else if (strokeBrush.Color == backColor)
                     {
                         shape.SetBinding(System.Windows.Shapes.Shape.StrokeProperty, backBinding);
                     }
                 }
             }
-
-
 
             for (var i = 0; i < VisualTreeHelper.GetChildrenCount(ui); i++)
             {
