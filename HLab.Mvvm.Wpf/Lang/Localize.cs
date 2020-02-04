@@ -2,11 +2,13 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
+using HLab.Base;
 using HLab.Mvvm.Annotations;
-using H = HLab.Base.DependencyHelper<HLab.Mvvm.Lang.Localize>;
 
 namespace HLab.Mvvm.Lang
 {
+    using H = DependencyHelper<Localize>;
+
     [ContentProperty(nameof(Id))]
     public class Localize : TextBlock
     {

@@ -14,7 +14,7 @@ namespace HLab.Base
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
         private readonly ConcurrentDictionary<TKey,T> _cache = new ConcurrentDictionary<TKey,T>();
 
-        public async Task<T> GetOrAdd(TKey key, Func<object, Task<T>> factory)
+        public async Task<T> GetOrAddAsync(TKey key, Func<object, Task<T>> factory)
         {
             if(factory==null) throw new ArgumentNullException(nameof(factory));
 
@@ -31,7 +31,7 @@ namespace HLab.Base
             }
         }
 
-        public async Task<Tuple<bool,T>> TryRemove(TKey key)
+        public async Task<Tuple<bool,T>> TryRemoveAsync(TKey key)
         {
             await _semaphore.WaitAsync().ConfigureAwait(false);    
             try
@@ -46,33 +46,32 @@ namespace HLab.Base
             }
         }
 
-        public async Task<List<T>> Where(Func<T, bool> where)
+        public async IAsyncEnumerable<T> WhereAsync(Func<T, bool> where)
         {
             await _semaphore.WaitAsync().ConfigureAwait(false);    
             try
             {
-                return await Task.Run(()=>_cache.Values.Where(where).ToList()).ConfigureAwait(false);
+                foreach (var item in _cache.Values.Where(where)) yield return item;
+                //return await Task.Run(()=>_cache.Values.Where(where).ToList()).ConfigureAwait(false);
             }
             finally
             {
                 _semaphore.Release();
             }
         }
-        public async Task<List<T>> Where(Expression<Func<T, bool>> expression)
+        public IAsyncEnumerable<T> WhereAsync(Expression<Func<T, bool>> expression)
         {
-            await _semaphore.WaitAsync().ConfigureAwait(false);    
-            try
-            {
-                return await Task.Run(()=>
-                {
-                    var e = expression.Compile();
-                    return _cache.Values.Where(e).ToList();
-                }).ConfigureAwait(false);
-            }
-            finally
-            {
-                _semaphore.Release();
-            }
+            var where = expression.Compile();
+            return WhereAsync(where);
+            //await _semaphore.WaitAsync().ConfigureAwait(false);    
+            //try
+            //{
+            //    foreach (var item in _cache.Values.Where(where)) yield return item;
+            //}
+            //finally
+            //{
+            //    _semaphore.Release();
+            //}
         }
 
         #region Dispose

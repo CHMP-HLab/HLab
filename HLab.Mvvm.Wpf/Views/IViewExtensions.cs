@@ -42,5 +42,19 @@ namespace HLab.Mvvm.Views
 
             return w;
         }
+
+        public static TViewModel ViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view)
+            where TViewMode : ViewMode
+        {
+            if (view is FrameworkElement fe)
+            {
+                if (fe.DataContext is TViewModel vm)
+                {
+                    return vm;
+                }
+            }
+
+            return default;
+        }
     }
 }

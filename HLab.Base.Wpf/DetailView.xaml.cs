@@ -1,9 +1,9 @@
 ﻿using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
-using H = HLab.Base.DependencyHelper<HLab.Base.DetailView>;
 namespace HLab.Base
 {
+    using H = DependencyHelper<DetailView>;
     /// <summary>
     /// Logique d'interaction pour UserDetailView.xaml
     /// </summary>

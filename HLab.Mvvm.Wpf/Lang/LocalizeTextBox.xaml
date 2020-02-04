@@ -1,0 +1,36 @@
+﻿<UserControl x:Class="HLab.Mvvm.Lang.LocalizeTextBox"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HLab.Mvvm.Lang"
+             mc:Ignorable="d" 
+             HorizontalAlignment="Stretch"
+             d:DesignHeight="450" d:DesignWidth="800">
+    <Grid HorizontalAlignment="Stretch">
+        <!--<local:Localize 
+            Visibility="Visible"
+            x:Name="TextBoxDisabled" 
+            HorizontalAlignment="Stretch"
+            Id="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type local:LocalizeTextBox}}, Mode=OneWay}"
+            VerticalAlignment="Center"
+            />-->
+        <StackPanel>
+            <TextBox 
+                x:Name="TextBoxEnabled" 
+                HorizontalAlignment="Stretch" 
+                Text="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type local:LocalizeTextBox}}, Mode=TwoWay}"
+                Visibility="Collapsed"
+                />        
+            <TextBox 
+                x:Name="TextBoxDisabled" 
+                HorizontalAlignment="Stretch" 
+                Visibility="Visible"
+                IsEnabled="True"
+                IsReadOnly="True"
+            />
+            <DataGrid ItemsSource="{Binding Translations, RelativeSource={RelativeSource AncestorType={x:Type local:LocalizeTextBox}}}">
+            </DataGrid>
+        </StackPanel>
+    </Grid>
+</UserControl>

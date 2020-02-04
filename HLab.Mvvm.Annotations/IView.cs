@@ -61,4 +61,5 @@ namespace HLab.Mvvm.Annotations
 
     public interface IModel
     { }
+
 }

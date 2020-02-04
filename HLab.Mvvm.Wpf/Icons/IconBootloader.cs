@@ -32,22 +32,24 @@ namespace HLab.Mvvm.Icons
                     foreach (var rkey in resources)
                     {
                         var r = ((DictionaryEntry)rkey).Key.ToString().ToLower();
+                        if(r.Contains("unning"))
+                        { }
 
                         var resourcePath = r.Replace(assembly.ManifestModule.Name.Replace(".exe", "") + ".", "");
                         if (resourcePath.EndsWith(".xaml"))
                         {
                             var n = resourcePath.Remove(resourcePath.Length-5);
-                            _icons.AddIconProvider(n, new IconProviderXaml(resourceManager, resourcePath, _icons));
+                            _icons.AddIconProvider(n, new IconProviderXamlFromResource(resourceManager, resourcePath));
                         }
                         else if (resourcePath.EndsWith(".svg"))
                         {
                             var n = resourcePath.Remove(resourcePath.Length-4);
-                            _icons.AddIconProvider(n, new IconProviderSvg(resourceManager, resourcePath, _icons));
+                            _icons.AddIconProvider(n, new IconProviderSvg(resourceManager, resourcePath));
                         }
                         else if (resourcePath.EndsWith(".baml"))
                         {
                             var n = resourcePath.Remove(resourcePath.Length-5);
-                            _icons.AddIconProvider(n, new IconProviderXaml(resourceManager, resourcePath, _icons));
+                            _icons.AddIconProvider(n, new IconProviderXamlFromUri(new Uri("/" + assembly.FullName + ";component/" + n +".xaml",UriKind.Relative)));
                         }
                     }
                 }

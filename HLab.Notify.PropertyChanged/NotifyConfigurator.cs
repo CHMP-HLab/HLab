@@ -55,30 +55,28 @@ namespace HLab.Notify.PropertyChanged
 
         public NotifyConfigurator<TClass, T> Do(Action<TClass, T> action)
         {   
-            if (CurrentTrigger.WhenList.Count > 0)
+            Func<TClass,bool> when = null;
+https://www.youtube.com/redirect?redir_token=PdDm2sMPGZI2bmXrD4V-IZv7OIR8MTU3OTE3NzY1NUAxNTc5MDkxMjU1&v=QFOZuf53tbI&q=https%3A%2F%2Fclik.cc%2FGEJu1&event=video_description
+            foreach (var w in CurrentTrigger.WhenList)
             {
-                Func<TClass,bool> when = null;
-
-                foreach (var w in CurrentTrigger.WhenList)
+                if (when == null)
+                    when = w;
+                else
                 {
-                    if (when == null)
-                        when = w;
-                    else
-                    {
-                        var old = when;
-                        when = c => old(c) && w(c);
-                    }
+                    var old = when;
+                    when = c => old(c) && w(c);
                 }
+            }
 
+            if(when==null)
+                CurrentTrigger.Action = action;
+            else
                 CurrentTrigger.Action = (parent, child) =>
                 {
                     if(when(parent))
                         action(parent,child);
                 };
-
-            }
-            else 
-                CurrentTrigger.Action = action;
+                
 
             Triggers.Add(CurrentTrigger);
             CurrentTrigger = new TriggerEntry();

@@ -21,10 +21,29 @@ namespace HLab.Mvvm
         private CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
 
         public Task<string> LocalizeAsync(string value) => LocalizeAsync(Culture.IetfLanguageTag.ToLowerInvariant(), value);
+        public async Task<ILocalizeEntry> GetLocalizeEntryAsync(string language, string code)
+        {
+            foreach (var service in _services)
+            {
+                var value = await service.GetLocalizeEntryAsync(language, code).ConfigureAwait(false);
+                return value;
+            }
+
+            return null;
+        }
+
+        public async IAsyncEnumerable<ILocalizeEntry> GetLocalizeEntriesAsync(string code)
+        {
+            foreach (var service in _services)
+            {
+                await foreach(var value in service.GetLocalizeEntriesAsync(code).ConfigureAwait(false))
+                    yield return value;
+            }
+        }
 
         private const StringComparison culture = StringComparison.InvariantCulture;
 
-        public async Task<string> LocalizeItem(string tag, string code)
+        public async Task<string> LocalizeItemAsync(string tag, string code)
         {
             string result = code;
             bool quality = false;
@@ -102,12 +121,13 @@ namespace HLab.Mvvm
                     continue;
                 }
 
-                var loc = await LocalizeItem(tag, value).ConfigureAwait(false);
+                var loc = await LocalizeItemAsync(tag, value).ConfigureAwait(false);
                 text = text.Replace(match.Value,loc);
             }
 
             return text;
         }
+
 
         public static String KeepLanguage(String text, String lang)
         {

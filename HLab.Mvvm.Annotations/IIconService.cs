@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System.Drawing;
+using System.Threading.Tasks;
 using HLab.Core.Annotations;
 
 namespace HLab.Mvvm.Annotations
@@ -6,13 +7,11 @@ namespace HLab.Mvvm.Annotations
     public interface IIconService : IService
     {
         Task<object> GetIconAsync(string path);
-        object GetFromHtml(string html);
-        Task<object> FromSvgStringAsync(string svg);
+
+        Task<object> GetIconBitmapAsync(string name, Size size);
 
         //object FromXaml(string xaml);
         void AddIconProvider(string name, IIconProvider provider);
-
-        dynamic Icon { get; }
     }
 
 }

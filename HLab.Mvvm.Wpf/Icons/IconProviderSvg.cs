@@ -1,5 +1,4 @@
-﻿using System.Reflection;
-using System.Resources;
+﻿using System.Resources;
 using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
@@ -9,9 +8,9 @@ namespace HLab.Mvvm.Icons
     {
         private readonly ResourceManager _resourceManager;
         private readonly string _name;
-        private readonly IIconService _icons;
-        public IconProviderSvg(ResourceManager resourceManager, string name, IIconService icons)
-        { _resourceManager = resourceManager; _name = name; _icons = icons; }
+//        private readonly IIconService _icons;
+        public IconProviderSvg(ResourceManager resourceManager, string name)
+        { _resourceManager = resourceManager; _name = name; }
 
 
 
@@ -19,13 +18,8 @@ namespace HLab.Mvvm.Icons
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
-                //var resourceManager = new ResourceManager(_assembly.GetName().Name + ".g", _assembly);
-
-                await using var svg = _resourceManager.GetStream(_name);
-                if(_icons is IconService icon)
-                    return await icon.FromSvgStreamAsync(svg).ConfigureAwait(false);
-
-                return null;
+            await using var svg = _resourceManager.GetStream(_name);
+            return await XamlTools.FromSvgStreamAsync(svg).ConfigureAwait(false);
         }
 
 
