@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Threading.Tasks;
 using HLab.Base;
 
 namespace HLab.Notify.PropertyChanged
@@ -15,6 +16,7 @@ namespace HLab.Notify.PropertyChanged
             get => _isDirty.Get();
             protected set => _isDirty.Set(value);
         }
+        private readonly IProperty<bool> _isDirty = H.Property<bool>();
 
         public void Reset()
         {
@@ -23,8 +25,6 @@ namespace HLab.Notify.PropertyChanged
             }
             IsDirty = false;
         }
-
-        private readonly IProperty<bool> _isDirty = H.Property<bool>();
 
         public bool Loading { get; private set; } = false;
 
@@ -87,6 +87,14 @@ namespace HLab.Notify.PropertyChanged
             while (Dirty.TryTake(out var e))
             {
                 Save(e);
+            }
+            _isDirty.Set(false);
+        }
+        public virtual async Task SaveAsync()
+        {
+            while (Dirty.TryTake(out var e))
+            {
+                await SaveAsync(e);
             }
             _isDirty.Set(false);
         }
@@ -156,6 +164,10 @@ namespace HLab.Notify.PropertyChanged
         }
 
         protected void Save(PropertyInfo property)
+        {
+            Save(property.Name, property.GetValue(Target));
+        }
+        protected async Task SaveAsync(PropertyInfo property)
         {
             Save(property.Name, property.GetValue(Target));
         }
