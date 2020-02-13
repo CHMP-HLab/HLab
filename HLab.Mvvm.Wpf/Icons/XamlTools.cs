@@ -16,6 +16,11 @@ namespace HLab.Mvvm.Icons
 {
     public static class XamlTools
     {
+        static Color _foreColor = Colors.Black;
+        static Color _backColor = Colors.White;
+
+
+
         private static XslCompiledTransform _transformSvg;
         public static XslCompiledTransform TransformSvg
         {
@@ -123,8 +128,6 @@ namespace HLab.Mvvm.Icons
 
         public static async Task<UIElement> FromXamlStreamAsync(Stream xamlStream)
         {
-            var foreColor = Colors.Black;
-            var backColor = Colors.White;
 
             try
             {
@@ -137,7 +140,7 @@ namespace HLab.Mvvm.Icons
                 {
                     if (!(obj is UIElement icon)) return;
                     tcs.SetResult(icon);
-                    SetBinding(icon,foreColor,backColor);
+                    SetBinding(icon,_foreColor,_backColor);
                 };
 
                 obj = xr.LoadAsync(xamlStream);
@@ -154,7 +157,9 @@ namespace HLab.Mvvm.Icons
             }
         }
 
-        private static void SetBinding(DependencyObject ui, Color foreColor, Color backColor)
+        public static void SetBinding(DependencyObject ui) => SetBinding(ui, _foreColor, _backColor);
+
+        public static void SetBinding(DependencyObject ui, Color foreColor, Color backColor)
         {
             var foreBinding = new Binding("Foreground")
             {
