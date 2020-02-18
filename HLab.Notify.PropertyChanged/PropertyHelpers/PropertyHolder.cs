@@ -64,15 +64,6 @@ namespace HLab.Notify.PropertyChanged
 
         protected override void Configure()
         {
-            if (Parent.GetType().Name.Contains("Connection"))
-            {
-                if (typeof(T).Name.Contains("User"))
-                {
-
-                }
-            }
-
-            
             Configurator.Configure(Parent,Parser, this);
 
             if(PropertyValue==null)
@@ -89,6 +80,7 @@ namespace HLab.Notify.PropertyChanged
                             .Compile()
                         );
         }
+
 
         public new TClass Parent => base.Parent as TClass;
 
