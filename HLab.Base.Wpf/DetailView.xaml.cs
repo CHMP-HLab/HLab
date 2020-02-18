@@ -16,13 +16,21 @@ namespace HLab.Base
             Children = PART_Host.Children;
         }
 
-        public static readonly DependencyPropertyKey ChildrenProperty = H.Property<UIElementCollection>().RegisterReadOnly();
+        public bool EditMode
+        {
+            get => (bool)GetValue(EditModeProperty);
+            set => SetValue(EditModeProperty,value);
+        }
+        public static readonly DependencyProperty EditModeProperty = H.Property<bool>().Register();
 
         public UIElementCollection Children
         {
             get => (UIElementCollection)GetValue(ChildrenProperty.DependencyProperty);
             private set => SetValue(ChildrenProperty, value);
         }
+        public static readonly DependencyPropertyKey ChildrenProperty = H.Property<UIElementCollection>().RegisterReadOnly();
+
+
         private void UpdateChildren()
         {
             //if (Children.Count == _count) return;

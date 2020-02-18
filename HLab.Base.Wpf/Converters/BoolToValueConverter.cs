@@ -26,7 +26,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace HLab.Mvvm.Converters
+namespace HLab.Base.Converters
 {
     public class BoolToValueConverter<T> : IValueConverter
     {
