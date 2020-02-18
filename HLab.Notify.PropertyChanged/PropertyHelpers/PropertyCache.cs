@@ -98,12 +98,13 @@ namespace HLab.Notify.PropertyChanged
         }
 
         private static readonly ConcurrentDictionary<string, ConfiguratorEntry>
-            Cache = new ConcurrentDictionary<string, ConfiguratorEntry>();
+            // ReSharper disable once StaticMemberInGenericType
+            _cache = new ConcurrentDictionary<string, ConfiguratorEntry>();
 
         public static ConfiguratorEntry<T> Get<T>(string name,
             Func<Action<TClass,INotifyClassParser,T>> action)
         {
-            return (ConfiguratorEntry<T>)Cache.GetOrAdd(name,valueFactory: n =>
+            return (ConfiguratorEntry<T>)_cache.GetOrAdd(name,valueFactory: n =>
             {
                 var entry = new ConfiguratorEntry<T> {EventArgs = new PropertyChangedEventArgs(name)};
                 entry.SetAction(action());
