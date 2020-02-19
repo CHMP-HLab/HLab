@@ -7,11 +7,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel Orientation="Horizontal">
-        <RadioButton Checked="Button_OnChecked" Name="ButtonNo" BorderBrush="#80000000">
+        <RadioButton Checked="Button_OnChecked" Click="Button_OnClick" MouseDown="Button_OnMouseDown" Name="ButtonNo" BorderBrush="#80000000">
             <lang:Localize  Id="{}{No}" />
         </RadioButton>
         <Label/>
-        <RadioButton Name="ButtonYes" BorderBrush="#80000000">
+        <RadioButton Checked="Button_OnChecked" Click="Button_OnClick" MouseDown="Button_OnMouseDown" Name="ButtonYes" BorderBrush="#80000000">
             <lang:Localize  Id="{}{Yes}" />
         </RadioButton>
     </StackPanel>

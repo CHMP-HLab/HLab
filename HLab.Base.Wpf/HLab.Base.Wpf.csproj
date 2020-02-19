@@ -11,9 +11,6 @@
     <Compile Update="DateEx.xaml.cs">
       <DependentUpon>DateEx.xaml</DependentUpon>
     </Compile>
-    <Compile Update="DetailView.xaml.cs">
-      <DependentUpon>DetailView.xaml</DependentUpon>
-    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -21,9 +18,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="DateEx.xaml">
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Update="DetailView.xaml">
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
