@@ -19,6 +19,11 @@ namespace HLab.Mvvm.Lang
             pdIsAvailable.AddValueChanged(this, (o,h) => Update(Language, LocalizationService, Id,StringFormat));
         }
 
+        public string Id
+        {
+            get => (string)GetValue(IdProperty);
+            set => SetValue(IdProperty, value);
+        }
         public static readonly DependencyProperty IdProperty =
             H.Property<string>()
                 .OnChange((s, e) => s.Update(s.Language, s.LocalizationService, e.NewValue, s.StringFormat))
@@ -41,11 +46,6 @@ namespace HLab.Mvvm.Lang
                 .Inherits.AffectsRender
                 .RegisterAttached();
 
-        public string Id
-        {
-            get => (string)GetValue(IdProperty);
-            set => SetValue(IdProperty, value);
-        }
 
         public string StringFormat
         {
