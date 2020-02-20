@@ -16,19 +16,28 @@ namespace HLab.Notify.PropertyChanged
         /// <param name="c"></param>
         /// <param name="expr"></param>
         /// <returns></returns>
-        public static NotifyConfigurator<TClass, T> On<TClass,T>(this NotifyConfigurator<TClass, T> c, Expression<Func<TClass, object>> expr)
+        public static NotifyConfigurator<TClass, T> 
+            On<TClass,T>(this NotifyConfigurator<TClass, T> c, Expression<Func<TClass, object>> expr)
             where TClass : class//,INotifyPropertyChanged
         {
             return c.TriggerExpression(expr);
         }
 
 
-        public static NotifyConfigurator<TClass, T> NotNull<TObj, TClass, T>(this NotifyConfigurator<TClass, T> c, Func<TClass, TObj> notnull)
+        public static NotifyConfigurator<TClass, T> 
+            NotNull<TObj, TClass, T>(this NotifyConfigurator<TClass, T> c, Func<TClass, TObj> notnull)
             where TClass : class//, INotifyPropertyChanged
             //            where TObj : class
         {
             return c.When(e => ! Equals(notnull(e), default(TObj)));
         }
 
+        public static NotifyConfigurator<TClass, T> 
+            OnNotNull<TObj, TClass,T>(this NotifyConfigurator<TClass, T> c, Expression<Func<TClass, TObj>> expr)
+            where TClass : class//,INotifyPropertyChanged
+        {
+            var f = expr.Compile();
+            return c.TriggerExpression(expr).NotNull(f);
+        }
     }
 }
