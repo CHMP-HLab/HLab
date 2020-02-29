@@ -163,12 +163,14 @@ namespace HLab.Mvvm.Icons
         {
             var foreBinding = new Binding("Foreground")
             {
+                IsAsync = true,
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
                     typeof(Control), 1)
             };
 
             var backBinding = new Binding("Background")
             {
+                IsAsync = true,
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
                     typeof(Control), 1)
             };
@@ -176,7 +178,7 @@ namespace HLab.Mvvm.Icons
             SetBinding(ui,foreColor,backColor,foreBinding,backBinding);
         }
 
-        private static void SetBinding(DependencyObject ui, Color foreColor, Color backColor, BindingBase foreBinding, BindingBase backBinding)
+        private static void SetBinding(DependencyObject ui, Color foreColor, Color backColor, Binding foreBinding, Binding backBinding)
         {
             if (ui is System.Windows.Shapes.Shape shape)
             {
