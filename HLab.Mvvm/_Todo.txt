@@ -1,0 +1,1 @@
+﻿Maybe use viewmodel constructor instead of ConfigureMvvmContext(IMvvmContext ctx)
