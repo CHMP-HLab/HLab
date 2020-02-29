@@ -28,10 +28,10 @@ namespace HLab.Mvvm.Lang
         }
         public string Text
         {
-            get => (string)GetValue(IdProperty);
-            set => SetValue(IdProperty, value);
+            get => (string)GetValue(TextProperty);
+            set => SetValue(TextProperty, value);
         }
-        public static readonly DependencyProperty IdProperty =
+        public static readonly DependencyProperty TextProperty =
             H.Property<string>()
                 .AffectsRender
                 .Register();
