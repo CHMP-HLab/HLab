@@ -19,7 +19,8 @@ namespace HLab.Mvvm.Icons
         static Color _foreColor = Colors.Black;
         static Color _backColor = Colors.White;
 
-
+        static Brush _defaultForeColor = new SolidColorBrush(_backColor);
+        static Brush _defaultBackColor = new SolidColorBrush(_foreColor);
 
         private static XslCompiledTransform _transformSvg;
         public static XslCompiledTransform TransformSvg
@@ -161,9 +162,14 @@ namespace HLab.Mvvm.Icons
 
         public static void SetBinding(DependencyObject ui, Color foreColor, Color backColor)
         {
+
+            var c = new SolidColorBrush(Colors.White);
+
             var foreBinding = new Binding("Foreground")
             {
                 IsAsync = true,
+                Mode = BindingMode.OneWay,
+                FallbackValue = _defaultForeColor,
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
                     typeof(Control), 1)
             };
@@ -171,6 +177,7 @@ namespace HLab.Mvvm.Icons
             var backBinding = new Binding("Background")
             {
                 IsAsync = true,
+                FallbackValue = _defaultBackColor,
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
                     typeof(Control), 1)
             };
