@@ -3,6 +3,7 @@
     public enum InjectLocation
     {
         BeforeConstructor,
+        Constructor,
         AfterConstructor
     }
 }
