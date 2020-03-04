@@ -88,42 +88,32 @@ namespace HLab.DependencyInjection
 
         private DependencyLocator GetNewClassActivator(IActivatorTree tree)
         {
-            var injectBefore = Scope.GetClassInjector(tree,InjectLocation.BeforeConstructor);
-            var injectAfter = Scope.GetClassInjector(tree,InjectLocation.AfterConstructor);
 
             var ctor = tree.Key.GetConstructor();
             var type = tree.Key.ReturnType;
 
+            var inject = Scope.GetClassInjector(tree);
 
-            if (ctor == null)
+            DependencyInjector locator = inject.Item1;
+
+            if(ctor!=null) 
             {
-                return (c, args) =>
-                {
-                    var o = FormatterServices.GetUninitializedObject(type);
-                    c = c.Get(o);
-                    injectBefore(c, null, o);
-                    injectAfter(c, null, o);
-
-                    return o;
-                };
-
-                string p = "";
-                if (tree.Key.Signature != null)
-                    p = tree.Key.Signature.Types.Select(e => e.Name).Aggregate((cc, n) => $"{cc},{n}");
-
-                var message = "Locate " + tree.Key.ReturnType.GenericReadableName() + " no compatible constructor(" + p + ") found";
-                throw new Exception(message);
+                if(ctor.GetParameters().Length>0)
+                    locator += (ctx,args,o) => ctor.Invoke(o,args);
+                else if(inject.Item2==null)
+                    locator += (ctx,args,o) => ctor.Invoke(o,null);
+                else
+                        locator += inject.Item2;
             }
+            else locator += inject.Item2;
+
+            locator += inject.Item3;
 
             return (c, args) =>
             {
-                //var o = FormatterServices.GetSafeUninitializedObject(type);
                 var o = FormatterServices.GetUninitializedObject(type);
                 c = c.Get(o);
-                injectBefore(c, null, o);
-                ctor.Invoke(o, args);
-                injectAfter(c, null, o);
-
+                locator?.Invoke(c, args, o);
                 return o;
             };
         }

@@ -43,10 +43,8 @@ namespace HLab.DependencyInjection
         private readonly List<IExportEntry> _decoratorEntries = new List<IExportEntry>();
 
 
-        private readonly ConcurrentDictionary<Type, DependencyInjector> _injectorsBefore
-            = new ConcurrentDictionary<Type, DependencyInjector>();
-        private readonly ConcurrentDictionary<Type, DependencyInjector> _injectorsAfter
-            = new ConcurrentDictionary<Type, DependencyInjector>();
+        private readonly ConcurrentDictionary<Type, Tuple<DependencyInjector,DependencyInjector,DependencyInjector>> _injectors
+            = new ConcurrentDictionary<Type, Tuple<DependencyInjector,DependencyInjector,DependencyInjector>>();
 
         internal readonly ConcurrentDictionary<Type, object> Singletons = new ConcurrentDictionary<Type, object>();
         //private readonly ConcurrentDictionary<Type,List<IMappedCondition>> _mapped = new ConcurrentDictionary<Type, List<IMappedCondition>>();
@@ -143,8 +141,9 @@ namespace HLab.DependencyInjection
         {
             var tree = new ActivatorTree(null, ctx.StaticContext);
             tree.Key = new ActivatorKey(obj.GetType(),null);
-            GetClassInjector(tree, InjectLocation.BeforeConstructor)(ctx, args, obj);
-            GetClassInjector(tree, InjectLocation.AfterConstructor)(ctx, args, obj);
+            var injectors = GetClassInjector(tree);
+            injectors.Item1(ctx, args, obj);
+            injectors.Item2(ctx, args, obj);
         }
 
 
@@ -342,14 +341,17 @@ namespace HLab.DependencyInjection
 
 
         private readonly MethodInfo  _initializerMethodInfo = typeof(IInitializer).GetMethod("Initialize", new[] { typeof(RuntimeImportContext),typeof(object[]) });
-        private DependencyInjector GetNewClassInjector(IActivatorTree tree, InjectLocation location)
+        private Tuple<DependencyInjector,DependencyInjector,DependencyInjector> GetNewClassInjector(IActivatorTree tree)
         {
             var type = tree.Key.ReturnType;
 
             if (type.IsAbstract) throw new Exception("Unable to locate Abstract class : " + type.Name);
             if (type.IsInterface) throw new Exception("Unable to locate Interface : " + type.Name);
 
-            DependencyInjector activator = (c, a, o) => { };
+            DependencyInjector activator = null;
+            DependencyInjector activatorCtor = null;
+            DependencyInjector activatorAfter = null;
+
 
             var types = new Stack<Type>();
             var t = type;
@@ -366,16 +368,32 @@ namespace HLab.DependencyInjection
                 t = types.Pop();
                 foreach (var p in t.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.Public))
                 {
-                    foreach (var unused in p.GetCustomAttributes<ImportAttribute>().Where(i => i.Location == location))
+                    foreach (var attr in p.GetCustomAttributes<ImportAttribute>())
                     {
                         var ctx = ImportContext.Get(type, p).Get(typeof(IActivator));
                         var l = GetLocator(new ActivatorTree(tree, ctx));
                         var a = (IActivator)(l(RuntimeImportContext.GetStatic(null,ctx),null));
 
-                        activator += a.GetActivator(GetLocator, new ActivatorTree(tree, ImportContext.Get(type, p)));
+                        if(p is ConstructorInfo ci)
+                            activatorCtor = a.GetActivator(GetLocator, new ActivatorTree(tree, ImportContext.Get(type, p)));
+                        else
+                        {
+                            switch(attr.Location)
+                            {
+                                case InjectLocation.BeforeConstructor:
+                                    activator += a.GetActivator(GetLocator, new ActivatorTree(tree, ImportContext.Get(type, p)));
+                                    break;
+                                case InjectLocation.AfterConstructor:
+                                    activatorAfter += a.GetActivator(GetLocator, new ActivatorTree(tree, ImportContext.Get(type, p)));
+                                    break;
+                                default:
+                                    break;
+                            }
+                        }
                     }
                 }
             }
+
 
             if (typeof(IInitializer).IsAssignableFrom(type))
             {
@@ -391,19 +409,11 @@ namespace HLab.DependencyInjection
                 }
             }
 
-            return activator;
+            return new Tuple<DependencyInjector,DependencyInjector,DependencyInjector>(activator,activatorCtor,activatorAfter);
         }
 
-        public DependencyInjector GetClassInjector(IActivatorTree tree, InjectLocation location)
-        {
-            switch (location)
-            {
-                case InjectLocation.AfterConstructor:
-                    return _injectorsAfter.GetOrAdd(tree.Key.ReturnType, t => GetNewClassInjector(tree, location));
-                default:
-                    return _injectorsBefore.GetOrAdd(tree.Key.ReturnType, t => GetNewClassInjector(tree, location));
-            }
-        }
+        public Tuple<DependencyInjector,DependencyInjector,DependencyInjector> GetClassInjector(IActivatorTree tree)
+            => _injectors.GetOrAdd(tree.Key.ReturnType, t => GetNewClassInjector(tree));
 
         public DependencyInjectionContainer()
         {

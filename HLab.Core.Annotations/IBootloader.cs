@@ -4,8 +4,12 @@
     {
         void Load();
     }
-    public interface IPostBootloader
+    public interface IBootloaderDependent : IBootloader
     {
-        void Load();
+        string[] DependsOn {get;}
     }
+    //public interface IPostBootloader
+    //{
+    //    void Load();
+    //}
 }

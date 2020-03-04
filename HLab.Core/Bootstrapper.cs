@@ -27,7 +27,7 @@ namespace HLab.Core
         {
 //            Container.AutoConfigure<IService>(c => c.As<IService>().Singleton());
             Container.AutoConfigure<IBootloader>(c => c.As<IBootloader>());
-            Container.AutoConfigure<IPostBootloader>(c => c.As<IPostBootloader>());
+//            Container.AutoConfigure<IPostBootloader>(c => c.As<IPostBootloader>());
             Container.AutoConfigure<IConfigureInjection>(c => c.As<IConfigureInjection>());
 
             LoadModules();
@@ -46,17 +46,17 @@ namespace HLab.Core
                 injection.Configure(Container);
             }
 
-            var prebootloaders = Sort(Container.Locate<IEnumerable<IBootloader>>(this)).Reverse().ToList();
+            var prebootloaders = SortBootloaders(Sort(Container.Locate<IEnumerable<IBootloader>>(this))).Reverse().ToList();
             foreach (var boot in prebootloaders)
             {
                 boot.Load();
             }
 
-            var postbootloaders = Sort(Container.Locate<IEnumerable<IPostBootloader>>(this)).Reverse().ToList();
-            foreach (var boot in postbootloaders)
-            {
-                boot.Load();
-            }
+            //var postbootloaders = Sort(Container.Locate<IEnumerable<IPostBootloader>>(this)).Reverse().ToList();
+            //foreach (var boot in postbootloaders)
+            //{
+            //    boot.Load();
+            //}
         }
 
         private static IEnumerable<T> Sort<T>(IEnumerable<T> src)
@@ -68,6 +68,27 @@ namespace HLab.Core
                 for (var i = 0; i < result.Count; i++)
                 {
                     if (boot.GetType().Assembly.Referencies(result[i].GetType().Assembly.GetName().Name))
+                    {
+                        result.Insert(i, boot);
+                        inserted = true;
+                        break;
+                    }
+                }
+                if (!inserted) result.Add(boot);
+            }
+
+            return result;
+        }
+        private static IEnumerable<IBootloader> SortBootloaders(IEnumerable<IBootloader> src)
+        {
+            var result = new List<IBootloader>();
+            foreach (var boot in src)
+            {
+                var inserted = false;
+                if(boot is IBootloaderDependent bd)
+                for (var i = 0; i < result.Count; i++)
+                {
+                    if (bd.DependsOn.Contains(result[i].GetType().Name))
                     {
                         result.Insert(i, boot);
                         inserted = true;
