@@ -19,8 +19,11 @@ namespace HLab.Notify.PropertyChanged
             Action<PropertyChangedEventArgs> evt);
 
         private static readonly NotifyActivator InitializeAction = CreateActivatorA() + CreateActivatorExt();
-        public static void Initialize(TClass target,Action<PropertyChangedEventArgs> callback=null) 
-            => InitializeAction(target,NotifyFactory.GetParser(target),callback);
+        public static void Initialize(TClass target, Action<PropertyChangedEventArgs> callback = null)
+        {
+            InitializeAction(target, NotifyFactory.GetParser(target), callback);
+        }
+
         // PROPERTY
         public static PropertyHolder<T> Property<T>(string name, NotifyConfiguratorFactory<TClass, PropertyHolder<TClass,T>> c)
         {
@@ -43,7 +46,7 @@ namespace HLab.Notify.PropertyChanged
 
         private static NotifyActivator CreateActivatorA()
         {
-            NotifyActivator activator = (a, b, c) => { };
+            NotifyActivator activator = (t, p, e) => { };
 
             var type = typeof(TClass);
             while (type != null)
