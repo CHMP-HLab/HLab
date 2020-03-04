@@ -35,7 +35,7 @@ namespace HLab.Mvvm
     {
         protected ViewModel()
         {
-            H.Initialize((TClass)this,OnPropertyChanged);
+            //H.Initialize((TClass)this,OnPropertyChanged);
         }
 
         private static int _lastId = 0;
