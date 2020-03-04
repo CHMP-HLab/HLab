@@ -25,6 +25,32 @@ namespace HLab.Notify.PropertyChanged.UTest
         );
 
     }
+    class NotifyObjectWhenB : N<NotifyObjectWhenB>
+    {
+        public object TestA
+        {
+            get => _testA.Get();
+            set => _testA.Set(value);
+        }
+        private readonly IProperty<object> _testA = H.Property<object>();
+        public object TestB
+        {
+            get => _testB.Get();
+            set => _testB.Set(value);
+        }
+        private readonly IProperty<object> _testB = H.Property<object>();
+
+        public int Test => _test.Get();
+
+        private readonly IProperty<int> _test = H.Property<int>(c => c
+            .Default(0)
+            .On(e => e.TestA)
+            .On(e => e.TestB)
+            .NotNull(e => e.TestA)
+            .Set(e => e.Test+1)
+        );
+
+    }
     public class UnitTestWhenClause
     {
         [Fact]
@@ -42,6 +68,32 @@ namespace HLab.Notify.PropertyChanged.UTest
             obj.Test = null;
 
             Assert.Equal(1,obj.Test1);
+        }
+    }
+
+    public class UnitTestWhenClauseB
+    {
+        [Fact]
+        public void TestNoConfigurator()
+        {
+
+            var obj = new NotifyObjectWhenB();
+
+            Assert.Equal(0,obj.Test);
+
+            obj.TestA = new object();
+
+            Assert.Equal(1,obj.Test);
+
+            obj.TestA = null;
+
+            Assert.Equal(1,obj.Test);
+
+            obj.TestB = new object();
+            obj.TestB = new object();
+
+            Assert.Equal(2,obj.Test);
+
         }
     }
 }
