@@ -2,7 +2,7 @@
 {
     public interface IBootloader
     {
-        void Load();
+        bool Load();
     }
     public interface IBootloaderDependent : IBootloader
     {

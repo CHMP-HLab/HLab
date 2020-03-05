@@ -46,10 +46,13 @@ namespace HLab.Core
                 injection.Configure(Container);
             }
 
-            var prebootloaders = SortBootloaders(Sort(Container.Locate<IEnumerable<IBootloader>>(this))).Reverse().ToList();
-            foreach (var boot in prebootloaders)
+            var bootloaders = SortBootloaders(Sort(Container.Locate<IEnumerable<IBootloader>>(this))).Reverse().ToList();
+
+            var list = new Queue<IBootloader>(bootloaders);
+
+            while ( list.TryDequeue(out var bootloader) )
             {
-                boot.Load();
+                if(!bootloader.Load()) bootloaders.Add(bootloader);
             }
 
             //var postbootloaders = Sort(Container.Locate<IEnumerable<IPostBootloader>>(this)).Reverse().ToList();

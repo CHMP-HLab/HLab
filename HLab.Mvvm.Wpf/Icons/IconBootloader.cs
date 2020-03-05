@@ -18,7 +18,7 @@ namespace HLab.Mvvm.Icons
             _icons = icons;
         }
 
-        public void Load()
+        public bool Load()
         {
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(e => !e.IsDynamic))
             {
@@ -56,7 +56,11 @@ namespace HLab.Mvvm.Icons
                 catch (System.Resources.MissingManifestResourceException ex)
                 {
                 }
+
+
             }
+
+            return true;
         }
     }
 }

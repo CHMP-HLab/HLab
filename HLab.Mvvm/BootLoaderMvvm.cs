@@ -9,9 +9,10 @@ namespace HLab.Mvvm
         [Import]
         private readonly IMvvmService _mvvm;
 
-        public void Load()
+        public bool Load()
         {
             _mvvm.Register();
+            return true;
         }
     }
 }
