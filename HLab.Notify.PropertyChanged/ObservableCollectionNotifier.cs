@@ -33,14 +33,14 @@ using HLab.DependencyInjection.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public class ObservableCollectionNotifier<T> : NotifierBase,
+    public abstract class ObservableCollectionNotifier<T> : NotifierBase,
         IList<T>, IList, IReadOnlyList<T>, INotifyCollectionChanged, ILockable
         //where T : INotifyPropertyChanged
     {
-        public ObservableCollectionNotifier()
+        public ObservableCollectionNotifier(bool init = true)
         {
             if (_eventHandlerService == null) _eventHandlerService = NotifyHelper.EventHandlerService;
-            H.Initialize(this,OnPropertyChanged);
+            if(init) H.Initialize(this,OnPropertyChanged);
         }
 
         protected class H : NotifyHelper<ObservableCollectionNotifier<T>> { }
