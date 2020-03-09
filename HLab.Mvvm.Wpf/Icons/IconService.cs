@@ -15,8 +15,28 @@ namespace HLab.Mvvm.Icons
     {
         private readonly ConcurrentDictionary<string, IIconProvider> _cache = new ConcurrentDictionary<string, IIconProvider>();
 
-
         public async Task<object> GetIconAsync(string path)
+        {
+            if (path==null) return null;
+            object result = null;
+            var paths = path.Split('|');
+            foreach (var p in paths)
+            {
+                var icon = await GetSingleIconAsync(p);
+                if(result == null)
+                {
+                    result = icon; continue;
+                }
+               var grid = new IconGrid();
+
+                grid.MainIcon.Content = result;
+                grid.BottomRightIcon.Content = icon;
+                result=grid;
+            }
+            return result;
+        }
+
+        private async Task<object> GetSingleIconAsync(string path)
         {
 
             if (string.IsNullOrWhiteSpace(path)) return null;
