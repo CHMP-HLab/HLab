@@ -33,11 +33,6 @@ namespace HLab.Mvvm
     public abstract class ViewModel<TClass> : N<TClass>, IViewModel
     where TClass : ViewModel<TClass>
     {
-        protected ViewModel()
-        {
-            //H.Initialize((TClass)this,OnPropertyChanged);
-        }
-
         private static int _lastId = 0;
 
         private readonly Lazy<int> _id = new Lazy<int>(() => Interlocked.Increment(ref _lastId));
