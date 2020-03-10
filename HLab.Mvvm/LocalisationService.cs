@@ -103,6 +103,7 @@ namespace HLab.Mvvm
 
         public async Task<string> LocalizeAsync(string tag, string text)
         {
+            if (string.IsNullOrWhiteSpace(text)) return "";
             tag = tag.ToLower();
             var matches = Regex.Matches(text, @"\{[^}]*}");
             foreach (Match match in matches)
