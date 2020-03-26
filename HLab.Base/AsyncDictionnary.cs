@@ -30,6 +30,22 @@ namespace HLab.Base
                 _semaphore.Release();
             }
         }
+        public T GetOrAdd(TKey key, Func<object, T> factory)
+        {
+            if(factory==null) throw new ArgumentNullException(nameof(factory));
+
+            if (_cache.TryGetValue(key, out var result)) return result;
+            _semaphore.Wait();    
+            try 
+            {
+                if (_cache.TryGetValue(key, out result)) return result;
+                return _cache[key] = factory(key);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
         public async Task<Tuple<bool,T>> TryRemoveAsync(TKey key)
         {
