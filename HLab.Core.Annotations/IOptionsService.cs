@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO;
 using System.Threading.Tasks;
+using HLab.Erp.Data;
 
 namespace HLab.Core.Annotations
 {
@@ -14,5 +15,7 @@ namespace HLab.Core.Annotations
         Task<T> GetValue<T>(string name,int? userid, Func<T> defaultValue = null);
         void SetValue<T>(string name, T value, int? userid);
         Task SetValueAsync<T>(string name, T value, int? userid);
+
+        public void SetDataService(IDataService data);
     }
 }
