@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using HLab.Base;
@@ -140,6 +141,12 @@ namespace HLab.Notify
             }
 
             foreach (var d in delegates) BeginInvoke(d);
+        }
+
+
+        public async Task InvokeAsync(Func<Task> action)
+        {
+            await Application.Current.Dispatcher.InvokeAsync(action);
         }
     }
 }

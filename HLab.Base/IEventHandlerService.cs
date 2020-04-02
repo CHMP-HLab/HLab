@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace HLab.Base
 {
@@ -9,6 +10,7 @@ namespace HLab.Base
         void Invoke(PropertyChangedEventHandler eventHandler, object source, PropertyChangedEventArgs args);
         void Invoke(NotifyCollectionChangedEventHandler eventHandler, object source, NotifyCollectionChangedEventArgs args);
         void Invoke(EventHandler eventHandler, object source, EventArgs args);
+        Task InvokeAsync(Func<Task> action);
     }
 
     public class EventHandlerService : IEventHandlerService
@@ -26,6 +28,11 @@ namespace HLab.Base
         public void Invoke(EventHandler eventHandler, object source, EventArgs args)
         {
             eventHandler?.Invoke(source, args);
+        }
+
+        public Task InvokeAsync(Func<Task> action)
+        {
+            return action();
         }
     }
 }
