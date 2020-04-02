@@ -1,5 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 
 namespace HLab.Notify.PropertyChanged
 {
@@ -24,6 +25,15 @@ namespace HLab.Notify.PropertyChanged
 
         public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Action<TClass> action)
+            where TClass : class//, INotifyPropertyChanged
+            where T : NotifyCommand
+        {
+            return c
+                .On().Do((target,cmd)=>cmd.SetAction(() => action(target)));
+        }
+
+        public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
+            Func<TClass,Task> action)
             where TClass : class//, INotifyPropertyChanged
             where T : NotifyCommand
         {
