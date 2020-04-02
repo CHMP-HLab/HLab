@@ -54,12 +54,6 @@ namespace HLab.Core
             {
                 if(!bootloader.Load()) bootloaders.Add(bootloader);
             }
-
-            //var postbootloaders = Sort(Container.Locate<IEnumerable<IPostBootloader>>(this)).Reverse().ToList();
-            //foreach (var boot in postbootloaders)
-            //{
-            //    boot.Load();
-            //}
         }
 
         private static IEnumerable<T> Sort<T>(IEnumerable<T> src)
