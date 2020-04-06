@@ -69,7 +69,15 @@ namespace HLab.Mvvm.Lang
                 return;
             }
 
-            var localized = await service.LocalizeAsync(lang.IetfLanguageTag, source).ConfigureAwait(true);
+            string localized = source;
+            try
+            {
+                localized = await service.LocalizeAsync(lang.IetfLanguageTag, source).ConfigureAwait(true);
+
+            }
+            catch (Exception e)
+            {
+            }
 
             if (string.IsNullOrEmpty(format))
                 Text = localized;
