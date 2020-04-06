@@ -82,21 +82,23 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        public virtual void Save()
+        public virtual bool Save()
         {
             while (Dirty.TryTake(out var e))
             {
                 Save(e);
             }
             _isDirty.Set(false);
+            return true;
         }
-        public virtual async Task SaveAsync()
+        public virtual async Task<bool> SaveAsync()
         {
             while (Dirty.TryTake(out var e))
             {
                 await SaveAsync(e);
             }
             _isDirty.Set(false);
+            return true;
         }
 
         public virtual void Load()
