@@ -33,6 +33,7 @@ using System.Threading;
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
 using HLab.Notify.Annotations;
+using Nito.AsyncEx;
 
 namespace HLab.Notify.PropertyChanged
 {
@@ -47,8 +48,8 @@ namespace HLab.Notify.PropertyChanged
             public Func<T, bool> Expression { get; set; } = null;
             public int Order { get; set; }
         }
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly ReaderWriterLockSlim _lockFilters = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _lockFilters = new AsyncReaderWriterLock();
 
         private readonly List<Filter> _filters = new List<Filter>();
 
@@ -56,8 +57,7 @@ namespace HLab.Notify.PropertyChanged
 
         public ObservableFilter<T> AddFilter(Func<T, bool> expr, int order = 0, string name = null)
         {
-            _lockFilters.EnterWriteLock();
-            try
+            using(_lockFilters.WriterLock())
             {
                 if (name != null) _removeFilter(name);
                 _filters.Add(new Filter
@@ -67,10 +67,6 @@ namespace HLab.Notify.PropertyChanged
                     Order = order,
                 });
                 return this;
-            }
-            finally
-            {
-                _lockFilters.ExitWriteLock();
             }
         }
 
@@ -84,15 +80,10 @@ namespace HLab.Notify.PropertyChanged
 
         public ObservableFilter<T> RemoveFilter(string name)
         {
-            _lockFilters.EnterWriteLock();
-            try
+            using(_lockFilters.WriterLock())
             {
                 _removeFilter(name);
                 return this;
-            }
-            finally
-            {
-                _lockFilters.ExitWriteLock();
             }
         }
 
@@ -120,7 +111,7 @@ namespace HLab.Notify.PropertyChanged
         private Func<INotifyCollectionChanged> _listGetter = null;
         private INotifyCollectionChanged _currentList = null;
 
-        public ReaderWriterLockSlim Lock => _lock;
+        public AsyncReaderWriterLock Lock => _lock;
 
         private readonly IProperty<int> _count = H.Property<int>(nameof(Count));
         public int Count
@@ -200,13 +191,11 @@ namespace HLab.Notify.PropertyChanged
 
         private bool Match(T item)
         {
-            _lockFilters.EnterReadLock();
-            try
+            using(_lockFilters.ReaderLock())
             {
                 if (_filters == null) return true;
                 return item != null && _filters.Where(filter => filter.Expression != null).All(filter => filter.Expression(item));
             }
-            finally{_lockFilters.ExitReadLock();}
         }
 
 
@@ -253,34 +242,24 @@ namespace HLab.Notify.PropertyChanged
 
         private void _add(T item)
         {
-            _lock.EnterWriteLock();
-            try
+            using(_lock.WriterLock())
             {
                 if (_list.Contains(item)) return;
                 _list.Add(item);
                 _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new T[] {item}));
                 Count = _list.Count;
             }
-            finally
-            {
-                _lock.ExitWriteLock();
-            }
             Notify();
             OnPropertyChanged("Item");
         }
         private void _remove(T item)
         {
-            _lock.EnterWriteLock();
-            try
+            using(_lock.WriterLock())
             {
                 if (!_list.Contains(item)) return;
                 _list.Remove(item);
                 _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new T[] { item }));
                 Count = _list.Count;
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
             }
             Notify();
             OnPropertyChanged("Item");
@@ -298,14 +277,9 @@ namespace HLab.Notify.PropertyChanged
 
         public bool Contains(T item)
         {
-            _lock.EnterReadLock();
-            try
+            using(_lock.ReaderLock())
             {
                 return _list.Contains(item);
-            }
-            finally
-            {
-                _lock.ExitReadLock();
             }
         }
 
@@ -327,11 +301,10 @@ namespace HLab.Notify.PropertyChanged
         {
             private int _currentIdx;
             private readonly ObservableFilter<T> _filter;
-            private ReaderWriterLockSlim _locker;
+            private IDisposable _locker;
             internal FilterEnumerator(ObservableFilter<T> filter)
             {
-                _locker = filter.Lock;
-                _locker.EnterReadLock();
+                _locker = filter.Lock.ReaderLock();
                 _filter = filter;
                 _currentIdx = -1;
             }
@@ -342,7 +315,7 @@ namespace HLab.Notify.PropertyChanged
 
             public void Dispose()
             {
-                _locker.ExitReadLock();
+                _locker?.Dispose();
                 _locker = null;
             }
 
@@ -375,14 +348,9 @@ namespace HLab.Notify.PropertyChanged
         {
             get
             {
-                _lock.EnterReadLock();
-                try
+                using(_lock.ReaderLock())
                 {
                     return _list[index];
-                }
-                finally
-                {
-                    _lock.ExitReadLock();
                 }
             }
             set
@@ -393,14 +361,9 @@ namespace HLab.Notify.PropertyChanged
 
         public int IndexOf(T item)
         {
-            _lock.EnterReadLock();
-            try
+            using(_lock.ReaderLock())
             {
                 return _list.IndexOf(item);
-            }
-            finally
-            {
-                _lock.ExitReadLock();
             }
         }
 
@@ -458,15 +421,14 @@ namespace HLab.Notify.PropertyChanged
             public Func<T, bool> Expression { get; set; } = null;
             public int Order { get; set; }
         }
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly ReaderWriterLockSlim _lockFilters = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
+        private readonly AsyncReaderWriterLock _lockFilters = new AsyncReaderWriterLock();
         private readonly List<Filter> _filters = new List<Filter>();
         private readonly List<T> _list = new List<T>();
 
         public ObservableFilter<TCLass,T> AddFilter(Func<T, bool> expr, int order = 0, string name = null)
         {
-            _lockFilters.EnterWriteLock();
-            try
+            using(_lockFilters.WriterLock())
             {
                 if (name != null) _removeFilter(name);
                 _filters.Add(new Filter
@@ -476,11 +438,6 @@ namespace HLab.Notify.PropertyChanged
                     Order = order,
                 });
                 return this;
-            }
-            finally
-            {
-                if(_lockFilters.IsWriteLockHeld)
-                    _lockFilters.ExitWriteLock();
             }
         }
 
@@ -494,16 +451,10 @@ namespace HLab.Notify.PropertyChanged
 
         public ObservableFilter<TCLass,T> RemoveFilter(string name)
         {
-            _lockFilters.EnterWriteLock();
-            try
+            using(_lockFilters.WriterLock())
             {
                 _removeFilter(name);
                 return this;
-            }
-            finally
-
-            {
-                if(_lockFilters.IsWriteLockHeld) _lockFilters.ExitWriteLock();
             }
         }
 
@@ -531,7 +482,7 @@ namespace HLab.Notify.PropertyChanged
         private Func<INotifyCollectionChanged> _listGetter = null;
         private INotifyCollectionChanged _currentList = null;
 
-        public ReaderWriterLockSlim Lock => _lock;
+        public AsyncReaderWriterLock Lock => _lock;
 
         public int Count
         {
@@ -613,16 +564,11 @@ namespace HLab.Notify.PropertyChanged
 
         private bool Match(T item)
         {
-            _lockFilters.EnterReadLock();
-            try
+            using(_lockFilters.WriterLock())
             {
                 if (_filters == null) return true;
                 return item != null && _filters.Where(filter => filter.Expression != null)
                            .All(filter => filter.Expression(item));
-            }
-            finally
-            {
-                _lockFilters.ExitReadLock();
             }
         }
 
@@ -688,35 +634,25 @@ namespace HLab.Notify.PropertyChanged
 
         private void _add(T item)
         {
-            _lock.EnterWriteLock();
-            try
+            using(_lock.WriterLock())
             {
                 if (_list.Contains(item)) return;
                 _list.Add(item);
                 _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new T[] {item}));
                 Count = _list.Count;
             }
-            finally
-            {
-                _lock.ExitWriteLock();
-            }
             Notify();
             OnPropertyChanged("Item");
         }
         private void _remove(T item)
         {
-            _lock.EnterWriteLock();
-            try
+            using(_lock.WriterLock())
             {
                 if (!_list.Contains(item)) return;
                 _list.Remove(item);
                 _notify.Push(
                     new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new T[] {item}));
                 Count = _list.Count;
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
             }
             Notify();
             OnPropertyChanged("Item");
@@ -734,31 +670,21 @@ namespace HLab.Notify.PropertyChanged
 
         public bool Contains(T item)
         {
-            _lock.EnterReadLock();
-            try
+            using(_lock.ReaderLock())
             {
                 return _list.Contains(item);
-            }
-            finally
-            {
-                _lock.ExitReadLock();
             }
         }
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            _lock.EnterReadLock();
-            try
+            using(_lock.ReaderLock())
             {
                 foreach (T value in this)
                 {
                     array.SetValue(value, arrayIndex);
                     arrayIndex = arrayIndex + 1;
                 }
-            }
-            finally
-            {
-                _lock.ExitReadLock();
             }
         }
 
@@ -771,11 +697,10 @@ namespace HLab.Notify.PropertyChanged
         {
             private int _currentIdx;
             private readonly ObservableFilter<TCLass,T> _filter;
-            private ReaderWriterLockSlim _locker;
+            private IDisposable _locker;
             internal FilterEnumerator(ObservableFilter<TCLass,T> filter)
             {
-                _locker =  filter.Lock;
-                _locker.EnterReadLock();
+                _locker =  filter.Lock.ReaderLock();
                 _filter = filter;
                 _currentIdx = -1;
             }
@@ -786,7 +711,7 @@ namespace HLab.Notify.PropertyChanged
 
             public void Dispose()
             {
-                _locker.ExitReadLock();
+                _locker?.Dispose();
                 _locker = null;
             }
 
@@ -820,14 +745,9 @@ namespace HLab.Notify.PropertyChanged
         {
             get
             {
-                _lock.EnterReadLock();
-                try
+                using (_lock.ReaderLock())
                 {
                     return _list[index];
-                }
-                finally
-                {
-                    _lock.ExitReadLock();
                 }
             }
             set
@@ -838,14 +758,9 @@ namespace HLab.Notify.PropertyChanged
 
         public int IndexOf(T item)
         {
-            _lock.EnterReadLock();
-            try
+            using (_lock.ReaderLock())
             {
                 return _list.IndexOf(item);
-            }
-            finally
-            {
-                _lock.ExitReadLock();
             }
         }
 

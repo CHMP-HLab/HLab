@@ -27,8 +27,7 @@ namespace HLab.Base.Extensions
         public static T SetObserver<T>(this T collection, NotifyCollectionChangedEventHandler handler)
             where T : INotifyCollectionChanged
         {
-            if((collection is ILockable l)) l.Lock.EnterReadLock();
-            try
+            using((collection as ILockable)?.Lock.ReaderLock())
             {
                 if (collection is IList list)
                 {
@@ -44,16 +43,11 @@ namespace HLab.Base.Extensions
                 }
                 return collection;
             }
-            finally
-            {
-                if(collection is ILockable l2 && l2.Lock.IsReadLockHeld) l2.Lock.ExitReadLock();
-            }
         }
 
         public static T GetOrAdd<T>(this IList<T> col, Func<T, bool> comparator, Func<T> getter)
         {
-            if (col is ILockable l) l.Lock.EnterWriteLock();
-            try
+            using((col as ILockable)?.Lock.WriterLock())
             {
                 foreach (var item in col)
                 {
@@ -65,10 +59,6 @@ namespace HLab.Base.Extensions
                 col.Add(newItem);
 
                 return newItem;
-            }
-            finally
-            {
-                if (col is ILockable l2 && l2.Lock.IsWriteLockHeld) l2.Lock.ExitWriteLock();
             }
         }
     }

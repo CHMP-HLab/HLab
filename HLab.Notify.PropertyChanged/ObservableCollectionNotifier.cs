@@ -30,6 +30,7 @@ using System.Diagnostics;
 using System.Threading;
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
+using Nito.AsyncEx;
 
 namespace HLab.Notify.PropertyChanged
 {
@@ -54,7 +55,9 @@ namespace HLab.Notify.PropertyChanged
 
         private readonly List<T> _list = new List<T>();
 
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
+        protected AsyncReaderWriterLock Lock => _lock;
+
         private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _changedQueue = new ConcurrentQueue<NotifyCollectionChangedEventArgs>();
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
@@ -64,26 +67,16 @@ namespace HLab.Notify.PropertyChanged
         {
             get
             {
-                _lock.EnterReadLock();
-                try
+                using(Lock.ReaderLock())
                 {
                     return _selected.Get();
-                }
-                finally
-                {
-                    _lock.ExitReadLock();
                 }
             }
             set
             {
-                _lock.EnterWriteLock();
-                try
+                using(Lock.WriterLock())
                 {
                     _selected.Set(value);
-                }
-                finally
-                {
-                    _lock.ExitWriteLock();
                 }
             }
         }
@@ -108,37 +101,39 @@ namespace HLab.Notify.PropertyChanged
         public virtual void Add(T item) => _add(item);
         private int _add(T item)
         {
-            _lock.EnterWriteLock();
             try
             {
-                var index = _list.Count;
-                _list.Add(item);
-                _count.Set(_list.Count);
-                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
-                return index;
+                using (Lock.WriterLock())
+                {
+                    var index = _list.Count;
+                    _list.Add(item);
+                    _count.Set(_list.Count);
+                    _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+                    return index;
+                }
             }
             finally
             {
-                _lock.ExitWriteLock();
                 OnCollectionChanged();
             }
         }
 
         public bool AddUnique(T item)
         {
-            _lock.EnterWriteLock();
             try
             {
-                if (Contains(item)) return false;
-                var index = Count;
-                _list.Add(item);
-                _count.Set(_list.Count);
-                _changedQueue.Enqueue(
-                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+                using (Lock.WriterLock())
+                {
+                    if (Contains(item)) return false;
+                    var index = Count;
+                    _list.Add(item);
+                    _count.Set(_list.Count);
+                    _changedQueue.Enqueue(
+                        new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+                }
             }
             finally
             {
-                _lock.ExitWriteLock();
                 OnCollectionChanged();
             }
             return true;
@@ -149,23 +144,18 @@ namespace HLab.Notify.PropertyChanged
             Remove((T) item);
         }
 
-        public bool Remove(T item)
-        {
-            _lock.EnterWriteLock();
-            try
+        public bool Remove(T item) => DoWriteLocked(() =>
             {
                 var index = _list.IndexOf(item);
                 var r = _list.Remove(item);
                 _count.Set(_list.Count);
-                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
+                _changedQueue.Enqueue(
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
                 return r;
             }
-            finally
-            {
-                _lock.ExitWriteLock();
-                OnCollectionChanged();
-            }
-        }
+        );
+
+
 
         protected void RemoveAtNoLock(int index)
         {
@@ -175,35 +165,12 @@ namespace HLab.Notify.PropertyChanged
                 _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, index));
         }
 
-        public void RemoveAt(int index)
-        {
-            _lock.EnterWriteLock();
-            try
-            {
-                RemoveAtNoLock(index);
-            }
-            finally
-            {
-                _lock.ExitWriteLock();
-                OnCollectionChanged();
-            }
-        }
+        public void RemoveAt(int index) => DoWriteLocked(() => RemoveAtNoLock(index));
 
-        void IList.Insert(int index, object value)
-        {
-            _lock.EnterWriteLock();
-            try
-            {
-                ((IList)_list).Insert(index, value);
-                _count.Set(_list.Count);
-                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, index));
-            }
-            finally
-            {
-                if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
-                OnCollectionChanged();
-            }
-        }
+
+
+        void IList.Insert(int index, object value) => Insert(index, (T)value);
+        public virtual void Insert(int index, T item) => DoWriteLocked(() => InsertNoLock(index, item));
 
         protected void InsertNoLock(int index, T item)
         {
@@ -213,269 +180,124 @@ namespace HLab.Notify.PropertyChanged
                 _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         }
 
-        public virtual void Insert(int index, T item)
-        {
-            _lock.EnterWriteLock();
-            try
-            {
-                InsertNoLock(index,item);
-            }
-            finally
-            {
-                if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
-                OnCollectionChanged();
-            }
-        }
 
-        public void CopyTo(Array array, int index)
-        {
-            _lock.EnterWriteLock();
-            try
-            {
-                ((IList)_list).CopyTo(array, index);
-                _count.Set(_list.Count);
-                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, array, index));
-            }
-            finally
-            {
-                if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
-                OnCollectionChanged();
-            }
-        }
 
-        public void CopyTo(T[] array, int arrayIndex)
+        public void CopyTo(Array array, int index) => DoWriteLocked(() =>
         {
-            _lock.EnterWriteLock();
-            try
-            {
-                _list.CopyTo(array, arrayIndex);
-                _count.Set(_list.Count);
-                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, array, arrayIndex));
-            }
-            finally
-            {
-                if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
-                OnCollectionChanged();
-            }
-        }
+            ((IList) _list).CopyTo(array, index);
+            _count.Set(_list.Count);
+            _changedQueue.Enqueue(
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, array, index));
+        });
 
-        public void Clear()
+        public void CopyTo(T[] array, int arrayIndex) => DoWriteLocked(() =>
         {
-            _lock.EnterWriteLock();
-            try
-            {
+            _list.CopyTo(array, arrayIndex);
+            _count.Set(_list.Count);
+            _changedQueue.Enqueue(
+                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, array, arrayIndex));
+        });
+
+        public void Clear() => DoWriteLocked(() =>
+        {
                 _list.Clear();
                 _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
-            }
-            finally
-            {
-                if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
-                OnCollectionChanged();
-            }
-        }
+        });
 
-        bool IList.Contains(object value)
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                return ((IList) _list).Contains(value);
-            }
-            finally
-            {
-                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-            }
-        }
+        bool IList.Contains(object value) => DoReadLocked(() => ((IList) _list).Contains(value));
 
-        public bool Contains(T item)
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                return _list.Contains(item);
-            }
-            finally
-            {
-                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-            }
-        }
+        public bool Contains(T item) => DoReadLocked(() => _list.Contains(item));
 
 
-        int IList.IndexOf(object value)
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                return ((IList)_list).IndexOf(value);
-            }
-            finally
-            {
-                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-            }
-        }
+        int IList.IndexOf(object value) => DoReadLocked(() => ((IList)_list).IndexOf(value));
 
-        public int IndexOf(T item)
-        {
-            _lock.EnterReadLock();
-            try
-            {
-                return _list.IndexOf(item);
-            }
-            finally
-            {
-                if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-            }
-        }
+        public int IndexOf(T item) => DoReadLocked(() => _list.IndexOf(item));
 
-        object ICollection.SyncRoot
-        {
-            get
-            {
-                _lock.EnterReadLock();
-                try
-                {
-                    return ((ICollection)_list).SyncRoot;
-                } 
-                finally
-                {
-                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-                }
-            }
-        }
+        object ICollection.SyncRoot => DoReadLocked(() => ((ICollection) _list).SyncRoot);
 
-        bool ICollection.IsSynchronized
-        {
-            get
-            {
-                _lock.EnterReadLock();
-                try
-                {
-                    return ((ICollection) _list).IsSynchronized;
-                }
-                finally
-                {
-                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-                }
-            }
-        }
+        bool ICollection.IsSynchronized => DoReadLocked(() => ((ICollection) _list).IsSynchronized);
 
-        bool IList.IsFixedSize
-        {
-            get
-            {
-                _lock.EnterReadLock();
-                try
-                {
-                    return ((IList)_list).IsFixedSize;
-                }
-                finally
-                {
-                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-                }
-            }
-        }
+        bool IList.IsFixedSize => DoReadLocked(() => ((IList)_list).IsFixedSize);
 
-        bool ICollection<T>.IsReadOnly
-        {
-            get
-            {
-                _lock.EnterReadLock();
-                try
-                {
-                    return ((ICollection<T>)_list).IsReadOnly;
-                }
-                finally
-                {
-                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-                }
-            }
-        }
+        bool ICollection<T>.IsReadOnly => DoReadLocked(() => ((ICollection<T>) _list).IsReadOnly);
 
-        bool IList.IsReadOnly
-        {
-            get
-            {
-                _lock.EnterReadLock();
-                try
-                {
-                    return ((IList)_list).IsReadOnly;
-                }
-                finally
-                {
-                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-                }
-            }
-        }
+        bool IList.IsReadOnly => DoReadLocked(() => ((IList)_list).IsReadOnly);
 
-        public ReaderWriterLockSlim  Lock => _lock;
 
         object IList.this[int index]
         {
-            get
-            {
-                _lock.EnterReadLock();
-                try
-                {
-                    return _list[index];
-                }
-                finally
-                {
-                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-                }
-            }
-            set
-            {
-                _lock.EnterWriteLock();
-                try
+            get => DoReadLocked(()=>_list[index]);
+            set => DoWriteLocked(() =>
                 {
                     ((IList)_list)[index] = value;
                     _count.Set(_list.Count);
                     _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, index));
                 }
-                finally
-                {
-                    if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
-                    OnCollectionChanged();
-                }
-            }
+            );
         }
+
+        protected T GetNoLock(int index) => _list[index];
 
         public T this[int index]
         {
-            get
+            get => DoReadLocked(()=>_list[index]);
+            set => DoWriteLocked(() =>
             {
-                _lock.EnterReadLock();
-                try
-                {
-                    return _list[index];
-                }
-                finally
-                {
-                    if (_lock.IsReadLockHeld) _lock.ExitReadLock();
-                }
-            }
-            set
-            {
-                _lock.EnterWriteLock();
-                try
-                {
                     _list[index] = value;
                     _count.Set(_list.Count);
                     _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace, value, index));
-                }
-
-                finally
-                {
-                    if(_lock.IsWriteLockHeld) _lock.ExitWriteLock();
-                    OnCollectionChanged();
-                }
-            }
+            });
         }
 
         protected void OnCollectionChanged()
         {
                 while (_changedQueue.TryDequeue(out var a))
                     OnCollectionChanged(a);
+        }
+
+        AsyncReaderWriterLock ILockable.Lock => Lock;
+        private RT DoReadLocked<RT>(Func<RT> action)
+        {
+            //try
+            //{
+            using (Lock.ReaderLock())
+            {
+                return action();
+            }
+            //}
+            //finally
+            //{
+            //   OnCollectionChanged();
+            //}
+        }
+        private RT DoWriteLocked<RT>(Func<RT> action)
+        {
+            try
+            {
+                using (Lock.WriterLock())
+                {
+                    return action();
+                }
+            }
+            finally
+            {
+                OnCollectionChanged();
+            }
+        }
+        private void DoWriteLocked(Action action)
+        {
+            try
+            {
+                using (Lock.WriterLock())
+                {
+                    action();
+                }
+            }
+            finally
+            {
+                OnCollectionChanged();
+            }
+
         }
     }
 }

@@ -1,9 +1,10 @@
 ﻿using System.Threading;
+using Nito.AsyncEx;
 
 namespace HLab.Base
 {
     public interface ILockable
     {
-        ReaderWriterLockSlim Lock { get; }
+        AsyncReaderWriterLock Lock { get; }
     }
 }
