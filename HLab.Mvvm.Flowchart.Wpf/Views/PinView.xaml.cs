@@ -5,7 +5,7 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Shapes;
 using HLab.Mvvm.Annotations;
-using HLab.Mvvm.Extentions;
+using HLab.Mvvm.Extensions;
 using HLab.Mvvm.Flowchart.Models;
 using HLab.Mvvm.Flowchart.ViewModel;
 

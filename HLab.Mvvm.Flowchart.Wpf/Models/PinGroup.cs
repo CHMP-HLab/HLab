@@ -69,7 +69,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _block.Set(value);
         }
 
-        private readonly IProperty<IGraphBlock> _block = H.Property<IGraphBlock>(c => c.Default(default));
+        private readonly IProperty<IGraphBlock> _block = H.Property<IGraphBlock>(c => c.Default((IGraphBlock)default));
 
 
 

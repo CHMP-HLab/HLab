@@ -13,6 +13,6 @@ namespace HLab.Mvvm.Flowchart.Models
     {
         public string Id { get; set; }
         public Color Color { get; set; }
-        public string IconName { get; set; }
+        public string IconPath { get; set; }
     }
 }

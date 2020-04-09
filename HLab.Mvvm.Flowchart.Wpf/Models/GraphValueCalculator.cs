@@ -4,7 +4,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
 {
-    public class GraphValueCalculator : N<GraphValueCalculator>, ITriggable
+    public class GraphValueCalculator : N<GraphValueCalculator>//, ITriggable
     {
         public double Value1 => _value1.Get();
         private readonly IProperty<double> _value1 = H.Property<double>(c => c.Set(e => e.GetValue(1)));

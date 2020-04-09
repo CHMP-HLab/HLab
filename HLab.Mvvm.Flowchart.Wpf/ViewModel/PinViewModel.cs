@@ -2,6 +2,7 @@
 using System.Windows.Media;
 using System.Windows.Shapes;
 using HLab.Core;
+using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Flowchart.Models;
@@ -27,7 +28,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
         public Brush Brush => _brush.Get();
         private readonly IProperty<Brush> _brush = H.Property<Brush>(c => c
             .On(e => e.Model.Color)
-            .Set(e => new SolidColorBrush(e.Model.Color)));
+            .Set(e => (Brush)new SolidColorBrush(e.Model.Color)));
 
 
         public Brush BackgroundBrush => _backgroundBrush.Get();
@@ -171,7 +172,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
             set => _enabled.Set(value);
         }
 
-        private readonly IProperty<bool> _enabled = H.Property<bool>(c => c.Default(default));
+        private readonly IProperty<bool> _enabled = H.Property<bool>(c => c.Default((bool)default));
 
 
         public IMessageBus MessageBus { get; }

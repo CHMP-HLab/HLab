@@ -48,7 +48,7 @@
                     Opacity="0.7"
                     Foreground="White"
                     IconService="{Binding IconService}"
-                    Id="{Binding Model.IconName}" Height="20"/>
+                    Path="{Binding Model.IconPath}" Height="20"/>
                 <TextBox 
                     Background="Transparent"
                     TextWrapping="Wrap"

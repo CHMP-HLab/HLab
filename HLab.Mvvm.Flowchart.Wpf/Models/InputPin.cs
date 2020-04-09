@@ -52,7 +52,7 @@ namespace HLab.Mvvm.Flowchart.Models
             }
         }
 
-        private readonly IProperty<IOutputPin> _linkedOutput = H.Property<IOutputPin>(c => c.Default(default));
+        private readonly IProperty<IOutputPin> _linkedOutput = H.Property<IOutputPin>(c => c.Default((IOutputPin)default));
 
 
         [DataMember]

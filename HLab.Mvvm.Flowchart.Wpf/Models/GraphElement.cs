@@ -92,7 +92,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _parent.Set(value);
         }
 
-        private readonly IProperty<IGraphElement> _parent = H.Property<IGraphElement>(c => c.Default(default));
+        private readonly IProperty<IGraphElement> _parent = H.Property<IGraphElement>(c => c.Default((IGraphElement)default));
 
 
         [DataMember]

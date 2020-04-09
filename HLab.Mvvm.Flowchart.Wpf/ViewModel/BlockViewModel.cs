@@ -15,7 +15,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
             set => _graphViewModel.Set(value);
         }
 
-        private readonly IProperty<IGraphViewModel> _graphViewModel = H.Property<IGraphViewModel>(c => c.Default(default));
+        private readonly IProperty<IGraphViewModel> _graphViewModel = H.Property<IGraphViewModel>(c => c.Default((IGraphViewModel)default));
 
 
         public ObservableFilter<IPinGroup> LeftGroups => _leftGroups.Get();
@@ -44,7 +44,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
             set => _selected.Set(value);
         }
 
-        private readonly IProperty<bool> _selected = H.Property<bool>(c => c.Default(default));
+        private readonly IProperty<bool> _selected = H.Property<bool>(c => c.Default((bool)default));
 
 
         public void Select()

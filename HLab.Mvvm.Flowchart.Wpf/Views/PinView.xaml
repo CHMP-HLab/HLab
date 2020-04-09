@@ -38,7 +38,7 @@
                 Height="17"
                 x:Name="LeftIcon" 
                 IconService="{Binding IconService}"
-                Id="{Binding Model.ValueType.IconName}" 
+                Path="{Binding Model.ValueType.IconPath}" 
                 Visibility="{Binding LeftIconVisibility}"/>
             
             <StackPanel Margin="5,0,0,0" Orientation="Vertical" VerticalAlignment="Center">
@@ -56,7 +56,7 @@
                 Height="17"
                 x:Name="RightIcon"  
                 IconService="{Binding IconService}"
-                Id="{Binding Model.ValueType.IconName}" 
+                Path="{Binding Model.ValueType.IconPath}" 
                 Visibility="{Binding RightIconVisibility}"/>
             
         </StackPanel>

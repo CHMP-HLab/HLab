@@ -8,10 +8,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="AvalonEdit" Version="6.0.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <Compile Update="DateEx.xaml.cs">
       <DependentUpon>DateEx.xaml</DependentUpon>
     </Compile>
