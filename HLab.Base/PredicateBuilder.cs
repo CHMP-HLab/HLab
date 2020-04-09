@@ -1,7 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace HLab.Base
 {
@@ -34,15 +32,6 @@ namespace HLab.Base
             Expression body = Expression.OrElse(a.Body, visitor.Visit(b.Body) ?? throw new InvalidOperationException());
             return Expression.Lambda<Func<T, bool>>(body, p);
         }   
-    }
-
-    internal class SubstExpressionVisitor : ExpressionVisitor {
-        public Dictionary<Expression, Expression> Subst = new Dictionary<Expression, Expression>();
-
-        protected override Expression VisitParameter(ParameterExpression node)
-        {
-            return Subst.TryGetValue(node, out var newValue) ? newValue : node;
-        }
     }
 
 
