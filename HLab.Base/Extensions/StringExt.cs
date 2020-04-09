@@ -20,7 +20,9 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
-namespace HLab.Base.Extentions
+using System.Text.RegularExpressions;
+
+namespace HLab.Base.Extensions
 {
     public static class StringExt
     {
@@ -53,5 +55,22 @@ namespace HLab.Base.Extentions
         {
             return value.Substring(value.Length - length);
         }
+
+        public static string FromCamelCase(this string s)
+        {
+            var r = new Regex(@"
+                (?<=[A-Z])(?=[A-Z][a-z]) |
+                 (?<=[^A-Z])(?=[A-Z]) |
+                 (?<=[A-Za-z])(?=[^A-Za-z])", RegexOptions.IgnorePatternWhitespace);
+            return r.Replace(s," ");
+        }
+
+        public static string BeforeSuffix(this string s, string suffix)
+        {
+            var i = s.IndexOf(suffix);
+            if (i >= 0) return s.Substring(0, i);
+            return s;
+        }
+
     }
 }
