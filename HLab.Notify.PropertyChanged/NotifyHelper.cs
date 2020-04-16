@@ -41,7 +41,7 @@ namespace HLab.Notify.PropertyChanged
         public static ICommand Command(NotifyConfiguratorFactory<TClass, NotifyCommand<TClass>> c, [CallerMemberName]string name = null)
         => new NotifyCommand<TClass>(name,c);
 
-        public static IObservableFilter<T> Filter<T>(Func<TClass, ObservableFilter<TClass, T>, ObservableFilter<TClass, T>> configurator)
+        public static IObservableFilter<T> Filter<T>(Func<TClass, IObservableFilter<T>, IObservableFilter<T>> configurator)
             => new ObservableFilter<TClass,T>(configurator);
 
         private static NotifyActivator CreateActivatorA()

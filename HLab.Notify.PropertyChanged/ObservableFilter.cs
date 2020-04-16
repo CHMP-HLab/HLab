@@ -128,15 +128,23 @@ namespace HLab.Notify.PropertyChanged
 
         private INotifyCollectionChanged GetList()
         {
-            var list = _listGetter();
-            if (!ReferenceEquals(_currentList, list))
+            try
             {
-                if (_currentList != null) _currentList.CollectionChanged -= _list_CollectionChanged;
-                if (list != null) list.CollectionChanged += _list_CollectionChanged;
-                _currentList = list;
-                OnTriggered();
+                var list = _listGetter();
+                if (!ReferenceEquals(_currentList, list))
+                {
+                    if (_currentList != null) _currentList.CollectionChanged -= _list_CollectionChanged;
+                    if (list != null) list.CollectionChanged += _list_CollectionChanged;
+                    _currentList = list;
+                    OnTriggered();
+                }
+                return _currentList;
+
             }
-            return _currentList;
+            catch(Exception)
+            {
+                return null;
+            }
         }
 
 
@@ -209,20 +217,20 @@ namespace HLab.Notify.PropertyChanged
 
             var list = GetList();
 
-            if (list is ITriggerable triggable)
+            if (list is ITriggerable t)
             {
-                triggable.OnTriggered();
+                t.OnTriggered();
             }
 
             if (list is IEnumerable<T> l)
                 //using ((l as ILockable)?.Lock.Read)
-                    foreach (var item in l)
-                    {
-                        if (Match(item))
-                            _add(item);
-                        else
-                            _remove(item);
-                    }
+                foreach (var item in l)
+                {
+                    if (Match(item))
+                        _add(item);
+                    else
+                        _remove(item);
+                }
 
             var c1 = Interlocked.Exchange(ref _trigging, 0);
             if (c1>1) OnTriggered();
@@ -323,11 +331,9 @@ namespace HLab.Notify.PropertyChanged
             {
                 if (++_currentIdx >= _filter._list.Count)
                     return false;
-                else
-                {
-                    Current = _filter._list[_currentIdx];
-                    return true;
-                }
+
+                Current = _filter._list[_currentIdx];
+                return true;
             }
 
             public void Reset()
@@ -405,7 +411,8 @@ namespace HLab.Notify.PropertyChanged
     public interface IObservableFilter<T> : IList<T>, ITriggerable, INotifyCollectionChanged,
         IChildObject
     {
-
+        IObservableFilter<T> AddFilter(Func<T, bool> expr, int order = 0, string name = null);
+        IObservableFilter<T> Link(Func<INotifyCollectionChanged> getter);
     }
 
 
@@ -426,7 +433,7 @@ namespace HLab.Notify.PropertyChanged
         private readonly List<Filter> _filters = new List<Filter>();
         private readonly List<T> _list = new List<T>();
 
-        public ObservableFilter<TCLass,T> AddFilter(Func<T, bool> expr, int order = 0, string name = null)
+        public IObservableFilter<T> AddFilter(Func<T, bool> expr, int order = 0, string name = null)
         {
             using(_lockFilters.WriterLock())
             {
@@ -513,10 +520,10 @@ namespace HLab.Notify.PropertyChanged
         }
 
 
-        public ObservableFilter<TCLass,T> Link(Func<INotifyCollectionChanged> getter)
+        public IObservableFilter<T> Link(Func<INotifyCollectionChanged> getter)
         {
             _listGetter = getter;
-            GetList();
+            //GetList();
             return this;
         }
 
@@ -605,10 +612,10 @@ namespace HLab.Notify.PropertyChanged
         private readonly ConcurrentStack<NotifyCollectionChangedEventArgs> _notify = new ConcurrentStack<NotifyCollectionChangedEventArgs>();
 
 
-        private Func<TCLass,ObservableFilter<TCLass, T>,ObservableFilter<TCLass, T>> _configurator;
+        private Func<TCLass,IObservableFilter<T>,IObservableFilter<T>> _configurator;
 
         [Import]
-        public ObservableFilter(Func<TCLass,ObservableFilter<TCLass, T>, ObservableFilter<TCLass, T>> configurator)
+        public ObservableFilter(Func<TCLass,IObservableFilter<T>, IObservableFilter<T>> configurator) : base(false)
         {
             _configurator = configurator;
             H.Initialize(this,OnPropertyChanged);
@@ -618,7 +625,7 @@ namespace HLab.Notify.PropertyChanged
             if (parent is TCLass c)
             {
                 _configurator(c, this);
-                OnTriggered();
+                //OnTriggered();
             }
         }
 
