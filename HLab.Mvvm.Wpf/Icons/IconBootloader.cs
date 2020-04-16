@@ -18,7 +18,7 @@ namespace HLab.Mvvm.Icons
             _icons = icons;
         }
 
-        public bool Load()
+        public void Load(IBootContext b)
         {
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(e => !e.IsDynamic))
             {
@@ -32,8 +32,6 @@ namespace HLab.Mvvm.Icons
                     foreach (var rkey in resources)
                     {
                         var r = ((DictionaryEntry)rkey).Key.ToString().ToLower();
-                        if(r.Contains("unning"))
-                        { }
 
                         var resourcePath = r.Replace(assembly.ManifestModule.Name.Replace(".exe", "") + ".", "");
                         if (resourcePath.EndsWith(".xaml"))
@@ -59,8 +57,6 @@ namespace HLab.Mvvm.Icons
 
 
             }
-
-            return true;
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,6 +16,31 @@ namespace HLab.Core
     /// </summary>
     public class Bootstrapper
     {
+
+        private class Context : IBootContext
+        {
+            private readonly Bootstrapper _bootstrapper;
+            private readonly Entry _entry;
+
+            public Context(Bootstrapper bootstrapper, Entry entry)
+            {
+                _bootstrapper = bootstrapper;
+                _entry = entry;
+            }
+
+            public void Requeue()
+            {
+                _bootstrapper.Enqueue(_entry.Name, _entry.Action);
+            }
+
+            public void Enqueue(string name, Action<IBootContext> action)
+            {
+                _bootstrapper.Enqueue(name,action);
+            }
+
+            public bool Contains(string name) => _bootstrapper.Contains(name);
+        }
+
         public IExportLocatorScope Container { get; }
 
         [Import] public Bootstrapper(IExportLocatorScope container)
@@ -37,6 +63,19 @@ namespace HLab.Core
             _configured = true;
         }
 
+        private struct Entry
+        {
+            public readonly string Name;
+            public readonly Action<IBootContext> Action;
+
+            public Entry(string name, Action<IBootContext> action)
+            {
+                Name = name;
+                Action = action;
+            }
+        }
+
+        private readonly ConcurrentQueue<Entry> _queue = new ConcurrentQueue<Entry>();
         public void Boot()
         {
             if(_configured==false) Configure();
@@ -46,13 +85,16 @@ namespace HLab.Core
                 injection.Configure(Container);
             }
 
-            var bootloaders = SortBootloaders(Sort(Container.Locate<IEnumerable<IBootloader>>(this))).Reverse().ToList();
+            var bootLoaders = SortBootloaders(Sort(Container.Locate<IEnumerable<IBootloader>>(this))).Reverse().ToList();
 
-            var list = new Queue<IBootloader>(bootloaders);
-
-            while ( list.TryDequeue(out var bootloader) )
+            foreach (var bootloader in bootLoaders)
             {
-                if(!bootloader.Load()) bootloaders.Add(bootloader);
+                Enqueue(bootloader.GetType().Name, bs => bootloader.Load(bs));
+            }
+
+            while ( _queue.TryDequeue(out var entry) )
+            {
+                entry.Action(new Context(this,entry));
             }
         }
 
@@ -83,15 +125,15 @@ namespace HLab.Core
             {
                 var inserted = false;
                 if(boot is IBootloaderDependent bd)
-                for (var i = 0; i < result.Count; i++)
-                {
-                    if (bd.DependsOn.Contains(result[i].GetType().Name))
+                    for (var i = 0; i < result.Count; i++)
                     {
-                        result.Insert(i, boot);
-                        inserted = true;
-                        break;
+                        if (bd.DependsOn.Contains(result[i].GetType().Name))
+                        {
+                            result.Insert(i, boot);
+                            inserted = true;
+                            break;
+                        }
                     }
-                }
                 if (!inserted) result.Add(boot);
             }
 
@@ -207,6 +249,16 @@ namespace HLab.Core
             //        { }
             //    }
             //}
+        }
+
+        public void Enqueue(string name,Action<IBootContext> action)
+        {
+            _queue.Enqueue(new Entry(name, action));
+        }
+
+        public bool Contains(string name)
+        {
+            return _queue.Any(e => e.Name == name);
         }
     }
 }

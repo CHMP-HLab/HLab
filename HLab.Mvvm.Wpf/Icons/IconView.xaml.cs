@@ -75,7 +75,7 @@ namespace HLab.Mvvm.Icons
                 if (_designTimeService == null)
                 {
                     _designTimeService = new IconService();
-                    new IconBootloader(_designTimeService).Load();
+                    new IconBootloader(_designTimeService).Load(null);
                 }
 
                 service = _designTimeService;
