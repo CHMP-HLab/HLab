@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
@@ -16,7 +17,7 @@ namespace HLab.Mvvm.Lang
         {
             System.ComponentModel.DependencyPropertyDescriptor pdIsAvailable = System.ComponentModel.DependencyPropertyDescriptor.FromProperty
                     (LanguageProperty, typeof(FrameworkElement));
-            pdIsAvailable.AddValueChanged(this, (o,h) => Update(Language, LocalizationService, Id,StringFormat));
+            pdIsAvailable.AddValueChanged(this, (o,h) => UpdateAsync(Language, LocalizationService, Id,StringFormat));
         }
 
         public string Id
@@ -26,14 +27,14 @@ namespace HLab.Mvvm.Lang
         }
         public static readonly DependencyProperty IdProperty =
             H.Property<string>()
-                .OnChange((s, e) => s.Update(s.Language, s.LocalizationService, e.NewValue, s.StringFormat))
+                .OnChange((s, e) => s.UpdateAsync(s.Language, s.LocalizationService, e.NewValue, s.StringFormat))
                 .AffectsRender
                 .Register();
 
         public static readonly DependencyProperty StringFormatProperty =
             H.Property<string>()
                 .Default("{}{0}")
-                .OnChange((s, e) => s.Update(s.Language, s.LocalizationService, s.Id, e.NewValue))
+                .OnChange((s, e) => s.UpdateAsync(s.Language, s.LocalizationService, s.Id, e.NewValue))
                 .AffectsRender
                 .Register();
 
@@ -41,7 +42,7 @@ namespace HLab.Mvvm.Lang
             H.Property<ILocalizationService>()
                 .OnChange((s, e) =>
                 {
-                        s.Update(s.Language, e.NewValue, s.Id, s.StringFormat);
+                        s.UpdateAsync(s.Language, e.NewValue, s.Id, s.StringFormat);
                 })
                 .Inherits.AffectsRender
                 .RegisterAttached();
@@ -59,9 +60,9 @@ namespace HLab.Mvvm.Lang
             set => SetValue(LocalizationServiceProperty, value);
         }
 
-        public async void Update(XmlLanguage lang, ILocalizationService service, string source, string format)
+        public async Task UpdateAsync(XmlLanguage lang, ILocalizationService service, string source, string format)
         {
-            if(service==null) service = new LocalizationService();
+            if(service==null) return;
 
             if (string.IsNullOrWhiteSpace(source))
             {

@@ -18,6 +18,10 @@ namespace HLab.Mvvm
     [Export(typeof(ILocalizationService)),Singleton]
     public class LocalizationService : ILocalizationService, IService
     {
+        public  LocalizationService()
+        {
+        }
+
         private CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
 
         public Task<string> LocalizeAsync(string value) => LocalizeAsync(Culture.IetfLanguageTag.ToLowerInvariant(), value);
@@ -40,8 +44,6 @@ namespace HLab.Mvvm
                     yield return value;
             }
         }
-
-        private const StringComparison culture = StringComparison.InvariantCulture;
 
         public async Task<string> LocalizeItemAsync(string tag, string code)
         {
@@ -102,7 +104,7 @@ namespace HLab.Mvvm
         }
 
         public async Task<string> LocalizeAsync(string tag, string text)
-        {
+        {   
             if (string.IsNullOrWhiteSpace(text)) return "";
             tag = tag.ToLower();
             var matches = Regex.Matches(text, @"\{[^}]*}");
