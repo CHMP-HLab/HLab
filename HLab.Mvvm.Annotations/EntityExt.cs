@@ -31,12 +31,12 @@ namespace HLab.Mvvm.Annotations
 {
     public static class EntityExt
     {
-        public static TEntityViewModel ViewModel<TEntityViewModel, T>(this T entity)
-            where TEntityViewModel : IViewModel<T>, new()
-        {
-            var viewModel = new TEntityViewModel {Model = entity};
-            return viewModel;
-        }
+        //public static TEntityViewModel ViewModel<TEntityViewModel, T>(this T entity)
+        //    where TEntityViewModel : IViewModel<T>, new()
+        //{
+        //    var viewModel = new TEntityViewModel {Model = entity};
+        //    return viewModel;
+        //}
 
         //public static IView GetView<TViewMode>(this IViewModel viewModel,object model)
         //    where TViewMode : ViewMode
