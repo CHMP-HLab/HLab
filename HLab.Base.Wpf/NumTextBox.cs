@@ -7,9 +7,11 @@ using System.Windows.Media;
 
 namespace HLab.Base
 {
-    public class NumTextBox : TextBox
+    public class NumTextBox : TextBox, IMandatoryNotFilled
     {
         private class H : DependencyHelper<NumTextBox> { }
+
+        public DependencyProperty MandatoryProperty => ValueProperty;
 
         public event EventHandler ValueChanged;
         public static readonly DependencyProperty ValueProperty =
@@ -45,6 +47,9 @@ namespace HLab.Base
                         e.Value = a.NewValue;
                 }).Register();
 
+        public static readonly DependencyProperty MandatoryNotFilledProperty = H.Property<bool>()
+            .OnChange( (s,a) => s.SetMandatoryNotFilled(a.NewValue) )
+            .Register();
 
         public int Value
         {
@@ -60,6 +65,11 @@ namespace HLab.Base
         {
             get => (int) GetValue(MaxValueProperty);
             set => SetValue(MaxValueProperty,value);
+        }
+        public bool MandatoryNotFilled
+        {
+            get => (bool)GetValue(MandatoryNotFilledProperty);
+            set => SetValue(MandatoryNotFilledProperty, value);
         }
 
         protected override void OnPreviewTextInput(TextCompositionEventArgs e)
@@ -104,6 +114,20 @@ namespace HLab.Base
             }
             else return;
 
+        }
+        private void SetMandatoryNotFilled(bool mnf)
+        {
+            if (mnf)
+            {
+                BorderThickness = new Thickness(1);
+                BorderBrush = new SolidColorBrush(Colors.DarkRed);
+            }
+            else
+            {
+                BorderThickness = new Thickness(0);
+                BorderBrush = new SolidColorBrush(Colors.Transparent);
+            }
+//            Mandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)

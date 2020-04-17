@@ -34,13 +34,12 @@
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-
         <Grid Grid.Column="0">
             <base:NumTextBox 
                 x:Name="TextDay"
                 MinValue="0"
                 MaxValue="31"
-            Background="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=Background, Mode=OneWay}"
+                Background="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=Background, Mode=OneWay}"
                 ValueChanged="OnValueChange"
             /><Popup 
                 Name="Popup" 
@@ -88,5 +87,9 @@
                </ControlTemplate>
             </Button.Template>
         </Button>
+        <Grid x:Name="Mandatory" Grid.Row="0" Grid.Column="0"  Visibility="Collapsed" Grid.ColumnSpan="3" IsHitTestVisible="False">
+            <Border Background="#10FF0010" IsHitTestVisible="False" BorderThickness="1" Opacity="0.5" BorderBrush="DarkRed"/>
+            <ContentControl Margin="5,0,0,0" HorizontalAlignment="Left" IsHitTestVisible="False" Content="{StaticResource Edit}" Foreground="DarkRed" Height="15"/>
+        </Grid>
     </Grid>
 </UserControl>

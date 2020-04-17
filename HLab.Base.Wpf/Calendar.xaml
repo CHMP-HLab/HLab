@@ -3,7 +3,29 @@
 <ResourceDictionary 
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation">
-<Viewbox x:Key="Calendar" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform">
+
+<Viewbox x:Key="Edit" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform">
+  <Canvas Name="svg6" Width="401.52289" Height="401">
+    <Canvas.RenderTransform>
+      <TranslateTransform X="0" Y="1"/>
+    </Canvas.RenderTransform>
+    <Canvas.Resources/>
+    <!--Unknown tag: metadata-->
+    <!--Unknown tag: sodipodi:namedview-->
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2" Fill="DarkRed">
+      <Path.Data>
+        <PathGeometry Figures="m370.589844 250.972656c-5.523438 0-10 4.476563-10 10v88.789063c-.019532 16.5625-13.4375 29.984375-30 30h-280.589844c-16.5625-.015625-29.980469-13.4375-30-30v-260.589844c.019531-16.558594 13.4375-29.980469 30-30h88.789062c5.523438 0 10-4.476563 10-10 0-5.519531-4.476562-10-10-10h-88.789062c-27.601562.03125-49.96875 22.398437-50 50v260.59375c.03125 27.601563 22.398438 49.96875 50 50h280.589844c27.601562-.03125 49.96875-22.398437 50-50v-88.792969c0-5.523437-4.476563-10-10-10zm0 0" FillRule="NonZero"/>
+      </Path.Data>
+    </Path>
+    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4" Fill="DarkRed">
+      <Path.Data>
+        <PathGeometry Figures="m376.628906 13.441406c-17.574218-17.574218-46.066406-17.574218-63.640625 0l-178.40625 178.40625c-1.222656 1.222656-2.105469 2.738282-2.566406 4.402344l-23.460937 84.699219c-.964844 3.472656.015624 7.191406 2.5625 9.742187 2.550781 2.546875 6.269531 3.527344 9.742187 2.566406l84.699219-23.464843c1.664062-.460938 3.179687-1.34375 4.402344-2.566407l178.402343-178.410156c17.546875-17.585937 17.546875-46.054687 0-63.640625zm-220.257812 184.90625 146.011718-146.015625 47.089844 47.089844-146.015625 146.015625zm-9.40625 18.875 37.621094 37.625-52.039063 14.417969zm227.257812-142.546875-10.605468 10.605469-47.09375-47.09375 10.609374-10.605469c9.761719-9.761719 25.589844-9.761719 35.351563 0l11.738281 11.734375c9.746094 9.773438 9.746094 25.589844 0 35.359375zm0 0" FillRule="NonZero"/>
+      </Path.Data>
+    </Path>
+  </Canvas>
+</Viewbox>
+
+    <Viewbox x:Key="Calendar" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform">
   <Canvas Name="Capa_1" Width="612" Height="612" Canvas.Left="0" Canvas.Top="0">
     <Canvas.RenderTransform>
       <TranslateTransform X="0" Y="0"/>
@@ -13,17 +35,17 @@
     <!--Unknown tag: sodipodi:namedview-->
     <Canvas Name="g22">
       <Canvas Name="g20">
-                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path2" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
+                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
           <Path.Data>
             <PathGeometry Figures="M153 114.75h1.592c15.845 0 28.688-12.842 28.688-28.688V76.5V28.688C183.28 12.842 170.437 0 154.592 0H153    c-15.845 0-28.688 12.842-28.688 28.688V76.5v9.562C124.312 101.908 137.155 114.75 153 114.75z" FillRule="NonZero"/>
           </Path.Data>
         </Path>
-                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path4" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
+                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
           <Path.Data>
             <PathGeometry Figures="M449.438 114.75h1.592c15.846 0 28.688-12.842 28.688-28.688V76.5V28.688C479.717 12.842 466.875 0 451.029 0h-1.592    c-15.845 0-28.688 12.842-28.688 28.688V76.5v9.562C420.75 101.908 433.593 114.75 449.438 114.75z" FillRule="NonZero"/>
           </Path.Data>
         </Path>
-                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Name="path6" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
+                    <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
           <Path.Data>
             <PathGeometry Figures="M535.5 76.5h-27.096v9.562c0 31.638-25.737 57.375-57.375 57.375h-1.592c-31.638 0-57.375-25.737-57.375-57.375V76.5    H211.967v9.562c0 31.638-25.738 57.375-57.375 57.375H153c-31.638 0-57.375-25.737-57.375-57.375V76.5H76.5    C34.253 76.5 0 110.753 0 153v382.5C0 577.747 34.253 612 76.5 612h459c42.247 0 76.5-34.253 76.5-76.5V153    C612 110.753 577.747 76.5 535.5 76.5z M573.75 535.5c0 21.104-17.146 38.25-38.25 38.25h-459c-21.085 0-38.25-17.146-38.25-38.25    v-306h535.5V535.5z" FillRule="NonZero"/>
           </Path.Data>

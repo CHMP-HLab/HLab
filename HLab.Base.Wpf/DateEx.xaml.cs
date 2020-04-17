@@ -4,18 +4,24 @@ using System.Windows.Controls;
 
 namespace HLab.Base
 {
+    using H = DependencyHelper<DateEx>;
     /// <summary>
     /// Logique d'interaction pour DateEx.xaml
     /// </summary>
-    public partial class DateEx : UserControl
+    public interface IMandatoryNotFilled
+    {
+        DependencyProperty MandatoryProperty { get; }
+        bool MandatoryNotFilled { get; set; }
+    }
+
+    public partial class DateEx : UserControl, IMandatoryNotFilled
     {
         public DateEx()
         {
             InitializeComponent();
             Set(Date,DayValid);
         }
-
-        private class H : DependencyHelper<DateEx> { }
+        public DependencyProperty MandatoryProperty => DateProperty;
 
         public static readonly DependencyProperty DateProperty =
             H.Property<DateTime?>()
@@ -46,6 +52,10 @@ namespace HLab.Base
                 e.Set(e.Date, a.NewValue);
             }).Register();
 
+        public static readonly DependencyProperty MandatoryNotFilledProperty = H.Property<bool>()
+            .OnChange( (s,a) => s.SetMandatoryNotFilled(a.NewValue) )
+            .Register();
+
         private void SetReadOnly()
         {
             TextDay.IsReadOnly = IsReadOnly;
@@ -62,6 +72,10 @@ namespace HLab.Base
                 TextMonth.Value = date.Value.Month;
                 TextYear.Value = date.Value.Year;
             }
+        }
+        private void SetMandatoryNotFilled(bool mnf)
+        {
+            Mandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public DateTime? Date
@@ -83,6 +97,11 @@ namespace HLab.Base
         {
             get => (bool)GetValue(IsReadOnlyProperty);
             set => SetValue(IsReadOnlyProperty, value);
+        }
+        public bool MandatoryNotFilled
+        {
+            get => (bool)GetValue(MandatoryNotFilledProperty);
+            set => SetValue(MandatoryNotFilledProperty, value);
         }
 
         private void OnValueChange(object sender, EventArgs e)
