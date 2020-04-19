@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Media;
 
 namespace HLab.Base
 {
@@ -16,6 +18,17 @@ namespace HLab.Base
 
     public partial class DateEx : UserControl, IMandatoryNotFilled
     {
+        private static readonly int[] _daysToMonth365 = {
+            0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
+        private static readonly int[] _daysToMonth366 = {
+            0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
+        private static int DaysInMonth(int year, int month)
+        {
+            if (month < 1) return _daysToMonth366.Max();
+            int[] days = year<1 ? _daysToMonth366 : DateTime.IsLeapYear(year) ? _daysToMonth366 : _daysToMonth365;
+            return days[month] - days[month - 1];
+        }
+
         public DateEx()
         {
             InitializeComponent();
@@ -49,12 +62,24 @@ namespace HLab.Base
         public static readonly DependencyProperty EmptyDayAllowedProperty =
             H.Property<bool>().OnChange((e, a) =>
             {
-                e.Set(e.Date, a.NewValue);
+                //e.Set(e.Date, a.NewValue);
             }).Register();
 
         public static readonly DependencyProperty MandatoryNotFilledProperty = H.Property<bool>()
             .OnChange( (s,a) => s.SetMandatoryNotFilled(a.NewValue) )
             .Register();
+
+        public static readonly DependencyProperty ContentBackgroundProperty = H.Property<Brush>()
+            .OnChange( (s,a) => s.SetContentBackground(a.NewValue) )
+            .Default(new SolidColorBrush(Colors.Transparent))
+            .Register();
+
+        private void SetContentBackground(Brush brush)
+        {
+            TextDay.Background = brush;
+            TextMonth.Background = brush;
+            TextYear.Background = brush;
+        }
 
         private void SetReadOnly()
         {
@@ -76,6 +101,7 @@ namespace HLab.Base
         private void SetMandatoryNotFilled(bool mnf)
         {
             Mandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
+            IconMandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
         }
 
         public DateTime? Date
@@ -103,33 +129,38 @@ namespace HLab.Base
             get => (bool)GetValue(MandatoryNotFilledProperty);
             set => SetValue(MandatoryNotFilledProperty, value);
         }
+        public Brush ContentBackground
+        {
+            get => (Brush)GetValue(ContentBackgroundProperty);
+            set => SetValue(ContentBackgroundProperty, value);
+        }
 
         private void OnValueChange(object sender, EventArgs e)
         {
             var year = TextYear.Value;
             var month = TextMonth.Value;
             var day = TextDay.Value;
-            bool dayValid = true;
+            var dayValid = true;
 
             if (month > 12) month = 12;
-            if (month < 1) month = 1;
-            if (year < 1) year = 1;
+            if (month < 1 && year>0) month = 1;
+            //if (year < 1) year = 1;
             if (year > 9999) year = 9999;
 
             if (EmptyDayAllowed)
             {
-                if (day < 1 || day > DateTime.DaysInMonth(year, month))
+                if (day < 1 || day > DaysInMonth(year, month))
                 {
                     dayValid = false;
-                    day = DateTime.DaysInMonth(year, month);
+                    day = DaysInMonth(year, month);
                 }
             }
             else
             {
-                if (day < 1) day = 1;
-                if (day > DateTime.DaysInMonth(year, month))
+                if (day < 1 && month>0) day = 1;
+                if (day > DaysInMonth(year, month))
                 {
-                    day = DateTime.DaysInMonth(year, month);
+                    day = DaysInMonth(year, month);
                 }
             }
 
@@ -138,9 +169,11 @@ namespace HLab.Base
             TextMonth.Value = month;
 
             TextDay.Value = dayValid ? day : 0;
-
-            Date = new DateTime(year,month,day);
-            DayValid = dayValid;
+            if (year > 0)
+            {
+                DayValid = dayValid;
+                Date = new DateTime(year,month,day);
+            }
         }
 
         private void Button_OnClick(object sender, RoutedEventArgs e)

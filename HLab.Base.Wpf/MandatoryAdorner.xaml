@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="HLab.Base.MandatoryAdorner"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HLab.Base"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800" Background="Transparent">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Calendar.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+
+        </ResourceDictionary>
+
+    </UserControl.Resources>
+    <Grid x:Name="Mandatory" Grid.Row="0" Grid.Column="0"  Grid.ColumnSpan="2" IsHitTestVisible="False">
+        <Border Background="#20800000" IsHitTestVisible="False" BorderThickness="2" Opacity="0.5" BorderBrush="#80E00000"/>
+        <ContentControl Margin="5,0,0,0" HorizontalAlignment="Left" IsHitTestVisible="False" Content="{StaticResource Edit}" Foreground="DarkRed" Height="15"/>
+    </Grid>
+</UserControl>
