@@ -18,10 +18,10 @@ namespace HLab.Base
             H.Property<int>()
                 .Default(0)
                 .OnChange((e, a) =>
-            {
-                e.Text = a.NewValue.ToString();
-                e.ValueChanged?.Invoke(e,new EventArgs());
-            }).Register();
+                {
+                    e.Text = a.NewValue == 0 ? "" : a.NewValue.ToString();
+                    e.ValueChanged?.Invoke(e,new EventArgs());
+                }).Register();
 
         public static readonly DependencyProperty MinValueProperty =
             H.Property<int>()
@@ -75,6 +75,12 @@ namespace HLab.Base
         protected override void OnPreviewTextInput(TextCompositionEventArgs e)
         {
             base.OnPreviewTextInput(e);
+
+            if (e.Text.Contains('/') && !string.IsNullOrWhiteSpace(Text))
+            {
+                MoveNext();
+            }
+
             Regex regex = new Regex(@"^[-+]?\d*$");
             e.Handled = !regex.IsMatch(e.Text);
 
@@ -83,25 +89,50 @@ namespace HLab.Base
         protected override void OnTextChanged(TextChangedEventArgs e)
         {
             base.OnTextChanged(e);
-            while(true)
-            if (int.TryParse(Text, out var i))
+
+            var text = Text;
+            var s = SelectionStart;
+            var removed = 0;
+
+            while (text.StartsWith('0') && text != "0")
             {
-                var s = SelectionStart;
+                text = text.Substring(1);
+                if(s>0) s--;
+                removed++;
+            }
+
+            while (true)
+            {
+
+                if (!int.TryParse(text, out var i))
+                {
+                    if(!string.IsNullOrWhiteSpace(text)) return;
+                    i = 0;
+                }
+
                 if (i > MaxValue) 
                 {
-                    if (s == Text.Length)
+                    if (s == text.Length)
                     {
                         Value = MaxValue;
                         e.Handled = MoveNext();
                         return;
                     }
 
-                    Text = Text.Substring(0, s) + Text.Substring(s + 1);
+                    text = text.Substring(0, s) + text.Substring(s + 1);
                     SelectionStart = s;
                     e.Handled = true;
                     continue;
                 }
-                else if (i*10 > MaxValue && s == Text.Length)
+
+                if (i*10 > MaxValue && s == text.Length)
+                {
+                    Value = i;
+                    e.Handled = MoveNext();
+                    return;
+                }
+
+                if (removed > 0 && Math.Pow(10 , Text.Length) > MaxValue)
                 {
                     Value = i;
                     e.Handled = MoveNext();
@@ -109,10 +140,10 @@ namespace HLab.Base
                 }
 
                 Value = i;
+                SelectionStart = s;
                 e.Handled = true;
                 return;
             }
-            else return;
 
         }
         private void SetMandatoryNotFilled(bool mnf)
