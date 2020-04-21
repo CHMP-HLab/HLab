@@ -31,7 +31,9 @@
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="2*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
@@ -49,21 +51,24 @@
                     SelectedDatesChanged="Calendar_OnSelectedDatesChanged"/>
             </Popup>
         </Grid>
-                <!--Background="{Binding RelativeSource={RelativeSource AncestorType=UserControl}, Path=Background, Mode=OneWay}"-->
+
+        <Label Opacity="0.5" Grid.Column="2" Margin="-6,0">/</Label>
 
         <base:NumTextBox 
-            Margin ="3,0,0,0"
+            Margin ="0"
             x:Name="TextMonth" 
-            Grid.Column="2"
+            Grid.Column="3"
             MinValue="0"
             MaxValue="12"
             ValueChanged="OnValueChange"
             />
 
+        <Label Opacity="0.5" Grid.Column="4" Margin="-6,0">/</Label>
+
         <base:NumTextBox 
-            Margin ="3,0,0,0"
+            Margin ="0"
             x:Name="TextYear" 
-            Grid.Column="3"
+            Grid.Column="5"
             MinValue="0"
             MaxValue="9999"
             HorizontalContentAlignment="Center"
@@ -71,9 +76,9 @@
             />
 
         <Button 
-            Margin ="3,0,0,0"
+            Margin ="0"
             HorizontalAlignment="Left"
-            Grid.Column="4"
+            Grid.Column="6"
             Name="Button" 
             Width="15"
             Click="Button_OnClick">
@@ -85,12 +90,13 @@
                </ControlTemplate>
             </Button.Template>
         </Button>
+
         <Border  
             x:Name="Mandatory" 
             Grid.Row="0" 
             Grid.Column="1"  
             Visibility="Collapsed" 
-            Grid.ColumnSpan="3" Background="#10FF0010" IsHitTestVisible="False" BorderThickness="1" Opacity="0.5" BorderBrush="DarkRed"/>
+            Grid.ColumnSpan="5" Background="#10FF0010" IsHitTestVisible="False" BorderThickness="1" Opacity="0.5" BorderBrush="DarkRed"/>
             <ContentControl x:Name="IconMandatory" 
                 Grid.Row="0" Visibility="Collapsed" 
                 Grid.Column="0"  

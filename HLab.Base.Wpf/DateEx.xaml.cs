@@ -135,7 +135,7 @@ namespace HLab.Base
             set => SetValue(ContentBackgroundProperty, value);
         }
 
-        private void OnValueChange(object sender, EventArgs e)
+        protected virtual void OnValueChange(object source, ValueChangedEventArg e)
         {
             var year = TextYear.Value;
             var month = TextMonth.Value;

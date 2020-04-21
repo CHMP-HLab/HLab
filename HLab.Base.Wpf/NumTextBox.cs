@@ -7,21 +7,28 @@ using System.Windows.Media;
 
 namespace HLab.Base
 {
+    public class ValueChangedEventArg : EventArgs
+    {
+        public int NewValue { get; }
+
+        public ValueChangedEventArg(int value)
+        {
+            NewValue = value;
+        }
+    }
+
     public class NumTextBox : TextBox, IMandatoryNotFilled
     {
         private class H : DependencyHelper<NumTextBox> { }
 
         public DependencyProperty MandatoryProperty => ValueProperty;
 
-        public event EventHandler ValueChanged;
+        public event EventHandler<ValueChangedEventArg> ValueChanged;
         public static readonly DependencyProperty ValueProperty =
             H.Property<int>()
                 .Default(0)
-                .OnChange((e, a) =>
-                {
-                    e.Text = a.NewValue == 0 ? "" : a.NewValue.ToString();
-                    e.ValueChanged?.Invoke(e,new EventArgs());
-                }).Register();
+                .OnChange((e, a) => e.OnValueChanged(new ValueChangedEventArg(a.NewValue)))
+                .Register();
 
         public static readonly DependencyProperty MinValueProperty =
             H.Property<int>()
@@ -51,6 +58,10 @@ namespace HLab.Base
             .OnChange( (s,a) => s.SetMandatoryNotFilled(a.NewValue) )
             .Register();
 
+        public static readonly DependencyProperty ShowZeroProperty = H.Property<bool>()
+            .OnChange( (s,a) => s.SetShowZero(a.NewValue) )
+            .Register();
+
         public int Value
         {
             get => (int) GetValue(ValueProperty);
@@ -71,6 +82,23 @@ namespace HLab.Base
             get => (bool)GetValue(MandatoryNotFilledProperty);
             set => SetValue(MandatoryNotFilledProperty, value);
         }
+        public bool ShowZero
+        {
+            get => (bool)GetValue(ShowZeroProperty);
+            set => SetValue(ShowZeroProperty, value);
+        }
+
+        protected virtual void OnValueChanged(ValueChangedEventArg arg)
+        {
+
+            if(ShowZero)
+                Text = arg.NewValue.ToString();
+            else
+                Text = arg.NewValue == 0 ? "" : arg.NewValue.ToString();
+
+            ValueChanged?.Invoke(this,arg);
+
+        }
 
         protected override void OnPreviewTextInput(TextCompositionEventArgs e)
         {
@@ -81,7 +109,7 @@ namespace HLab.Base
                 MoveNext();
             }
 
-            Regex regex = new Regex(@"^[-+]?\d*$");
+            var regex = new Regex(@"^[-+]?\d*$");
             e.Handled = !regex.IsMatch(e.Text);
 
         }
@@ -161,6 +189,18 @@ namespace HLab.Base
 //            Mandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
         }
 
+        private void SetShowZero(bool value)
+        {
+            if (value)
+            {
+                if (Value == 0) Text = "0";
+            }
+            else
+            {
+                if (Value == 0) Text = "";
+            }
+        }
+
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
         {
             base.OnMouseDoubleClick(e);
@@ -195,6 +235,25 @@ namespace HLab.Base
         {
             if (e.OriginalSource is NumTextBox textBox)
                 textBox.SelectAll();
+        }
+
+        protected override void OnLostFocus(RoutedEventArgs e)
+        {
+            base.OnLostFocus(e);
+            if (ShowZero)
+            {
+                if (string.IsNullOrWhiteSpace(Text))
+                {
+                    Value = 0;
+                }
+            }
+            else
+            {
+                if (int.TryParse(Text, out var i))
+                {
+                    if (i == 0) Text = "";
+                }
+            }
         }
 
         private static void SelectivelyIgnoreMouseButton( MouseButtonEventArgs e)
