@@ -11,13 +11,12 @@ namespace HLab.Base.Fluent
 
     public class FluentConfigurator<T> : IFluentConfigurator<T>
     {
-        private readonly T _target;
         public FluentConfigurator(T target)
         {
-            _target = target;
+            Target = target;
         }
 
-        T IFluentConfigurator<T>.Target => _target;
+        public T Target { get; }
     }
 
     public static class FluentExtension
