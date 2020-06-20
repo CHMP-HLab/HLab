@@ -9,12 +9,9 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="4.7.0" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.Core.Annotations\HLab.Core.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.Core\HLab.Core.csproj" />
     <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
     <ProjectReference Include="..\HLab.DependencyInjection\HLab.DependencyInjection.csproj" />
     <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />

@@ -31,6 +31,7 @@ using System.Diagnostics;
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
 using HLab.Notify.PropertyChanged;
+using Nito.AsyncEx;
 
 namespace HLab.Notify.Collections
 {
@@ -55,7 +56,7 @@ namespace HLab.Notify.Collections
 
         private readonly List<T> _list = new List<T>();
 
-        private readonly Locker _lock = new Locker(true);
+        private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -64,14 +65,14 @@ namespace HLab.Notify.Collections
         {
             get
             {
-                using (_lock.Read)
+                using (_lock.ReaderLock())
                 {
                     return _selected.Get();
                 }
             }
             set
             {
-                using (_lock.Write)
+                using (_lock.WriterLock())
                 {
                     _selected.Set(value);
                 }
@@ -98,7 +99,7 @@ namespace HLab.Notify.Collections
         {
             int r = 0;
             int idx = 0;
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 idx = _list.Count;
                 r = ((IList)_list).Add(value);
@@ -112,7 +113,7 @@ namespace HLab.Notify.Collections
         {
             int r = 0;
             int idx = 0;
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 idx = _list.Count;
                 _list.Add(item);
@@ -124,7 +125,7 @@ namespace HLab.Notify.Collections
         {
              int r = 0;
             int idx = 0;
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 if (Contains(item)) return false;
                 _list.Add(item);
@@ -139,7 +140,7 @@ namespace HLab.Notify.Collections
         {
             int r = 0;
             int idx = 0;
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 idx = ((IList)_list).IndexOf(value);
                 ((IList)_list).Remove(value);
@@ -152,7 +153,7 @@ namespace HLab.Notify.Collections
         {
             bool r = false;
             int idx = 0;
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 idx = _list.IndexOf(item);
                 r = _list.Remove(item);
@@ -165,7 +166,7 @@ namespace HLab.Notify.Collections
         public void RemoveAt(int index)
         {
             T value;
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 value = _list[index];
                 _list.RemoveAt(index);
@@ -177,7 +178,7 @@ namespace HLab.Notify.Collections
 
         void IList.Insert(int index, object value)
         {
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 ((IList)_list).Insert(index, value);
                 _count.Set(_list.Count);
@@ -187,7 +188,7 @@ namespace HLab.Notify.Collections
 
         public virtual void Insert(int index, T item)
         {
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 Debug.Assert(index <= _list.Count);
                 _list.Insert(index, item);
@@ -198,7 +199,7 @@ namespace HLab.Notify.Collections
 
         public void CopyTo(Array array, int index)
         {
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 ((IList)_list).CopyTo(array, index);
                 _count.Set(_list.Count);
@@ -208,7 +209,7 @@ namespace HLab.Notify.Collections
 
         public void CopyTo(T[] array, int arrayIndex)
         {
-            using (_lock.Write)
+            using (_lock.WriterLock())
             {
                 _list.CopyTo(array, arrayIndex);
                 _count.Set(_list.Count);
@@ -220,7 +221,7 @@ namespace HLab.Notify.Collections
 
         bool IList.Contains(object value)
         {
-            using (_lock.Read)
+            using (_lock.ReaderLock())
             {
                 return ((IList)_list).Contains(value);
             }
@@ -228,7 +229,7 @@ namespace HLab.Notify.Collections
 
         public bool Contains(T item)
         {
-            using (_lock.Read)
+            using (_lock.ReaderLock())
             {
                 return _list.Contains(item);
             }
@@ -237,7 +238,7 @@ namespace HLab.Notify.Collections
 
         int IList.IndexOf(object value)
         {
-            using (_lock.Read)
+            using (_lock.ReaderLock())
             {
                 return ((IList)_list).IndexOf(value);
             }
@@ -245,7 +246,7 @@ namespace HLab.Notify.Collections
 
         public int IndexOf(T item)
         {
-            using (_lock.Read)
+            using (_lock.ReaderLock())
             {
                 return _list.IndexOf(item);
             }
@@ -255,7 +256,7 @@ namespace HLab.Notify.Collections
         {
             get
             {
-                using (_lock.Read)
+                using (_lock.ReaderLock())
                 {
                     return ((ICollection)_list).SyncRoot;
                 } 
@@ -266,7 +267,7 @@ namespace HLab.Notify.Collections
         {
             get
             {
-                using (_lock.Read)
+                using (_lock.ReaderLock())
                 {
                     return ((ICollection) _list).IsSynchronized;
                 }
@@ -277,7 +278,7 @@ namespace HLab.Notify.Collections
         {
             get
             {
-                using (_lock.Read)
+                using (_lock.ReaderLock())
                 {
                     return ((IList)_list).IsFixedSize;
                 }
@@ -288,7 +289,7 @@ namespace HLab.Notify.Collections
         {
             get
             {
-                using (_lock.Read)
+                using (_lock.ReaderLock())
                 {
                     return ((ICollection<T>)_list).IsReadOnly;
                 }
@@ -299,27 +300,27 @@ namespace HLab.Notify.Collections
         {
             get
             {
-                using (_lock.Read)
+                using (_lock.ReaderLock())
                 {
                     return ((IList)_list).IsReadOnly;
                 }
             }
         }
 
-        public Locker Lock => _lock;
+        public AsyncReaderWriterLock Lock => _lock;
 
         object IList.this[int index]
         {
             get
             {
-                using (_lock.Read)
+                using (_lock.ReaderLock())
                 {
                     return _list[index];
                 }
              }
             set
             {
-                using (_lock.Write)
+                using (_lock.WriterLock())
                 {
                     ((IList)_list)[index] = value;
                     _count.Set(_list.Count);
@@ -332,14 +333,14 @@ namespace HLab.Notify.Collections
         {
             get
             {
-                using (_lock.Read)
+                using (_lock.ReaderLock())
                 {
                     return _list[index];
                 }
             }
             set
             {
-                using (_lock.Write)
+                using (_lock.WriterLock())
                 {
                     _list[index] = value;
                     _count.Set(_list.Count);

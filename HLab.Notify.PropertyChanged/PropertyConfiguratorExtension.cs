@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
 using HLab.Notify.Annotations;
+using HLab.Notify.PropertyChanged.PropertyHelpers;
 
 namespace HLab.Notify.PropertyChanged
 {
@@ -22,14 +23,13 @@ namespace HLab.Notify.PropertyChanged
             where TClass : class//, INotifyPropertyChanged
             where TMember : PropertyHolder<T>
         {
-
             if (c.CurrentTrigger.TriggerOnList.Count == 0)
             {
+                c.Init((target, property) => property.PropertyValue.Set(setter(target)));
                 return c.On().Do((target, property) => property.SetProperty(new PropertyValueLazy<T>(property, o => setter((TClass)o))));
             }
 
-            return c.Do((target, property) => { property.PropertyValue.Set(setter(target)); });
-
+            return c.Do((target, property) => property.PropertyValue.Set(setter(target)));
         }
 
         public static NotifyConfigurator<TClass, TMember> 

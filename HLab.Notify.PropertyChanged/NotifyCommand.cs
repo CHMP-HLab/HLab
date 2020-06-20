@@ -4,35 +4,26 @@ using System.Net.Mime;
 using System.Threading.Tasks;
 using System.Windows.Input;
 using HLab.Base;
+using HLab.Notify.PropertyChanged.PropertyHelpers;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public class NotifyCommand<TClass> : NotifyCommand
-        where TClass : class//, INotifyPropertyChanged
-    {
-        private readonly PropertyCache<TClass>.ConfiguratorEntry<NotifyCommand<TClass>>
-            _configurator;
-        public NotifyCommand(string name, NotifyConfiguratorFactory<TClass,NotifyCommand<TClass>> configurator)
-        {
-            if (configurator != null)
-                _configurator =
-                    PropertyCache<TClass>.Get(name,
-                        () => configurator(new NotifyConfigurator<TClass, NotifyCommand<TClass>>())
-                            .Compile());
-        }
+    public interface ITrigger {}
 
-        protected override void Configure()
+    public class NotifyTrigger : ChildObject, ITrigger
+    {
+        public NotifyTrigger(ConfiguratorEntry configurator) : base(configurator)
         {
-            _configurator.Configure((TClass)Parent,Parser, this);
         }
     }
 
-    public abstract class NotifyCommand : ChildObject, ICommand
+    public class NotifyCommand : ChildObject, ICommand
     {
         private Action<object> _execute = null;
         private Func<object,Task> _executeAsync = null;
         private Func<object,bool> _canExecuteFunc = null;
         private bool _canExecute = true;
+
 
         public void SetAction(Action execute) => _execute = o => execute();
 
@@ -53,6 +44,8 @@ namespace HLab.Notify.PropertyChanged
         //};
 
         private volatile bool _executing = false;
+
+        public NotifyCommand(ConfiguratorEntry configurator):base(configurator) {  }
 
         public void SetAction(Action<object> execute) => _execute = execute;
         public void SetCanExecute(Func<bool> func)
@@ -95,6 +88,7 @@ namespace HLab.Notify.PropertyChanged
             else
                 _execute?.Invoke(parameter);
         }
+
 
 
         //public async void Execute(object parameter=null)

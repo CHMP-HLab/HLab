@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections;
-using System.ComponentModel;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
     public class PropertyValueLazy<T> : IPropertyValue<T>
     {

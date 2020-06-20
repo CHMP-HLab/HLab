@@ -7,6 +7,7 @@ namespace HLab.Mvvm.Annotations
     {
         void CallCreators(object linked);
         IView GetView(object baseObject, Type viewMode, Type viewClass);
+        IView GetView(object baseObject);
         object GetLinked(object o, Type viewMode, Type viewClass);
         IMvvmContext AddCreator<T>(Action<T> action);
         IMvvmContext GetChildContext(string name);

@@ -5,13 +5,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using HLab.Core;
 using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Icons
 {
     [Export(typeof(IIconService)), Singleton]
-    public class IconService : IIconService
+    public class IconService : Service, IIconService
     {
         private readonly ConcurrentDictionary<string, IIconProvider> _cache = new ConcurrentDictionary<string, IIconProvider>();
 

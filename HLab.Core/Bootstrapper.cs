@@ -87,9 +87,9 @@ namespace HLab.Core
 
             var bootLoaders = SortBootloaders(Sort(Container.Locate<IEnumerable<IBootloader>>(this))).Reverse().ToList();
 
-            foreach (var bootloader in bootLoaders)
+            foreach (var bootLoader in bootLoaders)
             {
-                Enqueue(bootloader.GetType().Name, bs => bootloader.Load(bs));
+                Enqueue(bootLoader.GetType().Name, bs => bootLoader.Load(bs));
             }
 
             while ( _queue.TryDequeue(out var entry) )

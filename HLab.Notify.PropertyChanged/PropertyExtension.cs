@@ -37,7 +37,7 @@ namespace HLab.Notify.PropertyChanged
 //            where T : class
             where TClass : class
         {
-            if (property is PropertyHolder<TClass,T> p)
+            if (property is PropertyHolder<T> p)
             {
                  if (p.Parent is TClass target)
                  {

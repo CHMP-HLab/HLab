@@ -17,6 +17,7 @@ namespace HLab.Mvvm.Icons
         
         public async Task<object> GetAsync()
         {
+            AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
             var icon = Application.LoadComponent(_uri);
             if(icon is DependencyObject d)
                 XamlTools.SetBinding(d);

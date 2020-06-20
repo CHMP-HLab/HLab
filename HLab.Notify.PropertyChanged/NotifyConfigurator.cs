@@ -7,11 +7,13 @@ using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public class NotifyConfigurator
-    { }
+    public class NotifyConfigurator { }
 
     public delegate NotifyConfigurator<TClass, T> NotifyConfiguratorFactory<TClass, T>(NotifyConfigurator<TClass, T> c)
         where TClass : class;
+
+
+
 
     public class NotifyConfigurator<TClass, T> : NotifyConfigurator
         where TClass : class
@@ -24,7 +26,7 @@ namespace HLab.Notify.PropertyChanged
             public List<TriggerPath> TriggerOnList { get; } = new List<TriggerPath>();
             public Action<TClass, T> Action { get; set; }
         }
-        public Action<TClass, T> DefaultAction { get; private set; }
+        public Action<TClass, T> UpdateAction { get; private set; }
 
         public NotifyConfigurator<TClass, T> TriggerExpression(Expression expr)
         {
@@ -49,9 +51,11 @@ namespace HLab.Notify.PropertyChanged
 
         public NotifyConfigurator<TClass, T> Init(Action<TClass, T> action)
         {
-            DefaultAction = action;
+            UpdateAction = action;
             return this;
         }
+
+        public NotifyConfigurator<TClass, T> Update() => Do(UpdateAction);
 
         public NotifyConfigurator<TClass, T> Do(Action<TClass> action)
         {   
@@ -137,10 +141,8 @@ namespace HLab.Notify.PropertyChanged
 
             return activator;
 
-            //if(activator!=null)
-            //    return (parent, property) => activator(NotifyFactory.GetParser(parent), parent, property);
-            //else
-            //    return null;
         }
+
+
     }
 }

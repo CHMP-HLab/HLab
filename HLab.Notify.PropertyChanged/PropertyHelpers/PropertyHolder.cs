@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using HLab.Notify.PropertyChanged.PropertyHelpers;
 
 namespace HLab.Notify.PropertyChanged
 {
@@ -24,11 +25,11 @@ namespace HLab.Notify.PropertyChanged
         new T  Value{ get; set; }
     }
 
-    public class PropertyHolderN<TClass, T> : PropertyHolder<TClass, T>, IPropertyHolderN<T>, INotifyPropertyChanged
+    public class PropertyHolderN<TClass, T> : PropertyHolder<T>, IPropertyHolderN<T>, INotifyPropertyChanged
         where TClass : NotifierBase
     {
         class H : NotifyHelper<PropertyHolderN<TClass, T>> { }
-        public PropertyHolderN(string name, NotifyConfiguratorFactory<TClass, PropertyHolder<TClass,T>> configurator = null) : base(name, configurator)
+        public PropertyHolderN(ConfiguratorEntry configurator = null) : base(configurator)
         {
         }
 
@@ -53,42 +54,35 @@ namespace HLab.Notify.PropertyChanged
 
 
     }
-    public class PropertyHolder<TClass, T> : PropertyHolder<T>
-        where TClass : class
+    //public class PropertyHolder<TClass, T> : PropertyHolder<T>
+    //    where TClass : class
+    //{
+
+
+    //    public PropertyHolder(string name, NotifyConfigurator configurator):base(configurator)
+    //    {
+    //    }
+
+
+    //    public new TClass Parent => base.Parent as TClass;
+
+    //}
+    public abstract class PropertyHolder : ChildObject
     {
-        protected new PropertyCache<TClass>.ConfiguratorEntry<PropertyHolder<TClass,T>> Configurator
+        protected PropertyHolder(ConfiguratorEntry configurator) : base(configurator)
         {
-            get => (PropertyCache<TClass>.ConfiguratorEntry<PropertyHolder<TClass,T>>)base.Configurator;
-            set => base.Configurator = value;
         }
-
-        protected override void Configure()
-        {
-            Configurator.Configure(Parent,Parser, this);
-
-            if(PropertyValue==null)
-                SetProperty(new PropertyValueLazy<T>(this, o => default(T)));
-        }
-
-        public PropertyHolder(string name,
-            NotifyConfiguratorFactory<TClass, PropertyHolder<TClass,T>> configurator = null)
-        {
-            if (configurator != null)
-                Configurator =
-                    PropertyCache<TClass>.Get(name,
-                        () => configurator(new NotifyConfigurator<TClass, PropertyHolder<TClass, T>>())
-                            .Compile()
-                        );
-        }
-
-
-        public new TClass Parent => base.Parent as TClass;
-
     }
 
-    public abstract class PropertyHolder<T> : ChildObject, IProperty<T>
+
+    public class PropertyHolder<T> : ChildObject, IProperty<T>
     {
         protected internal IPropertyValue<T> PropertyValue;
+
+        public PropertyHolder(ConfiguratorEntry configurator) : base(configurator)
+        {
+        }
+
         public T Get() => PropertyValue.Get();
 
         public T Get([CallerMemberName] string name = null)
@@ -111,6 +105,13 @@ namespace HLab.Notify.PropertyChanged
         public void SetProperty(IPropertyValue<T> property)
         {
             Interlocked.Exchange(ref PropertyValue, property);
+        }
+        protected override void Configure()
+        {
+            base.Configure();
+
+            if(PropertyValue==null)
+                SetProperty(new PropertyValueLazy<T>(this, o => default(T)));
         }
     }
 }

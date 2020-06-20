@@ -34,7 +34,7 @@ namespace HLab.Notify.PropertyChanged
         {
             public List<Func<TClass,bool>> WhenList { get; } = new List<Func<TClass, bool>>();
             public List<TriggerPath> TriggerOnList { get; } = new List<TriggerPath>();
-            public Action<TClass, PropertyHolder<TClass, T>> Action { get; set; }
+            public Action<TClass, PropertyHolder<T>> Action { get; set; }
         }
         private TriggerEntry _currentTrigger = new TriggerEntry();
         public Func<object, T> DefaultSetter { get; private set; } = c => default(T);
@@ -80,7 +80,7 @@ namespace HLab.Notify.PropertyChanged
             _currentTrigger.WhenList.Add(when);
             return this;
         }
-        public PropertyConfigurator_old<TClass, T> Do(Action<TClass, PropertyHolder<TClass,T>> action)
+        public PropertyConfigurator_old<TClass, T> Do(Action<TClass, PropertyHolder<T>> action)
         {
             _currentTrigger.Action = action;
             Triggers.Add(_currentTrigger);
@@ -89,11 +89,11 @@ namespace HLab.Notify.PropertyChanged
         }
 
 
-        public Action<TClass, PropertyHolder<TClass, T>> Register { get; private set; }
+        public Action<TClass, PropertyHolder<T>> Register { get; private set; }
 
         public PropertyConfigurator_old<TClass, T> Compile()
         {
-            Action<INotifyClassParser, TClass, PropertyHolder<TClass, T>> register = null;
+            Action<INotifyClassParser, TClass, PropertyHolder<T>> register = null;
 
             foreach (var trigger in Triggers)
             foreach (var path in trigger.TriggerOnList)

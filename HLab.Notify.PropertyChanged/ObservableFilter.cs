@@ -33,20 +33,39 @@ using System.Threading;
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
 using HLab.Notify.Annotations;
+using HLab.Notify.PropertyChanged.PropertyHelpers;
 using Nito.AsyncEx;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public class ObservableFilter<T> : N<ObservableFilter<T>>, ITriggerable, ILockable, INotifyCollectionChanged,
-        ICollection<T>, IEnumerable<T>, IEnumerable, IList<T>,
-        IReadOnlyCollection<T>, IReadOnlyList<T>,
-        ICollection, IList
+    public interface IObservableFilter : ITriggerable, INotifyCollectionChanged, IChildObject
+    {
+        void Link(Func<INotifyCollectionChanged> getter);
+
+    }
+
+    public interface IObservableFilter<T> : IList<T>, IObservableFilter
+    {
+        void AddFilter(Func<T, bool> expr, int order = 0, string name = null);
+    }
+
+
+    
+    
+    public class ObservableFilter<T> : ChildObjectN<ObservableFilter<T>>, ILockable, IReadOnlyList<T>, IList, IObservableFilter<T> 
     {
         private class Filter
         {
-            public string Name { get; set; }
-            public Func<T, bool> Expression { get; set; } = null;
-            public int Order { get; set; }
+            public string Name { get; }
+            public Func<T, bool> Expression { get; } = null;
+            public int Order { get; }
+
+            public Filter(string name, Func<T, bool> expression, int order = 0)
+            {
+                Name = name;
+                Expression = expression;
+                Order = order;
+            }
         }
         private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
         private readonly AsyncReaderWriterLock _lockFilters = new AsyncReaderWriterLock();
@@ -55,18 +74,12 @@ namespace HLab.Notify.PropertyChanged
 
         private readonly List<T> _list = new List<T>();
 
-        public ObservableFilter<T> AddFilter(Func<T, bool> expr, int order = 0, string name = null)
+        public void AddFilter(Func<T, bool> expr, int order = 0, string name = null)
         {
             using(_lockFilters.WriterLock())
             {
                 if (name != null) _removeFilter(name);
-                _filters.Add(new Filter
-                {
-                    Name = name,
-                    Expression = expr,
-                    Order = order,
-                });
-                return this;
+                _filters.Add(new Filter(name, expr, order));
             }
         }
 
@@ -78,12 +91,11 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        public ObservableFilter<T> RemoveFilter(string name)
+        public void RemoveFilter(string name)
         {
             using(_lockFilters.WriterLock())
             {
                 _removeFilter(name);
-                return this;
             }
         }
 
@@ -113,13 +125,7 @@ namespace HLab.Notify.PropertyChanged
 
         public AsyncReaderWriterLock Lock => _lock;
 
-        private readonly IProperty<int> _count = H.Property<int>(nameof(Count));
-        public int Count
-        {
-            get => _count.Get();
-            private set => _count.Set(value);
-        }
-
+        public int Count => _list.Count;
 
         public bool IsReadOnly => true;
         public bool IsSynchronized => false;
@@ -148,11 +154,10 @@ namespace HLab.Notify.PropertyChanged
         }
 
 
-        public ObservableFilter<T> Link(Func<INotifyCollectionChanged> getter)
+        public void Link(Func<INotifyCollectionChanged> getter)
         {
             _listGetter = getter;
             GetList();
-            return this;
         }
 
 
@@ -163,13 +168,16 @@ namespace HLab.Notify.PropertyChanged
                 case NotifyCollectionChangedAction.Add:
                     Debug.Assert(e.NewItems != null);
                     {
-                        foreach (var item in e.NewItems.OfType<T>())
+                        DoWriteLocked(() =>
                         {
-                            if (Match(item))
+                            foreach (var item in e.NewItems.OfType<T>())
                             {
-                                _add(item);
+                                if (Match(item))
+                                {
+                                    _add(item);
+                                }
                             }
-                        }
+                        });
                     }
                     break;
 
@@ -177,10 +185,13 @@ namespace HLab.Notify.PropertyChanged
 
                     Debug.Assert(e.OldItems != null);
                     {
-                        foreach (var item in e.OldItems.OfType<T>())
+                        DoWriteLocked(() =>
                         {
-                            _remove(item);
-                        }
+                            foreach (var item in e.OldItems.OfType<T>())
+                            {
+                                _remove(item);
+                            }
+                        });
                     }
                     break;
 
@@ -224,13 +235,18 @@ namespace HLab.Notify.PropertyChanged
 
             if (list is IEnumerable<T> l)
                 //using ((l as ILockable)?.Lock.Read)
-                foreach (var item in l)
+            {
+                DoWriteLocked(() =>
                 {
-                    if (Match(item))
-                        _add(item);
-                    else
-                        _remove(item);
-                }
+                    foreach (var item in l)
+                    {
+                        if (Match(item))
+                            _add(item);
+                        else
+                            _remove(item);
+                    }
+                });
+            }
 
             var c1 = Interlocked.Exchange(ref _trigging, 0);
             if (c1>1) OnTriggered();
@@ -240,37 +256,52 @@ namespace HLab.Notify.PropertyChanged
 
         private void Notify()
         {
+            var changed = false;
             while(!_notify.IsEmpty)
-            if(_notify.TryPop(out var args))
             {
-                CollectionChanged?.Invoke(this, args);
+                if(_notify.TryPop(out var args))
+                {
+                    CollectionChanged?.Invoke(this, args);
+                }
+
+                changed = true;
+            }
+            if (changed)
+            { 
+                // Todo : count may not have changed
+                OnPropertyChanged("Count");
+                OnPropertyChanged("Item");
             }
         }
-
 
         private void _add(T item)
         {
-            using(_lock.WriterLock())
-            {
-                if (_list.Contains(item)) return;
-                _list.Add(item);
-                _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new T[] {item}));
-                Count = _list.Count;
-            }
-            Notify();
-            OnPropertyChanged("Item");
+            //Todo : try remove this condition
+            if (_list.Contains(item)) return;
+            _list.Add(item);
+            _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new T[] {item}));
         }
+
         private void _remove(T item)
         {
-            using(_lock.WriterLock())
+            if (!_list.Contains(item)) return;
+            _list.Remove(item);
+            _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new T[] { item }));
+        }
+
+        private void DoWriteLocked(Action action)
+        {
+            try
             {
-                if (!_list.Contains(item)) return;
-                _list.Remove(item);
-                _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new T[] { item }));
-                Count = _list.Count;
+                using (_lock.WriterLock())
+                {
+                    action();
+                }
             }
-            Notify();
-            OnPropertyChanged("Item");
+            finally
+            {
+                Notify();
+            }
         }
 
         public void Add(T item)
@@ -406,404 +437,409 @@ namespace HLab.Notify.PropertyChanged
         {
             throw new NotImplementedException();
         }
-    }
 
-    public interface IObservableFilter<T> : IList<T>, ITriggerable, INotifyCollectionChanged,
-        IChildObject
-    {
-        IObservableFilter<T> AddFilter(Func<T, bool> expr, int order = 0, string name = null);
-        IObservableFilter<T> Link(Func<INotifyCollectionChanged> getter);
+        public ObservableFilter(ConfiguratorEntry configurator) : base(configurator)
+        {
+        }
     }
 
 
-    public class ObservableFilter<TCLass,T> : N<ObservableFilter<TCLass,T>>, ILockable,
-        IReadOnlyList<T>,
-        IList,
-        IObservableFilter<T> 
-        where TCLass : class
-    {
-        private class Filter
-        {
-            public string Name { get; set; }
-            public Func<T, bool> Expression { get; set; } = null;
-            public int Order { get; set; }
-        }
-        private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
-        private readonly AsyncReaderWriterLock _lockFilters = new AsyncReaderWriterLock();
-        private readonly List<Filter> _filters = new List<Filter>();
-        private readonly List<T> _list = new List<T>();
+    //public class ObservableFilter<TCLass,T> : N<ObservableFilter<TCLass,T>>, ILockable,
+    //    IReadOnlyList<T>,
+    //    IList,
+    //    IObservableFilter<T> 
+    //    where TCLass : class
+    //{
+    //    private class Filter
+    //    {
+    //        public string Name { get; set; }
+    //        public Func<T, bool> Expression { get; set; } = null;
+    //        public int Order { get; set; }
+    //    }
+    //    private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
+    //    private readonly AsyncReaderWriterLock _lockFilters = new AsyncReaderWriterLock();
+    //    private readonly List<Filter> _filters = new List<Filter>();
+    //    private readonly List<T> _list = new List<T>();
 
-        public IObservableFilter<T> AddFilter(Func<T, bool> expr, int order = 0, string name = null)
-        {
-            using(_lockFilters.WriterLock())
-            {
-                if (name != null) _removeFilter(name);
-                _filters.Add(new Filter
-                {
-                    Name = name,
-                    Expression = expr,
-                    Order = order,
-                });
-                return this;
-            }
-        }
+    //    public IObservableFilter<T> AddFilter(Func<T, bool> expr, int order = 0, string name = null)
+    //    {
+    //        using(_lockFilters.WriterLock())
+    //        {
+    //            if (name != null) _removeFilter(name);
+    //            _filters.Add(new Filter
+    //            {
+    //                Name = name,
+    //                Expression = expr,
+    //                Order = order,
+    //            });
+    //            return this;
+    //        }
+    //    }
 
-        private void _removeFilter(string name)
-        {
-            foreach (Filter f in _filters.Where(f => f.Name == name).ToList())
-            {
-                _filters.Remove(f);
-            }
-        }
+    //    private void _removeFilter(string name)
+    //    {
+    //        foreach (Filter f in _filters.Where(f => f.Name == name).ToList())
+    //        {
+    //            _filters.Remove(f);
+    //        }
+    //    }
 
-        public ObservableFilter<TCLass,T> RemoveFilter(string name)
-        {
-            using(_lockFilters.WriterLock())
-            {
-                _removeFilter(name);
-                return this;
-            }
-        }
-
-
-        public class CreateHelper : IDisposable
-        {
-            public ObservableFilter<T> List = null;
-            public T ViewModel = default(T);
-
-            public TVm GetViewModel<TVm>() where TVm : class => ViewModel as TVm;
-
-            public bool Done = true;
-
-            public void Dispose()
-            {
-            }
-        }
-
-        public event NotifyCollectionChangedEventHandler CollectionChanged;
-        private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
-        {
-            NotifyHelper.EventHandlerService.Invoke(CollectionChanged, this, arg);
-        }
-
-        private Func<INotifyCollectionChanged> _listGetter = null;
-        private INotifyCollectionChanged _currentList = null;
-
-        public AsyncReaderWriterLock Lock => _lock;
-
-        public int Count
-        {
-            get => _count.Get();
-            private set => _count.Set(value);
-        }
-        private readonly IProperty<int> _count = H.Property<int>();
+    //    public ObservableFilter<TCLass,T> RemoveFilter(string name)
+    //    {
+    //        using(_lockFilters.WriterLock())
+    //        {
+    //            _removeFilter(name);
+    //            return this;
+    //        }
+    //    }
 
 
-        public bool IsReadOnly => true;
-        public bool IsSynchronized => false;
-        public object SyncRoot => throw new NotImplementedException();
-        public bool IsFixedSize => false;
+    //    public class CreateHelper : IDisposable
+    //    {
+    //        public ObservableFilter<T> List = null;
+    //        public T ViewModel = default(T);
 
-        private INotifyCollectionChanged GetList()
-        {
-            Debug.Assert(_listGetter!=null);
+    //        public TVm GetViewModel<TVm>() where TVm : class => ViewModel as TVm;
 
-            var list = _listGetter();
-            if (!ReferenceEquals(_currentList, list))
-            {
-                if (_currentList != null) _currentList.CollectionChanged -= _list_CollectionChanged;
-                if (list != null) list.CollectionChanged += _list_CollectionChanged;
-                _currentList = list;
-                OnTriggered();
-            }
-            return _currentList;
-        }
+    //        public bool Done = true;
 
+    //        public void Dispose()
+    //        {
+    //        }
+    //    }
 
-        public IObservableFilter<T> Link(Func<INotifyCollectionChanged> getter)
-        {
-            _listGetter = getter;
-            //GetList();
-            return this;
-        }
+    //    public event NotifyCollectionChangedEventHandler CollectionChanged;
+    //    private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
+    //    {
+    //        NotifyHelper.EventHandlerService.Invoke(CollectionChanged, this, arg);
+    //    }
 
+    //    private Func<INotifyCollectionChanged> _listGetter = null;
+    //    private INotifyCollectionChanged _currentList = null;
 
-        private void _list_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
-        {
-            switch (e.Action)
-            {
-                case NotifyCollectionChangedAction.Add:
-                    Debug.Assert(e.NewItems != null);
-                    {
-                        foreach (var item in e.NewItems.OfType<T>())
-                        {
-                            if (Match(item))
-                            {
-                                _add(item);
-                            }
-                        }
-                    }
-                    break;
+    //    public AsyncReaderWriterLock Lock => _lock;
 
-                case NotifyCollectionChangedAction.Remove:
-
-                    Debug.Assert(e.OldItems != null);
-                    {
-                        foreach (var item in e.OldItems.OfType<T>())
-                        {
-                            _remove(item);
-                        }
-                    }
-                    break;
-
-                case NotifyCollectionChangedAction.Replace:
-                    throw new NotImplementedException("Replace not implemented");
-                case NotifyCollectionChangedAction.Move:
-                    throw new NotImplementedException("Move not implemented");
-                case NotifyCollectionChangedAction.Reset:
-                    //                       base.Clear();
-                    ;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
-
-        private bool Match(T item)
-        {
-            using(_lockFilters.WriterLock())
-            {
-                if (_filters == null) return true;
-                return item != null && _filters.Where(filter => filter.Expression != null)
-                           .All(filter => filter.Expression(item));
-            }
-        }
+    //    public int Count
+    //    {
+    //        get => _count.Get();
+    //        private set => _count.Set(value);
+    //    }
+    //    private readonly IProperty<int> _count = H.Property<int>();
 
 
-        private int _trigging = 0;
-        public void OnTriggered()
-        {
-            var c = Interlocked.Add(ref _trigging, 1);
+    //    public bool IsReadOnly => true;
+    //    public bool IsSynchronized => false;
+    //    public object SyncRoot => throw new NotImplementedException();
+    //    public bool IsFixedSize => false;
 
-            if (c > 1) return;
+    //    private INotifyCollectionChanged GetList()
+    //    {
+    //        Debug.Assert(_listGetter!=null);
 
-
-            var list = GetList();
-
-            if (list is ITriggerable triggable)
-            {
-                triggable.OnTriggered();
-            }
-
-            if (list is IEnumerable<T> l)
-                //using ((l as ILockable)?.Lock.Read)
-                foreach (var item in l)
-                {
-                    if (Match(item))
-                        _add(item);
-                    else
-                        _remove(item);
-                }
-
-            var c1 = Interlocked.Exchange(ref _trigging, 0);
-            if (c1 > 1) OnTriggered();
-        }
-
-        private readonly ConcurrentStack<NotifyCollectionChangedEventArgs> _notify = new ConcurrentStack<NotifyCollectionChangedEventArgs>();
+    //        var list = _listGetter();
+    //        if (!ReferenceEquals(_currentList, list))
+    //        {
+    //            if (_currentList != null) _currentList.CollectionChanged -= _list_CollectionChanged;
+    //            if (list != null) list.CollectionChanged += _list_CollectionChanged;
+    //            _currentList = list;
+    //            OnTriggered();
+    //        }
+    //        return _currentList;
+    //    }
 
 
-        private Func<TCLass,IObservableFilter<T>,IObservableFilter<T>> _configurator;
-
-        [Import]
-        public ObservableFilter(Func<TCLass,IObservableFilter<T>, IObservableFilter<T>> configurator) : base(false)
-        {
-            _configurator = configurator;
-            H.Initialize(this,OnPropertyChanged);
-        }
-        public void SetParent(object parent, INotifyClassParser parser, Action<PropertyChangedEventArgs> action)
-        {
-            if (parent is TCLass c)
-            {
-                _configurator(c, this);
-                //OnTriggered();
-            }
-        }
-
-        private void Notify()
-        {
-            while (!_notify.IsEmpty)
-                if (_notify.TryPop(out var args))
-                {
-                    CollectionChanged?.Invoke(this, args);
-                }
-        }
+    //    public IObservableFilter<T> Link(Func<INotifyCollectionChanged> getter)
+    //    {
+    //        _listGetter = getter;
+    //        //GetList();
+    //        return this;
+    //    }
 
 
-        private void _add(T item)
-        {
-            using(_lock.WriterLock())
-            {
-                if (_list.Contains(item)) return;
-                _list.Add(item);
-                _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new T[] {item}));
-                Count = _list.Count;
-            }
-            Notify();
-            OnPropertyChanged("Item");
-        }
-        private void _remove(T item)
-        {
-            using(_lock.WriterLock())
-            {
-                if (!_list.Contains(item)) return;
-                _list.Remove(item);
-                _notify.Push(
-                    new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new T[] {item}));
-                Count = _list.Count;
-            }
-            Notify();
-            OnPropertyChanged("Item");
-        }
+    //    private void _list_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+    //    {
+    //        switch (e.Action)
+    //        {
+    //            case NotifyCollectionChangedAction.Add:
+    //                Debug.Assert(e.NewItems != null);
+    //                {
+    //                    foreach (var item in e.NewItems.OfType<T>())
+    //                    {
+    //                        if (Match(item))
+    //                        {
+    //                            _add(item);
+    //                        }
+    //                    }
+    //                }
+    //                break;
 
-        public void Add(T item)
-        {
-            throw new NotImplementedException();
-        }
+    //            case NotifyCollectionChangedAction.Remove:
 
-        public void Clear()
-        {
-            throw new NotImplementedException();
-        }
+    //                Debug.Assert(e.OldItems != null);
+    //                {
+    //                    foreach (var item in e.OldItems.OfType<T>())
+    //                    {
+    //                        _remove(item);
+    //                    }
+    //                }
+    //                break;
 
-        public bool Contains(T item)
-        {
-            using(_lock.ReaderLock())
-            {
-                return _list.Contains(item);
-            }
-        }
+    //            case NotifyCollectionChangedAction.Replace:
+    //                throw new NotImplementedException("Replace not implemented");
+    //            case NotifyCollectionChangedAction.Move:
+    //                throw new NotImplementedException("Move not implemented");
+    //            case NotifyCollectionChangedAction.Reset:
+    //                //                       base.Clear();
+    //                ;
+    //                break;
+    //            default:
+    //                throw new ArgumentOutOfRangeException();
+    //        }
+    //    }
 
-        public void CopyTo(T[] array, int arrayIndex)
-        {
-            using(_lock.ReaderLock())
-            {
-                foreach (T value in this)
-                {
-                    array.SetValue(value, arrayIndex);
-                    arrayIndex = arrayIndex + 1;
-                }
-            }
-        }
+    //    private bool Match(T item)
+    //    {
+    //        using(_lockFilters.WriterLock())
+    //        {
+    //            if (_filters == null) return true;
+    //            return item != null && _filters.Where(filter => filter.Expression != null)
+    //                       .All(filter => filter.Expression(item));
+    //        }
+    //    }
 
-        public bool Remove(T item)
-        {
-            throw new NotImplementedException();
-        }
 
-        class FilterEnumerator : IEnumerator<T>, IDisposable
-        {
-            private int _currentIdx;
-            private readonly ObservableFilter<TCLass,T> _filter;
-            private IDisposable _locker;
-            internal FilterEnumerator(ObservableFilter<TCLass,T> filter)
-            {
-                _locker =  filter.Lock.ReaderLock();
-                _filter = filter;
-                _currentIdx = -1;
-            }
+    //    private int _trigging = 0;
+    //    public void OnTriggered()
+    //    {
+    //        var c = Interlocked.Add(ref _trigging, 1);
 
-            public T Current { get; private set; }
+    //        if (c > 1) return;
 
-            object IEnumerator.Current => Current;
 
-            public void Dispose()
-            {
-                _locker?.Dispose();
-                _locker = null;
-            }
+    //        var list = GetList();
 
-            public bool MoveNext()
-            {
-                if (++_currentIdx >= _filter._list.Count)
-                    return false;
-                else
-                {
-                    Current = _filter._list[_currentIdx];
-                    return true;
-                }
-            }
+    //        if (list is ITriggerable triggable)
+    //        {
+    //            triggable.OnTriggered();
+    //        }
 
-            public void Reset()
-            {
-                _currentIdx = 0;
-            }
-        }
+    //        if (list is IEnumerable<T> l)
+    //        {
+    //            List<T> list2;
 
-        public IEnumerator<T> GetEnumerator() => new FilterEnumerator(this);
+    //            //using ((l as ILockable)?.Lock.ReaderLock())
+    //            {
+    //                list2 = l.ToList();
+    //            }
+    //            foreach (var item in list2)
+    //            {
+    //                if (Match(item))
+    //                    _add(item);
+    //                else
+    //                    _remove(item);
+    //            }
+                
+    //        }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
 
-        object IList.this[int index]
-        {
-            get => this[index];
-            set => this[index] = (T)value;
-        }
-        public T this[int index]
-        {
-            get
-            {
-                using (_lock.ReaderLock())
-                {
-                    return _list[index];
-                }
-            }
-            set
-            {
-                throw new NotImplementedException();
-            }
-        }
+    //        var c1 = Interlocked.Exchange(ref _trigging, 0);
+    //        if (c1 > 1) OnTriggered();
+    //    }
 
-        public int IndexOf(T item)
-        {
-            using (_lock.ReaderLock())
-            {
-                return _list.IndexOf(item);
-            }
-        }
+    //    private readonly ConcurrentStack<NotifyCollectionChangedEventArgs> _notify = new ConcurrentStack<NotifyCollectionChangedEventArgs>();
 
-        public void Insert(int index, T item)
-        {
-            throw new NotImplementedException();
-        }
 
-        public void RemoveAt(int index)
-        {
-            throw new NotImplementedException();
-        }
+    //    private Action<object,IObservableFilter<T>> _configurator;
 
-        public void CopyTo(Array array, int index)
-        {
-            throw new NotImplementedException();
-        }
+    //    public ObservableFilter(Action<object,IObservableFilter<T>> configurator) : base(false)
+    //    {
+    //        _configurator = configurator;
+    //        H.Initialize(this,OnPropertyChanged);
+    //    }
+    //    public void SetParent(object parent, INotifyClassParser parser, Action<PropertyChangedEventArgs> action)
+    //    {
+    //        if (parent is TCLass c)
+    //        {
+    //            _configurator(c, this);
+    //            //OnTriggered();
+    //        }
+    //    }
 
-        public int Add(object value)
-        {
-            throw new NotImplementedException();
-        }
+    //    private void Notify()
+    //    {
+    //        while (!_notify.IsEmpty)
+    //            if (_notify.TryPop(out var args))
+    //            {
+    //                CollectionChanged?.Invoke(this, args);
+    //            }
+    //    }
 
-        public bool Contains(object value) => this.Contains((T)value);
 
-        public int IndexOf(object value) => this.IndexOf((T)value);
+    //    private void _add(T item)
+    //    {
+    //        using(_lock.WriterLock())
+    //        {
+    //            if (_list.Contains(item)) return;
+    //            _list.Add(item);
+    //            _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new T[] {item}));
+    //            Count = _list.Count;
+    //        }
+    //        Notify();
+    //        OnPropertyChanged("Item");
+    //    }
+    //    private void _remove(T item)
+    //    {
+    //        using(_lock.WriterLock())
+    //        {
+    //            if (!_list.Contains(item)) return;
+    //            _list.Remove(item);
+    //            _notify.Push(
+    //                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new T[] {item}));
+    //            Count = _list.Count;
+    //        }
+    //        Notify();
+    //        OnPropertyChanged("Item");
+    //    }
 
-        public void Insert(int index, object value)
-        {
-            throw new NotImplementedException();
-        }
+    //    public void Add(T item)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-        public void Remove(object value)
-        {
-            throw new NotImplementedException();
-        }
+    //    public void Clear()
+    //    {
+    //        throw new NotImplementedException();
+    //    }
 
-    }
+    //    public bool Contains(T item)
+    //    {
+    //        using(_lock.ReaderLock())
+    //        {
+    //            return _list.Contains(item);
+    //        }
+    //    }
+
+    //    public void CopyTo(T[] array, int arrayIndex)
+    //    {
+    //        using(_lock.ReaderLock())
+    //        {
+    //            foreach (T value in this)
+    //            {
+    //                array.SetValue(value, arrayIndex);
+    //                arrayIndex = arrayIndex + 1;
+    //            }
+    //        }
+    //    }
+
+    //    public bool Remove(T item)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    class FilterEnumerator : IEnumerator<T>, IDisposable
+    //    {
+    //        private int _currentIdx;
+    //        private readonly ObservableFilter<TCLass,T> _filter;
+    //        private IDisposable _locker;
+    //        internal FilterEnumerator(ObservableFilter<TCLass,T> filter)
+    //        {
+    //            _locker =  filter.Lock.ReaderLock();
+    //            _filter = filter;
+    //            _currentIdx = -1;
+    //        }
+
+    //        public T Current { get; private set; }
+
+    //        object IEnumerator.Current => Current;
+
+    //        public void Dispose()
+    //        {
+    //            _locker?.Dispose();
+    //            _locker = null;
+    //        }
+
+    //        public bool MoveNext()
+    //        {
+    //            if (++_currentIdx >= _filter._list.Count)
+    //                return false;
+    //            else
+    //            {
+    //                Current = _filter._list[_currentIdx];
+    //                return true;
+    //            }
+    //        }
+
+    //        public void Reset()
+    //        {
+    //            _currentIdx = 0;
+    //        }
+    //    }
+
+    //    public IEnumerator<T> GetEnumerator() => new FilterEnumerator(this);
+
+    //    IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+    //    object IList.this[int index]
+    //    {
+    //        get => this[index];
+    //        set => this[index] = (T)value;
+    //    }
+    //    public T this[int index]
+    //    {
+    //        get
+    //        {
+    //            using (_lock.ReaderLock())
+    //            {
+    //                return _list[index];
+    //            }
+    //        }
+    //        set
+    //        {
+    //            throw new NotImplementedException();
+    //        }
+    //    }
+
+    //    public int IndexOf(T item)
+    //    {
+    //        using (_lock.ReaderLock())
+    //        {
+    //            return _list.IndexOf(item);
+    //        }
+    //    }
+
+    //    public void Insert(int index, T item)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public void RemoveAt(int index)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public void CopyTo(Array array, int index)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public int Add(object value)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public bool Contains(object value) => this.Contains((T)value);
+
+    //    public int IndexOf(object value) => this.IndexOf((T)value);
+
+    //    public void Insert(int index, object value)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //    public void Remove(object value)
+    //    {
+    //        throw new NotImplementedException();
+    //    }
+
+    //}
 }

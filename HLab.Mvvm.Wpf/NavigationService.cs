@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Windows;
+using HLab.Core;
 using HLab.DependencyInjection.Annotations;
 
 namespace HLab.Mvvm
 {
     [Export(typeof(IDialogService)),Singleton]
-    public class DialogueService : IDialogService
+    public class DialogService : Service, IDialogService
     {
         private bool? ShowMessage(string text, string caption, MessageBoxButton button, string icon)
         {

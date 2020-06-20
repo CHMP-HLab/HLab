@@ -142,6 +142,7 @@ namespace HLab.Mvvm
             return Regex.Replace(text,@"\{..=[\s|!-\|~-■]*}", "");
         }
 
+        public ServiceState ServiceState { get; internal set; } = ServiceState.Available;
     }
 
 }

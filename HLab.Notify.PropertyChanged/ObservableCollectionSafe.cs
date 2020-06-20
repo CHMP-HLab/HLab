@@ -5,46 +5,31 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Threading;
+using System.Linq;
 using HLab.Base;
-using HLab.DependencyInjection.Annotations;
+using HLab.Notify.PropertyChanged.PropertyHelpers;
 using Nito.AsyncEx;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public interface IChildObject
-    {
-        void SetParent(object parent,INotifyClassParser parser,Action<PropertyChangedEventArgs> args);
-    }
-
-    public class ObservableCollectionSafe<T> : N<ObservableCollectionSafe<T>>,
-    IList<T>, IList, IReadOnlyList<T>, INotifyCollectionChanged, ILockable, IChildObject
+    public class ObservableCollectionSafe<T> :// ChildObject,
+    IList<T>, IList, IReadOnlyList<T>, INotifyCollectionChanged, ILockable
     where T : class
     {
-        //[Import]
-        //public ObservableCollectionSafe(IEventHandlerService eventHandlerService) : base(eventHandlerService)
-        //{
-        //    RegisterTriggers();
-        //}
-        public ObservableCollectionSafe()
-        {
-            H.Initialize(this,OnPropertyChanged);
-        }
-
         private readonly List<T> _list = new List<T>();
 
-        //TODO : remove recursion
         private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
-        private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _changedQueue = new ConcurrentQueue<NotifyCollectionChangedEventArgs>();
+        private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _collectionChangedQueue = new ConcurrentQueue<NotifyCollectionChangedEventArgs>();
+        private readonly ConcurrentQueue<PropertyChangedEventArgs> _propertyChangedQueue = new ConcurrentQueue<PropertyChangedEventArgs>();
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
-        public virtual T Selected
-        {
-            get => _selected.Get();
-            set => _selected.Set(value);
-        }
-        private readonly IProperty<T> _selected = H.Property<T>();
+        //public virtual T Selected
+        //{
+        //    get => _selected.Get();
+        //    set => _selected.Set(value);
+        //}
+        //private readonly IProperty<T> _selected = H.Property<T>();
 
         private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
         {
@@ -56,38 +41,37 @@ namespace HLab.Notify.PropertyChanged
 
 
 
-        public int Count
-        {
-            get => _count.Get();
-            private set => _count.Set(value);
-        }
-        private readonly IProperty<int> _count = H.Property<int>();
+        public int Count => _list.Count;
+
+
+        private void _enqueue(NotifyCollectionChangedEventArgs args) => _collectionChangedQueue.Enqueue(args);
+
 
         int IList.Add(object value) => DoWriteLocked(() =>
         {
             var idx = _list.Count;
             var r = ((IList) _list).Add(value);
-            _changedQueue.Enqueue(
+            _enqueue(
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, idx));
             return r;
         });
 
-        public virtual void Add(T item) => DoWriteLocked(() =>
+        public virtual void Add(T item) => DoWriteLocked(() => _add(item));
+
+        private void _add(T item)
         {
                 var idx = _list.Count;
                 _list.Add(item);
-                Count = _list.Count;
-                _changedQueue.Enqueue(
+                _enqueue(
                     new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, idx));
-        });
+        }
 
         public bool AddUnique(T item) => DoWriteLocked(() =>
         {
             if (Contains(item)) return false;
             var idx = _list.Count;
             _list.Add(item);
-            Count = _list.Count;
-            _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, idx));
+            _enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, idx));
             return true;
         });
 
@@ -95,8 +79,7 @@ namespace HLab.Notify.PropertyChanged
         {
             var idx = ((IList) _list).IndexOf(value);
             ((IList) _list).Remove(value);
-            Count = _list.Count;
-            _changedQueue.Enqueue(
+            _enqueue(
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, value, idx));
         });
 
@@ -104,8 +87,7 @@ namespace HLab.Notify.PropertyChanged
         {
             var idx = _list.IndexOf(item);
             var r = _list.Remove(item);
-            Count = _list.Count;
-            _changedQueue.Enqueue(
+            _enqueue(
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, item, idx));
             return r;
         });
@@ -114,16 +96,14 @@ namespace HLab.Notify.PropertyChanged
         {
             var value = _list[index];
             _list.RemoveAt(index);
-            Count = _list.Count;
-            _changedQueue.Enqueue(
+            _enqueue(
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, value, index));
         });
 
         void IList.Insert(int index, object value) => DoWriteLocked(() =>
         {
             ((IList) _list).Insert(index, value);
-            Count = _list.Count;
-            _changedQueue.Enqueue(
+            _enqueue(
                 new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, value, index));
         });
 
@@ -131,28 +111,23 @@ namespace HLab.Notify.PropertyChanged
         {
             Debug.Assert(index <= _list.Count);
             _list.Insert(index, item);
-            Count = _list.Count;
-            _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
+            _enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
         });
 
-        public void CopyTo(Array array, int index) => DoWriteLocked(() =>
+        public void CopyTo(Array array, int index) => DoReadLocked(() =>
         {
                 ((IList) _list).CopyTo(array, index);
-            _changedQueue.Enqueue(
-                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, array, index));
         });
 
-        public void CopyTo(T[] array, int arrayIndex) => DoWriteLocked(() =>
+        public void CopyTo(T[] array, int arrayIndex) => DoReadLocked(() =>
         {
             _list.CopyTo(array, arrayIndex);
-            _changedQueue.Enqueue(
-                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, array, arrayIndex));
         });
 
         public void Clear() => DoWriteLocked(() =>
         { 
             _list.Clear();
-            _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
+            _enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Reset));
 
         });
 
@@ -182,8 +157,7 @@ namespace HLab.Notify.PropertyChanged
             set => DoWriteLocked(() =>
             {
                 ((IList) _list)[index] = value;
-                Count = _list.Count;
-                _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+                _enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
                     value, index));
 
             });
@@ -195,27 +169,53 @@ namespace HLab.Notify.PropertyChanged
             set => DoWriteLocked(() =>
             {
                     _list[index] = value;
-                    Count = _list.Count;
-                    _changedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
+                    _collectionChangedQueue.Enqueue(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Replace,
                         value, index));
 
             });
         }
-        private RT DoReadLocked<RT>(Func<RT> action)
+
+        public T GetOrAdd(Func<T, bool> predicate, Func<T> create) => DoWriteLocked(() =>
         {
-            //try
-            //{
+            var value = _list.FirstOrDefault(predicate);
+            if (value == null)
+            {
+                value = create();
+                _add(value);
+            }
+            return value;
+        });
+
+        public T AddOrUpdate(Func<T, bool> predicate, Action<T> update, Func<T> create) => DoWriteLocked(() =>
+        {
+            var value = _list.FirstOrDefault(predicate);
+            if (value == null)
+            {
+                value = create();
+                _add(value);
+            }
+            else
+            {
+                update?.Invoke(value);
+            }
+            return value;
+        });
+
+        private TReturn DoReadLocked<TReturn>(Func<TReturn> action)
+        {
             using (_lock.ReaderLock())
             {
                 return action();
             }
-            //}
-            //finally
-            //{
-            //   OnCollectionChanged();
-            //}
         }
-        private RT DoWriteLocked<RT>(Func<RT> action)
+        private void DoReadLocked(Action action)
+        {
+            using (_lock.ReaderLock())
+            {
+                action();
+            }
+        }
+        private TReturn DoWriteLocked<TReturn>(Func<TReturn> action)
         {
             try
             {
@@ -244,15 +244,23 @@ namespace HLab.Notify.PropertyChanged
             }
 
         }
+
+
+        //private int _oldCount = 0;
         private void OnCollectionChanged()
         {
-            while (_changedQueue.TryDequeue(out var a))
+            while (_collectionChangedQueue.TryDequeue(out var a))
                 OnCollectionChanged(a);
+            //if(_list.Count!=_oldCount)
         }
 
         public void SetParent(object parent,INotifyClassParser parser, Action<PropertyChangedEventArgs> action)
         {
             //TODO
         }
+
+        //public ObservableCollectionSafe(ConfiguratorEntry configurator) : base(configurator)
+        //{
+        //}
     }
 }

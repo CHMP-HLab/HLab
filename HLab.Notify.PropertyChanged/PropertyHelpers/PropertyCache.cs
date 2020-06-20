@@ -74,6 +74,8 @@ namespace HLab.Notify.PropertyChanged
             public object Source{ get;internal set; }
             #endif
             public PropertyChangedEventArgs EventArgs { get; internal set; }
+
+            public abstract void Configure(object target, INotifyClassParser parser, object member);
         }
         
 
@@ -95,6 +97,8 @@ namespace HLab.Notify.PropertyChanged
                 _configure?.Invoke(target, parser, member);
             }
 
+            public override void Configure(object target, INotifyClassParser parser, object member) =>
+                Configure((TClass) target, parser, (T) member);
         }
 
         private static readonly ConcurrentDictionary<string, ConfiguratorEntry>

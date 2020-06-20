@@ -23,14 +23,34 @@ namespace HLab.Notify.PropertyChanged
         {
             InitializeAction(target, NotifyFactory.GetParser(target), callback);
         }
+        // TRIGGER
+        public static ITrigger Trigger(string name, NotifyConfiguratorFactory<TClass, NotifyTrigger> configurator)
+        {
+            
+            var c=
+                    PropertyCache<TClass>.Get(name,
+                        () => configurator(new NotifyConfigurator<TClass, NotifyTrigger>())
+                            .Compile()
+                    );
+            return new NotifyTrigger(c);
+        }
+        public static ITrigger Trigger(NotifyConfiguratorFactory<TClass, NotifyTrigger> c, [CallerMemberName]string name = null)
+            => Trigger(Name(name), c);
+
 
         // PROPERTY
-        public static PropertyHolder<T> Property<T>(string name, NotifyConfiguratorFactory<TClass, PropertyHolder<TClass,T>> c)
+        public static PropertyHolder<T> Property<T>(string name, NotifyConfiguratorFactory<TClass, PropertyHolder<T>> configurator)
         {
-            return new PropertyHolder<TClass, T>(name, c);
+            
+            var c=
+                    PropertyCache<TClass>.Get(name,
+                        () => configurator(new NotifyConfigurator<TClass, PropertyHolder<T>>())
+                            .Compile()
+                    );
+            return new PropertyHolder<T>(c);
         }
 
-        public static PropertyHolder<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<TClass,T>> c, [CallerMemberName]string name = null)
+        public static PropertyHolder<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<T>> c, [CallerMemberName]string name = null)
             => Property(Name(name), c);
 
 
@@ -38,11 +58,23 @@ namespace HLab.Notify.PropertyChanged
 
         // COMMAND 
 
-        public static ICommand Command(NotifyConfiguratorFactory<TClass, NotifyCommand<TClass>> c, [CallerMemberName]string name = null)
-        => new NotifyCommand<TClass>(name,c);
+        public static ICommand Command(NotifyConfiguratorFactory<TClass, NotifyCommand> configurator, [CallerMemberName]string name = null)
+        {
+            var c =  PropertyCache<TClass>.Get(name,
+                        () => configurator(new NotifyConfigurator<TClass, NotifyCommand>())
+                            .Compile());
 
-        public static IObservableFilter<T> Filter<T>(Func<TClass, IObservableFilter<T>, IObservableFilter<T>> configurator)
-            => new ObservableFilter<TClass,T>(configurator);
+            return new NotifyCommand(c);
+        } 
+
+        public static IObservableFilter<T> Filter<T>(NotifyConfiguratorFactory<TClass, ObservableFilter<T>> configurator, [CallerMemberName]string name = null)
+        {
+            var c =  PropertyCache<TClass>.Get(name,
+                        () => configurator(new NotifyConfigurator<TClass, ObservableFilter<T>>().Init((target,filter)=>filter.OnTriggered()))
+                            .Compile());
+
+            return new ObservableFilter<T>(c);
+        }
 
         private static NotifyActivator CreateActivatorA()
         {

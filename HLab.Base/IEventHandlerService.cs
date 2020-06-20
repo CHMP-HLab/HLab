@@ -11,6 +11,7 @@ namespace HLab.Base
         void Invoke(NotifyCollectionChangedEventHandler eventHandler, object source, NotifyCollectionChangedEventArgs args);
         void Invoke(EventHandler eventHandler, object source, EventArgs args);
         Task InvokeAsync(Func<Task> action);
+        void Invoke(Action action);
     }
 
     public class EventHandlerService : IEventHandlerService
@@ -33,6 +34,10 @@ namespace HLab.Base
         public Task InvokeAsync(Func<Task> action)
         {
             return action();
+        }
+        public void Invoke(Action action)
+        {
+            action();
         }
     }
 }

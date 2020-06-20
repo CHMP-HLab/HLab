@@ -100,10 +100,11 @@ namespace HLab.Notify
                         break;
 
                     default:
-
-                        Application.Current?.Dispatcher.BeginInvoke(DispatcherPriority.DataBind, d, source, args);
-
-                        //d.Method.Invoke(d.Target, new object[] { source, args });
+                        d.Method.Invoke(d.Target, new object[] {source, args});
+                        //Application.Current?.Dispatcher.BeginInvoke(DispatcherPriority.DataBind, d, source, args);
+                        //var t = new Task(() => d.Method.Invoke(d.Target, new object[] {source, args}));
+                        //t.Start();
+                        //await t;
                         //d.DynamicInvoke(source, args); // note : this does not execute handler in target thread's context
                         break;
                 }
@@ -147,6 +148,10 @@ namespace HLab.Notify
         public async Task InvokeAsync(Func<Task> action)
         {
             await Application.Current.Dispatcher.InvokeAsync(action);
+        }
+        public void Invoke(Action action)
+        {
+            Application.Current.Dispatcher.BeginInvoke(action);
         }
     }
 }

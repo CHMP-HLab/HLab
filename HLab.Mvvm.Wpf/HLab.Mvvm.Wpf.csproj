@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
   <PropertyGroup>
-    <TargetFrameworks>netcoreapp3.0</TargetFrameworks>
+    <TargetFramework>net5.0</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>HLab.Mvvm</RootNamespace>
     <Platforms>AnyCPU;x64;x86</Platforms>
@@ -35,22 +35,14 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MahApps.Metro" Version="2.0.0-alpha0748" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\..\HLab.Erp\HLab.Erp.Base.Data\HLab.Erp.Base.Data.csproj" />
+    <ProjectReference Include="..\..\Lib\MahApps.Metro\MahApps.Metro.csproj" />
     <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
+    <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
     <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
     <ProjectReference Include="..\HLab.Mvvm\HLab.Mvvm.csproj" />
     <ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="MahApps.Metro">
-      <HintPath>C:\Users\mathieu.AD\.nuget\packages\mahapps.metro\2.0.0-alpha605\lib\netcoreapp3.0\MahApps.Metro.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
   <ItemGroup>

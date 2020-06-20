@@ -88,6 +88,9 @@ namespace HLab.Mvvm
 
         public object GetLinked(object o, Type viewMode, Type viewClass) => _cache.Value.GetLinked(o, viewMode,viewClass);
 
+
+        public IView GetView(object baseObject) => GetView(baseObject,typeof(ViewModeDefault),typeof(IViewClassDefault));
+
         public IView GetView(object baseObject, Type viewMode, Type viewClass)
             => _cache.Value.GetView(baseObject,viewMode,viewClass);
 

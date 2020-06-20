@@ -5,9 +5,9 @@ using System.Windows.Media;
 
 namespace HLab.Base.Converters
 {
-    public class ToStringConverter : GenericConverter<string> { }
-    public class ToBrushConverter : GenericConverter<Brush> { }
-    public class ToVisibilityConverter : GenericConverter<Visibility> 
+    public class ToStringConverter : ToValueConverter<string> { }
+    public class ToBrushConverter : ToValueConverter<Brush> { }
+    public class ToVisibilityConverter : ToValueConverter<Visibility> 
     {
         public ToVisibilityConverter()
         {
@@ -16,12 +16,12 @@ namespace HLab.Base.Converters
             NullValue = Visibility.Collapsed;
         }
     }
-    public class ToObjectConverter : GenericConverter<object> { }
-    public class ToBooleanConverter : GenericConverter<bool> { }
+    public class ToObjectConverter : ToValueConverter<object> { }
+    public class ToBooleanConverter : ToValueConverter<bool> { }
 
 
 
-    public class GenericConverter<T> : IValueConverter
+    public class ToValueConverter<T> : IValueConverter
     {
         public T NullValue { get; set; }
         public T FalseValue { get; set; }

@@ -13,7 +13,7 @@ using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
-    public abstract class MvvmService : IMvvmService
+    public abstract class MvvmService : Service, IMvvmService
     {
         [Import]
         private readonly IMessageBus _messageBus;
@@ -32,8 +32,9 @@ namespace HLab.Mvvm
 
         protected MvvmService()
         {
+            ServiceState = ServiceState.NotConfigured;
             MainContext = _getNewContext(null,"root");
-            _assemblyName = Assembly.GetAssembly(typeof(MvvmService)).GetName().Name;
+            _assemblyName = Assembly.GetAssembly(typeof(IView)).GetName().Name;
         }
 
         public abstract void PrepareView(object view);
@@ -73,8 +74,6 @@ namespace HLab.Mvvm
                         level = l;
                     }
                 }
-
-                //if (best==null || best.BaseType.IsAssignableFrom(entry.Key)) best = entry.Value;
             }
             Register(getType, linkedType, viewClass, viewMode);
             return linkedType;
@@ -94,6 +93,8 @@ namespace HLab.Mvvm
             {
                 Register(assembly);
             }
+
+            ServiceState = ServiceState.Available;
         }
 
         private double _perAssemblyProgress = 0.0;

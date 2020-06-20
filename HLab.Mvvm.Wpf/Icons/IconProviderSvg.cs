@@ -1,4 +1,5 @@
-﻿using System.Resources;
+﻿using System;
+using System.Resources;
 using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
@@ -16,6 +17,7 @@ namespace HLab.Mvvm.Icons
 
         public async Task<object> GetAsync()
         {
+            AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
             await using var svg = _resourceManager.GetStream(_name);
