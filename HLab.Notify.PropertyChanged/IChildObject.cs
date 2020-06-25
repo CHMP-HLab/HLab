@@ -5,6 +5,6 @@ namespace HLab.Notify.PropertyChanged
 {
     public interface IChildObject
     {
-        void SetParent(object parent,INotifyClassParser parser,Action<PropertyChangedEventArgs> args);
+        void SetParent(object parent,INotifyClassParser parser);
     }
 }

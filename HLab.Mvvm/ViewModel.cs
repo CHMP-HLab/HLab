@@ -24,15 +24,20 @@
 
 using System;
 using System.Threading;
-using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm
 {
-    public abstract class ViewModel<TClass> : N<TClass>, IViewModel
-    where TClass : ViewModel<TClass>
+    using H = NotifyHelper<ViewModel>;
+
+    public abstract class ViewModel : NotifierBase, IViewModel
     {
+        protected ViewModel()
+        {
+            H.Initialize(this);
+        }
+
         private static int _lastId = 0;
 
         private readonly Lazy<int> _id = new Lazy<int>(() => Interlocked.Increment(ref _lastId));
@@ -50,9 +55,9 @@ namespace HLab.Mvvm
         }
     }
 
-    public class ViewModel<TClass,T> : ViewModel<TClass>, IViewModel<T>
-    where TClass : ViewModel<TClass,T>
+    public class ViewModel<T> : ViewModel, IViewModel<T>
     {
+
         public new T Model
         {
             get => (T)base.Model;

@@ -28,7 +28,7 @@ namespace HLab.Notify.PropertyChanged
         private static readonly IEventHandlerService _eventHandlerService = new EventHandlerService();
         protected NotifierTest()
         {
-            H.Initialize((T)this,OnPropertyChanged);
+            H.Initialize((T)this);
         }
 
     }
@@ -38,15 +38,12 @@ namespace HLab.Notify.PropertyChanged
         where T : class
     {
         protected class H : NotifyHelper<T> { }
-        protected N()
+        protected N(bool initialize=true)
         {
-            Initialize();
-        }
-        protected N(bool ignoreInitialize)
-        {
+            if(initialize) Initialize();
         }
 
-        protected void Initialize() => H.Initialize( this as T,OnPropertyChanged);
+        protected void Initialize() => H.Initialize( this as T);
     }
 
 }

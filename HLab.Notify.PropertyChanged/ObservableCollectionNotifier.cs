@@ -41,7 +41,7 @@ namespace HLab.Notify.PropertyChanged
         public ObservableCollectionNotifier(bool init = true)
         {
             if (_eventHandlerService == null) _eventHandlerService = NotifyHelper.EventHandlerService;
-            if(init) H.Initialize(this,OnPropertyChanged);
+            if(init) H.Initialize(this);
         }
 
         protected class H : NotifyHelper<ObservableCollectionNotifier<T>> { }

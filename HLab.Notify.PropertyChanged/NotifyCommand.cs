@@ -8,7 +8,7 @@ using HLab.Notify.PropertyChanged.PropertyHelpers;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public interface ITrigger {}
+    public interface ITrigger :IChildObject {}
 
     public class NotifyTrigger : ChildObject, ITrigger
     {

@@ -6,6 +6,8 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm
 {
+    using H = NotifyHelper<ProgressLoadingViewModel>;
+
     public class ProgressMessage
     {
         public ProgressMessage(double progress, string text)
@@ -18,8 +20,14 @@ namespace HLab.Mvvm
         public string Text { get; }
     }
 
-    public class ProgressLoadingViewModel : ViewModel<ProgressLoadingViewModel>
+    public class ProgressLoadingViewModel : ViewModel
     {
+        public ProgressLoadingViewModel()
+        {
+            H.Initialize(this);
+        }
+
+
         [Import]
         public void Import(IMessageBus msg)
         {

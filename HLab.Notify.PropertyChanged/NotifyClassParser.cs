@@ -11,10 +11,15 @@ namespace HLab.Notify.PropertyChanged
 {
     public class NotifyClassParser : INotifyClassParser
     {
+
         private readonly object _target;
         public NotifyClassParser(object target)
         {
             _target = target;
+        }
+
+        public NotifyClassParser Init()
+        {
             if(_target is INotifyPropertyChanged tpc)
                 tpc.PropertyChanged += TargetOnPropertyChanged;
 
@@ -22,6 +27,8 @@ namespace HLab.Notify.PropertyChanged
             {
                 _dict.GetOrAdd("Item", n => new CollectionEntry(tcc));
             }
+
+            return this;
         }
 
         class CollectionEntry : IPropertyEntry
@@ -205,15 +212,9 @@ namespace HLab.Notify.PropertyChanged
 
         private readonly ConcurrentDictionary<string,IPropertyEntry> _dict = new ConcurrentDictionary<string, IPropertyEntry>();
 
-        public IPropertyEntry GetPropertyEntry(string name)
-        {
-            return _dict.GetOrAdd(name, n => new PropertyEntry(_target, n));
-        }
+        public IPropertyEntry GetPropertyEntry(string name) => _dict.GetOrAdd(name, n => new PropertyEntry(_target, n));
 
-        public ITriggerEntry GetTrigger(TriggerPath path, PropertyChangedEventHandler handler)
-        {
-            return GetPropertyEntry(path.PropertyName).GetTrigger(path.Next, handler);
-        }
+        public ITriggerEntry GetTrigger(TriggerPath path, PropertyChangedEventHandler handler) => GetPropertyEntry(path.PropertyName).GetTrigger(path.Next, handler);
 
         public IEnumerable<IPropertyEntry> LinkedProperties()
         {
@@ -221,6 +222,36 @@ namespace HLab.Notify.PropertyChanged
             {
                 if(p.Linked) yield return p;
             }
+        }
+
+        private bool _initialized = false;
+        public void Initialize<T>() where T : class
+        {
+            if (!_initialized)
+            {
+                Init();
+                _initialized = true;
+            }
+            
+            NotifyHelper<T>.InitializeAction((T)_target, this);
+        }
+
+
+
+        private event PropertyChangedEventHandler Handler;
+        public void AddHandler(PropertyChangedEventHandler value)
+        {
+            Handler += value;
+        }
+
+        public void RemoveHandler(PropertyChangedEventHandler value)
+        {
+            Handler -= value;
+        }
+
+        public void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            Handler?.Invoke(_target, args);
         }
 
         private void TargetOnPropertyChanged(object sender, PropertyChangedEventArgs args)

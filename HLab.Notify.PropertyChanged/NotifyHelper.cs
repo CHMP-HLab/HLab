@@ -1,7 +1,6 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -15,13 +14,13 @@ namespace HLab.Notify.PropertyChanged
     public class NotifyHelper<TClass> : NotifyHelper
         where TClass : class//,INotifyPropertyChanged
     {
-        public delegate void NotifyActivator(TClass target, INotifyClassParser parser,
-            Action<PropertyChangedEventArgs> evt);
+        public delegate void NotifyActivator(TClass target, INotifyClassParser parser);
 
-        private static readonly NotifyActivator InitializeAction = CreateActivatorA() + CreateActivatorExt();
-        public static void Initialize(TClass target, Action<PropertyChangedEventArgs> callback = null)
+        internal static readonly NotifyActivator InitializeAction = CreateActivatorA() + CreateActivatorExt();
+        public static void Initialize(TClass target)
         {
-            InitializeAction(target, NotifyFactory.GetParser(target), callback);
+            NotifyFactory.GetParser(target).Initialize<TClass>();
+            //InitializeAction(target, parser, callback);
         }
         // TRIGGER
         public static ITrigger Trigger(string name, NotifyConfiguratorFactory<TClass, NotifyTrigger> configurator)
@@ -78,10 +77,10 @@ namespace HLab.Notify.PropertyChanged
 
         private static NotifyActivator CreateActivatorA()
         {
-            NotifyActivator activator = (t, p, e) => { };
+            NotifyActivator activator = (t, p) => { };
 
             var type = typeof(TClass);
-            while (type != null)
+            //while (type != null)
             {
                 foreach (var f in type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Instance |
                                                   BindingFlags.NonPublic | BindingFlags.Public))
@@ -91,29 +90,29 @@ namespace HLab.Notify.PropertyChanged
                         case FieldInfo fieldInfo:
                             if (!typeof(IChildObject).IsAssignableFrom(fieldInfo.FieldType)) continue;
 
-                            activator += (t, p, e) =>
+                            activator += (t, p) =>
                             {
                                 var child =(IChildObject)fieldInfo.GetValue(t);
-                                child.SetParent(t,p,e);
+                                child.SetParent(t,p);
                             };
                             break;
                         case PropertyInfo propertyInfo:
                             if (propertyInfo.CanWrite) continue;
                             if (typeof(IChildObject).IsAssignableFrom(propertyInfo.PropertyType))
                             {
-                                activator += (t, p, e) =>
+                                activator += (t, p) =>
                                 {
                                     var child = (IChildObject) propertyInfo.GetValue(t);
-                                    child.SetParent(t, p, e);
+                                    child.SetParent(t, p);
                                 };
                             }
                             else if (typeof(ICommand).IsAssignableFrom(propertyInfo.PropertyType))
                             {
-                                activator += (t, p, e) =>
+                                activator += (t, p) =>
                                 {
                                     if (propertyInfo.GetValue(t) is IChildObject child)
                                     {
-                                        child.SetParent(t, p, e);
+                                        child.SetParent(t, p);
                                     }
                                 };
 
@@ -151,7 +150,7 @@ namespace HLab.Notify.PropertyChanged
             ILGenerator il = dm.GetILGenerator();
 
             var type = typeof(TClass);
-            while (type != null)
+            //while (type != null)
             {
                 foreach (var f in type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Instance |
                                                   BindingFlags.NonPublic | BindingFlags.Public))
@@ -212,10 +211,10 @@ namespace HLab.Notify.PropertyChanged
         private static NotifyActivator CreateActivatorExt()
         {
 
-            NotifyActivator activator = (a, b, c) => { };
+            NotifyActivator activator = (a, b) => { };
 
             var type = typeof(TClass);
-            while (type != null)
+            //while (type != null)
             {
                 foreach (var property in type.GetProperties(
                     BindingFlags.Public | 
@@ -227,16 +226,16 @@ namespace HLab.Notify.PropertyChanged
                     {
                         if (typeof(ITriggerable).IsAssignableFrom(property.PropertyType))
                         {
-                            activator += (o,p,a) =>
+                            activator += (o,p) =>
                             {
                                 NotifyFactory.GetParser(o).GetTrigger(attribute.Path, (s, args) => (property.GetValue(o) as ITriggerable)?.OnTriggered());
                             };
                         }
                         else
                         {
-                            activator += (o,p,a) =>
+                            activator += (o,p) =>
                             {
-                                NotifyFactory.GetParser(o).GetTrigger(attribute.Path, (s, args) => a(new PropertyChangedEventArgs(property.Name)));
+                                NotifyFactory.GetParser(o).GetTrigger(attribute.Path, (s, args) => p.OnPropertyChanged(new PropertyChangedEventArgs(property.Name)));
                             };
                         }
                     }
@@ -246,7 +245,7 @@ namespace HLab.Notify.PropertyChanged
                 {
                     foreach (var attribute in method.GetCustomAttributes().OfType<TriggerOnAttribute>())
                     {
-                        activator += (o,p,a) =>
+                        activator += (o,p) =>
                         {
                             NotifyFactory.GetParser(o).GetTrigger(attribute.Path, (s, args) => method.Invoke(o, new object[] { }));
                         };
@@ -256,7 +255,7 @@ namespace HLab.Notify.PropertyChanged
                 type = type.BaseType;
             }
 
-            activator += (o,p,a) =>
+            activator += (o,p) =>
             {
                 var l = NotifyFactory.GetExistingParser(o)?.LinkedProperties().ToList();
                 if (l == null) return;

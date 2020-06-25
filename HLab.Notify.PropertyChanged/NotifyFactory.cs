@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using HLab.Notify.Annotations;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,10 @@ namespace HLab.Notify.PropertyChanged
         IPropertyEntry GetPropertyEntry(string name);
         ITriggerEntry GetTrigger(TriggerPath path, PropertyChangedEventHandler handler);
         IEnumerable<IPropertyEntry> LinkedProperties();
+        void Initialize<T>() where T : class;
+        void AddHandler(PropertyChangedEventHandler value);
+        void RemoveHandler(PropertyChangedEventHandler value);
+        void OnPropertyChanged(PropertyChangedEventArgs args);
     }
 
     public static class NotifyFactory
@@ -36,6 +41,10 @@ namespace HLab.Notify.PropertyChanged
         }
 
         public static INotifyClassParser GetParser(object target)
+        {
+                return Cache.GetValue(target, (o) => new NotifyClassParser(o).Init());
+        }
+        public static INotifyClassParser GetParserUninitialized(object target)
         {
                 return Cache.GetValue(target, (o) => new NotifyClassParser(o));
         }
