@@ -32,7 +32,11 @@ namespace HLab.Mvvm.Converters
     {
         public object Convert(object[] values, Type targetType, object parameter, CultureInfo culture)
         {
-            var v = values.OfType<double>().Min();
+            var vs = values.OfType<double>().ToList();
+
+            if (!vs.Any()) return 0.1;
+
+            var v = vs.Min();
 
             var scale = double.Parse((string)parameter, CultureInfo.InvariantCulture);
             var result = v * scale;
