@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.ComponentModel;
+using System.Linq;
 using HLab.Notify.PropertyChanged.UTest.Classes;
 using Xunit;
 
@@ -37,21 +38,25 @@ namespace HLab.Notify.PropertyChanged.UTest
             var countCount = 0;
             var countOthers = 0;
 
-            c.Children.PropertyChanged += (s, a) =>
+            if (c.Children is INotifyPropertyChanged p)
             {
-                switch (a.PropertyName)
+                p.PropertyChanged += (s, a) =>
                 {
-                    case "Item":
-                        countItem++;
-                        break;
-                    case "Count":
-                        countCount++;
-                        break;
-                    default:
-                        countOthers++;
-                        break;
-                }
-            };
+                    switch (a.PropertyName)
+                    {
+                        case "Item":
+                            countItem++;
+                            break;
+                        case "Count":
+                            countCount++;
+                            break;
+                        default:
+                            countOthers++;
+                            break;
+                    }
+                };
+
+            }
 
             var child1 = new ClassWithProperty {Value = 25};
             c.Children.Add(child1);
