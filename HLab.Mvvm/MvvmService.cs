@@ -75,6 +75,11 @@ namespace HLab.Mvvm
                     }
                 }
             }
+
+            if (linkedType == null && viewMode != typeof(ViewModeDefault))
+                linkedType = GetLinkedType(getType, typeof(ViewModeDefault), viewClass);
+
+
             Register(getType, linkedType, viewClass, viewMode);
             return linkedType;
         }
