@@ -24,8 +24,5 @@ namespace HLab.Mvvm.Icons
             return await XamlTools.FromSvgStreamAsync(svg).ConfigureAwait(false);
         }
 
-
-
-
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Runtime.InteropServices;
-using System.Text;
-
-using System.Drawing;
-using System.Windows.Input;
+﻿using System.Drawing;
 using Hardcodet.Wpf.TaskbarNotification;
 
 namespace HLab.Notification.Wpf

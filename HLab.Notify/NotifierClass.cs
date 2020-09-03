@@ -5,7 +5,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using HLab.DependencyInjection.Annotations;
-using HLab.DependencyInjection;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify
