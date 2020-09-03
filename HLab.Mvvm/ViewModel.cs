@@ -29,14 +29,11 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm
 {
-    using H = NotifyHelper<ViewModel>;
+    using H = H<ViewModel>;
 
     public abstract class ViewModel : NotifierBase, IViewModel
     {
-        protected ViewModel()
-        {
-            H.Initialize(this);
-        }
+        protected ViewModel() => H.Initialize(this);
 
         private static int _lastId = 0;
 

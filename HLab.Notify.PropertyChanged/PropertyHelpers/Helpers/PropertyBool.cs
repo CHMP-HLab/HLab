@@ -1,8 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
         public class PropertyBool : IPropertyValue<bool>
         {
@@ -16,18 +15,12 @@ namespace HLab.Notify.PropertyChanged
                 if (_value == v) return false;
 
                 var old = Interlocked.Exchange(ref _value, v);
-                if (old != v)
-                {
-                    _holder.OnPropertyChanged();
-                    return true;
-                }
-                else return false;
+                if (old == v) return false;
+                _holder.OnPropertyChanged();
+                return true;
             }
 
-            public bool Set(Func<object, bool> setter)
-            {
-            return Set(setter(_holder.Parent));
-            }
+            public bool Set(Func<object, bool> setter) => Set(setter(_holder.Parent));
 
             private readonly PropertyHolder<bool> _holder;
 

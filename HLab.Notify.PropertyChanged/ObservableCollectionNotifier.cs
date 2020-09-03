@@ -41,10 +41,9 @@ namespace HLab.Notify.PropertyChanged
         public ObservableCollectionNotifier(bool init = true)
         {
             if (_eventHandlerService == null) _eventHandlerService = NotifyHelper.EventHandlerService;
-            if(init) H.Initialize(this);
+            if(init) H<ObservableCollectionNotifier<T>>.Initialize(this);
         }
 
-        protected class H : NotifyHelper<ObservableCollectionNotifier<T>> { }
 
         #region Dependencies
 
@@ -80,7 +79,7 @@ namespace HLab.Notify.PropertyChanged
                 }
             }
         }
-        protected IProperty<T> _selected = H.Property<T>();
+        protected IProperty<T> _selected = H<ObservableCollectionNotifier<T>>.Property<T>();
 
         private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
         {
@@ -93,7 +92,7 @@ namespace HLab.Notify.PropertyChanged
         IEnumerator IEnumerable.GetEnumerator() => _list.GetEnumerator();
 
         public int Count => _count.Get();
-        private IProperty<int> _count = H.Property<int>(c => c
+        private IProperty<int> _count = H<ObservableCollectionNotifier<T>>.Property<int>(c => c
             .Set(e => e._list.Count)
         );
 

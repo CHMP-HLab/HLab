@@ -12,7 +12,8 @@ using PinDirection = HLab.Mvvm.Flowchart.Models.PinDirection;
 
 namespace HLab.Mvvm.Flowchart.ViewModel
 {
-    public class PinViewModel : ViewModel<PinViewModel,IPin>, IPinViewModel
+    using H = H<PinViewModel>;
+    public class PinViewModel : ViewModel<IPin>, IPinViewModel
     {
         [Import]
         public IIconService IconService { get; }
@@ -21,6 +22,8 @@ namespace HLab.Mvvm.Flowchart.ViewModel
         {
             MessageBus = messageBus;
             GraphService = graphService;
+            
+            H.Initialize(this);
         }
 #if(DEBUG)
         //public IPin GetDesignModel => new InputPin(null,"0");

@@ -21,7 +21,7 @@ namespace HLab.Mvvm.Flowchart.Models
     }
 
     [DataContract]
-    public class PinGroup : GraphElement<PinGroup>, IPinGroup
+    public class PinGroup : GraphElement, IPinGroup
     {
         public PinGroup(IGraphBlock block, string id, PinLocation location, string caption)
         {
@@ -29,6 +29,8 @@ namespace HLab.Mvvm.Flowchart.Models
             Id = id;
             Location = location;
             Caption = caption;
+
+            H<PinGroup>.Initialize(this);
         }
 
         public T GetOrAddPin<T>(string id = null, GraphValueType type = null) where T : IPin, new()
@@ -69,7 +71,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _block.Set(value);
         }
 
-        private readonly IProperty<IGraphBlock> _block = H.Property<IGraphBlock>(c => c.Default((IGraphBlock)default));
+        private readonly IProperty<IGraphBlock> _block = H<PinGroup>.Property<IGraphBlock>(c => c.Default((IGraphBlock)default));
 
 
 
@@ -80,7 +82,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _location.Set(value);
         }
 
-        private readonly IProperty<PinLocation> _location = H.Property<PinLocation>(c => c.Default(PinLocation.Left));
+        private readonly IProperty<PinLocation> _location = H<PinGroup>.Property<PinLocation>(c => c.Default(PinLocation.Left));
 
 
 

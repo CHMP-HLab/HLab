@@ -6,9 +6,10 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
 {
-    public abstract class Pin<T> : GraphElement<T>, IPin
-    where T : Pin<T>
+    public abstract class Pin : GraphElement, IPin
     {
+        protected Pin() => H<Pin>.Initialize(this);
+
         [TriggerOn(nameof(Parent))]
         public IPinGroup Group
         {
@@ -19,7 +20,7 @@ namespace HLab.Mvvm.Flowchart.Models
         public ObservableCollection<IPin> LinkedPins { get; } = new ObservableCollection<IPin>(); // => N<>.Get(() => );
 
         public virtual double Value => _value.Get();
-        private readonly IProperty<double> _value = H.Property<double>(c => c.Set(e => e.GetValue(1)));
+        private readonly IProperty<double> _value = H<Pin>.Property<double>(c => c.Set(e => e.GetValue(1)));
 
 
         public virtual double GetValue(int n)

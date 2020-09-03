@@ -1,33 +1,23 @@
 ﻿using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using HLab.Notify.PropertyChanged.NotifyParsers;
 
 namespace HLab.Notify.PropertyChanged
 {
     public abstract class NotifierBase : INotifyPropertyChanged
     {
 
-        protected INotifyClassParser NotifyClassParser;
+        protected INotifyClassHelper Parser;
 
         protected NotifierBase()
         {
-            NotifyClassParser = NotifyFactory.GetParserUninitialized(this);
+            Parser = NotifyClassHelper.GetParserUninitialized(this);
         }
             
         public event PropertyChangedEventHandler PropertyChanged
         {
-            add => NotifyClassParser.AddHandler(value);
-            remove => NotifyClassParser.RemoveHandler(value);
+            add => Parser.AddHandler(value);
+            remove => Parser.RemoveHandler(value);
         }
-        //protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
-        //{
-        //    OnPropertyChanged(new PropertyChangedEventArgs(propertyName));
-        //}
-
-        //protected void OnPropertyChanged(PropertyChangedEventArgs args)
-        //{
-        //        PropertyChanged?.Invoke(this,args);
-        //}
-
-        //protected void Initialize<T>() where T : class => NotifyHelper<T>.Initialize(this as T,OnPropertyChanged);
     }
 }

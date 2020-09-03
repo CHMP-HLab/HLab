@@ -9,13 +9,16 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
 {
-    public abstract class GraphBlock<T> : GraphElement<T>, IGraphBlock
-    where T : GraphBlock<T>
+    using H = H<GraphBlock>; 
+
+    public abstract class GraphBlock : GraphElement, IGraphBlock
     {
         protected GraphBlock()
         {
             MainLeftGroup = GetOrAddGroup("Left", PinLocation.Left);
             MainRightGroup = GetOrAddGroup("Right", PinLocation.Right);
+
+            H.Initialize(this);
         }
 
         [Import] private Func<IGraphBlock,string, PinLocation, string, PinGroup> _getPinGroup;

@@ -8,8 +8,7 @@ using HLab.DependencyInjection.Annotations;
 
 namespace HLab.Mvvm.Flowchart.Models
 {
-    public class Graph<T> : GraphElement<T>, IGraph
-    where T : Graph<T>
+    public class Graph : GraphElement, IGraph
     {
         public event EventHandler BlocksLoaded;
 

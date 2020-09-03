@@ -45,7 +45,7 @@ namespace HLab.Notify.Collections
             H.Initialize(this);
         }
 
-        protected class H : NotifyHelper<ObservableCollectionNotifier<T>> { }
+        protected class H : H<ObservableCollectionNotifier<T>> { }
 
         #region Dependencies
 

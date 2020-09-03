@@ -15,11 +15,10 @@ namespace HLab.Mvvm.Flowchart.Models
 
 
     [DataContract]
-    public abstract class InputPin<T> : Pin<T>, IInputPin
-    where T : InputPin<T>
+    public abstract class InputPin : Pin, IInputPin
     {
         public override Color Color => _color.Get();
-        private readonly IProperty<Color> _color = H.Property<Color>(c => c
+        private readonly IProperty<Color> _color = H<InputPin>.Property<Color>(c => c
             .On(e => e.ValueType.Color)
             .Set(e => e.ValueType.Color));
 
@@ -52,7 +51,7 @@ namespace HLab.Mvvm.Flowchart.Models
             }
         }
 
-        private readonly IProperty<IOutputPin> _linkedOutput = H.Property<IOutputPin>(c => c.Default((IOutputPin)default));
+        private readonly IProperty<IOutputPin> _linkedOutput = H<InputPin>.Property<IOutputPin>(c => c.Default((IOutputPin)default));
 
 
         [DataMember]
@@ -62,7 +61,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _linkedOutputPath.Set(value);
         }
 
-        private readonly IProperty<string> _linkedOutputPath = H.Property<string>(c => c
+        private readonly IProperty<string> _linkedOutputPath = H<InputPin>.Property<string>(c => c
             .Set(e => e.LinkedOutput.ToString())
         );
 
@@ -89,7 +88,7 @@ namespace HLab.Mvvm.Flowchart.Models
         }
 
         public override bool IsLinked => _isLinked.Get();
-        private readonly IProperty<bool> _isLinked = H.Property<bool>(c => c
+        private readonly IProperty<bool> _isLinked = H<InputPin>.Property<bool>(c => c
             .On(e => e.LinkedOutput)
             .Set(e => e.LinkedOutput != null));
 

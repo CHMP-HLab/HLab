@@ -1,8 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyInt : IPropertyValue<int>
     {

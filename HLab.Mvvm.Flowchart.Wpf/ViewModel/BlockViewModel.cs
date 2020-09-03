@@ -2,13 +2,15 @@
 using System.Windows;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Flowchart.Models;
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.ViewModel
 {
-    public class BlockViewModel : ViewModel<BlockViewModel,IGraphBlock>, IBlockViewModel
+    using H = H<BlockViewModel>;
+    public class BlockViewModel : ViewModel<IGraphBlock>, IBlockViewModel
     {
+        public BlockViewModel() => H.Initialize(this);
+
         public IGraphViewModel GraphViewModel
         {
             get => _graphViewModel.Get();
@@ -18,14 +20,12 @@ namespace HLab.Mvvm.Flowchart.ViewModel
         private readonly IProperty<IGraphViewModel> _graphViewModel = H.Property<IGraphViewModel>(c => c.Default((IGraphViewModel)default));
 
 
-        public ObservableFilter<IPinGroup> LeftGroups => _leftGroups.Get();
-        private readonly IProperty<ObservableFilter<IPinGroup>> _leftGroups = H.Property<ObservableFilter<IPinGroup>>(c => c
-            .Set(e => new ObservableFilter<IPinGroup>().AddFilter(g => g.Location == PinLocation.Left).Link(() => e.Model.Groups))
+        public IObservableFilter<IPinGroup> LeftGroups { get; } = H.Filter<IPinGroup>(c => c
+            .AddFilter(g => g.Location == PinLocation.Left).Link(e => e.Model.Groups)
         );
 
-        public ObservableFilter<IPinGroup> RightGroups => _rightGroups.Get();
-        private readonly IProperty<ObservableFilter<IPinGroup>> _rightGroups = H.Property<ObservableFilter<IPinGroup>>(c => c
-            .Set(e => new ObservableFilter<IPinGroup>().AddFilter(g => g.Location == PinLocation.Right).Link(() => e.Model.Groups))
+        public IObservableFilter<IPinGroup> RightGroups { get; } = H.Filter<IPinGroup>(c => c
+                .AddFilter(g => g.Location == PinLocation.Right).Link(e => e.Model.Groups)
         );
 
 

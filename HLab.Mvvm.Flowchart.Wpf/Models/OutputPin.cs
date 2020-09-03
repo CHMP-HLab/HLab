@@ -6,6 +6,8 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
 {
+    using H = H<OutputPin>;
+
     public interface IOutputPin : IPin
     {
         //ObservableCollection<IInputPin> LinkedInputs { get; }
@@ -17,8 +19,10 @@ namespace HLab.Mvvm.Flowchart.Models
     }
 
     [DataContract]
-    public class OutputPin : Pin<OutputPin>, IOutputPin
+    public class OutputPin : Pin, IOutputPin
     {
+        public OutputPin() => H.Initialize(this);
+
         //public ObservableCollection<IInputPin> LinkedInputs => N.Get(() => new ObservableCollection<IInputPin>());
 
         [TriggerOn(nameof(LinkedPins),"Item","Value")]

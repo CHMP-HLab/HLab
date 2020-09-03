@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-using System.Threading;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
 //    public abstract class PropertyHolder<T> : PropertyHolder, IProperty<T>
 //    {
@@ -75,7 +73,13 @@ namespace HLab.Notify.PropertyChanged
             #endif
             public PropertyChangedEventArgs EventArgs { get; internal set; }
 
-            public abstract void Configure(object target, INotifyClassParser parser, object member);
+            public abstract void Configure(object target, INotifyClassHelper parser, object member);
+            //public Action<object, INotifyClassParser, object> Action { get; set; }
+            public abstract void Update(object target, object member);
+
+            public List<string> Dependencies { get; set; }
+
+            public string HolderName { get; set; }
         }
         
 
@@ -89,31 +93,56 @@ namespace HLab.Notify.PropertyChanged
 
         public class ConfiguratorEntry<T> : ConfiguratorEntry
         {
-            private Action<TClass, INotifyClassParser, T> _configure;
-            public void SetAction(Action<TClass, INotifyClassParser, T> action) => _configure = action;
+            public Action<TClass, INotifyClassHelper, T> Action { get; set; }
+            public Action<TClass, T> UpdateAction { get; set; }
 
-            public void Configure(TClass target, INotifyClassParser parser, T member)
+            public void Configure(TClass target, INotifyClassHelper parser, T member)
             {
-                _configure?.Invoke(target, parser, member);
+                Action?.Invoke(target, parser, member);
+            }
+            public void Update(TClass target, T member)
+            {
+                UpdateAction?.Invoke(target, member);
             }
 
-            public override void Configure(object target, INotifyClassParser parser, object member) =>
-                Configure((TClass) target, parser, (T) member);
+            public override void Configure(object target, INotifyClassHelper parser, object member) =>
+                Configure((TClass)target, parser, (T)member);
+            public override void Update(object target, object member) =>
+                Update((TClass)target, (T)member);
         }
 
-        private static readonly ConcurrentDictionary<string, ConfiguratorEntry>
-            // ReSharper disable once StaticMemberInGenericType
-            _cache = new ConcurrentDictionary<string, ConfiguratorEntry>();
-
-        public static ConfiguratorEntry<T> Get<T>(string name,
-            Func<Action<TClass,INotifyClassParser,T>> action)
+        private static readonly ConcurrentDictionary<string, ConfiguratorEntry> CacheByHolder = new ConcurrentDictionary<string, ConfiguratorEntry>();
+        private static readonly ConcurrentDictionary<string, ConfiguratorEntry> CacheByProperty = new ConcurrentDictionary<string, ConfiguratorEntry>();
+        public static ConfiguratorEntry GetByProperty(string name )
         {
-            return (ConfiguratorEntry<T>)_cache.GetOrAdd(name,valueFactory: n =>
-            {
-                var entry = new ConfiguratorEntry<T> {EventArgs = new PropertyChangedEventArgs(name)};
-                entry.SetAction(action());
+            if(CacheByProperty.TryGetValue(name, out var e)) return e;
 
-                return entry;
+            throw new Exception("Error");
+
+        }
+        public static ConfiguratorEntry GetByHolder(string name )
+        {
+            if(CacheByHolder.TryGetValue(name, out var e)) return e;
+
+            throw new ArgumentException($"PropertyHolder {name} not found in {typeof(TClass)}");
+
+        }
+
+        public static ConfiguratorEntry<T> GetByHolder<T>(string name,
+            Func<string,NotifyConfigurator<TClass,T>.Activator> activator)
+        {
+            return (ConfiguratorEntry<T>)CacheByHolder.GetOrAdd(name,valueFactory: n =>
+            {
+                var a = activator(n);
+
+                return (ConfiguratorEntry<T>)CacheByProperty.GetOrAdd(a.PropertyName,valueFactory: n2 => new ConfiguratorEntry<T>
+                {
+                    EventArgs = new PropertyChangedEventArgs(a.PropertyName), 
+                    HolderName = n2, 
+                    Dependencies = a.DependsOn,
+                    Action = a.Action,
+                    UpdateAction = a.UpdateAction
+                });
             });
         }
     }

@@ -4,11 +4,12 @@ using System.Text;
 using System.Windows.Input;
 using HLab.Notify.PropertyChanged.Utest.Annotations;
 using Xunit;
-using H = HLab.Notify.PropertyChanged.NotifyHelper<HLab.Notify.PropertyChanged.UTest.CommandObject>;
 
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    class CommandObject
+    using H = H<CommandObject>;
+
+    class CommandObject : NotifierBase
     {
         public CommandObject()
         {

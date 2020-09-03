@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Reflection.Emit;
@@ -7,89 +9,151 @@ using System.Runtime.CompilerServices;
 using System.Windows.Input;
 using HLab.DependencyInjection;
 using HLab.Notify.Annotations;
+using HLab.Notify.PropertyChanged.NotifyParsers;
+using HLab.Notify.PropertyChanged.PropertyHelpers;
 
 namespace HLab.Notify.PropertyChanged
 {
-
-    public class NotifyHelper<TClass> : NotifyHelper
-        where TClass : class//,INotifyPropertyChanged
+    [AttributeUsage(AttributeTargets.Class)]
+    public class DeepNotifyActivation : Attribute
     {
-        public delegate void NotifyActivator(TClass target, INotifyClassParser parser);
 
-        internal static readonly NotifyActivator InitializeAction = CreateActivatorA() + CreateActivatorExt();
+    }
+
+    public class H<TClass> : NotifyHelper
+        where TClass : class, INotifyPropertyChanged
+    {
+        public delegate void NotifyActivator(TClass target, INotifyClassHelper parser);
+
+        internal static readonly Lazy<NotifyActivator> InitializeAction = new Lazy<NotifyActivator>(()=>CreateActivatorA() + CreateActivatorExt());
         public static void Initialize(TClass target)
         {
-            NotifyFactory.GetParser(target).Initialize<TClass>();
-            //InitializeAction(target, parser, callback);
+            NotifyClassHelper.GetHelper(target).Initialize<TClass>();
         }
+
         // TRIGGER
-        public static ITrigger Trigger(string name, NotifyConfiguratorFactory<TClass, NotifyTrigger> configurator)
+        public static ITrigger Trigger(NotifyConfiguratorFactory<TClass, NotifyTrigger> configurator, [CallerMemberName]string name = null)
         {
             
             var c=
-                    PropertyCache<TClass>.Get(name,
-                        () => configurator(new NotifyConfigurator<TClass, NotifyTrigger>())
-                            .Compile()
+                    PropertyCache<TClass>.GetByHolder<NotifyTrigger>(name,
+                        n => configurator(new NotifyConfigurator<TClass, NotifyTrigger>())
+                            .Compile(n)
                     );
             return new NotifyTrigger(c);
         }
-        public static ITrigger Trigger(NotifyConfiguratorFactory<TClass, NotifyTrigger> c, [CallerMemberName]string name = null)
-            => Trigger(Name(name), c);
 
 
         // PROPERTY
-        public static PropertyHolder<T> Property<T>(string name, NotifyConfiguratorFactory<TClass, PropertyHolder<T>> configurator)
+        #if DUMMYPROPERTIES
+        public static IProperty<T> Property<T>(string dummy) => null;
+        public static IProperty<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<T>> configurator, string dummy) => null;
+        public static IProperty<T> Property<T>() => null;
+        public static IProperty<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<T>> configurator) => null;
+        #else
+         public static PropertyHolder<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<T>> configurator, [CallerMemberName] string name = null)
         {
-            
-            var c=
-                    PropertyCache<TClass>.Get(name,
-                        () => configurator(new NotifyConfigurator<TClass, PropertyHolder<T>>())
-                            .Compile()
+            // TODO : benchmark this and see if just storing uncompiled whould perform better :
+            var c =
+                    PropertyCache<TClass>.GetByHolder<PropertyHolder<T>>(name,
+                        n => configurator(new NotifyConfigurator<TClass, PropertyHolder<T>>())
+                            .Compile(n)
                     );
             return new PropertyHolder<T>(c);
         }
+        public static IProperty<T> Property<T>([CallerMemberName]string name = null) => Property<T>(c => c,name);
+        #endif
 
-        public static PropertyHolder<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<T>> c, [CallerMemberName]string name = null)
-            => Property(Name(name), c);
-
-
-        public static IProperty<T> Property<T>([CallerMemberName]string name = null) => Property<T>(Name(name),c => c);
 
         // COMMAND 
 
         public static ICommand Command(NotifyConfiguratorFactory<TClass, NotifyCommand> configurator, [CallerMemberName]string name = null)
         {
-            var c =  PropertyCache<TClass>.Get(name,
-                        () => configurator(new NotifyConfigurator<TClass, NotifyCommand>())
-                            .Compile());
+            #if DEBUG
+            Debug.Assert(typeof(TClass).GetProperty(name)!=null,$"{name} is not a property of " + typeof(TClass).Name);
+            #endif
+            var c =  PropertyCache<TClass>.GetByHolder<NotifyCommand>(name,
+                        n => configurator(new NotifyConfigurator<TClass, NotifyCommand>())
+                            .Compile(n));
 
             return new NotifyCommand(c);
         } 
 
         public static IObservableFilter<T> Filter<T>(NotifyConfiguratorFactory<TClass, ObservableFilter<T>> configurator, [CallerMemberName]string name = null)
         {
-            var c =  PropertyCache<TClass>.Get(name,
-                        () => configurator(new NotifyConfigurator<TClass, ObservableFilter<T>>().Init((target,filter)=>filter.OnTriggered()))
-                            .Compile());
+            var c =  PropertyCache<TClass>.GetByHolder<ObservableFilter<T>>(name,
+                        n => configurator(new NotifyConfigurator<TClass, ObservableFilter<T>>().Init((target,filter)=>filter.OnTriggered()))
+                            .Compile(n));
 
             return new ObservableFilter<T>(c);
         }
 
+        struct Todo
+        {
+            public string Name;
+            public MemberInfo MemberInfo;
+            public override string ToString() => Name;
+        }
+
+        private static bool CheckDependencies(Todo todo, List<string> done, Queue<Todo> todoQueue)
+        {
+            var p = PropertyCache<TClass>.GetByHolder(todo.MemberInfo.Name);
+            foreach (var d in p.Dependencies)
+            {
+                if (!done.Contains(d))
+                {
+                    if (todoQueue.Any(i => i.Name == d))
+                    {
+                        todoQueue.Enqueue(todo);
+                        return false;
+                    }
+                }
+            }
+            done.Add(p.EventArgs.PropertyName);
+            return true;
+        }
+
         private static NotifyActivator CreateActivatorA()
         {
-            NotifyActivator activator = (t, p) => { };
+            NotifyActivator activator = null;
+            var todoList = new Queue<Todo>();
+            var done = new List<string>();
 
-            var type = typeof(TClass);
-            //while (type != null)
+            foreach (var mi in typeof(TClass).GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Instance |
+                                                         BindingFlags.NonPublic | BindingFlags.Public))
             {
-                foreach (var f in type.GetMembers(BindingFlags.DeclaredOnly | BindingFlags.Instance |
-                                                  BindingFlags.NonPublic | BindingFlags.Public))
+                switch (mi)
                 {
-                    switch (f)
+                    case FieldInfo fieldInfo:
+                        if (!typeof(IChildObject).IsAssignableFrom(fieldInfo.FieldType)) continue;
+                        if (mi.Name.Contains("k__BackingField")) continue;
+                        var p = PropertyCache<TClass>.GetByHolder(mi.Name);
+                        todoList.Enqueue(new Todo{MemberInfo = mi,Name = p.EventArgs.PropertyName});
+                        break;
+                    case PropertyInfo propertyInfo:
+                        if (propertyInfo.CanWrite) continue;
+
+                            
+                        if (typeof(IChildObject).IsAssignableFrom(propertyInfo.PropertyType))
+                        {
+                            todoList.Enqueue(new Todo{MemberInfo = mi,Name = mi.Name});
+                        }
+                        else if (typeof(ICommand).IsAssignableFrom(propertyInfo.PropertyType))
+                        {
+                            todoList.Enqueue(new Todo{MemberInfo = mi,Name = mi.Name});
+                        }
+                        break;
+                }
+            }
+
+
+            while (todoList.TryDequeue(out var todo))
+            {
+                switch (todo.MemberInfo)
                     {
                         case FieldInfo fieldInfo:
                             if (!typeof(IChildObject).IsAssignableFrom(fieldInfo.FieldType)) continue;
-
+                            if (!CheckDependencies(todo, done, todoList)) continue;
                             activator += (t, p) =>
                             {
                                 var child =(IChildObject)fieldInfo.GetValue(t);
@@ -98,8 +162,10 @@ namespace HLab.Notify.PropertyChanged
                             break;
                         case PropertyInfo propertyInfo:
                             if (propertyInfo.CanWrite) continue;
+                            
                             if (typeof(IChildObject).IsAssignableFrom(propertyInfo.PropertyType))
                             {
+                                if (!CheckDependencies(todo, done, todoList)) continue;
                                 activator += (t, p) =>
                                 {
                                     var child = (IChildObject) propertyInfo.GetValue(t);
@@ -108,6 +174,7 @@ namespace HLab.Notify.PropertyChanged
                             }
                             else if (typeof(ICommand).IsAssignableFrom(propertyInfo.PropertyType))
                             {
+                                if (!CheckDependencies(todo, done, todoList)) continue;
                                 activator += (t, p) =>
                                 {
                                     if (propertyInfo.GetValue(t) is IChildObject child)
@@ -119,16 +186,7 @@ namespace HLab.Notify.PropertyChanged
                             }
                             break;
                     }
-
-
-                    var returnType = f.GetReturnType();
-
-
-                }
-
-                type = type.BaseType;
             }
-
             return activator;
         }
 
@@ -141,7 +199,7 @@ namespace HLab.Notify.PropertyChanged
                     new Type[]
                     {
                         typeof(TClass),
-                        typeof(INotifyClassParser),
+                        typeof(INotifyClassHelper),
                         typeof(Action<PropertyChangedEventArgs>)
                     },
                     typeof(TClass), true);
@@ -211,57 +269,51 @@ namespace HLab.Notify.PropertyChanged
         private static NotifyActivator CreateActivatorExt()
         {
 
-            NotifyActivator activator = (a, b) => { };
+            NotifyActivator activator = null;
 
-            var type = typeof(TClass);
-            //while (type != null)
+            foreach (var property in typeof(TClass).GetProperties(
+                BindingFlags.Public | 
+                BindingFlags.NonPublic | 
+                BindingFlags.DeclaredOnly | 
+                BindingFlags.Instance))
             {
-                foreach (var property in type.GetProperties(
-                    BindingFlags.Public | 
-                    BindingFlags.NonPublic | 
-                    BindingFlags.DeclaredOnly | 
-                    BindingFlags.Instance))
+                foreach (var attribute in property.GetCustomAttributes().OfType<TriggerOnAttribute>())
                 {
-                    foreach (var attribute in property.GetCustomAttributes().OfType<TriggerOnAttribute>())
-                    {
-                        if (typeof(ITriggerable).IsAssignableFrom(property.PropertyType))
-                        {
-                            activator += (o,p) =>
-                            {
-                                NotifyFactory.GetParser(o).GetTrigger(attribute.Path, (s, args) => (property.GetValue(o) as ITriggerable)?.OnTriggered());
-                            };
-                        }
-                        else
-                        {
-                            activator += (o,p) =>
-                            {
-                                NotifyFactory.GetParser(o).GetTrigger(attribute.Path, (s, args) => p.OnPropertyChanged(new PropertyChangedEventArgs(property.Name)));
-                            };
-                        }
-                    }
-                }
-
-                foreach (var method in type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Instance))
-                {
-                    foreach (var attribute in method.GetCustomAttributes().OfType<TriggerOnAttribute>())
+                    if (typeof(ITriggerable).IsAssignableFrom(property.PropertyType))
                     {
                         activator += (o,p) =>
                         {
-                            NotifyFactory.GetParser(o).GetTrigger(attribute.Path, (s, args) => method.Invoke(o, new object[] { }));
+                            p.GetTrigger(attribute.Path, (s, args) => (property.GetValue(o) as ITriggerable)?.OnTriggered());
+                        };
+                    }
+                    else
+                    {
+                        activator += (o,p) =>
+                        {
+                            p.GetTrigger(attribute.Path, (s, args) => p.OnPropertyChanged(new PropertyChangedEventArgs(property.Name)));
                         };
                     }
                 }
-
-                type = type.BaseType;
             }
+
+            foreach (var method in typeof(TClass).GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly | BindingFlags.Instance))
+            {
+                foreach (var attribute in method.GetCustomAttributes().OfType<TriggerOnAttribute>())
+                {
+                    activator += (o,p) =>
+                    {
+                        p.GetTrigger(attribute.Path, (s, args) => method.Invoke(o, new object[] { }));
+                    };
+                }
+            }
+
 
             activator += (o,p) =>
             {
-                var l = NotifyFactory.GetExistingParser(o)?.LinkedProperties().ToList();
-                if (l == null) return;
+                var l = p./*Linked*/Properties().ToList();
                 foreach (var property in l)
                 {
-                    property.InitialRegisterValue();
+                    property.InitialRegisterValue(typeof(TClass));
                 }
             };
 

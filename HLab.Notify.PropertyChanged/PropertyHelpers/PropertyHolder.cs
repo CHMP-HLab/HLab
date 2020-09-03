@@ -1,12 +1,10 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Diagnostics;
-using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using HLab.Notify.PropertyChanged.PropertyHelpers;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
     public interface IPropertyHolderN
     {
@@ -28,7 +26,7 @@ namespace HLab.Notify.PropertyChanged
     public class PropertyHolderN<TClass, T> : PropertyHolder<T>, IPropertyHolderN<T>, INotifyPropertyChanged
         where TClass : NotifierBase
     {
-        class H : NotifyHelper<PropertyHolderN<TClass, T>> { }
+        class H : H<PropertyHolderN<TClass, T>> { }
         public PropertyHolderN(ConfiguratorEntry configurator = null) : base(configurator)
         {
         }
@@ -83,22 +81,25 @@ namespace HLab.Notify.PropertyChanged
         {
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Get() => PropertyValue.Get();
 
+#if DEBUG
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Get([CallerMemberName] string name = null)
         {
-#if DEBUG
             if (name != null && name != "SetOneToMany" && name != "Set")
                 Debug.Assert(name == this.Name);
 
-            if (PropertyValue == null) throw new Exception("Triggers not registered");
-#endif
+            if (PropertyValue == null) return default;//throw new Exception("Triggers not registered");
+
             return PropertyValue.Get();
         }
-
+#endif
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public bool Set(T value)
         {
-            if (PropertyValue == null) throw new Exception("Triggers not registered");
+            Debug.Assert(PropertyValue != null);
             return PropertyValue.Set(value);
         }
 
@@ -113,5 +114,6 @@ namespace HLab.Notify.PropertyChanged
             if(PropertyValue==null)
                 SetProperty(new PropertyValueLazy<T>(this, o => default(T)));
         }
+
     }
 }

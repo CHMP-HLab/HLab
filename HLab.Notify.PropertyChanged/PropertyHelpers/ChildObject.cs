@@ -9,7 +9,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         //private Action<PropertyChangedEventArgs> _notify;
         private readonly ConfiguratorEntry _configurator;
 
-        protected INotifyClassParser Parser;
+        protected INotifyClassHelper ClassHelper;
 
         protected ChildObject(ConfiguratorEntry configurator)
         {
@@ -22,27 +22,29 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         public string Name => _configurator.EventArgs.PropertyName;
         internal void OnPropertyChanged()
         {
-            Parser.OnPropertyChanged(_configurator.EventArgs);
+            ClassHelper.OnPropertyChanged(_configurator.EventArgs);
         }
 
         protected virtual void Configure()
         {
-            _configurator.Configure(Parent,Parser, this);
+            _configurator.Configure(Parent,ClassHelper, this);
         }
 
-        public void SetParent(object parent, INotifyClassParser parser)
+        public void SetParent(object parent, INotifyClassHelper helper)
         {
             Parent = parent;
-            Parser = parser;
+            ClassHelper = helper;
             Configure();
         }
+
+        public void Update() => _configurator.Update(Parent, this);
     }
 
 
-    public abstract class ChildObjectN<T> : ChildObject
-    where T : ChildObjectN<T>
+    public abstract class ChildObjectN<T> : ChildObject, INotifyPropertyChanged
+    where T : ChildObjectN<T>, INotifyPropertyChanged
     {
-        protected class H : NotifyHelper<T> { }
+        protected class H : H<T> { }
         protected ChildObjectN(ConfiguratorEntry configurator):base(configurator)
         {
             H.Initialize((T)this);

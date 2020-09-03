@@ -1,14 +1,16 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Threading;
+using HLab.Notify.PropertyChanged.PropertyHelpers;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public class PropertyDouble : IPropertyValue<double>
+    public class PropertyFloat : IPropertyValue<float>
     {
-        private double _value;
-        public double Get() => _value;
+        private float _value;
+        public float Get() => _value;
 
-        public bool Set(double value)
+        public bool Set(float value)
         {
             if (_value == value) return false;
 
@@ -21,17 +23,16 @@ namespace HLab.Notify.PropertyChanged
             else return false;
         }
 
-        public bool Set(System.Func<object, double> setter)
+        public bool Set(Func<object, float> setter)
         {
             return Set(setter(_holder.Parent));
         }
 
-        private readonly PropertyHolder<double> _holder;
+        private readonly PropertyHolder<float> _holder;
 
-        public PropertyDouble(PropertyHolder<double> holder)
+        public PropertyFloat(PropertyHolder<float> holder)
         {
             _holder = holder;
         }
     }
-
 }

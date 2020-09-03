@@ -16,9 +16,12 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
 {
-    public abstract class GraphElement<T> : N<T>, IGraphElement
-    where T : GraphElement<T>
+    using H = H<GraphElement>;
+
+    public abstract class GraphElement : NotifierBase, IGraphElement
     {
+        public GraphElement() => H.Initialize(this);
+
         [Import]
         public IMvvmService MvvmService { get; }
 

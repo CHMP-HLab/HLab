@@ -254,7 +254,7 @@ namespace HLab.Notify.PropertyChanged
             //if(_list.Count!=_oldCount)
         }
 
-        public void SetParent(object parent,INotifyClassParser parser, Action<PropertyChangedEventArgs> action)
+        public void SetParent(object parent,INotifyClassHelper parser, Action<PropertyChangedEventArgs> action)
         {
             //TODO
         }

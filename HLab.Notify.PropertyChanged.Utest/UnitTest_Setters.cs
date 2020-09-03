@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Text;
 using HLab.Notify.PropertyChanged.Utest.Annotations;
 using Xunit;
-using H = HLab.Notify.PropertyChanged.NotifyHelper<HLab.Notify.PropertyChanged.UTest.NotifyObject>;
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    class NotifyObject
+    using H = H<NotifyObject>;
+
+    class NotifyObject : NotifierBase
     {
         public NotifyObject()
         {
