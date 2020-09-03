@@ -1,33 +1,33 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Dynamic;
 using System.IO;
 using System.IO.Pipes;
-using System.Linq;
 using System.Runtime.CompilerServices;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace HLab.Remote
 {
     public class RemoteClient
     {
-        protected async Task SendAsync([CallerMemberName]string name = null)
+        public RemoteClient(string pipeName)
         {
-            using (var pipeClient = new NamedPipeClientStream("localhost","lbm", PipeDirection.InOut ))
-            {
-                await pipeClient.ConnectAsync(1000);
+            PipeName = pipeName;
+        }
 
-                if (pipeClient.IsConnected)
-                {
-                    using (var sw = new StreamWriter(pipeClient))
-                    {
-                        await sw.WriteAsync(name);
-                    }
-                }
+        public string PipeName { get; }
+
+        public async Task SendAsync([CallerMemberName]string name = null)
+        {
+            await using var pipe = new NamedPipeClientStream("localhost", PipeName, PipeDirection.Out);
+            if(!pipe.IsConnected)
+                await pipe.ConnectAsync(1000);
+            if (pipe.IsConnected)
+            {
+                await using var sw = new StreamWriter(pipe);
+                await sw.WriteAsync(name);
             }
         }
-        protected async Task<TReturn> SendAsync<TReturn>([CallerMemberName]string name = null)
+
+        public async Task<TReturn> SendAsync<TReturn>([CallerMemberName]string name = null)
         {
             var retry = true;
             while (retry)
@@ -35,29 +35,25 @@ namespace HLab.Remote
                 retry = false;
                 try
                 {
-                    using (var pipeClient = new NamedPipeClientStream(".", "lbm", PipeDirection.InOut))
+                    await using var pipe = new NamedPipeClientStream("localhost", PipeName, PipeDirection.InOut);
+                    if(!pipe.IsConnected)
+                        await pipe.ConnectAsync(1000);
+                    if (pipe.IsConnected)
                     {
-                        await pipeClient.ConnectAsync(1000);
-
-                        if (pipeClient.IsConnected)
-                        {
-                            using (var sw = new StreamWriter(pipeClient))
-                            {
-                                await sw.WriteAsync(name+";");
-                            }
-                        }
+                        await using var sw = new StreamWriter(pipe);
+                        await sw.WriteAsync(name+";");
                     }
-
                 }
-                catch (System.TimeoutException)
+                catch (TimeoutException)
                 {
-                    retry = !StartServer();
+                    retry = StartServer();
                 }
             }
 
             return default;
 
         }
+
 
         protected virtual bool StartServer() => false;
     }
