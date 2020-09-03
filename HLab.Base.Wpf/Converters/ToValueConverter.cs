@@ -3,7 +3,7 @@ using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 
-namespace HLab.Base.Converters
+namespace HLab.Base.Wpf.Converters
 {
     public class ToStringConverter : ToValueConverter<string> { }
     public class ToBrushConverter : ToValueConverter<Brush> { }

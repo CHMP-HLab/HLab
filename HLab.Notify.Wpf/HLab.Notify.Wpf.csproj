@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UseWPF>true</UseWPF>
-    <RootNamespace>HLab.Notify</RootNamespace>
+    <RootNamespace>HLab.Notify.Wpf</RootNamespace>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 

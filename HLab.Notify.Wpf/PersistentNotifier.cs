@@ -3,7 +3,7 @@ using System.ComponentModel;
 using HLab.Notify.PropertyChanged;
 using Microsoft.Win32;
 
-namespace HLab.Notify
+namespace HLab.Notify.Wpf
 {
     public interface IRegistryStored
     {

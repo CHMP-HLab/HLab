@@ -7,7 +7,7 @@ using System.Windows.Threading;
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
 
-namespace HLab.Notify
+namespace HLab.Notify.Wpf
 {
     [Export(typeof(IEventHandlerService)), Singleton]
     public class EventHandlerServiceWpf : IEventHandlerService

@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>net5.0</TargetFramework>
     <UseWPF>true</UseWPF>
-    <RootNamespace>HLab.Base</RootNamespace>
+    <RootNamespace>HLab.Base.Wpf</RootNamespace>
     <Platforms>AnyCPU;x64;x86</Platforms>
   </PropertyGroup>
 
@@ -24,6 +24,10 @@
 
   <ItemGroup>
     <Folder Include="Icons\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Windows.API\HLab.Sys.Windows.API.csproj" />
   </ItemGroup>
 
 </Project>
