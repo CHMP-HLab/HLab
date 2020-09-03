@@ -1,0 +1,19 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Options\HLab.Options.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="HLab.DependencyInjection.Annotations">
+      <HintPath>..\HLab.DependencyInjection.Annotations\bin\Debug\netstandard2.1\HLab.DependencyInjection.Annotations.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

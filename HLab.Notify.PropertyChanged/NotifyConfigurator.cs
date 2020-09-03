@@ -20,15 +20,36 @@ namespace HLab.Notify.PropertyChanged
     {
         internal readonly List<TriggerEntry> Triggers = new List<TriggerEntry>();
         internal TriggerEntry CurrentTrigger = new TriggerEntry();
+
         internal class TriggerEntry
         {
             public List<Func<TClass,bool>> WhenList { get; } = new List<Func<TClass, bool>>();
             public List<TriggerPath> TriggerOnList { get; } = new List<TriggerPath>();
             public Action<TClass, T> Action { get; set; }
         }
-        public Action<TClass, T> UpdateAction { get; private set; }
 
-        public NotifyConfigurator<TClass, T> TriggerExpression(Expression expr)
+        public class Activator
+        {
+            public Action<TClass, INotifyClassHelper, T> Action { get; internal set; } = null;
+            public  List<string> DependsOn { get; } = new List<string>();
+            public  string PropertyName { get; internal set; }
+            public Action<TClass, T> UpdateAction { get; internal set; }
+        }
+
+        private Activator _activator = new Activator();
+
+        public NotifyConfigurator(){}
+
+
+        public NotifyConfigurator<TClass, T> Name(string name)
+        {
+            _activator.PropertyName = name;
+            return this;
+        }
+
+
+
+        public NotifyConfigurator<TClass, T> AddTriggerExpression(Expression expr)
         {
             CurrentTrigger.TriggerOnList.Add(new TriggerPath(expr));
             return this;
@@ -51,11 +72,14 @@ namespace HLab.Notify.PropertyChanged
 
         public NotifyConfigurator<TClass, T> Init(Action<TClass, T> action)
         {
-            UpdateAction = action;
+            _activator.UpdateAction = action;
             return this;
         }
 
-        public NotifyConfigurator<TClass, T> Update() => Do(UpdateAction);
+        public NotifyConfigurator<TClass, T> Update()
+        {
+            return Do(_activator.UpdateAction);
+        }
 
         public NotifyConfigurator<TClass, T> Do(Action<TClass> action)
         {   
@@ -85,8 +109,9 @@ namespace HLab.Notify.PropertyChanged
             CurrentTrigger = new TriggerEntry();
             return this;
         }
-        public NotifyConfigurator<TClass, T> Do(Action<TClass, T> action)
-        {   
+
+        public Action<TClass, T> GetDoWhenAction(Action<TClass, T> action)
+        {
             Func<TClass,bool> when = null;
             foreach (var w in CurrentTrigger.WhenList)
             {
@@ -100,14 +125,21 @@ namespace HLab.Notify.PropertyChanged
             }
 
             if(when==null)
-                CurrentTrigger.Action = action;
+                return action;
             else
-                CurrentTrigger.Action = (parent, child) =>
+                return (parent, child) =>
                 {
                     if(when(parent))
                         action(parent,child);
                 };
-                
+
+        }
+
+
+
+        public NotifyConfigurator<TClass, T> Do(Action<TClass, T> action)
+        {
+            CurrentTrigger.Action = GetDoWhenAction(action);
 
             Triggers.Add(CurrentTrigger);
             CurrentTrigger = new TriggerEntry();
@@ -115,9 +147,10 @@ namespace HLab.Notify.PropertyChanged
         }
 
 
-        public Action<TClass, INotifyClassParser, T> Compile()
+
+        public Activator Compile(string name)
         {
-            Action<TClass, INotifyClassParser, T> activator = null;
+            if (_activator.PropertyName == null) _activator.PropertyName = NotifyHelper.GetNameFromCallerName(name);
 
             foreach (var trigger in Triggers)
             {
@@ -126,23 +159,23 @@ namespace HLab.Notify.PropertyChanged
 
                 foreach (var path in trigger.TriggerOnList)
                 {
+                    if(path != null && !string.IsNullOrWhiteSpace(path.PropertyName) && ! _activator.DependsOn.Contains(path.PropertyName)) _activator.DependsOn.Add(path.PropertyName);
+
                     var action = trigger.Action;
 
-                    if(string.IsNullOrWhiteSpace(path?.PropertyName))
-                        activator += (parent, parser, property) => action(parent, property);
+                    if(path==null || string.IsNullOrWhiteSpace(path.PropertyName))
+                        _activator.Action += (parent, parser, property) => action(parent, property);
                     else
-                        activator += (parent, parser, property) =>
+                        _activator.Action += (parent, parser, property) =>
                         {
-                            //NotifyFactory.GetParser(parent)
                             parser.GetTrigger(path, (s, a) => { action(parent, property); });
                         };
                 }
             }
 
+            var activator = _activator;
+            _activator = null;
             return activator;
-
         }
-
-
     }
 }

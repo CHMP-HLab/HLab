@@ -95,8 +95,23 @@ namespace HLab.Base
 
             return this;
         }
+        public DependencyConfigurator<TClass,TValue> OnChange<TSender>(Action<TSender> action)
+        where TSender : DependencyObject
+        {
+            _propertyMetadata.PropertyChangedCallback += (d, e) =>
+            {
+                if (d is TSender c)
+                {
+                    action(c);
+                }
+            };
+
+            return this;
+        }
 
         public DependencyConfigurator<TClass, TValue> OnChange(Action<TClass, ChangedEventArg<TValue>> action)
+            => OnChange<TClass>(action);
+        public DependencyConfigurator<TClass, TValue> OnChange(Action<TClass> action)
             => OnChange<TClass>(action);
 
         public DependencyConfigurator<TClass,TValue> Validate(Func<TValue,bool> func)

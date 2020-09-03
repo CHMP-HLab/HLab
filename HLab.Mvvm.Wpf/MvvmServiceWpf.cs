@@ -35,7 +35,7 @@ namespace HLab.Mvvm
 
             var t = Task.Run(() => {
                 base.Register();
-                Application.Current.Resources.MergedDictionaries.Add(_dictionary);
+                System.Windows.Application.Current.Resources.MergedDictionaries.Add(_dictionary);
             });
 
 
@@ -44,7 +44,7 @@ namespace HLab.Mvvm
         public override void Register()
         {
                 base.Register();
-                Application.Current.Resources.MergedDictionaries.Add(_dictionary);
+                System.Windows.Application.Current.Resources.MergedDictionaries.Add(_dictionary);
             ViewHelperFactory.Register<IView>(v => new ViewHelperWpf((FrameworkElement)v));
         }
 

@@ -17,7 +17,7 @@ namespace HLab.Mvvm.Lang
         {
             System.ComponentModel.DependencyPropertyDescriptor pdIsAvailable = System.ComponentModel.DependencyPropertyDescriptor.FromProperty
                     (LanguageProperty, typeof(FrameworkElement));
-            pdIsAvailable.AddValueChanged(this, (o,h) => UpdateAsync(Language, LocalizationService, Id,StringFormat));
+            pdIsAvailable.AddValueChanged(this, async (o,h) => await UpdateAsync(Language, LocalizationService, Id,StringFormat));
         }
 
         public string Id
@@ -27,22 +27,22 @@ namespace HLab.Mvvm.Lang
         }
         public static readonly DependencyProperty IdProperty =
             H.Property<string>()
-                .OnChange((s, e) => s.UpdateAsync(s.Language, s.LocalizationService, e.NewValue, s.StringFormat))
+                .OnChange(async(s,  e) => await s.UpdateAsync(s.Language, s.LocalizationService, e.NewValue, s.StringFormat))
                 .AffectsRender
                 .Register();
 
         public static readonly DependencyProperty StringFormatProperty =
             H.Property<string>()
                 .Default("{}{0}")
-                .OnChange((s, e) => s.UpdateAsync(s.Language, s.LocalizationService, s.Id, e.NewValue))
+                .OnChange(async (s, e) => await s.UpdateAsync(s.Language, s.LocalizationService, s.Id, e.NewValue))
                 .AffectsRender
                 .Register();
 
         public static readonly DependencyProperty LocalizationServiceProperty =
             H.Property<ILocalizationService>()
-                .OnChange((s, e) =>
+                .OnChange(async (s, e) =>
                 {
-                        s.UpdateAsync(s.Language, e.NewValue, s.Id, s.StringFormat);
+                        await s.UpdateAsync(s.Language, e.NewValue, s.Id, s.StringFormat);
                 })
                 .Inherits.AffectsRender
                 .RegisterAttached();

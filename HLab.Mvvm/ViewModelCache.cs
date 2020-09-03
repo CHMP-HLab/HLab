@@ -93,11 +93,11 @@ namespace HLab.Mvvm
             }
 
             // we don't want to cache views cause they cannot be used twice
-            if (baseObject != null && !typeof(IView).IsAssignableFrom(linkedType))
+            if (false)//(baseObject != null && !typeof(IView).IsAssignableFrom(linkedType))
             {
                 // baseObject is ViewModel
                 var cache = _linked.GetOrCreateValue(baseObject);
-                return cache.GetOrAdd(linkedType, (t) => context.Locate(linkedType,baseObject));
+                return cache.GetOrAdd(linkedType, (t) => context.Locate(t,baseObject));
             }
             else
             {

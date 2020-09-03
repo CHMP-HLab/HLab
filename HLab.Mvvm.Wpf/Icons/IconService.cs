@@ -28,10 +28,9 @@ namespace HLab.Mvvm.Icons
                 {
                     result = icon; continue;
                 }
-               var grid = new IconGrid();
 
-                grid.MainIcon.Content = result;
-                grid.BottomRightIcon.Content = icon;
+                var grid = new IconGrid {MainIcon = {Content = result}, BottomRightIcon = {Content = icon}};
+
                 result=grid;
             }
             return result;

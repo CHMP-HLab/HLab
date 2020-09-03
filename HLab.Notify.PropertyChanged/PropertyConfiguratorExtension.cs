@@ -25,7 +25,8 @@ namespace HLab.Notify.PropertyChanged
         {
             if (c.CurrentTrigger.TriggerOnList.Count == 0)
             {
-                c.Init((target, property) => property.PropertyValue.Set(setter(target)));
+                var action = c.GetDoWhenAction((target, property) => property.PropertyValue.Set(setter(target)));
+                c.Init(action);
                 return c.On().Do((target, property) => property.SetProperty(new PropertyValueLazy<T>(property, o => setter((TClass)o))));
             }
 
@@ -119,7 +120,7 @@ namespace HLab.Notify.PropertyChanged
             where TClass : class, INotifyPropertyChanged
             where TMember : PropertyHolder<T>
         {
-            return c.TriggerExpression(expr).Set(expr.Compile());
+            return c.Set(expr.Compile()).AddTriggerExpression(expr).Update();
         }
         //public static PropertyHolder<TMember> Bind<TClass,TMember,T>(this NotifyHelper<TClass> helper, Expression<Func<TClass, T>> expr) 
         //    where TClass : class, INotifyPropertyChanged

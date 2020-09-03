@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.1</TargetFramework>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Erp\HLab.Erp.Data\HLab.Erp.Data.csproj" />
+    <ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
+    <ProjectReference Include="..\HLab.Options\HLab.Options.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="HLab.DependencyInjection.Annotations">
+      <HintPath>..\HLab.DependencyInjection.Annotations\bin\Debug\netstandard2.1\HLab.DependencyInjection.Annotations.dll</HintPath>
+    </Reference>
+    <Reference Include="HLab.Erp.Acl">
+      <HintPath>..\..\HLab.Erp\HLab.Erp.Acl\bin\Debug\netstandard2.1\HLab.Erp.Acl.dll</HintPath>
+    </Reference>
+    <Reference Include="HLab.Erp.Data.Annotations">
+      <HintPath>..\..\HLab.Erp\HLab.Erp.Data.Annotations\bin\Debug\netstandard2.1\HLab.Erp.Data.Annotations.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

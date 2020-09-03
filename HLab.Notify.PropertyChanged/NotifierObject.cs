@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
 using System.Threading;
@@ -7,13 +8,6 @@ using HLab.DependencyInjection.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public abstract class NotifierObjectLegacy<T> : N<T>
-    where T : NotifierObjectLegacy<T>
-    {
-        [Import]
-        public Notifier N;
-
-    }
 
     public class Boxed<T>
     {
@@ -23,21 +17,21 @@ namespace HLab.Notify.PropertyChanged
     public abstract class NotifierTest<T> : NotifierBase
     where T : NotifierTest<T>
     {
-        protected class H : NotifyHelper<T> { }
+        protected class H : H<T> { }
 
         private static readonly IEventHandlerService _eventHandlerService = new EventHandlerService();
         protected NotifierTest()
         {
+            H<NotifierTest<T>>.Initialize(this);
             H.Initialize((T)this);
         }
 
     }
 
     public abstract class N<T> : NotifierBase
-        //where T : N<T>
-        where T : class
+        where T : class, INotifyPropertyChanged
     {
-        protected class H : NotifyHelper<T> { }
+        protected class H : H<T> { }
         protected N(bool initialize=true)
         {
             if(initialize) Initialize();

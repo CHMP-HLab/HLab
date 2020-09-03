@@ -1,22 +1,23 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public interface IPropertyEntry : INotifyPropertyChanged
+    public interface IPropertyEntry //: INotifyPropertyChanged
     {
-        event RegisterValueEventHandler RegisterValue;
+        event ExtendedPropertyChangedEventHandler ExtendedPropertyChanged;
 
-        void Link(RegisterValueEventHandler handler);
-        void Unlink(RegisterValueEventHandler handler);
+        void Link(ExtendedPropertyChangedEventHandler handler);
+        void Unlink(ExtendedPropertyChangedEventHandler handler);
 
-        void OnPropertyChanged(object sender, PropertyChangedEventArgs args);
+        void TargetPropertyChanged(object sender, PropertyChangedEventArgs args);
 
-        ITriggerEntry GetTrigger(TriggerPath path, PropertyChangedEventHandler handler);
+        ITriggerEntry GetTrigger(TriggerPath path, ExtendedPropertyChangedEventHandler handler);
 
         bool Linked { get; }
 
         string Name { get; }
-        void InitialRegisterValue();
+        void InitialRegisterValue(Type type);
     }
 }

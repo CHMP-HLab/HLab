@@ -7,13 +7,13 @@ namespace HLab.Notify.PropertyChanged.UTest
 {
     class TestDateTimeClass : NotifierTest<TestDateTimeClass>
     {
-        private readonly IProperty<DateTime> _dateTimeValue = H.Property<DateTime>(nameof(DateTimeValue));
 
         public DateTime DateTimeValue
         {
             get => _dateTimeValue.Get();
             set => _dateTimeValue.Set(value);
         }
+        private readonly IProperty<DateTime> _dateTimeValue = H.Property<DateTime>();
     }
     public class UnitTestDateTime
     {

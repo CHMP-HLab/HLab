@@ -1,0 +1,29 @@
+﻿<UserControl x:Class="HLab.Erp.Core.Update.ApplicationUpdateView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:controls="http://metro.mahapps.com/winfx/xaml/controls"
+             mc:Ignorable="d" 
+                      Width="400"
+                      Height="220"
+             d:DesignHeight="300" d:DesignWidth="300"
+                      Background="White">
+     <DockPanel>
+        <Label DockPanel.Dock="Top" FontWeight="Bold" Content="{Binding Message,FallbackValue=Nouvelle version disponible}"/>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Label>Version actuelle :</Label>
+            <Label Content="{Binding CurrentVersion}"/>
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Top" Orientation="Horizontal">
+            <Label>Nouvelle version :</Label>
+            <Label Content="{Binding NewVersion}"/>
+        </StackPanel>
+            
+        <ProgressBar DockPanel.Dock="Top" Height="20" Value="{Binding Progress}" Maximum="100" Margin="20"/>
+        <StackPanel Height="40" DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Right" Orientation="Horizontal">
+            <Button FontWeight="Bold" IsDefault="True" Padding="5" Command="{Binding UpdateCommand}"> Mettre à jour </Button>
+            <Button Padding="5" Click="ButtonBase_OnClick"> Annuler </Button>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

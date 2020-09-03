@@ -1,26 +1,15 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Linq.Expressions;
-using System.Windows.Input;
-using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {
     public static class NotifyConfiguratorExtension
     {
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <typeparam name="TClass"></typeparam>
-        /// <typeparam name="T"></typeparam>
-        /// <param name="c"></param>
-        /// <param name="expr"></param>
-        /// <returns></returns>
         public static NotifyConfigurator<TClass, T> 
             On<TClass,T>(this NotifyConfigurator<TClass, T> c, Expression<Func<TClass, object>> expr)
             where TClass : class//,INotifyPropertyChanged
         {
-            return c.TriggerExpression(expr);
+            return c.AddTriggerExpression(expr);
         }
 
 
@@ -37,7 +26,7 @@ namespace HLab.Notify.PropertyChanged
             where TClass : class//,INotifyPropertyChanged
         {
             var f = expr.Compile();
-            return c.TriggerExpression(expr).NotNull(f);
+            return c.AddTriggerExpression(expr).NotNull(f);
         }
     }
 }

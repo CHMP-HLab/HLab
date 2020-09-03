@@ -31,7 +31,7 @@ namespace HLab.Mvvm.Extensions
     {
         public static FrameworkElement GetActualView(this INotifyPropertyChanged vm, FrameworkElement element = null)
         {
-            if (element == null) element = Application.Current.MainWindow;
+            if (element == null) element = System.Windows.Application.Current.MainWindow;
 
             return element.FindChildren<FrameworkElement>().FirstOrDefault(fe => ReferenceEquals(fe.DataContext, vm));
         }

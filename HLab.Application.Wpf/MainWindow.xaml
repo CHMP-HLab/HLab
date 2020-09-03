@@ -1,0 +1,637 @@
+﻿<UserControl x:Class="HLab.Mvvm.Application.Wpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:icons="clr-namespace:HLab.Mvvm.Icons;assembly=HLab.Mvvm.Wpf"
+        xmlns:lang="clr-namespace:HLab.Mvvm.Lang;assembly=HLab.Mvvm.Wpf"
+        xmlns:xcad="https://github.com/Dirkster99/AvalonDock"
+        xmlns:converters="clr-namespace:HLab.Base.Wpf.Converters;assembly=HLab.Base.Wpf"
+        xmlns:wpf="clr-namespace:HLab.Mvvm.Application.Wpf"
+        mc:Ignorable="d"
+        d:DataContext="{d:DesignInstance Type=wpf:MainWpfViewModel, IsDesignTimeCreatable=True}"
+        icons:IconView.IconService="{Binding IconService}"
+        lang:Localize.LocalizationService="{Binding LocalizationService}"
+>
+    <UserControl.Resources>
+        <converters:ToVisibilityConverter x:Key="ToVisibility"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        
+        <Grid
+                   MouseDown="MainWindow_OnMouseDown"
+                   MouseMove="UIElement_OnMouseMove"
+                   MouseUp="UIElement_OnMouseUp"
+        >
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Viewbox  Height="25"><icons:IconView Path="icons/logo" Grid.Column="0"/></Viewbox>
+            <ContentControl Grid.Column="1" FontSize="25" Content="{Binding Menu}"/>
+            <Label Opacity="0.5" Grid.Column="2" 
+                   HorizontalContentAlignment="Center" 
+                   Content="{Binding Title}" 
+            />
+            <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,120,0">
+                <Button Command="{Binding OpenUserCommand}" Content ="{Binding Acl.Connection.User.Caption}"/>
+                <icons:IconView Margin="7" Path="Icons/Entities/User" Height="20"/>
+            </StackPanel>
+        </Grid>
+        <Viewbox Height="1000" Grid.Row="2" Opacity="0.1"><icons:IconView Path="icons/LogoBackground"/></Viewbox>
+        
+        <xcad:DockingManager x:Name="DockingManager" Grid.Row="2"
+                             
+                        DocumentsSource="{Binding Documents}"
+                        AnchorablesSource="{Binding Anchorables}"
+                        ActiveContent="{Binding ActiveDocument, Mode=TwoWay}"
+                        IsEnabled="{Binding IsEnabled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                        Background="Transparent"
+                       >
+                        <!--application:AvalonDockLayoutSerializer.LoadLayoutCommand="{Binding ADLayout.LoadLayoutCommand}"
+                        application:AvalonDockLayoutSerializer.SaveLayoutCommand="{Binding ADLayout.SaveLayoutCommand}"-->
+
+
+            <xcad:DockingManager.Theme>
+                <xcad:Vs2013DarkTheme />
+            </xcad:DockingManager.Theme>
+
+            <xcad:DockingManager.LayoutUpdateStrategy>
+                <wpf:LayoutUpdateStrategy/>
+            </xcad:DockingManager.LayoutUpdateStrategy>
+
+            <xcad:DockingManager.DocumentHeaderTemplate>
+                <DataTemplate>
+                    <StackPanel>
+                        <StackPanel Orientation="Horizontal" >
+                            <Viewbox HorizontalAlignment="Left" Height="16">
+                                 <icons:IconView Opacity="1" Foreground="White" Path="{Binding Content.DataContext.IconPath}"/>
+                            </Viewbox>
+                            <lang:LocalizedLabel Margin="10,0,0,0" FontSize="14" FontWeight="Bold" Text="{Binding Content.DataContext.Title}"/>
+                        </StackPanel>
+                        <StackPanel Background="#80000000" Visibility="{Binding Content.DataContext.SubTitle,Converter={StaticResource ToVisibility},FallbackValue=Collapsed}">
+                            <lang:LocalizedLabel Margin="3,0" FontSize="12" FontStyle="Italic" Text="{Binding Content.DataContext.SubTitle}"/>
+                        </StackPanel>                        
+                    </StackPanel>
+                </DataTemplate>
+            </xcad:DockingManager.DocumentHeaderTemplate>
+
+            <xcad:DockingManager.AnchorableHeaderTemplate>
+                <DataTemplate>
+                    <StackPanel Orientation="Horizontal">
+                        <Viewbox HorizontalAlignment="Left" Height="16">
+                            <ContentControl Content="{Binding Content.DataContext.IconPath}"/>
+                        </Viewbox>
+                        <lang:Localize Margin="10,0,0,0" FontSize="14" Id="{Binding Content.DataContext.Title}"/>
+                    </StackPanel>
+                </DataTemplate>
+            </xcad:DockingManager.AnchorableHeaderTemplate>
+
+            <xcad:DockingManager.LayoutItemContainerStyle>
+             <!--you can add additional bindings from the layoutitem to the DockWindowViewModel--> 
+                <Style TargetType="{x:Type xcad:LayoutItem}">
+                    <Setter Property="Title" Value="{Binding Model.DataContext.Title, FallbackValue=Undefined}" />
+                    <Setter Property="IconSource" Value="{Binding Model.DataContext.IconBitmap}"/>
+                    <!--<Setter Property="Title" Value="{Binding Model.DataContext.IconCanvas}"/>-->
+                    <Setter Property="CloseCommand" Value="{Binding Model.DataContext.CloseCommand}" />
+                    <Setter Property="CanClose" Value="{Binding Model.DataContext.CanClose}" />
+                    <Setter Property="ContentId" Value="{Binding Model.ContentId}"/>
+                </Style>
+            </xcad:DockingManager.LayoutItemContainerStyle>
+            
+            <!--<dock:LayoutRoot>
+                <dock:LayoutPanel Orientation="Horizontal">
+                    <dock:LayoutDocumentPane x:Name="DockDocument"/>
+
+                    <dock:LayoutAnchorablePane Name="DockLeft" DockMinWidth="250"/>
+                    <dock:LayoutAnchorablePaneGroup>
+                        <dock:LayoutAnchorablePane Name="DockCenterTop" DockMinWidth="250"/>
+                        <dock:LayoutAnchorablePane Name="DockCenterBottom" DockMinWidth="250"/>
+                    </dock:LayoutAnchorablePaneGroup>
+                    <dock:LayoutAnchorablePane x:Name="DockRight" DockMinWidth="500"/>
+                </dock:LayoutPanel>
+            </dock:LayoutRoot>-->
+        </xcad:DockingManager>
+
+        <ContentControl Grid.Row="0" Content="{Binding DragCanvas}"/>
+
+    </Grid>
+</UserControl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

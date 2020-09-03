@@ -13,7 +13,7 @@ using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
-    public abstract class MvvmService : Service, IMvvmService
+    public abstract class MvvmService : IMvvmService
     {
         [Import]
         private readonly IMessageBus _messageBus;
@@ -314,5 +314,6 @@ namespace HLab.Mvvm
             }
         }
 
+        public ServiceState ServiceState { get; private set; }
     }
 }
