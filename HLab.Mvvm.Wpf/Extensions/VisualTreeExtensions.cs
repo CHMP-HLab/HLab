@@ -45,7 +45,7 @@ namespace HLab.Mvvm.Extensions
             return false;
         }
 
-        public static T FindVisualParent<T>(this DependencyObject child) where T : DependencyObject
+        public static T FindVisualParent<T>(this DependencyObject child) //where T : DependencyObject (removed to allow interfaces)
         {
             while (true)
             {
@@ -56,7 +56,7 @@ namespace HLab.Mvvm.Extensions
                 switch (parentObject)
                 {
                     case null:
-                        return null;
+                        return default;
                     case T parent:
                         return parent;
                 }
