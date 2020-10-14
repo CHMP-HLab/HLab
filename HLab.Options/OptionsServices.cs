@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
 using HLab.Core.Annotations;
@@ -10,6 +11,13 @@ namespace HLab.Options
     [Export(typeof(IOptionsService)), Singleton]
     public class OptionsServices : IOptionsService
     {
+        private readonly IEnumerable<IOptionsProvider> _providers;
+
+        [Import] public OptionsServices(IEnumerable<IOptionsProvider> providers)
+        {
+            _providers = providers;
+        }
+
         public string OptionsPath { get; set; }
         public StreamReader GetOptionFileReader(string name)
         {
@@ -30,9 +38,6 @@ namespace HLab.Options
             return new StreamWriter(fileName);
         }
 
-        private readonly ConcurrentDictionary<string,IOptionsProvider> _providers = new ConcurrentDictionary<string, IOptionsProvider>();
-
-        public void AddProvider(string name, IOptionsProvider provider) => _providers.AddOrUpdate(name, n => provider,(n,p) => provider);
 
         public void SetValue<T>(string name, T value, string provider = null, int? userid = null)
             => SetValueAsync(name, userid, provider, userid);
@@ -43,13 +48,9 @@ namespace HLab.Options
 
         public async Task<T> GetValueAsync<T>(string name, Func<T> defaultValue = null, string providerName = null, int? userid = null)
         {
-            if (!string.IsNullOrWhiteSpace(providerName))
+            foreach (var provider in _providers)
             {
-                return await _providers[providerName].GetValueAsync<T>(name, userid);
-            }
-
-            foreach (var provider in _providers.Values)
-            {
+                if (!string.IsNullOrWhiteSpace(providerName) && providerName != provider.Name) continue;
                 var result = await provider.GetValueAsync<T>(name, userid);
                 return result;
             }
@@ -59,12 +60,9 @@ namespace HLab.Options
 
         public async Task SetValueAsync<T>(string name, T value, string providerName=null, int? userid=null)
         {
-            if (providerName != null)
+            foreach (var provider in _providers)
             {
-                await _providers[providerName].SetValueAsync(name, value, userid);
-            }
-            foreach (var provider in _providers.Values)
-            {
+                if (!string.IsNullOrWhiteSpace(providerName) && providerName != provider.Name) continue;
                 await provider.SetValueAsync<T>(name, value, userid);
             }
         }

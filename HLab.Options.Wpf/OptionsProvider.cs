@@ -8,26 +8,38 @@ namespace HLab.Options.Wpf
     [Export(typeof(IOptionsProvider))]
     public class OptionsProvider : IOptionsProvider
     {
-        [Import]
-        private IOptionsService _options;
+        public string Name => "registry";
 
-        public async Task SetValueAsync<T>(string name, T value, int? userid)
+        private readonly IOptionsService _options;
+
+        [Import] public OptionsProvider(IOptionsService options)
         {
-            using (var rk = Registry.CurrentUser.CreateSubKey(@"Software\" + _options.OptionsPath))
-            {
-                rk.SetValue(name,value?.ToString()??"");
-            }
+            _options = options;
         }
 
-        public async Task<T> GetValueAsync<T>(string name, int? userid = null, Func<T> defaultValue = null)
+        public Task SetValueAsync<T>(string name, T value, int? userid)
         {
-            using (var rk = Registry.CurrentUser.OpenSubKey(@"Software\" + _options.OptionsPath))
+            var t = new Task( () =>
+                {
+                    using var rk = Registry.CurrentUser.CreateSubKey(@"Software\" + _options.OptionsPath);
+                    rk.SetValue(name, value?.ToString() ?? "");
+                });
+            t.Start();
+            return t;
+        }
+
+        public Task<T> GetValueAsync<T>(string name, int? userid = null, Func<T> defaultValue = null)
+        {
+            var t = new Task<T>( () =>
             {
+                using var rk = Registry.CurrentUser.OpenSubKey(@"Software\" + _options.OptionsPath);
                 if (rk == null) return defaultValue==null?default:defaultValue();
                 var s = rk.GetValue(name)?.ToString();
 
                 return OptionsServices.GetValueFromString(s,defaultValue);
-            }
+            });
+            t.Start();
+            return t;
         }
     }
 }
