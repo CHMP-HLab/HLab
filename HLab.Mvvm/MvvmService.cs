@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 
@@ -138,11 +139,11 @@ namespace HLab.Mvvm
                         if (viewClasses.Count > 0)
                         {
                             foreach (var cls in viewClasses)
-                                RegisterAll(baseType, viewType, cls, viewMode);
+                                Register(baseType, viewType, cls, viewMode);
                         }
                         else
                         {
-                            RegisterAll(baseType, viewType, typeof(IViewClassDefault), viewMode);
+                            Register(baseType, viewType, typeof(IViewClassDefault), viewMode);
                         }
                     }
 
@@ -158,7 +159,7 @@ namespace HLab.Mvvm
             , Type viewMode
             /*, Type regFrom = null*/)
         {
-            var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom).Where(t => !typeof(IViewModelDesign).IsAssignableFrom(t)));
+            var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom).Where(t => !t.IsAssignableFrom(baseType)).Where(t => !typeof(IViewModelDesign).IsAssignableFrom(t)));
             //var linkedTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(linkedType.IsAssignableFrom));
 
             foreach (var bt in basesTypes)
@@ -174,6 +175,8 @@ namespace HLab.Mvvm
             )
         {
             if (typeof(IViewModelDesign).IsAssignableFrom(linkedType)) return;
+
+            Debug.WriteLine(baseType.Name+"->"+linkedType.Name+":"+viewClass.Name+"#"+viewMode.Name );
 
             var e = _entries.GetOrAdd(
                 baseType,
