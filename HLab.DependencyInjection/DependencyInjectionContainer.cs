@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 
 using HLab.Base;
+using HLab.DependencyInjection.Activators;
 using HLab.DependencyInjection.Annotations;
 
 namespace HLab.DependencyInjection

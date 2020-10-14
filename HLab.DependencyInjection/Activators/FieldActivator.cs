@@ -2,7 +2,7 @@
 using System.Reflection;
 using HLab.DependencyInjection.Annotations;
 
-namespace HLab.DependencyInjection
+namespace HLab.DependencyInjection.Activators
 {
     public class FieldActivator : IActivator
     {

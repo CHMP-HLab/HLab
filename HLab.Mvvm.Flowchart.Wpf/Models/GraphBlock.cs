@@ -3,8 +3,8 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows;
+using HLab.Base.Extensions;
 using HLab.DependencyInjection.Annotations;
-using HLab.Mvvm.Observables;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
