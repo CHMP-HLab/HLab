@@ -192,6 +192,8 @@ namespace HLab.Core
 
                 return true;
             }
+            catch(FileNotFoundException )
+            {}
             catch (BadImageFormatException)
             {
             } 

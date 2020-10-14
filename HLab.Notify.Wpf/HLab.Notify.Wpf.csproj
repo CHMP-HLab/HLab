@@ -1,16 +1,16 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
 
-  <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
-    <UseWPF>true</UseWPF>
-    <RootNamespace>HLab.Notify.Wpf</RootNamespace>
-    <Platforms>AnyCPU;x64;x86</Platforms>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0-windows</TargetFramework>
+		<UseWPF>true</UseWPF>
+		<RootNamespace>HLab.Notify.Wpf</RootNamespace>
+		<Platforms>AnyCPU;x64;x86</Platforms>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
-    <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
-    <ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
-  </ItemGroup>
+	<ItemGroup>
+		<ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
+		<ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
+		<ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
+	</ItemGroup>
 
 </Project>

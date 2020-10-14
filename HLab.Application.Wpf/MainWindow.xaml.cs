@@ -2,15 +2,13 @@
 using System.IO;
 using System.Text;
 using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Input;
 using AvalonDock.Layout.Serialization;
 using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Acl.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Options;
-using MessageBox = System.Windows.MessageBox;
-using MouseEventArgs = System.Windows.Input.MouseEventArgs;
-using UserControl = System.Windows.Controls.UserControl;
 
 namespace HLab.Mvvm.Application.Wpf
 {
@@ -29,8 +27,8 @@ namespace HLab.Mvvm.Application.Wpf
 
             LoadLayout();
 
-            this.Loaded += MainWindow_Loaded;
-            this.DataContextChanged += MainWindow_DataContextChanged;
+            Loaded += MainWindow_Loaded;
+            DataContextChanged += MainWindow_DataContextChanged;
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)
