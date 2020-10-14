@@ -70,7 +70,7 @@ namespace HLab.Notify.PropertyChanged
         public static ICommand Command(NotifyConfiguratorFactory<TClass, NotifyCommand> configurator, [CallerMemberName]string name = null)
         {
             #if DEBUG
-            Debug.Assert(typeof(TClass).GetProperty(name)!=null,$"{name} is not a property of " + typeof(TClass).Name);
+            Debug.Assert(typeof(TClass).GetProperty(name)!=null,$"{name} is not a property of " + typeof(TClass).Name + " (did you forget {get;} ?)");
             #endif
             var c =  PropertyCache<TClass>.GetByHolder<NotifyCommand>(name,
                         n => configurator(new NotifyConfigurator<TClass, NotifyCommand>())
