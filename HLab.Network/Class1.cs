@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Net;
 using System.Net.Mime;
 using System.Net.NetworkInformation;
@@ -16,17 +17,18 @@ namespace HLab.Network
 
 
 
-    public class IPScanner
+    public class IpScanner
     {
-        [Import]
-        private IEventHandlerService _EventHandlerService;
+        
+        private readonly IEventHandlerService _eventHandlerService;
 
         public ReadOnlyObservableCollection<string> FoundServers { get; }
 
         private readonly ObservableCollection<string> _foundServers = new ObservableCollection<string>();
 
-        public IPScanner()
+        [Import] public IpScanner(IEventHandlerService eventHandlerService)
         {
+            _eventHandlerService = eventHandlerService;
             FoundServers = new ReadOnlyObservableCollection<string>(_foundServers);
         }
 
@@ -59,7 +61,7 @@ namespace HLab.Network
                     if (scan.Connected)
                     {
                         var host = Dns.GetHostEntry(ip);
-                        _EventHandlerService.Invoke(() =>
+                        _eventHandlerService.Invoke(() =>
                         {
                             _foundServers.Add(host.HostName);
                         });
@@ -76,17 +78,6 @@ namespace HLab.Network
 
         }
 
-        private Task<PingReply> PingAsync(IPAddress ip, int timeout)
-        {
-            var task = new Task<PingReply>(() =>
-            {
-                var ping = new Ping();
-                return ping.Send(ip, timeout);
-            });
-            task.Start();
-
-            return task;
-        }
 
         private Task<bool> ConnectAsync (IPAddress ip, int port)
         {
@@ -101,7 +92,7 @@ namespace HLab.Network
                     scan.Connect(ip, port);
                     return scan.Connected;
                 }
-                catch
+                catch(Exception e)
                 {
                     return false;
                 }
@@ -114,15 +105,24 @@ namespace HLab.Network
 
         public async Task<bool> ScanAsync(IPAddress ip, int port)
         {
-            var ret = await PingAsync(ip, 5);
-            if (await ConnectAsync(ip, port))
-            {
-                var host = await Dns.GetHostEntryAsync(ip);
-                _EventHandlerService.Invoke(() =>
-                {
-                    _foundServers.Add(host.HostName);
-                });
+            var ret = await new Ping().SendPingAsync(ip, 500);
 
+            if (ret.Status == IPStatus.Success)
+            {
+                Debug.WriteLine($"ping {ret.Address} -> {ret.RoundtripTime}");
+                if (await ConnectAsync(ip, port))
+                {
+                    string server = ip.ToString();
+                    try
+                    {
+                        server = (await Dns.GetHostEntryAsync(ip)).HostName;
+                    }
+                    catch(SocketException)
+                    {
+
+                    }
+                    _eventHandlerService.Invoke(() => { _foundServers.Add(server); });
+                }
             }
 
             return false;
