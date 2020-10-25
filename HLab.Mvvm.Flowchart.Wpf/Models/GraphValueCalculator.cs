@@ -4,7 +4,9 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
 {
-    public class GraphValueCalculator : N<GraphValueCalculator>//, ITriggable
+    using H = H<GraphValueCalculator>;
+
+    public class GraphValueCalculator : NotifierBase, ITriggerable
     {
         public double Value1 => _value1.Get();
         private readonly IProperty<double> _value1 = H.Property<double>(c => c.Set(e => e.GetValue(1)));
@@ -14,7 +16,8 @@ namespace HLab.Mvvm.Flowchart.Models
         public double Cost { get; set; } = 0;
 
         public Func<int, double> GetValue { get; set; }
-        public void OnTrigged()
+
+        public void OnTriggered()
         {
             // TODO :
             //GetNotifier().GetEntry(nameof(Value1)).Update();
