@@ -1,7 +1,7 @@
 ﻿using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
@@ -11,11 +11,15 @@ namespace HLab.Options
     [Export(typeof(IOptionsService)), Singleton]
     public class OptionsServices : IOptionsService
     {
-        private readonly IEnumerable<IOptionsProvider> _providers;
+        private readonly List<IOptionsProvider> _providers;
 
         [Import] public OptionsServices(IEnumerable<IOptionsProvider> providers)
         {
-            _providers = providers;
+            _providers = providers.ToList();
+            foreach (var provider in _providers)
+            {
+                provider.Options = this;
+            }
         }
 
         public string OptionsPath { get; set; }
@@ -40,7 +44,7 @@ namespace HLab.Options
 
 
         public void SetValue<T>(string name, T value, string provider = null, int? userid = null)
-            => SetValueAsync(name, userid, provider, userid);
+            => SetValueAsync(name, value, provider, userid);
 
 
         public T GetValue<T>(string name, int? userid = null, Func<T> defaultValue = null, string providerName = null) 
@@ -51,7 +55,7 @@ namespace HLab.Options
             foreach (var provider in _providers)
             {
                 if (!string.IsNullOrWhiteSpace(providerName) && providerName != provider.Name) continue;
-                var result = await provider.GetValueAsync<T>(name, userid);
+                var result = await provider.GetValueAsync<T>(name, userid).ConfigureAwait(false);
                 return result;
             }
 

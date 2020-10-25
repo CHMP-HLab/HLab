@@ -23,6 +23,7 @@ namespace HLab.Options
     public interface IOptionsProvider
     {
         string Name { get; }
+        IOptionsService Options { get; set; }
         Task<T> GetValueAsync<T>(string name,int? userid = null, Func<T> defaultValue = null);
         Task SetValueAsync<T>(string name, T value, int? userid = null);
     }
