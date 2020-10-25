@@ -132,7 +132,7 @@ namespace HLab.Notify.PropertyChanged
                         break;
                     case PropertyInfo propertyInfo:
                         if (propertyInfo.CanWrite) continue;
-
+                        if (propertyInfo.GetMethod.IsAbstract) continue;
                             
                         if (typeof(IChildObject).IsAssignableFrom(propertyInfo.PropertyType))
                         {
