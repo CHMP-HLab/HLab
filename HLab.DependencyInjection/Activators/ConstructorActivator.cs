@@ -2,7 +2,7 @@
 using System.Reflection;
 using HLab.DependencyInjection.Annotations;
 
-namespace HLab.DependencyInjection
+namespace HLab.DependencyInjection.Activators
 {
     public class ConstructorActivator : IActivator
     {
@@ -10,27 +10,35 @@ namespace HLab.DependencyInjection
         {
             if (tree.Context.TargetMemberInfo is ConstructorInfo ci)
             {
-                Action<IRuntimeImportContext, object[], object[]> setParameters = (c, a, o) => { };
+                Action<IRuntimeImportContext, object[], object[]> setParameters = null;
                 var i = 0;
                 foreach (var parameterInfo in ci.GetParameters())
                 {
-                    var methodCtx = tree.Context = tree.Context.Get(parameterInfo.ParameterType);
-                    var methodActivator = getLocator(tree);
+                    if (parameterInfo.ParameterType.Name.Contains("IEnumerable"))
+                    {
+
+                    }
+
+                    var ctx = tree.Context = tree.Context.Get(parameterInfo.ParameterType);
+                    var activator = getLocator(tree);
                     var pos = i;
-                    setParameters += (c, a, o) => o[pos] = methodActivator(c.Get(o, methodCtx), a);
+                    setParameters += (c, a, o) => o[pos] = activator(c.Get(o, ctx), a);
                     i++;
                 }
 
                 var nb = i;
 
-                return (c, a, o) =>
-                {
-                    var param = new object[nb];
-                    setParameters(c, a, param);
-                    ci.Invoke(o, param);
-                };
+                if(setParameters!=null)
+                    return (c, a, o) =>
+                    {
+                        var param = new object[nb];
+                        setParameters.Invoke(c, a, param);
+                        ci.Invoke(o, param);
+                    };
+                return (c, a, o) => ci.Invoke(o, new object[0]);
             }
-            else throw new InvalidOperationException(tree.Context.TargetMemberInfo.Name + "is not constructor");
+
+            throw new InvalidOperationException(tree.Context.TargetMemberInfo.Name + "is not constructor");
         }
     }
 }

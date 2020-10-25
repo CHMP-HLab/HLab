@@ -1,17 +1,71 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
+using System.Runtime.InteropServices;
 using System.Windows;
 
 namespace HLab.Base
 {
-    public class ChangedEventArg<TValue>
-    {
-        public TValue OldValue { get; internal set; }
-        public TValue NewValue { get; internal set; }
 
-        public DependencyProperty Property { get; internal set; }
-    }
+  [StructLayout(LayoutKind.Sequential, Size = 1)]
+  public readonly struct DependencyPropertyChangedEventArgs<TValue> 
+  {
+      /// <summary>Initializes a new instance of the <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> class.</summary>
+      /// <param name="uncastedEventArgs"></param>
+      public DependencyPropertyChangedEventArgs(
+          DependencyPropertyChangedEventArgs uncastedEventArgs)
+      {
+          _uncastedEventArgs = uncastedEventArgs;
+      }
 
+      private readonly DependencyPropertyChangedEventArgs _uncastedEventArgs;
+
+      /// <summary>Gets the value of the property after the change.</summary>
+      /// <returns>The property value after the change.</returns>
+      public TValue NewValue => (TValue) _uncastedEventArgs.NewValue;
+
+      /// <summary>Gets the value of the property before the change.</summary>
+      /// <returns>The property value before the change.</returns>
+      public TValue OldValue => (TValue) _uncastedEventArgs.OldValue;
+
+      /// <summary>Gets the identifier for the dependency property where the value change occurred.</summary>
+      /// <returns>The identifier field of the dependency property where the value change occurred.</returns>
+      public DependencyProperty Property => _uncastedEventArgs.Property;
+
+    /// <summary>Determines whether the provided object is equivalent to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />.</summary>
+    /// <param name="obj">The object to compare to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />.</param>
+    /// <returns>
+    /// <see langword="true" /> if the provided object is equivalent to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />; otherwise, <see langword="false" />.</returns>
+    public override bool Equals(object obj) => Equals((DependencyPropertyChangedEventArgs<TValue>) obj);
+
+    /// <summary>Determines whether the provided <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> is equivalent to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />.</summary>
+    /// <param name="args">The <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> to compare to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /></param>
+    /// <returns>
+    /// <see langword="true" /> if the provided <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> is equivalent to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />; otherwise, <see langword="false" />.</returns>
+    public bool Equals(DependencyPropertyChangedEventArgs<TValue> args) =>
+        _uncastedEventArgs.Equals(args._uncastedEventArgs);
+
+    /// <summary>Gets a hash code  for this <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />.</summary>
+    /// <returns>A signed 32-bit integer hash code.</returns>
+    public override int GetHashCode() => _uncastedEventArgs.GetHashCode();
+
+    /// <summary>Determines whether two specified <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> objects have the same value.</summary>
+    /// <param name="left">The first <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> to compare.</param>
+    /// <param name="right">The second <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> to compare.</param>
+    /// <returns>
+    /// <see langword="true" /> if the two <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> instances are equivalent; otherwise, <see langword="false" />.</returns>
+    public static bool operator ==(
+        DependencyPropertyChangedEventArgs<TValue> left,
+        DependencyPropertyChangedEventArgs<TValue> right) => left._uncastedEventArgs == right._uncastedEventArgs;
+
+    /// <summary>Determines whether two specified <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> objects are different.</summary>
+    /// <param name="left">The first <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> to compare.</param>
+    /// <param name="right">The second <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> to compare.</param>
+    /// <returns>
+    /// <see langword="true" /> if the two <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> instances are different; otherwise, <see langword="false" />.</returns>
+    public static bool operator !=(
+      DependencyPropertyChangedEventArgs<TValue> left,
+      DependencyPropertyChangedEventArgs<TValue> right) =>  left._uncastedEventArgs != right._uncastedEventArgs;
+  }
 
 
     public class DependencyConfigurator<TClass,TValue>
@@ -77,20 +131,14 @@ namespace HLab.Base
         public DependencyConfigurator<TClass, TValue> Journal => Do(() => _propertyMetadata.Journal = true);
         public DependencyConfigurator<TClass, TValue> SubPropertiesDoNotAffectRender => Do(() => _propertyMetadata.SubPropertiesDoNotAffectRender = true);
 
-        public DependencyConfigurator<TClass,TValue> OnChange<TSender>(Action<TSender, ChangedEventArg<TValue>> action)
+        public DependencyConfigurator<TClass,TValue> OnChange<TSender>(Action<TSender, DependencyPropertyChangedEventArgs<TValue>> action)
         where TSender : DependencyObject
         {
             _propertyMetadata.PropertyChangedCallback += (d, e) =>
             {
-                if (d is TSender c)
-                {
-                    var newValue = (TValue)e.NewValue;
-                    var oldValue = (TValue)e.OldValue;
+                if (!(d is TSender c)) return;
 
-                    action(c,
-                        new ChangedEventArg<TValue>
-                        { Property = e.Property, NewValue = newValue, OldValue = oldValue });
-                }
+                action(c, new DependencyPropertyChangedEventArgs<TValue>(e));
             };
 
             return this;
@@ -109,7 +157,7 @@ namespace HLab.Base
             return this;
         }
 
-        public DependencyConfigurator<TClass, TValue> OnChange(Action<TClass, ChangedEventArg<TValue>> action)
+        public DependencyConfigurator<TClass, TValue> OnChange(Action<TClass, DependencyPropertyChangedEventArgs<TValue>> action)
             => OnChange<TClass>(action);
         public DependencyConfigurator<TClass, TValue> OnChange(Action<TClass> action)
             => OnChange<TClass>(action);
