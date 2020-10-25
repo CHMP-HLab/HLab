@@ -73,6 +73,8 @@ namespace HLab.Core
                 Name = name;
                 Action = action;
             }
+
+            public override string ToString() => Name;
         }
 
         private readonly ConcurrentQueue<Entry> _queue = new ConcurrentQueue<Entry>();

@@ -8,7 +8,7 @@ using HLab.Base;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public class Persister :N<Persister>
+    public class Persister : NotifierBase
     {
         protected ConcurrentHashSet<PropertyInfo> Dirty { get; } = new ConcurrentHashSet<PropertyInfo>();
         public bool IsDirty
@@ -16,7 +16,7 @@ namespace HLab.Notify.PropertyChanged
             get => _isDirty.Get();
             protected set => _isDirty.Set(value);
         }
-        private readonly IProperty<bool> _isDirty = H.Property<bool>();
+        private readonly IProperty<bool> _isDirty = H<Persister>.Property<bool>();
 
         public void Reset()
         {
@@ -31,6 +31,8 @@ namespace HLab.Notify.PropertyChanged
         protected object Target {get; }
         public Persister(object target,bool isDirty = true)
         {
+            H<Persister>.Initialize(this);
+
             Target = target;
 
             if (isDirty)

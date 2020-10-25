@@ -28,16 +28,4 @@ namespace HLab.Notify.PropertyChanged
 
     }
 
-    public abstract class N<T> : NotifierBase
-        where T : class, INotifyPropertyChanged
-    {
-        protected class H : H<T> { }
-        protected N(bool initialize=true)
-        {
-            if(initialize) Initialize();
-        }
-
-        protected void Initialize() => H.Initialize( this as T);
-    }
-
 }

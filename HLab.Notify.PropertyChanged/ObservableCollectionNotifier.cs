@@ -38,10 +38,10 @@ namespace HLab.Notify.PropertyChanged
         IList<T>, IList, IReadOnlyList<T>, INotifyCollectionChanged, ILockable
         //where T : INotifyPropertyChanged
     {
-        public ObservableCollectionNotifier(bool init = true)
+        public ObservableCollectionNotifier()
         {
             if (_eventHandlerService == null) _eventHandlerService = NotifyHelper.EventHandlerService;
-            if(init) H<ObservableCollectionNotifier<T>>.Initialize(this);
+            H<ObservableCollectionNotifier<T>>.Initialize(this);
         }
 
 
@@ -79,7 +79,8 @@ namespace HLab.Notify.PropertyChanged
                 }
             }
         }
-        protected IProperty<T> _selected = H<ObservableCollectionNotifier<T>>.Property<T>();
+
+        protected readonly IProperty<T> _selected = H<ObservableCollectionNotifier<T>>.Property<T>();
 
         private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
         {
@@ -92,7 +93,7 @@ namespace HLab.Notify.PropertyChanged
         IEnumerator IEnumerable.GetEnumerator() => _list.GetEnumerator();
 
         public int Count => _count.Get();
-        private IProperty<int> _count = H<ObservableCollectionNotifier<T>>.Property<int>(c => c
+        private readonly IProperty<int> _count = H<ObservableCollectionNotifier<T>>.Property<int>(c => c
             .Set(e => e._list.Count)
         );
 

@@ -75,19 +75,6 @@ namespace HLab.Mvvm.Application.Wpf
 
             InitializeCultures();
 
-            // TODO Login
-            //var vm = GetLoginViewModel();
-            //var loginWindow = _mvvm.MainContext.GetView(vm,MainViewMode).AsWindow();
-            ////loginWindow.WindowState = WindowState.Maximized;
-
-            //loginWindow.ShowDialog();
-
-            //if (_erp.Acl.Connection == null)
-            //{
-            //    System.Windows.Application.Current.Shutdown();
-            //    return;
-            //}
-
             if (Updater != null )
             {
                 Updater.CheckVersion();

@@ -17,12 +17,11 @@
   <ItemGroup>
     <PackageReference Include="Dirkster.AvalonDock" Version="4.40.0" />
     <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.40.0" />
-    <PackageReference Include="MahApps.Metro" Version="2.2.0" />
+    <PackageReference Include="MahApps.Metro" Version="2.3.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HLab.Application\HLab.Mvvm.Application.csproj" />
-    <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
     <ProjectReference Include="..\HLab.Mvvm.Wpf\HLab.Mvvm.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Options\HLab.Options.csproj" />
   </ItemGroup>

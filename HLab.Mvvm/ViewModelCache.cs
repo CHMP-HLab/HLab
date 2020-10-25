@@ -73,16 +73,18 @@ namespace HLab.Mvvm
                 {
                     // if the viewModel was created outside, it may not contain a context
                     if(vm.MvvmContext==null)
+                    {
                         if (vm is IMvvmContextProvider p)
                         {
                             context = context.GetChildContext(p.GetType().Name);
                             p.ConfigureMvvmContext(context);
                             vm.MvvmContext = context;
                         }
-                        else vm.MvvmContext = context;
-
-                    // set current context to be the view model one
-                    context = vm.MvvmContext;
+                        vm.MvvmContext = context;
+                    }
+                    else
+                        // set current context to be the view model one
+                        context = vm.MvvmContext;
                 }
             }
             var linkedType = _mvvm.GetLinkedType(baseObject?.GetType(), viewMode, viewClass);
@@ -93,18 +95,17 @@ namespace HLab.Mvvm
             }
 
             // we don't want to cache views cause they cannot be used twice
-            if (false)//(baseObject != null && !typeof(IView).IsAssignableFrom(linkedType))
+            if (baseObject == null || typeof(IView).IsAssignableFrom(linkedType))
             {
-                // baseObject is ViewModel
-                var cache = _linked.GetOrCreateValue(baseObject);
-                return cache.GetOrAdd(linkedType, (t) => context.Locate(t,baseObject));
+                //linkedObject is View
+                return context.Locate(linkedType, baseObject);
             }
             else
             {
-                //baseObject is View
-                return context.Locate(linkedType,baseObject);
+                // baseObject is ViewModel
+                var cache = _linked.GetOrCreateValue(baseObject);
+                return cache.GetOrAdd(linkedType, (t) => context.Locate(t, baseObject));
             }
-
         }
 
         public IView GetView(object baseObject,Type viewMode, Type viewClass)

@@ -5,15 +5,15 @@ namespace HLab.DependencyInjection
     public class ActivatorTree : IActivatorTree
     {
         private IActivatorKey _key;
-//#if DEBUG
+        //#if DEBUG
         public override string ToString()
         {
-            var target = Context.TargetType?.GenericReadableName()??"null";
-            var t2 = Context.TargetMemberInfo?.DeclaringType?.GenericReadableName()??"none";
-            var member = Context.TargetMemberInfo?.Name??"unknown";
-            var import = Context.ImportType?.GenericReadableName()??"unknown";
+            var target = Context.TargetType?.GenericReadableName() ?? "null";
+            var t2 = Context.TargetMemberInfo?.DeclaringType?.GenericReadableName() ?? "none";
+            var member = Context.TargetMemberInfo?.Name ?? "unknown";
+            var import = Context.ImportType?.GenericReadableName() ?? "unknown";
 
-            if (target!=t2) target = target + " : "  + t2;
+            if (target != t2) target = target + " : " + t2;
 
             return target + "." + member + " as " + import;
         }
@@ -50,7 +50,7 @@ namespace HLab.DependencyInjection
 
             return s;
         }
-//#endif
+        //#endif
         public IActivatorTree Parent { get; }
         public IImportContext Context { get; set; }
 
@@ -60,13 +60,13 @@ namespace HLab.DependencyInjection
             set
             {
                 _key = value;
-                #if DEBUG
+#if DEBUG
                 if (Key != null)
                 {
                     var r = GetRecursive();
-                    if (r!=null) throw new DependencyInjectionException("Recursive Injection : \n" + ReadableTree());
+                    if (r != null) throw new DependencyInjectionException("Recursive Injection : \n" + ReadableTree());
                 }
-                #endif
+#endif
             }
         }
 
@@ -74,15 +74,14 @@ namespace HLab.DependencyInjection
         {
             Parent = parent;
             Context = context;
-
         }
 
-            public IActivatorTree GetRecursive()
+        public IActivatorTree GetRecursive()
         {
             var parent = Parent;
             while (parent != null)
             {
-                if(Equals(parent.Key,Key)) return parent;
+                if (Equals(parent.Key, Key)) return parent;
                 parent = parent.Parent;
             }
 

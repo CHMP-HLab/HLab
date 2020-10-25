@@ -115,7 +115,6 @@ namespace HLab.Mvvm
             {
                 case IView v:
                     var h = Mvvm.ViewHelperFactory.Get(v, hh => hh.Context=this);
-                    //h.Context = this;
                     h.Linked = baseObject;
                     CallCreators(v);
                     break;

@@ -13,7 +13,7 @@ namespace HLab.Mvvm
         public FrameworkElement View { get; }
         public IMvvmContext Context
         {
-            get => (MvvmContext) View.GetValue(ViewLocator.MvvmContextProperty);
+            get => (IMvvmContext) View.GetValue(ViewLocator.MvvmContextProperty);
             set => View.SetValue(ViewLocator.MvvmContextProperty, value);
         }
 

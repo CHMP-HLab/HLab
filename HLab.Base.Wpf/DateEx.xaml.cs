@@ -4,7 +4,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
-namespace HLab.Base
+namespace HLab.Base.Wpf
 {
     using H = DependencyHelper<DateEx>;
     /// <summary>
