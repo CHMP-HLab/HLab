@@ -5,4 +5,14 @@
     <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Security.AccessControl" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="System.IO.Pipes.AccessControl">
+      <HintPath>C:\Program Files\dotnet\packs\Microsoft.WindowsDesktop.App.Ref\5.0.0-rc.2.20475.6\ref\net5.0\System.IO.Pipes.AccessControl.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
 </Project>

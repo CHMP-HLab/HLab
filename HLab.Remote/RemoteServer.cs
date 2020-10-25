@@ -1,6 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.IO.Pipes;
+using System.Net.Mime;
+using System.Security.AccessControl;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -15,6 +20,7 @@ namespace HLab.Remote
         }
 
         public string Message { get; }
+        public string Result { get; set; } = "ACK";
     }
 
     public class RemoteServer
@@ -32,95 +38,95 @@ namespace HLab.Remote
             _terminateHandle.WaitOne();
         }
 
-        public void SendMessage(string message)
+        public async Task SendMessageAsync(string message)
         {
-            IList<Client> clients;
-            lock (_lockClients)
-            {
-                clients = _clients.ToArray();
-            }
-            foreach (var client in clients)
-                client.SendMessageAsync(message);
+            return;
         }
 
 
-        bool _running;
-        Thread _runningThread;
-        readonly EventWaitHandle _terminateHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
+        private bool _running;
+        private Thread _runningThread;
+        private readonly EventWaitHandle _terminateHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
         protected string PipeName;
 
         public event EventHandler<RemoteEventArgs> GotMessage;
 
-        private async Task OnGotMessage(RemoteEventArgs args)
+        private void OnGotMessage(RemoteEventArgs args)
         {
-            GotMessage?.Invoke(this, args);
+            
+            GotMessage?.Invoke(this, args) ;
         }
-        private async Task OnGotMessage(string message)
+        private string OnGotMessage(string message)
         {
-            OnGotMessage(new RemoteEventArgs(message));
+            var arg = new RemoteEventArgs(message);
+            OnGotMessage(arg);
+            return arg.Result;
         }
 
         private void ServerLoop()
         {
             while (_running)
             {
-                ProcessNextClient();
+                var client = new Client(this);
+                client.Start();
             }
 
             _terminateHandle.Set();
         }
 
 
-
-        private void ProcessNextClient()
-        {
-            var client = new Client(this,(e)=>
-            {
-                lock(_lockClients)
-                    _clients.Remove((Client) e);
-            });
-            client.Start();
-
-            lock (_lockClients)
-                _clients.Add(client);
-
-        }
-
-        private readonly List<Client> _clients = new List<Client>();
-        private readonly object _lockClients = new object();
-
         public RemoteServer(string pipeName)
         {
             PipeName = pipeName;
         }
 
-        private class Client : ClientBase
+        private class Client
         {
-            public Client(RemoteServer server,Action<ClientBase> dispose):base(server.PipeName,dispose)
+            public Client(RemoteServer server)
             {
-                
                 _server = server;
             }
 
-            public override void Start()
+            public void Start()
             {
-
                 try
                 {
-                    var pipe = new NamedPipeServerStream(_server.PipeName, PipeDirection.InOut, 254);
-                    pipe.WaitForConnection();
+                    var server = new NamedPipeServerStream(
+                        _server.PipeName, 
+                        PipeDirection.InOut, 
+                        NamedPipeServerStream.MaxAllowedServerInstances,
+                        PipeTransmissionMode.Message,
+                        PipeOptions.None
+                        );
 
-                    Start(pipe);
+                    server.WaitForConnection();
+                    if (!server.IsConnected) return;
+
+                    var msg = server.ReadMessage();
+
+                    Debug.WriteLine($"got message : {msg}");
+
+                    var response = ProcessMessage(msg);
+
+                    server.WriteMessage(response);
+                    
+                    Debug.WriteLine($"{msg} -> {response}");
+
+                    server.Disconnect();
+                    Debug.WriteLine($"{msg} Disconnected.");
                 }
                 catch (Exception e)
                 {
+                    Debug.Write(e);
                     //If there are no more avail connections (254 is in use already) then just keep looping until one is avail
                 }
             }
 
-            public override async Task ProcessMessageAsync(string message) => await _server.OnGotMessage(message);
+            private string ProcessMessage(string message) => _server.OnGotMessage(message);
 
             private readonly RemoteServer _server;
+            private bool _disposed = false;
+
         }
     }
 }

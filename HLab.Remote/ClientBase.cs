@@ -2,101 +2,51 @@
 using System.Diagnostics;
 using System.IO;
 using System.IO.Pipes;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace HLab.Remote
 {
-    public abstract class ClientBase : IDisposable
+    public static class RemoteExtentions
     {
-        private PipeStream _pipe;
-        private PipeDirection _direction;
-        private Thread _thread;
-        private readonly Action<ClientBase> _disposeAction;
-        protected string PipeName;
-
-        protected ClientBase(string pipeName, PipeDirection direction, Action<ClientBase> disposeAction=null)
+        public static async Task<string> ReadMessageAsync(this PipeStream stream)
         {
-            _direction = direction;
-            _disposeAction = disposeAction;
-            PipeName = pipeName;
+            const int bufferSize = 1024;
+
+            var buff = new byte[bufferSize];
+            var mb = new StringBuilder();
+            do {
+                var byteCount = await stream.ReadAsync(buff,0,bufferSize);
+                mb.Append(Encoding.UTF8.GetString(buff, 0, byteCount));
+            } while (!(stream.IsMessageComplete));
+            return mb.ToString();
         }
-
-        public async Task SendMessageAsync(string message)
+        public static async Task WriteMessageAsync(this PipeStream stream, string message)
         {
-            if (_pipe.IsConnected)
-            {
-                await using var sw = new StreamWriter(_pipe);
-                await sw.WriteAsync(message + '\n');
-
-            }
+            var responseBytes = Encoding.UTF8.GetBytes(message);
+            await stream.WriteAsync(responseBytes, 0, responseBytes.Length).ConfigureAwait(false);
+            await stream.FlushAsync();
+            stream.WaitForPipeDrain();
         }
-
-        public abstract void Start();
-
-        protected void Start(PipeStream pipe)
+        public static string ReadMessage(this PipeStream stream)
         {
-            _pipe = pipe;
-            _thread = new Thread(ProcessClientThread);
-            _thread.Start();
+            const int bufferSize = 1024;
+
+            var buff = new byte[bufferSize];
+            var mb = new StringBuilder();
+            do {
+                var byteCount = stream.Read(buff,0,bufferSize);
+                mb.Append(Encoding.UTF8.GetString(buff, 0, byteCount));
+            } while (!(stream.IsMessageComplete));
+            return mb.ToString();
         }
-
-        public abstract Task ProcessMessageAsync(string message);
-
-        protected void ProcessClientThread()
+        public static void WriteMessage(this PipeStream stream, string message)
         {
-            var message = "";
-
-
-            try
-            {
-                while (true)
-                {
-                    Debug.WriteLine("Start listening");
-                    var c = _pipe.ReadByte();
-                    if (c >= 0)
-                    {
-                        if (c == '\n') // " "
-                        {
-                            Debug.WriteLine(message);
-                            ProcessMessageAsync(message);
-                            message = "";
-                        }
-                        else message += (char)c;
-                    }
-                    else break;
-                }
-            }
-            catch (System.IO.IOException)
-            {
-
-            }
-            finally
-            {
-                Debug.WriteLine("Close listening");
-                Dispose();
-                _pipe.Close();
-            }
-        }
-
-        private bool _disposed = false;
-
-        // Public implementation of Dispose pattern callable by consumers.
-        public void Dispose() => Dispose(true);
-
-        // Protected implementation of Dispose pattern.
-        protected virtual void Dispose(bool disposing)
-        {
-            if (_disposed) return;
-
-            if (disposing)
-            {
-                _disposeAction?.Invoke(this);
-                // Dispose managed state (managed objects).
-                _pipe?.Dispose();
-            }
-
-            _disposed = true;
+            var responseBytes = Encoding.UTF8.GetBytes(message);
+            stream.Write(responseBytes, 0, responseBytes.Length);
+            stream.Flush();
+            stream.WaitForPipeDrain();
         }
     }
 }

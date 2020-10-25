@@ -1,45 +1,64 @@
 ﻿using System;
-using System.IO;
 using System.IO.Pipes;
 using System.Runtime.CompilerServices;
 using System.Threading.Tasks;
-using Microsoft.Win32.SafeHandles;
 
 namespace HLab.Remote
 {
-    public class RemoteClient : ClientBase
+    public class RemoteClient
     {
-        public RemoteClient(string pipeName,PipeDirection direction) : base(pipeName)
+        private readonly string _pipeName;
+        public RemoteClient(string pipeName)
         {
+            this._pipeName = pipeName;
         }
 
 
-        public override async void Start()
+        public async Task<string> SendMessageAsync(string message)
         {
             var retry = true;
-            var pipe = new NamedPipeClientStream("localhost", PipeName, PipeDirection.InOut);
-            while(retry)
+            await using var pipe = new NamedPipeClientStream(
+                ".", 
+                _pipeName, 
+                PipeDirection.InOut, 
+                PipeOptions.None);
+
+            
+
+            while (retry)
+            {
                 try
                 {
                     retry = false;
-                    await pipe.ConnectAsync(1000);
+                    await pipe.ConnectAsync(1000).ConfigureAwait(false);
+                    if (pipe.IsConnected)
+                    {
+                        pipe.ReadMode = PipeTransmissionMode.Message;
+                        var result = "";
+                        await pipe.WriteMessageAsync(message);
+
+                        result = await pipe.ReadMessageAsync();
+
+                        pipe.Close();
+                        return result;
+                    }
+                    else retry = true;
                 }
                 catch (TimeoutException)
                 {
                      retry = await StartServerAsync();
                 }
-            if(pipe.IsConnected) Start(pipe);
+
+            }
+
+            return "";
         }
 
-        public override Task ProcessMessageAsync(string message)
-        {
-            throw new NotImplementedException();
-        }
 
 
-        public async Task SendAsync([CallerMemberName]string name = null)
+        public async Task<string> SendAsync([CallerMemberName]string name = null)
         {
-            await SendMessageAsync(name);
+            return await SendMessageAsync(name);
         }
 
 
