@@ -44,15 +44,15 @@ namespace HLab.Mvvm
         public IMvvmContext MvvmContext { get; set; }
 
         public virtual Type ModelType => null;
-        private readonly IProperty<object> _model = H.Property<object>();
         public object Model
         {
             get => _model.Get();
             set => _model.Set(value);
         }
+        private readonly IProperty<object> _model = H.Property<object>();
     }
 
-    public class ViewModel<T> : ViewModel, IViewModel<T>
+    public abstract class ViewModel<T> : ViewModel, IViewModel<T>
     {
 
         public new T Model

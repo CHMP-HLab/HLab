@@ -20,17 +20,21 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
+using System;
+using System.Data.SqlTypes;
+
 namespace HLab.Mvvm.Annotations
 {
     public abstract class ViewMode { }
-    public class ViewModeDetail : ViewMode { }
-    public class ViewModeEdit : ViewMode { }
-    public class ViewModeSummary : ViewMode { }
-    public class ViewModeString : ViewMode { }
     public class ViewModeDefault : ViewMode { }
-    public class ViewModeList : ViewMode { }
-    public class ViewModePreview : ViewMode { }
-    public class ViewModeCollapsed : ViewMode { }
+    public class ViewModeDetail : ViewModeDefault { }
+    public class ViewModeEdit : ViewModeDefault { }
+    public class ViewModeSummary : ViewModeDefault { }
+    public class ViewModeString : ViewModeDefault { }
+    public class ViewModeList : ViewModeDefault { }
+    public class ViewModePreview : ViewModeDefault { }
+    public class ViewModeCollapsed : ViewModeDefault { }
 
     public class ViewModeDocument : ViewMode { }
     public class ViewModeDraggable : ViewMode { }
@@ -41,13 +45,19 @@ namespace HLab.Mvvm.Annotations
     public interface IViewClassContent  : IViewClass{ }
     public interface IViewModelDesign { }
 
+
+    public interface IMvvmLinked<TBase>
+    {
+
+    }
+
+    [MvvmCacheability(MvvmCacheability.NotCacheable)]
     public interface IView
     {
     }
 
-    public interface IView<TViewMode,TViewModel> : IView
+    public interface IView<TViewMode,TViewModel> : IView, IMvvmLinked<TViewModel>
         where TViewMode : ViewMode
-       // where TViewModel : INotifyPropertyChanged
     {
     }
     public interface IView<TViewModel> : IView<ViewModeDefault,TViewModel>
@@ -61,5 +71,22 @@ namespace HLab.Mvvm.Annotations
 
     public interface IModel
     { }
+
+    public enum MvvmCacheability
+    {
+        Cacheable,
+        NotCacheable
+    }
+
+    [AttributeUsage(AttributeTargets.Class|AttributeTargets.Interface,Inherited = true)]
+    public class MvvmCacheabilityAttribute : Attribute
+    {
+        public MvvmCacheabilityAttribute(MvvmCacheability cacheability)
+        {
+            Cacheability = cacheability;
+        }
+
+        public MvvmCacheability Cacheability { get; }
+    }
 
 }

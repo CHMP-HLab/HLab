@@ -1,11 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
 
 namespace HLab.Mvvm.Annotations
 {
     public interface IMvvmContextProvider
     {
-        //MvvmContext MvvmContext { get; }
         void ConfigureMvvmContext(IMvvmContext ctx);
     }
 
@@ -17,8 +15,7 @@ namespace HLab.Mvvm.Annotations
         object Model { get; set; }
     }
 
-    public interface IViewModel<T> : IViewModel
-    //where T : INotifyPropertyChanged
+    public interface IViewModel<T> : IViewModel, IMvvmLinked<T>
     {
         new T Model { get; set; }
     }
