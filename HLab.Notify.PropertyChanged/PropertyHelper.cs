@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Reflection;
 using System.Text;
 using HLab.Base;
+using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {

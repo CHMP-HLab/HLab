@@ -8,7 +8,7 @@ namespace HLab.Notify.PropertyChanged
     {
         public static NotifyConfigurator<TClass, T> CanExecute<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Func<TClass, bool> setter)
-            where TClass : class, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where T : NotifyCommand
         {
             return c
@@ -16,7 +16,7 @@ namespace HLab.Notify.PropertyChanged
         }
         public static NotifyConfigurator<TClass, T> SetCanExecute<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Func<TClass,object, bool> setter)
-            where TClass : class//, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where T : NotifyCommand
         {
             return c
@@ -25,7 +25,7 @@ namespace HLab.Notify.PropertyChanged
 
         public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Action<TClass> action)
-            where TClass : class//, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where T : NotifyCommand
         {
             return c
@@ -34,7 +34,7 @@ namespace HLab.Notify.PropertyChanged
 
         public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Func<TClass,Task> action)
-            where TClass : class//, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where T : NotifyCommand
         {
             return c
@@ -42,7 +42,7 @@ namespace HLab.Notify.PropertyChanged
         }
         public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Action<TClass,object> action)
-            where TClass : class//, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where T : NotifyCommand
         {
             return c
@@ -51,7 +51,7 @@ namespace HLab.Notify.PropertyChanged
 
         public static NotifyConfigurator<TClass, TMember> 
             CheckCanExecute<TClass,TMember>(this NotifyConfigurator<TClass, TMember> c)
-            where TClass : class, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where TMember : NotifyCommand
         {
             return c.Do((target, member) => member.SetCanExecute());

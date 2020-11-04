@@ -1,23 +1,47 @@
-﻿using System.ComponentModel;
-using System.Runtime.CompilerServices;
+﻿using System;
+using System.ComponentModel;
 using HLab.Notify.PropertyChanged.NotifyParsers;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public abstract class NotifierBase : INotifyPropertyChanged
+    public abstract class NotifierBase : INotifyPropertyChangedWithHelper, IDisposable
     {
-
-        protected INotifyClassHelper Parser;
+        public INotifyClassHelper ClassHelper { get; }
 
         protected NotifierBase()
         {
-            Parser = NotifyClassHelper.GetParserUninitialized(this);
+            ClassHelper = NotifyClassHelper.GetNewHelper(this);
         }
             
         public event PropertyChangedEventHandler PropertyChanged
         {
-            add => Parser.AddHandler(value);
-            remove => Parser.RemoveHandler(value);
+            add => ClassHelper.AddHandler(value);
+            remove => ClassHelper.RemoveHandler(value);
+        }
+
+        ~NotifierBase()
+        {
+            Dispose(false);
+        }
+
+        private void ReleaseUnmanagedResources()
+        {
+            // TODO release unmanaged resources here
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            ReleaseUnmanagedResources();
+            if (disposing)
+            {
+                ClassHelper?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

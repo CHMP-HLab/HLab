@@ -3,8 +3,8 @@ using System.ComponentModel;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public interface IChildObject
+    public interface IChildObject : IDisposable
     {
-        void SetParent(object parent,INotifyClassHelper parser);
+        void SetParent(INotifyPropertyChangedWithHelper parent);
     }
 }

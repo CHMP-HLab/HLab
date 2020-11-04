@@ -1,13 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.IO.Pipes;
-using System.Net.Mime;
-using System.Security.AccessControl;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace HLab.Remote
 {
@@ -37,12 +31,6 @@ namespace HLab.Remote
             _running = false;
             _terminateHandle.WaitOne();
         }
-
-        public async Task SendMessageAsync(string message)
-        {
-            return;
-        }
-
 
         private bool _running;
         private Thread _runningThread;

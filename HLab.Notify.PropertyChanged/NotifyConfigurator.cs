@@ -10,13 +10,13 @@ namespace HLab.Notify.PropertyChanged
     public class NotifyConfigurator { }
 
     public delegate NotifyConfigurator<TClass, T> NotifyConfiguratorFactory<TClass, T>(NotifyConfigurator<TClass, T> c)
-        where TClass : class;
+        where TClass : class, INotifyPropertyChangedWithHelper;
 
 
 
 
     public class NotifyConfigurator<TClass, T> : NotifyConfigurator
-        where TClass : class
+        where TClass : class, INotifyPropertyChangedWithHelper
     {
         internal readonly List<TriggerEntry> Triggers = new List<TriggerEntry>();
         internal TriggerEntry CurrentTrigger = new TriggerEntry();
@@ -30,7 +30,7 @@ namespace HLab.Notify.PropertyChanged
 
         public class Activator
         {
-            public Action<TClass, INotifyClassHelper, T> Action { get; internal set; } = null;
+            public Action<TClass, T> Action { get; internal set; } = null;
             public  List<string> DependsOn { get; } = new List<string>();
             public  string PropertyName { get; internal set; }
             public Action<TClass, T> UpdateAction { get; internal set; }
@@ -150,7 +150,7 @@ namespace HLab.Notify.PropertyChanged
 
         public Activator Compile(string name)
         {
-            if (_activator.PropertyName == null) _activator.PropertyName = NotifyHelper.GetNameFromCallerName(name);
+            _activator.PropertyName ??= NotifyHelper.GetNameFromCallerName(name);
 
             foreach (var trigger in Triggers)
             {
@@ -164,11 +164,11 @@ namespace HLab.Notify.PropertyChanged
                     var action = trigger.Action;
 
                     if(path==null || string.IsNullOrWhiteSpace(path.PropertyName))
-                        _activator.Action += (parent, parser, property) => action(parent, property);
+                        _activator.Action += (parent, property) => action(parent, property);
                     else
-                        _activator.Action += (parent, parser, property) =>
+                        _activator.Action += (parent, property) =>
                         {
-                            parser.GetTrigger(path, (s, a) => { action(parent, property); });
+                            parent.ClassHelper.GetTrigger(path, (s, a) => { action(parent, property); });
                         };
                 }
             }

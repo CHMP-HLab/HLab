@@ -12,9 +12,9 @@ namespace HLab.Notify.Wpf
 
         protected UserControlNotifier()
         {
-            Parser = NotifyClassHelper.GetParserUninitialized(this);
+            Parser = NotifyClassHelper.GetHelper(this);
         }
-            
+
         public event PropertyChangedEventHandler PropertyChanged
         {
             add => Parser.AddHandler(value);

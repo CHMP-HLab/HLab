@@ -7,7 +7,7 @@ namespace HLab.Notify.PropertyChanged
     {
         public static NotifyConfigurator<TClass, T> 
             On<TClass,T>(this NotifyConfigurator<TClass, T> c, Expression<Func<TClass, object>> expr)
-            where TClass : class//,INotifyPropertyChanged
+            where TClass : class,INotifyPropertyChangedWithHelper
         {
             return c.AddTriggerExpression(expr);
         }
@@ -15,7 +15,7 @@ namespace HLab.Notify.PropertyChanged
 
         public static NotifyConfigurator<TClass, T> 
             NotNull<TObj, TClass, T>(this NotifyConfigurator<TClass, T> c, Func<TClass, TObj> notnull)
-            where TClass : class//, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             //            where TObj : class
         {
             return c.When(e => ! Equals(notnull(e), default(TObj)));
@@ -23,7 +23,7 @@ namespace HLab.Notify.PropertyChanged
 
         public static NotifyConfigurator<TClass, T> 
             OnNotNull<TObj, TClass,T>(this NotifyConfigurator<TClass, T> c, Expression<Func<TClass, TObj>> expr)
-            where TClass : class//,INotifyPropertyChanged
+            where TClass : class,INotifyPropertyChangedWithHelper
         {
             var f = expr.Compile();
             return c.AddTriggerExpression(expr).NotNull(f);

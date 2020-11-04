@@ -1,17 +1,21 @@
 ﻿using HLab.Notify.Annotations;
 using System;
 using System.ComponentModel;
+using System.Diagnostics.Tracing;
 using HLab.Notify.PropertyChanged.NotifyParsers;
 
 namespace HLab.Notify.PropertyChanged
 {
+
     public class TriggerEntryNotifier : ITriggerEntry
     {
-        public TriggerEntryNotifier(IPropertyEntry propertyEntry, TriggerPath path, ExtendedPropertyChangedEventHandler handler)
+        public TriggerEntryNotifier(IPropertyEntry propertyEntry, TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
-            propertyEntry.ExtendedPropertyChanged += handler;
+            
 
-            _onDispose = () => propertyEntry.ExtendedPropertyChanged -= handler;
+            NotifyHelper.EventHandlerService.AddHandler(propertyEntry,handler); //propertyEntry.ExtendedPropertyChanged += handler;
+
+            _onDispose = () =>  NotifyHelper.EventHandlerService.RemoveHandler(propertyEntry,handler); //propertyEntry.ExtendedPropertyChanged -= handler;
 
             if (path != null)
             {

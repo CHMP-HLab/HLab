@@ -9,7 +9,7 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
 {
     public partial class NotifyClassHelper
     {
-        private class PropertyEntry : IPropertyEntry
+        internal class PropertyEntry : IPropertyEntry
         {
             private readonly PropertyInfo _property;
             private object _value;
@@ -43,7 +43,7 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
 
 
 
-            public event ExtendedPropertyChangedEventHandler ExtendedPropertyChanged;
+            public event EventHandler<ExtendedPropertyChangedEventArgs> ExtendedPropertyChanged;
 
             public void TargetPropertyChanged(object sender, PropertyChangedEventArgs args)
             {
@@ -72,7 +72,7 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
                 ExtendedPropertyChanged.Invoke(_target, new ExtendedPropertyChangedEventArgs(Name, oldValue, _value));
             }
 
-            public void Link(ExtendedPropertyChangedEventHandler handler)
+            public void Link(EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {
                 _value = _property.GetValue(_target);
                 if (_value != null)
@@ -81,18 +81,27 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
                 ExtendedPropertyChanged += handler;
             }
 
-            public void Unlink(ExtendedPropertyChangedEventHandler handler)
+            public void Unlink(EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {
                 if (_value != null)
                     handler(this, new ExtendedPropertyChangedEventArgs(Name, _value, null));
 
                 ExtendedPropertyChanged -= handler;
             }
-            public ITriggerEntry GetTrigger(TriggerPath path, ExtendedPropertyChangedEventHandler handler)
+            public ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {
                 return new TriggerEntryNotifier(this, path, handler);
             }
 
+            public void Dispose()
+            {
+                if (ExtendedPropertyChanged == null) return;
+                foreach (var d in ExtendedPropertyChanged.GetInvocationList())
+                {
+                    if (d is EventHandler<ExtendedPropertyChangedEventArgs> h)
+                        Unlink(h);
+                }
+            }
         }
 
     }

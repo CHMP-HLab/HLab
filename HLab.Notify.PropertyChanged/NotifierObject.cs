@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading;
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
+using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {

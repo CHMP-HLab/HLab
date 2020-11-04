@@ -20,15 +20,34 @@ namespace HLab.Notify.PropertyChanged
 
     }
 
+
+
     public class H<TClass> : NotifyHelper
-        where TClass : class, INotifyPropertyChanged
+        where TClass : class, INotifyPropertyChangedWithHelper
     {
-        public delegate void NotifyActivator(TClass target, INotifyClassHelper parser);
+        internal class NotifyActivator
+        {
+            public Action<TClass> Activator { get; }
+            public Action<TClass> Deactivator { get; }
+
+            public NotifyActivator(Action<TClass> activator, Action<TClass> deactivator)
+            {
+                Activator = activator;
+                Deactivator = deactivator;
+            }
+            public static NotifyActivator operator +(NotifyActivator left, NotifyActivator right)
+            {
+                return new NotifyActivator(left.Activator+right.Activator,left.Deactivator + right.Deactivator);
+            }
+        }
 
         internal static readonly Lazy<NotifyActivator> InitializeAction = new Lazy<NotifyActivator>(()=>CreateActivatorA() + CreateActivatorExt());
+
+
         public static void Initialize(TClass target)
         {
-            NotifyClassHelper.GetHelper(target).Initialize<TClass>();
+            target.ClassHelper.Initialize<TClass>();
+            //NotifyClassHelper.GetHelper(target).Initialize<TClass>();
         }
 
         // TRIGGER
@@ -95,19 +114,16 @@ namespace HLab.Notify.PropertyChanged
             public override string ToString() => Name;
         }
 
-        private static bool CheckDependencies(Todo todo, List<string> done, Queue<Todo> todoQueue)
+        private static bool CheckDependencies(Todo todo, ICollection<string> done, Queue<Todo> todoQueue)
         {
             var p = PropertyCache<TClass>.GetByHolder(todo.MemberInfo.Name);
-            foreach (var d in p.Dependencies)
+            if (p.Dependencies
+                .Where(d => !done.Contains(d))
+                .Any(d => todoQueue.Any(i => i.Name == d))
+            )
             {
-                if (!done.Contains(d))
-                {
-                    if (todoQueue.Any(i => i.Name == d))
-                    {
-                        todoQueue.Enqueue(todo);
-                        return false;
-                    }
-                }
+                todoQueue.Enqueue(todo);
+                return false;
             }
             done.Add(p.EventArgs.PropertyName);
             return true;
@@ -115,7 +131,6 @@ namespace HLab.Notify.PropertyChanged
 
         private static NotifyActivator CreateActivatorA()
         {
-            NotifyActivator activator = null;
             var todoList = new Queue<Todo>();
             var done = new List<string>();
 
@@ -131,7 +146,7 @@ namespace HLab.Notify.PropertyChanged
                         todoList.Enqueue(new Todo{MemberInfo = mi,Name = p.EventArgs.PropertyName});
                         break;
                     case PropertyInfo propertyInfo:
-                        if (propertyInfo.CanWrite) continue;
+                        //if (propertyInfo.CanWrite) continue;
                         if (propertyInfo.GetMethod.IsAbstract) continue;
                             
                         if (typeof(IChildObject).IsAssignableFrom(propertyInfo.PropertyType))
@@ -146,6 +161,9 @@ namespace HLab.Notify.PropertyChanged
                 }
             }
 
+            Action<TClass> activator = null;
+            Action<TClass> deactivator = null;
+
 
             while (todoList.TryDequeue(out var todo))
             {
@@ -154,10 +172,14 @@ namespace HLab.Notify.PropertyChanged
                         case FieldInfo fieldInfo:
                             if (!typeof(IChildObject).IsAssignableFrom(fieldInfo.FieldType)) continue;
                             if (!CheckDependencies(todo, done, todoList)) continue;
-                            activator += (t, p) =>
+                            activator += t =>
                             {
                                 var child =(IChildObject)fieldInfo.GetValue(t);
-                                child.SetParent(t,p);
+                                child.SetParent(t);
+                            };
+                            deactivator += t =>
+                            {
+                                ((IChildObject)fieldInfo.GetValue(t)).Dispose();
                             };
                             break;
                         case PropertyInfo propertyInfo:
@@ -166,28 +188,36 @@ namespace HLab.Notify.PropertyChanged
                             if (typeof(IChildObject).IsAssignableFrom(propertyInfo.PropertyType))
                             {
                                 if (!CheckDependencies(todo, done, todoList)) continue;
-                                activator += (t, p) =>
+                                activator += t =>
                                 {
                                     var child = (IChildObject) propertyInfo.GetValue(t);
-                                    child.SetParent(t, p);
+                                    child.SetParent(t);
+                                };
+                                deactivator += t =>
+                                {
+                                    ((IChildObject)propertyInfo.GetValue(t)).Dispose();
                                 };
                             }
                             else if (typeof(ICommand).IsAssignableFrom(propertyInfo.PropertyType))
                             {
                                 if (!CheckDependencies(todo, done, todoList)) continue;
-                                activator += (t, p) =>
+                                activator += t =>
                                 {
                                     if (propertyInfo.GetValue(t) is IChildObject child)
                                     {
-                                        child.SetParent(t, p);
+                                        child.SetParent(t);
                                     }
+                                };
+                                deactivator += t =>
+                                {
+                                    ((IChildObject)propertyInfo.GetValue(t)).Dispose();
                                 };
 
                             }
                             break;
                     }
             }
-            return activator;
+            return new NotifyActivator(activator,deactivator);
         }
 
         private static NotifyActivator CreateActivator()
@@ -263,13 +293,13 @@ namespace HLab.Notify.PropertyChanged
 
             var d = dm.CreateDelegate(typeof(Action<TClass, Action<PropertyChangedEventArgs>>));
 
-            return d as NotifyActivator;
+            return new NotifyActivator((Action<TClass>)d,null);
         }
 
         private static NotifyActivator CreateActivatorExt()
         {
 
-            NotifyActivator activator = null;
+            Action<TClass> activator = null;
 
             foreach (var property in typeof(TClass).GetProperties(
                 BindingFlags.Public | 
@@ -281,16 +311,16 @@ namespace HLab.Notify.PropertyChanged
                 {
                     if (typeof(ITriggerable).IsAssignableFrom(property.PropertyType))
                     {
-                        activator += (o,p) =>
+                        activator += o =>
                         {
-                            p.GetTrigger(attribute.Path, (s, args) => (property.GetValue(o) as ITriggerable)?.OnTriggered());
+                            o.ClassHelper.GetTrigger(attribute.Path, (s, args) => (property.GetValue(o) as ITriggerable)?.OnTriggered());
                         };
                     }
                     else
                     {
-                        activator += (o,p) =>
+                        activator += o =>
                         {
-                            p.GetTrigger(attribute.Path, (s, args) => p.OnPropertyChanged(new PropertyChangedEventArgs(property.Name)));
+                            o.ClassHelper.GetTrigger(attribute.Path, (s, args) => o.ClassHelper.OnPropertyChanged(new PropertyChangedEventArgs(property.Name)));
                         };
                     }
                 }
@@ -300,24 +330,24 @@ namespace HLab.Notify.PropertyChanged
             {
                 foreach (var attribute in method.GetCustomAttributes().OfType<TriggerOnAttribute>())
                 {
-                    activator += (o,p) =>
+                    activator += o =>
                     {
-                        p.GetTrigger(attribute.Path, (s, args) => method.Invoke(o, new object[] { }));
+                        o.ClassHelper.GetTrigger(attribute.Path, (s, args) => method.Invoke(o, new object[] { }));
                     };
                 }
             }
 
 
-            activator += (o,p) =>
+            activator += o =>
             {
-                var l = p./*Linked*/Properties().ToList();
+                var l = o.ClassHelper./*Linked*/Properties().ToList();
                 foreach (var property in l)
                 {
                     property.InitialRegisterValue(typeof(TClass));
                 }
             };
 
-            return activator;
+            return new NotifyActivator(activator,null);
 
         }
     }

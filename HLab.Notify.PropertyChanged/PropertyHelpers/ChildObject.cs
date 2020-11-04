@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using HLab.Notify.PropertyChanged.NotifyParsers;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
@@ -9,44 +10,46 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         //private Action<PropertyChangedEventArgs> _notify;
         private readonly ConfiguratorEntry _configurator;
 
-        protected INotifyClassHelper ClassHelper;
-
         protected ChildObject(ConfiguratorEntry configurator)
         {
             _configurator = configurator;
         }
 
 
-        public object Parent { get; private set; }
+        public INotifyPropertyChangedWithHelper Parent { get; private set; }
 
         public string Name => _configurator.EventArgs.PropertyName;
         internal void OnPropertyChanged()
         {
-            ClassHelper.OnPropertyChanged(_configurator.EventArgs);
+            Parent.ClassHelper.OnPropertyChanged(_configurator.EventArgs);
         }
 
         protected virtual void Configure()
         {
-            _configurator.Configure(Parent,ClassHelper, this);
+            _configurator.Configure(Parent, this);
         }
 
-        public void SetParent(object parent, INotifyClassHelper helper)
+        public void SetParent(INotifyPropertyChangedWithHelper parent)
         {
             Parent = parent;
-            ClassHelper = helper;
             Configure();
         }
 
         public void Update() => _configurator.Update(Parent, this);
+
+        public void Dispose()
+        {
+        }
     }
 
 
-    public abstract class ChildObjectN<T> : ChildObject, INotifyPropertyChanged
+    public abstract class ChildObjectN<T> : ChildObject, INotifyPropertyChangedWithHelper
     where T : ChildObjectN<T>, INotifyPropertyChanged
     {
         protected class H : H<T> { }
         protected ChildObjectN(ConfiguratorEntry configurator):base(configurator)
         {
+            ClassHelper = new NotifyClassHelper(this);
             H.Initialize((T)this);
         }
 
@@ -61,6 +64,8 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         {
             PropertyChanged?.Invoke(this,args);
         }
+
+        public INotifyClassHelper ClassHelper { get; }
     }
 
 }

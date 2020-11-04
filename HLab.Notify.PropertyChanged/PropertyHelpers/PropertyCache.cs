@@ -73,7 +73,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
             #endif
             public PropertyChangedEventArgs EventArgs { get; internal set; }
 
-            public abstract void Configure(object target, INotifyClassHelper parser, object member);
+            public abstract void Configure(INotifyPropertyChangedWithHelper target, object member);
             //public Action<object, INotifyClassParser, object> Action { get; set; }
             public abstract void Update(object target, object member);
 
@@ -88,25 +88,25 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
     /// </summary>
     /// <typeparam name="TClass"></typeparam>
     public static class PropertyCache<TClass>
-        where TClass : class
+        where TClass : class, INotifyPropertyChangedWithHelper
     {
 
         public class ConfiguratorEntry<T> : ConfiguratorEntry
         {
-            public Action<TClass, INotifyClassHelper, T> Action { get; set; }
+            public Action<TClass, T> Action { get; set; }
             public Action<TClass, T> UpdateAction { get; set; }
 
-            public void Configure(TClass target, INotifyClassHelper parser, T member)
+            public void Configure(TClass target, T member)
             {
-                Action?.Invoke(target, parser, member);
+                Action?.Invoke(target, member);
             }
             public void Update(TClass target, T member)
             {
                 UpdateAction?.Invoke(target, member);
             }
 
-            public override void Configure(object target, INotifyClassHelper parser, object member) =>
-                Configure((TClass)target, parser, (T)member);
+            public override void Configure(INotifyPropertyChangedWithHelper target, object member) =>
+                Configure((TClass)target,(T)member);
             public override void Update(object target, object member) =>
                 Update((TClass)target, (T)member);
         }

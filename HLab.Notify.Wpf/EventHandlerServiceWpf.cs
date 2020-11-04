@@ -6,6 +6,8 @@ using System.Windows;
 using System.Windows.Threading;
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
+using HLab.Notify.Annotations;
+using HLab.Notify.PropertyChanged;
 
 namespace HLab.Notify.Wpf
 {
@@ -153,5 +155,16 @@ namespace HLab.Notify.Wpf
         {
             Application.Current.Dispatcher.BeginInvoke(action);
         }
+
+        public void AddHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        {
+            ExtendedPropertyChangedEventEventManager.AddHandler(source,handler);
+        }
+
+        public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        {
+            ExtendedPropertyChangedEventEventManager.RemoveHandler(source,handler);
+        }
+
     }
 }

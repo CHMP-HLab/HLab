@@ -8,14 +8,14 @@ namespace HLab.Notify.PropertyChanged
     {
         public static NotifyConfigurator<TClass, ObservableFilter<T>> AddFilter<TClass, T>(this NotifyConfigurator<TClass, ObservableFilter<T>> c,
             Func<T, bool> expression)
-            where TClass : class, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
         {
             return c
                 .Do((target,filter)=>filter.AddFilter(expression));
         }
         public static NotifyConfigurator<TClass, ObservableFilter<T>> AddFilter<TClass, T>(this NotifyConfigurator<TClass, ObservableFilter<T>> c,
             Func<TClass,T, bool> expression)
-            where TClass : class, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
         {
             return c
                 .Do((target,filter)=>filter.AddFilter(e => expression(target,e)));
@@ -23,7 +23,7 @@ namespace HLab.Notify.PropertyChanged
 
         public static NotifyConfigurator<TClass, TFilter> Link<TClass, TFilter>(this NotifyConfigurator<TClass, TFilter> c,
             Func<TClass,INotifyCollectionChanged> expression)
-            where TClass : class, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where TFilter : IObservableFilter
         {
             return c

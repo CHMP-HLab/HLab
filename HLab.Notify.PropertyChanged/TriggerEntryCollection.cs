@@ -18,7 +18,7 @@ namespace HLab.Notify.PropertyChanged
 
     class TriggerEntryCollection : ITriggerEntry
     {
-        public TriggerEntryCollection(IPropertyEntry propertyEntry, TriggerPath path, ExtendedPropertyChangedEventHandler handler)
+        public TriggerEntryCollection(IPropertyEntry propertyEntry, TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
             //var propertyEntry = classParser.GetPropertyEntry(path.PropertyName);
             propertyEntry.ExtendedPropertyChanged += handler;
@@ -51,13 +51,30 @@ namespace HLab.Notify.PropertyChanged
         private readonly ConcurrentDictionary<object,ITriggerEntry> _next = new ConcurrentDictionary<object, ITriggerEntry>();
         private readonly Action _onDispose;
 
+        private bool _disposed = false;
         public void Dispose()
         {
-            foreach (var triggerEntry in _next.Values)
+            Dispose(true);
+            GC.SuppressFinalize(this);
+        }
+
+        protected virtual void Dispose(bool disposing)
+        {
+            if (_disposed) return;
+
+            // Dispose of managed resources here.
+            if (disposing)
             {
-                triggerEntry.Dispose();
+                foreach (var triggerEntry in _next.Values)
+                {
+                    triggerEntry.Dispose();
+                }
+                _onDispose?.Invoke();
             }
-            _onDispose?.Invoke();
+
+            // Dispose of any unmanaged resources not wrapped in safe handles.
+
+            _disposed = true;
         }
     }
 }

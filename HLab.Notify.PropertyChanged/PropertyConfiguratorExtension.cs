@@ -20,7 +20,7 @@ namespace HLab.Notify.PropertyChanged
         /// <returns></returns>
         public static NotifyConfigurator<TClass, TMember> 
             Set<TClass, TMember, T>(this NotifyConfigurator<TClass, TMember> c, Func<TClass, T> setter)
-            where TClass : class//, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where TMember : PropertyHolder<T>
         {
             if (c.CurrentTrigger.TriggerOnList.Count == 0)
@@ -35,7 +35,7 @@ namespace HLab.Notify.PropertyChanged
 
         public static NotifyConfigurator<TClass, TMember> 
             Set<TClass, TMember, T>(this NotifyConfigurator<TClass, TMember> c, Func<TClass, Task<T>> setter)
-            where TClass : class//, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where TMember : PropertyHolder<T>
         {
 
@@ -66,7 +66,7 @@ namespace HLab.Notify.PropertyChanged
         /// <returns></returns>
         public static NotifyConfigurator<TClass, TMember> 
             Set<TClass, TMember,T>(this NotifyConfigurator<TClass, TMember> c, Action<TClass, T> action)
-            where TClass : class, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where TMember : PropertyHolder<T>
         {
             return c.Do((target, property) => action(target, property.Get()));
@@ -83,7 +83,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, TMember> 
             Trig<TClass,TMember,T>(this NotifyConfigurator<TClass, TMember> c)
             where T : ITriggerable
-            where TClass : class, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where TMember : PropertyHolder<T>
         {
             return c.Do((target, property) => property.Get().OnTriggered());
@@ -100,7 +100,7 @@ namespace HLab.Notify.PropertyChanged
         /// <returns></returns>
         public static NotifyConfigurator<TClass, TMember> 
             Default<TClass, TMember, T>(this NotifyConfigurator<TClass, TMember> c, T @default)
-            where TClass : class//, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where TMember : PropertyHolder<T>
         {
             return c.Set(target => @default);
@@ -117,7 +117,7 @@ namespace HLab.Notify.PropertyChanged
         /// <returns></returns>
         public static NotifyConfigurator<TClass, TMember> 
             OneWayBind<TClass, TMember,T>(this NotifyConfigurator<TClass, TMember> c, Expression<Func<TClass, T>> expr)
-            where TClass : class, INotifyPropertyChanged
+            where TClass : class, INotifyPropertyChangedWithHelper
             where TMember : PropertyHolder<T>
         {
             return c.Set(expr.Compile()).AddTriggerExpression(expr).Update();

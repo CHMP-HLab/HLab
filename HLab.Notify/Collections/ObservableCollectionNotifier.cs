@@ -30,6 +30,7 @@ using System.Diagnostics;
 
 using HLab.Base;
 using HLab.DependencyInjection.Annotations;
+using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using Nito.AsyncEx;
 

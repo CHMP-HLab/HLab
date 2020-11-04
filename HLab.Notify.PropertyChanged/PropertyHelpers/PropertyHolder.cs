@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using HLab.Notify.PropertyChanged.NotifyParsers;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
@@ -23,12 +24,13 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         new T  Value{ get; set; }
     }
 
-    public class PropertyHolderN<TClass, T> : PropertyHolder<T>, IPropertyHolderN<T>, INotifyPropertyChanged
+    public class PropertyHolderN<TClass, T> : PropertyHolder<T>, IPropertyHolderN<T>, INotifyPropertyChangedWithHelper
         where TClass : NotifierBase
     {
         class H : H<PropertyHolderN<TClass, T>> { }
         public PropertyHolderN(ConfiguratorEntry configurator = null) : base(configurator)
         {
+            ClassHelper = new NotifyClassHelper(this);
         }
 
 
@@ -51,6 +53,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         public event PropertyChangedEventHandler PropertyChanged;
 
 
+        public INotifyClassHelper ClassHelper { get; }
     }
     //public class PropertyHolder<TClass, T> : PropertyHolder<T>
     //    where TClass : class
@@ -82,16 +85,21 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T Get() => PropertyValue.Get();
+        public T Get()
+        {
+            // Todo : necessary for overloaded
+            if (PropertyValue == null) return default;
+            return PropertyValue.Get();
+        }
 
 #if DEBUG
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public T Get([CallerMemberName] string name = null)
         {
             if (name != null && name != "SetOneToMany" && name != "Set")
                 Debug.Assert(name == this.Name);
 
-            if (PropertyValue == null) return default;//throw new Exception("Triggers not registered");
+            if (PropertyValue == null) return default;
+            //throw new Exception("Triggers not registered");
 
             return PropertyValue.Get();
         }

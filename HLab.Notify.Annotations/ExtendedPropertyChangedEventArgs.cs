@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.Annotations
 {
     public class ExtendedPropertyChangedEventArgs : PropertyChangedEventArgs
     {

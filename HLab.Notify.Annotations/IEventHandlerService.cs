@@ -3,8 +3,11 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
 
-namespace HLab.Base
+namespace HLab.Notify.Annotations
 {
+
+
+
     public interface IEventHandlerService
     {
         void Invoke(PropertyChangedEventHandler eventHandler, object source, PropertyChangedEventArgs args);
@@ -12,6 +15,11 @@ namespace HLab.Base
         void Invoke(EventHandler eventHandler, object source, EventArgs args);
         Task InvokeAsync(Func<Task> action);
         void Invoke(Action action);
+
+        public void AddHandler(IPropertyEntry source,
+            EventHandler<ExtendedPropertyChangedEventArgs> handler);
+        public void RemoveHandler(IPropertyEntry source,
+            EventHandler<ExtendedPropertyChangedEventArgs> handler);
     }
 
     public class EventHandlerService : IEventHandlerService
@@ -39,5 +47,13 @@ namespace HLab.Base
         {
             action();
         }
+
+        public void AddHandler(IPropertyEntry source,
+            EventHandler<ExtendedPropertyChangedEventArgs> handler)
+            => source.ExtendedPropertyChanged += handler;
+
+        public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+            => source.ExtendedPropertyChanged -= handler;
+
     }
 }
