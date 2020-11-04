@@ -6,6 +6,7 @@
     <Platforms>AnyCPU;x64;x86</Platforms>
     <Version>2.0.0.2-dev0393</Version>
     <RootNamespace>HLab.DependencyInjection.Annotations</RootNamespace>
+    <Configurations>Debug;Release;ReleaseDebug</Configurations>
   </PropertyGroup>
 
 </Project>

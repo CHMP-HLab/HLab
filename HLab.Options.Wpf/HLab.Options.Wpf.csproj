@@ -4,6 +4,7 @@
 		<TargetFramework>net5.0-windows</TargetFramework>
 		<UseWPF>true</UseWPF>
 		<Platforms>AnyCPU;x64</Platforms>
+		<Configurations>Debug;Release;ReleaseDebug</Configurations>
 	</PropertyGroup>
 
 	<ItemGroup>

@@ -5,6 +5,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <Version>2.0.0.2-dev0343</Version>
+    <Configurations>Debug;Release;ReleaseDebug</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

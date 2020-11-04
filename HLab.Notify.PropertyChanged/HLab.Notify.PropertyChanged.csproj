@@ -6,6 +6,7 @@
     <LangVersion>8.0</LangVersion>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <Version>2.0.0.2-dev0510</Version>
+    <Configurations>Debug;Release;ReleaseDebug</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

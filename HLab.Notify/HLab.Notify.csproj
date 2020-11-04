@@ -7,6 +7,7 @@
     <Platforms>AnyCPU;x64;x86</Platforms>
     <LangVersion>latest</LangVersion>
     <Version>2.0.0.2-dev0248</Version>
+    <Configurations>Debug;Release;ReleaseDebug</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,7 +21,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0-preview.8.20407.11" />
+    <PackageReference Include="System.ComponentModel.Annotations" Version="5.0.0-rc.2.20475.5" />
   </ItemGroup>
 
 </Project>

@@ -11,6 +11,7 @@
     <Deterministic>false</Deterministic>
     <AssemblyVersion>2.0.0.3</AssemblyVersion>
     <Version>2.0.0.3-dev0001</Version>
+    <Configurations>Debug;Release;ReleaseDebug</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
