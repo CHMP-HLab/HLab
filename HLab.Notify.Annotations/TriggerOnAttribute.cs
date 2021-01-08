@@ -35,7 +35,7 @@ namespace HLab.Notify.Annotations
 
         public TriggerOnAttribute(params string[] path)
         {
-            Path = new TriggerPath(path);
+            Path = TriggerPath.Factory(path);
         }
 
         public TriggerPath Path { get; }

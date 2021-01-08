@@ -1,56 +1,52 @@
 ﻿using HLab.Notify.Annotations;
 using System;
-using System.ComponentModel;
-using System.Diagnostics.Tracing;
-using HLab.Notify.PropertyChanged.NotifyParsers;
+using System.Diagnostics;
+
 
 namespace HLab.Notify.PropertyChanged
 {
 
     public class TriggerEntryNotifier : ITriggerEntry
     {
-        public TriggerEntryNotifier(IPropertyEntry propertyEntry, TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        protected readonly IPropertyEntry PropertyEntry;
+        protected readonly WeakReference<EventHandler<ExtendedPropertyChangedEventArgs>> Handler;
+
+        #if DEBUG
+        private readonly string _targetName;
+        #endif
+
+        public TriggerEntryNotifier(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
-            
+            #if DEBUG
+                _targetName = handler.Target.ToString();
+            #endif
 
-            NotifyHelper.EventHandlerService.AddHandler(propertyEntry,handler); //propertyEntry.ExtendedPropertyChanged += handler;
-
-            _onDispose = () =>  NotifyHelper.EventHandlerService.RemoveHandler(propertyEntry,handler); //propertyEntry.ExtendedPropertyChanged -= handler;
-
-            if (path != null)
+            PropertyEntry = propertyEntry;
+            if(handler!=null)
             {
-                propertyEntry.Link(NextHandler);
-                _onDispose = () => propertyEntry.Unlink(NextHandler);
-
-                void NextHandler(object sender, PropertyChangedEventArgs arg)
-                {
-                    if (arg is ExtendedPropertyChangedEventArgs a)
-                    {
-                        _next?.Dispose();
-
-                        if (a.NewValue == null)
-                        {
-                            _next = null;
-                        }
-                        else
-                        {
-                            var nextParser = NotifyClassHelper.GetHelper(a.NewValue);
-                            _next = nextParser.GetTrigger(path, handler);
-                        }
-
-                    }
-                }
+                Handler = new(handler);
+                propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
             }
         }
 
-        private ITriggerEntry _next;
-        private readonly Action _onDispose;
-
-        public void Dispose()
+        private void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
         {
-            _next?.Dispose();
-            _onDispose?.Invoke();
+            if(Handler.TryGetTarget(out var handler))
+            {
+                handler.Invoke(sender,e);
+            }
+            else
+            {}
         }
 
+        public virtual void Dispose()
+        {
+            PropertyEntry.ExtendedPropertyChanged -= OnPropertyChanged;
+        }
+
+        public override string ToString()
+        {
+            return $"{PropertyEntry.Name}";
+        }
     }
 }

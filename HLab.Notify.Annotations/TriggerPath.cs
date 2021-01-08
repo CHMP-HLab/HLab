@@ -1,19 +1,111 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Text;
 
 namespace HLab.Notify.Annotations
 {
-    public class TriggerPath
+    public interface INotifyPropertyChangedWithHelper : INotifyPropertyChanged
     {
-        public TriggerPath(TriggerPath next, string propertyName)
+        INotifyClassHelper ClassHelper { get; }
+    }
+
+    
+    
+    public interface INotifyClassHelper //: IDisposable
+    {
+        IPropertyEntry GetPropertyEntry(string name);
+        //ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
+        IEnumerable<IPropertyEntry> LinkedProperties();
+        IEnumerable<IPropertyEntry> Properties();
+        void Initialize<T>() where T : class, INotifyPropertyChangedWithHelper;
+        void AddHandler(PropertyChangedEventHandler value);
+        void RemoveHandler(PropertyChangedEventHandler value);
+        void OnPropertyChanged(PropertyChangedEventArgs args);
+    }
+
+    public class TriggerPathNext : TriggerPath
+    {
+
+        internal TriggerPathNext(TriggerPath next, string propertyName) : base(propertyName)
         {
             Next = next;
+        }
+
+        
+        public override ITriggerEntry GetTriggerB(INotifyClassHelper helper, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        {
+            return helper.GetPropertyEntry(PropertyName).GetTrigger(Next, handler);
+        }
+
+
+
+        public override TriggerPath Next { get; }
+
+        public override string ToString()
+        {
+            var sb = new StringBuilder(PropertyName);
+            var next = Next;
+            while (next != null)
+            {
+                sb.Append('.');
+                sb.Append(next.PropertyName);
+                next = next.Next;
+            }
+            return sb.ToString();
+        }
+    }
+
+    public class TriggerPath
+    {
+
+        internal TriggerPath(string propertyName)
+        {
             PropertyName = propertyName;
         }
 
-        public TriggerPath(Expression path)
+        public virtual TriggerPath Next => null;
+
+
+        public virtual ITriggerEntry GetTriggerB(INotifyClassHelper helper, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        {
+            return helper.GetPropertyEntry(PropertyName).GetTrigger(handler);
+        }
+
+
+        public string PropertyName { get; }
+
+        public override string ToString()
+        {
+            return PropertyName;
+        }
+        private static TriggerPath Factory(TriggerPath next, string propertyName)
+        {
+            return (next == null) ? new TriggerPath(propertyName) : new TriggerPathNext(next, propertyName);
+        }
+
+        public static TriggerPath  Factory(params string[] path)
+        {
+            var stack = new Stack<string>();
+            foreach (var subPath in path)
+            {
+                var sub = subPath.Split('.');
+                foreach (var propertyName in sub)
+                {
+                    stack.Push(propertyName);
+                }
+            }
+
+            TriggerPath triggerPath = null;
+
+            while (stack.Count > 0)
+                triggerPath = Factory(triggerPath, stack.Pop());
+
+            return triggerPath ?? Factory(triggerPath, "");
+        }
+
+        public static TriggerPath Factory(Expression path)
         {
             var body = (path as LambdaExpression)?.Body ;
             if (body?.NodeType == ExpressionType.Convert)
@@ -43,51 +135,18 @@ namespace HLab.Notify.Annotations
                 if (e.NodeType == ExpressionType.Parameter)
                 {
                     e = null;
-                    Next = triggerPath;
-                    PropertyName = name;
+                    triggerPath = Factory(triggerPath, name);
                 }
                 else
                 {
-                    triggerPath = new TriggerPath(triggerPath, name);
-                }
-            }
-        }
-
-        public TriggerPath(params string[] path)
-        {
-            var stack = new Stack<string>();
-            foreach (var subPath in path)
-            {
-                var sub = subPath.Split('.');
-                foreach (var propertyName in sub)
-                {
-                    stack.Push(propertyName);
+                    triggerPath = Factory(triggerPath, name);
                 }
             }
 
-            TriggerPath triggerPath = null;
-
-            while (stack.Count > 1)
-                triggerPath = new TriggerPath(triggerPath, stack.Pop());
-
-            Next = triggerPath;
-            PropertyName = (stack.Count > 0)?stack.Pop():"";
+            return triggerPath;
         }
 
-        public TriggerPath Next { get; }
-        public string PropertyName { get; }
 
-        public override string ToString()
-        {
-            var sb = new StringBuilder(PropertyName);
-            var next = Next;
-            while (next != null)
-            {
-                sb.Append('.');
-                sb.Append(next.PropertyName);
-                next = next.Next;
-            }
-            return sb.ToString();
-        }
     }
+
 }
