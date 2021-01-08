@@ -6,7 +6,7 @@ namespace HLab.DependencyInjection.Activators
 {
     public class ConstructorActivator : IActivator
     {
-        public DependencyInjector GetActivator(Func<IActivatorTree, DependencyLocator> getLocator, IActivatorTree tree)
+        public DependencyInjector GetActivator(Func<IActivatorTree, DependencyLocator> getLocatorFunc, IActivatorTree tree)
         {
             if (tree.Context.TargetMemberInfo is ConstructorInfo ci)
             {
@@ -14,15 +14,10 @@ namespace HLab.DependencyInjection.Activators
                 var i = 0;
                 foreach (var parameterInfo in ci.GetParameters())
                 {
-                    if (parameterInfo.ParameterType.Name.Contains("IEnumerable"))
-                    {
-
-                    }
-
                     var ctx = tree.Context = tree.Context.Get(parameterInfo.ParameterType);
-                    var activator = getLocator(tree);
+                    var locator = getLocatorFunc(tree);
                     var pos = i;
-                    setParameters += (c, a, o) => o[pos] = activator(c.Get(o, ctx), a);
+                    setParameters += (c, a, o) => o[pos] = locator(c.Get(o, ctx), a);
                     i++;
                 }
 

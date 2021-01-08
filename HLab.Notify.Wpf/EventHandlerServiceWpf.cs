@@ -156,15 +156,30 @@ namespace HLab.Notify.Wpf
             Application.Current.Dispatcher.BeginInvoke(action);
         }
 
-        public void AddHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler)
-        {
-            ExtendedPropertyChangedEventEventManager.AddHandler(source,handler);
-        }
+#if true
+       public void AddHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler) => ExtendedPropertyChangedEventEventManager.AddHandler(source,handler);
+
+        public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler) => ExtendedPropertyChangedEventEventManager.RemoveHandler(source,handler);
+        #else
+         public void AddHandler(IPropertyEntry source,
+            EventHandler<ExtendedPropertyChangedEventArgs> handler)
+            => source.ExtendedPropertyChanged += handler;
 
         public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler)
-        {
-            ExtendedPropertyChangedEventEventManager.RemoveHandler(source,handler);
-        }
+            => source.ExtendedPropertyChanged -= handler;
+#endif
 
+        public void AddHandler(INotifyPropertyChanged source, EventHandler<PropertyChangedEventArgs> handler,string propertyName) => PropertyChangedEventManager.AddHandler(source, handler,propertyName);
+
+        public void RemoveHandler(INotifyPropertyChanged source, EventHandler<PropertyChangedEventArgs> handler,string propertyName) => PropertyChangedEventManager.RemoveHandler(source,handler,propertyName);
+
+        public void AddHandler(INotifyCollectionChanged source, EventHandler<NotifyCollectionChangedEventArgs> handler) => CollectionChangedEventManager.AddHandler(source,handler);
+
+        public void RemoveHandler(INotifyCollectionChanged source, EventHandler<NotifyCollectionChangedEventArgs> handler) => CollectionChangedEventManager.RemoveHandler(source,handler);
+
+        public void AddHandler<TSource,TArgs>(TSource source, string name, EventHandler<TArgs> handler) where TArgs : EventArgs
+            => WeakEventManager<TSource,TArgs>.AddHandler(source,name,handler);
+        public void RemoveHandler<TSource,TArgs>(TSource source, string name, EventHandler<TArgs> handler) where TArgs : EventArgs
+            => WeakEventManager<TSource,TArgs>.RemoveHandler(source,name,handler);
     }
 }

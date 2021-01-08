@@ -3,7 +3,7 @@ using System.ComponentModel;
 
 namespace HLab.Notify.Annotations
 {
-    public interface IPropertyEntry : IDisposable//: INotifyPropertyChanged
+    public interface IPropertyEntry// : IDisposable: INotifyPropertyChanged
     {
         event EventHandler<ExtendedPropertyChangedEventArgs> ExtendedPropertyChanged;
 
@@ -12,6 +12,7 @@ namespace HLab.Notify.Annotations
 
         void TargetPropertyChanged(object sender, PropertyChangedEventArgs args);
 
+        ITriggerEntry GetTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler);
         ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
 
         bool Linked { get; }

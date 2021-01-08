@@ -31,6 +31,8 @@ namespace HLab.Mvvm
 {
     using H = H<ViewModel>;
 
+    public interface IModel {}
+
     public abstract class ViewModel : NotifierBase, IViewModel
     {
         protected ViewModel() => H.Initialize(this);

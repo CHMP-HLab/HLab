@@ -212,12 +212,6 @@ namespace HLab.DependencyInjection
         {
             var importType = tree.Context.ImportType;
 
-            //import container scope
-            //if (importType == typeof(IExportLocatorScope))
-            //{
-            //    return (o,a) => this;
-            //}
-
             if (importType.IsGenericType)
             {
                 var g = importType.GetGenericTypeDefinition();

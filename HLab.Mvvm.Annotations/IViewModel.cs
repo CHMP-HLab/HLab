@@ -17,6 +17,6 @@ namespace HLab.Mvvm.Annotations
 
     public interface IViewModel<T> : IViewModel, IMvvmLinked<T>
     {
-        new T Model { get; set; }
+         new T Model { get; set; }
     }
 }

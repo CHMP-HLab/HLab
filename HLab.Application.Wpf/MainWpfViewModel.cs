@@ -6,6 +6,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
+using HLab.Erp.Acl;
 using HLab.Erp.Core;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
@@ -18,13 +19,14 @@ namespace HLab.Mvvm.Application.Wpf
     public class MainWpfViewModel : NotifierBase
     {
 
-        public MainWpfViewModel()
+        [Import] public MainWpfViewModel(IAclService acl)
         {
+            Acl = acl;
             H.Initialize(this);
         }
 
-        //[Import] TODO 
-        //public IAclService Acl {get; }
+       
+        public IAclService Acl {get; }
 
         //[Import] TODO
         //private readonly IDragDropService _dragDrop;
@@ -32,12 +34,13 @@ namespace HLab.Mvvm.Application.Wpf
         private readonly IMessageBus _message;
 
         [Import(InjectLocation.AfterConstructor)]
-        public void SetDoc(IDocumentService _docs)
+        public void SetDoc(IDocumentService doc)
         {
-            _docs.MainViewModel = this;
+            doc.MainViewModel = this;
+            _doc = doc;
         }
 
-        private readonly IDocumentService _doc;
+        private IDocumentService _doc;
 
         [Import]
         private readonly IApplicationInfoService _info;
@@ -117,10 +120,9 @@ namespace HLab.Mvvm.Application.Wpf
             .Action(e => System.Windows.Application.Current.Shutdown())
         );
 
-        // TODO
-        //public ICommand OpenUserCommand  { get; } = H.Command(c => c
-        //    .Action(e => e._doc.OpenDocumentAsync(e.Acl.Connection.User))
-        //);
+        public ICommand OpenUserCommand { get; } = H.Command(c => c
+           .Action(e => e._doc.OpenDocumentAsync(e.Acl.Connection.User))
+        );
 
 
     }

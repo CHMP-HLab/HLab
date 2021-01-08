@@ -124,13 +124,16 @@ namespace HLab.DependencyInjection
 
             Locator = (tree) =>
             {
-                var type = ExportType(tree);
+                var type = ExportType(tree); 
 
-                tree.Key = new ActivatorKey(type, null);
 
                 var singleton = (Scope as DependencyInjectionContainer).Singletons.GetOrAdd(type,
-                    t => locator(tree)(
-                        RuntimeImportContext.GetStatic(null, tree.Context.ImportType), null));
+                    t =>
+                    {
+                        tree.Key = new ActivatorKey(type, null);
+                        return locator(tree)(
+                            RuntimeImportContext.GetStatic(null, tree.Context.ImportType), null);
+                    });
 
                 return (ric, a) => singleton;
 

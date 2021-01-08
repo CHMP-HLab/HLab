@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Windows.Controls;
+using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using HLab.Notify.PropertyChanged.NotifyParsers;
 

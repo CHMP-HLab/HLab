@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using HLab.Base;
 using HLab.Core;
 using HLab.DependencyInjection.Annotations;
+using HLab.Notify.Annotations;
 
 namespace HLab.Network
 {
