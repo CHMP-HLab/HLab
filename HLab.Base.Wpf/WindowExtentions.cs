@@ -30,9 +30,28 @@ namespace HLab.Base.Wpf
 {
     public static class WindowExtensions
     {
-        public static void EnableBlur(this Window win)
+        public static void EnableBlur(this Window window)
         {
-            var windowHelper = new WindowInteropHelper(win);
+            new BlurHelper(window);
+        }
+    }
+
+    internal class BlurHelper
+    {
+        private readonly Window _window;
+
+        public BlurHelper(Window window)
+        {
+            _window = window;
+            if(_window.IsLoaded)
+                _window_Loaded(null,null);
+            _window.Loaded += _window_Loaded;
+        }
+
+
+        private void _window_Loaded(object sender, RoutedEventArgs e)
+        {
+            var windowHelper = new WindowInteropHelper(_window);
 
             var accent = new NativeMethods.AccentPolicy();
             var accentStructSize = Marshal.SizeOf(accent);
