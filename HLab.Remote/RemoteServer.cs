@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.IO.Pipes;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace HLab.Remote
 {
@@ -21,45 +22,77 @@ namespace HLab.Remote
     {
         public void Run()
         {
-            _running = true;
-            _runningThread = new Thread(ServerLoop);
-            _runningThread.Start();
+            _task = ServerLoopAsync();
         }
 
         public void Stop()
         {
             _running = false;
-            _terminateHandle.WaitOne();
+            _token?.Cancel();
+            _task.Wait(1000);
         }
 
-        private bool _running;
-        private Thread _runningThread;
-        private readonly EventWaitHandle _terminateHandle = new EventWaitHandle(false, EventResetMode.AutoReset);
+        private Task _task;
         protected string PipeName;
 
         public event EventHandler<RemoteEventArgs> GotMessage;
 
-        private void OnGotMessage(RemoteEventArgs args)
+        private async Task OnGotMessageAsync(RemoteEventArgs args)
         {
-            
-            GotMessage?.Invoke(this, args) ;
+            await Task.Run(()=>GotMessage?.Invoke(this, args)) ;
         }
-        private string OnGotMessage(string message)
+
+        private async Task<string> OnGotMessageAsync(string message)
         {
             var arg = new RemoteEventArgs(message);
-            OnGotMessage(arg);
+            await OnGotMessageAsync(arg);
             return arg.Result;
         }
 
-        private void ServerLoop()
+
+        private CancellationTokenSource _token = null;
+        private volatile bool _running = false;
+
+        private async Task ServerLoopAsync()
         {
+            _token = new CancellationTokenSource();
+            _running = true;
             while (_running)
             {
-                var client = new Client(this);
-                client.Start();
-            }
+                try
+                {
+                    var server = new NamedPipeServerStream(
+                        PipeName, 
+                        PipeDirection.InOut, 
+                        NamedPipeServerStream.MaxAllowedServerInstances,
+                        PipeTransmissionMode.Message,
+                        PipeOptions.None
+                    );
 
-            _terminateHandle.Set();
+
+                    await server.WaitForConnectionAsync(_token.Token);
+
+                    if (server.IsConnected)
+                    {
+                        var msg = await server.ReadMessageAsync();
+                        Debug.WriteLine($"got message : {msg}");
+
+                        var response =await OnGotMessageAsync(msg);
+
+                        await server.WriteMessageAsync(response);
+                        Debug.WriteLine($"{msg} -> {response}");
+
+                        server.Disconnect();
+
+                        Debug.WriteLine($"{msg} Disconnected.");
+                    }
+                }
+                catch (Exception e)
+                {
+                    Debug.Write(e);
+                    //If there are no more avail connections (254 is in use already) then just keep looping until one is avail
+                }
+            }
         }
 
 
@@ -70,47 +103,17 @@ namespace HLab.Remote
 
         private class Client
         {
+            //private readonly CancellationToken _token = new CancellationToken();
+            public void Abort()
+            {
+            }
+
             public Client(RemoteServer server)
             {
                 _server = server;
             }
 
-            public void Start()
-            {
-                try
-                {
-                    var server = new NamedPipeServerStream(
-                        _server.PipeName, 
-                        PipeDirection.InOut, 
-                        NamedPipeServerStream.MaxAllowedServerInstances,
-                        PipeTransmissionMode.Message,
-                        PipeOptions.None
-                        );
 
-                    server.WaitForConnection();
-                    if (!server.IsConnected) return;
-
-                    var msg = server.ReadMessage();
-
-                    Debug.WriteLine($"got message : {msg}");
-
-                    var response = ProcessMessage(msg);
-
-                    server.WriteMessage(response);
-                    
-                    Debug.WriteLine($"{msg} -> {response}");
-
-                    server.Disconnect();
-                    Debug.WriteLine($"{msg} Disconnected.");
-                }
-                catch (Exception e)
-                {
-                    Debug.Write(e);
-                    //If there are no more avail connections (254 is in use already) then just keep looping until one is avail
-                }
-            }
-
-            private string ProcessMessage(string message) => _server.OnGotMessage(message);
 
             private readonly RemoteServer _server;
             private bool _disposed = false;
