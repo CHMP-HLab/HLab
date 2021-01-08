@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
 	  <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <RootNamespace>HLab.Mvvm</RootNamespace>
     <Platforms>AnyCPU;x64;x86</Platforms>
-    <Configurations>Debug;Release;ReleaseDebug</Configurations>
+    <Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
   </PropertyGroup>
 
   <ItemGroup>

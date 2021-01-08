@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.1</TargetFramework>
+    <TargetFramework>net5.0</TargetFramework>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <LangVersion>latest</LangVersion>
     <ApplicationIcon />
@@ -11,7 +11,7 @@
     <Deterministic>false</Deterministic>
     <AssemblyVersion>2.0.0.3</AssemblyVersion>
     <Version>2.0.0.3-dev0001</Version>
-    <Configurations>Debug;Release;ReleaseDebug</Configurations>
+    <Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
