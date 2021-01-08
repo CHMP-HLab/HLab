@@ -1,44 +1,56 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged.NotifyParsers;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
     public abstract class ChildObject : IChildObject
     {
-        //private Action<PropertyChangedEventArgs> _notify;
-        private readonly ConfiguratorEntry _configurator;
+        private readonly PropertyActivator _activator;
+        private readonly List<WeakReference<Action>> _onDispose = new();
 
-        protected ChildObject(ConfiguratorEntry configurator)
+        protected ChildObject(PropertyActivator activator)
         {
-            _configurator = configurator;
+            _activator = activator;
         }
 
-
-        public INotifyPropertyChangedWithHelper Parent { get; private set; }
-
-        public string Name => _configurator.EventArgs.PropertyName;
-        internal void OnPropertyChanged()
+        ~ChildObject()
         {
-            Parent.ClassHelper.OnPropertyChanged(_configurator.EventArgs);
+            foreach (var onDisposeWeak in _onDispose)
+            {
+                if (onDisposeWeak.TryGetTarget(out var onDispose))
+                {
+                    onDispose();
+                }
+            }
         }
 
-        protected virtual void Configure()
+        private INotifyPropertyChangedWithHelper _parent;
+        public INotifyPropertyChangedWithHelper Parent { 
+            get => _parent; 
+            set {
+                _parent = value;
+                Activate();
+               }
+            }
+
+        public string Name => _activator.PropertyName;
+        internal void OnPropertyChanged<T>(T oldValue, T newValue)
         {
-            _configurator.Configure(Parent, this);
+            var args = new ExtendedPropertyChangedEventArgs(_activator.PropertyName,oldValue,newValue);
+            Parent.ClassHelper.OnPropertyChanged(args);
         }
 
-        public void SetParent(INotifyPropertyChangedWithHelper parent)
-        {
-            Parent = parent;
-            Configure();
-        }
+        protected virtual void Activate() => _activator.Activate(Parent, this);
 
-        public void Update() => _configurator.Update(Parent, this);
+        public void Update() => _activator.Update(this);
 
-        public void Dispose()
+        public void OnDispose(Action action)
         {
+            _onDispose.Add(new(action));
         }
     }
 
@@ -47,7 +59,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
     where T : ChildObjectN<T>, INotifyPropertyChanged
     {
         protected class H : H<T> { }
-        protected ChildObjectN(ConfiguratorEntry configurator):base(configurator)
+        protected ChildObjectN(PropertyActivator configurator):base(configurator)
         {
             ClassHelper = new NotifyClassHelper(this);
             H.Initialize((T)this);

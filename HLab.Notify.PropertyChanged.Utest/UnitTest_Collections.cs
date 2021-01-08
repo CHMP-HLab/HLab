@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel;
 using System.Linq;
+using System.Threading;
 using HLab.Notify.PropertyChanged.UTest.Classes;
 using Xunit;
 
@@ -78,10 +79,14 @@ namespace HLab.Notify.PropertyChanged.UTest
         {
             var c = new ClassWithCollectionWithChild();
 
-            c.Children.Add(new ClassWithChild{Child = new ClassWithProperty{Value = 23}});
-            c.Children.Add(new ClassWithChild { Child = new ClassWithProperty { Value = 19 } });
-
-            Assert.Equal(42,c.Sum);
+            var sum = 0;
+            for (var i = 1; i < 10; i++)
+            {
+                c.Children.Add(new ClassWithChild{Child = new ClassWithProperty{Value = i}});
+                sum += i;
+                //GC.Collect();
+                Assert.Equal(sum,c.Sum);
+            }
         }
     }
 }

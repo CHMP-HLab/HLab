@@ -27,7 +27,10 @@ namespace HLab.Notify.PropertyChanged
             {
                 var action = c.GetDoWhenAction((target, property) => property.PropertyValue.Set(setter(target)));
                 c.Init(action);
-                return c.On().Do((target, property) => property.SetProperty(new PropertyValueLazy<T>(property, o => setter((TClass)o))));
+                return c.On().Do((target, property) =>
+                {
+                    property.SetProperty(new PropertyValueLazy<T>(property, o => setter((TClass) o)));
+                });
             }
 
             return c.Do((target, property) => property.PropertyValue.Set(setter(target)));

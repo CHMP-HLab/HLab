@@ -10,36 +10,59 @@ namespace HLab.Notify.PropertyChanged
     public class NotifyConfigurator { }
 
     public delegate NotifyConfigurator<TClass, T> NotifyConfiguratorFactory<TClass, T>(NotifyConfigurator<TClass, T> c)
-        where TClass : class, INotifyPropertyChangedWithHelper;
+        where TClass : class, INotifyPropertyChangedWithHelper
+        where T : class,IChildObject
+        ;
 
 
-
+    public abstract class PropertyActivator
+    {
+        public  string PropertyName { get; internal set; }
+        public List<string> DependsOn { get; } = new();
+        public abstract void Activate(INotifyPropertyChangedWithHelper parent,IChildObject child);
+        public abstract void Update(IChildObject child);
+    }
+    public abstract class PropertyActivator<T> : PropertyActivator
+    {
+        public abstract void Activate(INotifyPropertyChangedWithHelper parent,T child);
+        public abstract void Update(T child);
+    }
 
     public class NotifyConfigurator<TClass, T> : NotifyConfigurator
         where TClass : class, INotifyPropertyChangedWithHelper
+        where T : class, IChildObject
     {
-        internal readonly List<TriggerEntry> Triggers = new List<TriggerEntry>();
-        internal TriggerEntry CurrentTrigger = new TriggerEntry();
+        internal readonly List<TriggerEntry> Triggers = new();
+        internal TriggerEntry CurrentTrigger = new();
 
         internal class TriggerEntry
         {
-            public List<Func<TClass,bool>> WhenList { get; } = new List<Func<TClass, bool>>();
-            public List<TriggerPath> TriggerOnList { get; } = new List<TriggerPath>();
+            public List<Func<TClass,bool>> WhenList { get; } = new();
+            public List<TriggerPath> TriggerOnList { get; } = new();
             public Action<TClass, T> Action { get; set; }
         }
 
-        public class Activator
+        public class Activator : PropertyActivator
         {
-            public Action<TClass, T> Action { get; internal set; } = null;
-            public  List<string> DependsOn { get; } = new List<string>();
-            public  string PropertyName { get; internal set; }
-            public Action<TClass, T> UpdateAction { get; internal set; }
+            private static Action<TClass, T> _defaultAction = (parent,child)=>{}; 
+            internal Action<TClass, T> Action { get; set; } = _defaultAction;
+            internal Action<TClass, T> UpdateAction { get;  set; } = _defaultAction;
+
+            internal List<object> Triggers = new();
+
+
+            public override void Activate(INotifyPropertyChangedWithHelper parent, IChildObject child)
+            {
+                Action((TClass)parent,(T)child);
+            }
+
+            public override void Update(IChildObject child)
+            {
+                UpdateAction((TClass)child.Parent,(T)child);
+            }
         }
 
-        private Activator _activator = new Activator();
-
-        public NotifyConfigurator(){}
-
+        private Activator _activator = new();
 
         public NotifyConfigurator<TClass, T> Name(string name)
         {
@@ -47,11 +70,14 @@ namespace HLab.Notify.PropertyChanged
             return this;
         }
 
-
+        public override string ToString()
+        {
+            return typeof(T).Name + " : " + typeof(TClass).Name + "." + _activator.PropertyName;
+        }
 
         public NotifyConfigurator<TClass, T> AddTriggerExpression(Expression expr)
         {
-            CurrentTrigger.TriggerOnList.Add(new TriggerPath(expr));
+            CurrentTrigger.TriggerOnList.Add(TriggerPath.Factory(expr));
             return this;
         }
         public NotifyConfigurator<TClass, T> OnEvent(Action<TClass, EventHandler> action)
@@ -61,7 +87,7 @@ namespace HLab.Notify.PropertyChanged
         }
         public NotifyConfigurator<TClass, T> On(params string[] path)
         {
-            CurrentTrigger.TriggerOnList.Add(new TriggerPath(path));
+            CurrentTrigger.TriggerOnList.Add(TriggerPath.Factory(path));
             return this;
         }
         public NotifyConfigurator<TClass, T> When(Func<TClass, bool> when)
@@ -76,39 +102,18 @@ namespace HLab.Notify.PropertyChanged
             return this;
         }
 
-        public NotifyConfigurator<TClass, T> Update()
+
+        public NotifyConfigurator<TClass, T> Do(Action<TClass, T> action)
         {
-            return Do(_activator.UpdateAction);
-        }
-
-        public NotifyConfigurator<TClass, T> Do(Action<TClass> action)
-        {   
-            Func<TClass,bool> when = null;
-            foreach (var w in CurrentTrigger.WhenList)
-            {
-                if (when == null)
-                    when = w;
-                else
-                {
-                    var old = when;
-                    when = c => old(c) && w(c);
-                }
-            }
-
-            if(when==null)
-                CurrentTrigger.Action = (parent,child) => action(parent);
-            else
-                CurrentTrigger.Action = (parent, child) =>
-                {
-                    if(when(parent))
-                        action(parent);
-                };
-                
+            CurrentTrigger.Action = GetDoWhenAction(action);
 
             Triggers.Add(CurrentTrigger);
             CurrentTrigger = new TriggerEntry();
             return this;
         }
+
+        public NotifyConfigurator<TClass, T> Do(Action<TClass> action) => Do((p, c) => action(p));
+        public NotifyConfigurator<TClass, T> Update() => Do(_activator.UpdateAction);
 
         public Action<TClass, T> GetDoWhenAction(Action<TClass, T> action)
         {
@@ -126,25 +131,17 @@ namespace HLab.Notify.PropertyChanged
 
             if(when==null)
                 return action;
-            else
-                return (parent, child) =>
-                {
-                    if(when(parent))
-                        action(parent,child);
-                };
+
+            return (parent, child) =>
+            {
+                if(when(parent))
+                    action(parent,child);
+            };
 
         }
 
 
 
-        public NotifyConfigurator<TClass, T> Do(Action<TClass, T> action)
-        {
-            CurrentTrigger.Action = GetDoWhenAction(action);
-
-            Triggers.Add(CurrentTrigger);
-            CurrentTrigger = new TriggerEntry();
-            return this;
-        }
 
 
 
@@ -163,13 +160,32 @@ namespace HLab.Notify.PropertyChanged
 
                     var action = trigger.Action;
 
+                    _activator.Triggers.Add(action);
+
                     if(path==null || string.IsNullOrWhiteSpace(path.PropertyName))
-                        _activator.Action += (parent, property) => action(parent, property);
+                        _activator.Action += action;
                     else
+                    {
+
                         _activator.Action += (parent, property) =>
                         {
-                            parent.ClassHelper.GetTrigger(path, (s, a) => { action(parent, property); });
+                            ITriggerEntry trigger = null;
+                            var wr = new WeakReference<T>(property);
+                            trigger = path.GetTriggerB(parent.ClassHelper, handler);
+                            property.OnDispose(()=>trigger.Dispose());
+
+                            void handler(object s, ExtendedPropertyChangedEventArgs a)
+                            {
+                                if(wr.TryGetTarget(out var pp))
+                                    action((TClass)pp.Parent, pp);
+                                else
+                                {
+                                    trigger?.Dispose();
+                                }
+                            }
                         };
+
+                    }
                 }
             }
 

@@ -50,7 +50,7 @@ namespace HLab.Notify.PropertyChanged
 
     
     
-    public class ObservableFilter<T> : ChildObjectN<ObservableFilter<T>>, ILockable, IReadOnlyList<T>, IList, IObservableFilter<T> 
+    public class ObservableFilterPropertyHolder<T> : ChildObjectN<ObservableFilterPropertyHolder<T>>, ILockable, IReadOnlyList<T>, IList, IObservableFilter<T> 
     {
         private class Filter
         {
@@ -100,7 +100,7 @@ namespace HLab.Notify.PropertyChanged
 
         public class CreateHelper : IDisposable
         {
-            public ObservableFilter<T> List = null;
+            public ObservableFilterPropertyHolder<T> List = null;
             public T ViewModel = default(T);
 
             public TVm GetViewModel<TVm>() where TVm : class => ViewModel as TVm;
@@ -337,9 +337,9 @@ namespace HLab.Notify.PropertyChanged
         class FilterEnumerator : IEnumerator<T>, IDisposable
         {
             private int _currentIdx;
-            private readonly ObservableFilter<T> _filter;
+            private readonly ObservableFilterPropertyHolder<T> _filter;
             private IDisposable _locker;
-            internal FilterEnumerator(ObservableFilter<T> filter)
+            internal FilterEnumerator(ObservableFilterPropertyHolder<T> filter)
             {
                 _locker = filter.Lock.ReaderLock();
                 _filter = filter;
@@ -436,7 +436,7 @@ namespace HLab.Notify.PropertyChanged
             throw new NotImplementedException();
         }
 
-        public ObservableFilter(ConfiguratorEntry configurator) : base(configurator)
+        public ObservableFilterPropertyHolder(PropertyActivator activator) : base(activator)
         {
         }
     }

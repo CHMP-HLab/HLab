@@ -2,6 +2,8 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
+using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
@@ -66,22 +68,25 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
     //}
 
 
-        public abstract class ConfiguratorEntry
-        {
-            #if DEBUG
-            public object Source{ get;internal set; }
-            #endif
-            public PropertyChangedEventArgs EventArgs { get; internal set; }
+        //public abstract class ConfiguratorEntry
+        //{
+        //    #if DEBUG
+        //    public object Source{ get;internal set; }
+        //    #endif
+        //    public PropertyChangedEventArgs EventArgs { get; internal set; }
 
-            public abstract void Configure(INotifyPropertyChangedWithHelper target, object member);
-            //public Action<object, INotifyClassParser, object> Action { get; set; }
-            public abstract void Update(object target, object member);
+        //    public abstract void Configure(INotifyPropertyChangedWithHelper target, object member);
+        //    //public Action<object, INotifyClassParser, object> Action { get; set; }
+        //    public abstract void Update(object target, object member);
 
-            public List<string> Dependencies { get; set; }
+        //    public List<string> Dependencies { get; set; }
 
-            public string HolderName { get; set; }
-        }
+        //    public string HolderName { get; set; }
+        //}
         
+
+
+
 
     /// <summary>
     /// Hold 
@@ -91,58 +96,64 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         where TClass : class, INotifyPropertyChangedWithHelper
     {
 
-        public class ConfiguratorEntry<T> : ConfiguratorEntry
+        static PropertyCache()
         {
-            public Action<TClass, T> Action { get; set; }
-            public Action<TClass, T> UpdateAction { get; set; }
-
-            public void Configure(TClass target, T member)
+            var type = typeof(TClass).BaseType;
+            if (type != null && typeof(INotifyPropertyChangedWithHelper).IsAssignableFrom(type))
             {
-                Action?.Invoke(target, member);
+                var t = typeof(PropertyCache<>).MakeGenericType(type);
+                var getByHolder = t.GetMethod("GetByHolder", new[] {typeof(string)});
+                Debug.Assert(getByHolder!=null);
+                _getByHolderParent = s => (PropertyActivator)getByHolder.Invoke(null,new object[]{s});
             }
-            public void Update(TClass target, T member)
-            {
-                UpdateAction?.Invoke(target, member);
-            }
-
-            public override void Configure(INotifyPropertyChangedWithHelper target, object member) =>
-                Configure((TClass)target,(T)member);
-            public override void Update(object target, object member) =>
-                Update((TClass)target, (T)member);
         }
 
-        private static readonly ConcurrentDictionary<string, ConfiguratorEntry> CacheByHolder = new ConcurrentDictionary<string, ConfiguratorEntry>();
-        private static readonly ConcurrentDictionary<string, ConfiguratorEntry> CacheByProperty = new ConcurrentDictionary<string, ConfiguratorEntry>();
-        public static ConfiguratorEntry GetByProperty(string name )
+        //public class ConfiguratorEntry<T> : ConfiguratorEntry
+        //{
+        //    public Action<TClass, T> Action { get; set; }
+        //    public Action<TClass, T> UpdateAction { get; set; }
+
+        //    public void Configure(TClass target, T member)
+        //    {
+        //        Action?.Invoke(target, member);
+        //    }
+        //    public void Update(TClass target, T member)
+        //    {
+        //        UpdateAction?.Invoke(target, member);
+        //    }
+
+        //    public override void Configure(INotifyPropertyChangedWithHelper target, object member) =>
+        //        Configure((TClass)target,(T)member);
+        //    public override void Update(object target, object member) =>
+        //        Update((TClass)target, (T)member);
+        //}
+
+        private static Func<string,PropertyActivator> _getByHolderParent;
+        private static readonly ConcurrentDictionary<string, PropertyActivator> CacheByHolder = new();
+        private static readonly ConcurrentDictionary<string, PropertyActivator> CacheByProperty = new();
+        public static PropertyActivator GetByProperty(string name )
         {
             if(CacheByProperty.TryGetValue(name, out var e)) return e;
-
             throw new Exception("Error");
-
         }
-        public static ConfiguratorEntry GetByHolder(string name )
+        public static PropertyActivator GetByHolder(string name )
         {
             if(CacheByHolder.TryGetValue(name, out var e)) return e;
 
-            throw new ArgumentException($"PropertyHolder {name} not found in {typeof(TClass)}");
+            if(_getByHolderParent == null) throw new ArgumentException($"PropertyHolder {name} not found in {typeof(TClass)}");
+            return _getByHolderParent(name);
 
         }
 
-        public static ConfiguratorEntry<T> GetByHolder<T>(string name,
+        public static PropertyActivator GetByHolder<T>(string name,
             Func<string,NotifyConfigurator<TClass,T>.Activator> activator)
+            where T : class,IChildObject
         {
-            return (ConfiguratorEntry<T>)CacheByHolder.GetOrAdd(name,valueFactory: n =>
+            return CacheByHolder.GetOrAdd(name,valueFactory: n =>
             {
                 var a = activator(n);
 
-                return (ConfiguratorEntry<T>)CacheByProperty.GetOrAdd(a.PropertyName,valueFactory: n2 => new ConfiguratorEntry<T>
-                {
-                    EventArgs = new PropertyChangedEventArgs(a.PropertyName), 
-                    HolderName = n2, 
-                    Dependencies = a.DependsOn,
-                    Action = a.Action,
-                    UpdateAction = a.UpdateAction
-                });
+                return CacheByProperty.GetOrAdd(a.PropertyName,n2 => a);
             });
         }
     }

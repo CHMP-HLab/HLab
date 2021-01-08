@@ -1,6 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Threading.Tasks;
+using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {
@@ -9,7 +10,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, T> CanExecute<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Func<TClass, bool> setter)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where T : NotifyCommand
+            where T : CommandPropertyHolder
         {
             return c
                 .Do((target,cmd)=>cmd.SetCanExecute(() => setter(target)));
@@ -17,7 +18,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, T> SetCanExecute<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Func<TClass,object, bool> setter)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where T : NotifyCommand
+            where T : CommandPropertyHolder
         {
             return c
                 .Do((target,cmd)=>cmd.SetCanExecute(o => setter(target,o)));
@@ -26,7 +27,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Action<TClass> action)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where T : NotifyCommand
+            where T : CommandPropertyHolder
         {
             return c
                 .On().Do((target,cmd)=>cmd.SetAction(() => action(target)));
@@ -35,7 +36,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Func<TClass,Task> action)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where T : NotifyCommand
+            where T : CommandPropertyHolder
         {
             return c
                 .On().Do((target,cmd)=>cmd.SetAction(() => action(target)));
@@ -43,7 +44,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Action<TClass,object> action)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where T : NotifyCommand
+            where T : CommandPropertyHolder
         {
             return c
                 .Do((target,cmd)=>cmd.SetAction(o => action(target,o)));
@@ -52,10 +53,25 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, TMember> 
             CheckCanExecute<TClass,TMember>(this NotifyConfigurator<TClass, TMember> c)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where TMember : NotifyCommand
+            where TMember : CommandPropertyHolder
         {
             return c.Do((target, member) => member.SetCanExecute());
         }
 
+        public static NotifyConfigurator<TClass, TMember> 
+            IconPath<TClass,TMember>(this NotifyConfigurator<TClass, TMember> c, string iconPath)
+            where TClass : class, INotifyPropertyChangedWithHelper
+            where TMember : CommandPropertyHolder
+        {
+            return c.Do((target, member) => member.IconPath = iconPath);
+        }
+
+        public static NotifyConfigurator<TClass, TMember> 
+            ToolTip<TClass,TMember>(this NotifyConfigurator<TClass, TMember> c, string toolTip)
+            where TClass : class, INotifyPropertyChangedWithHelper
+            where TMember : CommandPropertyHolder
+        {
+            return c.Do((target, member) => member.IconPath = toolTip);
+        }
     }
 }

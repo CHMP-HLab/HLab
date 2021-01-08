@@ -1,17 +1,19 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Linq;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.NotifyParsers
 {
-    class CollectionEntry : IPropertyEntry
+    class CollectionPropertyEntry : IPropertyEntry
     {
         private readonly INotifyCollectionChanged _target;
         public string Name => "Item";
 
-        public CollectionEntry(INotifyCollectionChanged target)
+        public CollectionPropertyEntry(INotifyCollectionChanged target)
         {
             _target = target;
             target.CollectionChanged += TargetOnCollectionChanged;
@@ -69,7 +71,7 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
         public void Link(EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
             if (_target is IEnumerable e)
-                foreach (var obj in e) handler(this, new ExtendedPropertyChangedEventArgs("Item", null, obj));
+                foreach (var obj in e) handler(this, new ExtendedPropertyChangedEventArgs("Item", default, obj));
 
             ExtendedPropertyChanged += handler;
         }
@@ -84,11 +86,30 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
 
         public void TargetPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
-            ExtendedPropertyChanged?.Invoke(sender, (args as ExtendedPropertyChangedEventArgs) ?? new ExtendedPropertyChangedEventArgs(args, null, null));
+            ExtendedPropertyChanged?.Invoke(sender, (args as ExtendedPropertyChangedEventArgs) ?? new ExtendedPropertyChangedEventArgs(args, default, default));
         }
 
+        private List<ITriggerEntry> _triggerEntries = new List<ITriggerEntry>();
+
+        public ITriggerEntry GetTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        {
+            var entry = new TriggerEntryCollection(this, handler);
+            _triggerEntries.Add(entry);
+            return entry;
+        }
+        //public ITriggerEntry GetTrigger(Action<object, ExtendedPropertyChangedEventArgs> handler)
+        //{
+        //    var entry = new TriggerEntryCollection(this, handler);
+        //    _triggerEntries.Add(entry);
+        //    return entry;
+        //}
+
         public ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
-            => new TriggerEntryCollection(this, path, handler);
+        {
+            var entry = new TriggerEntryCollectionWithPath(this, path, handler);
+            _triggerEntries.Add(entry);
+            return entry;
+        }
 
         public bool Linked => ExtendedPropertyChanged != null;
 
@@ -101,5 +122,6 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
                     Unlink(h);
             }
         }
+
     }
 }

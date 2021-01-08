@@ -20,6 +20,18 @@ namespace HLab.Notify.Annotations
             EventHandler<ExtendedPropertyChangedEventArgs> handler);
         public void RemoveHandler(IPropertyEntry source,
             EventHandler<ExtendedPropertyChangedEventArgs> handler);
+
+        public void AddHandler(INotifyPropertyChanged source, EventHandler<PropertyChangedEventArgs> handler,string propertyName) ;
+        public void RemoveHandler(INotifyPropertyChanged source, EventHandler<PropertyChangedEventArgs> handler,string propertyName);
+
+        public void AddHandler(INotifyCollectionChanged source, EventHandler<NotifyCollectionChangedEventArgs> handler);
+        public void RemoveHandler(INotifyCollectionChanged source, EventHandler<NotifyCollectionChangedEventArgs> handler);
+
+        void AddHandler<TSource, TArgs>(TSource source, string name, EventHandler<TArgs> handler)
+            where TArgs : EventArgs;
+
+        void RemoveHandler<TSource, TArgs>(TSource source, string name, EventHandler<TArgs> handler)
+            where TArgs : EventArgs;
     }
 
     public class EventHandlerService : IEventHandlerService
@@ -55,5 +67,38 @@ namespace HLab.Notify.Annotations
         public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler)
             => source.ExtendedPropertyChanged -= handler;
 
+
+
+
+        public void AddHandler(INotifyPropertyChanged source, EventHandler<PropertyChangedEventArgs> handler,string propertyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        
+        public void RemoveHandler(INotifyPropertyChanged source, EventHandler<PropertyChangedEventArgs> handler,string propertyName)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddHandler(INotifyCollectionChanged source, EventHandler<NotifyCollectionChangedEventArgs> handler)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveHandler(INotifyCollectionChanged source, EventHandler<NotifyCollectionChangedEventArgs> handler)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void AddHandler<TSource, TArgs>(TSource source, string name, EventHandler<TArgs> handler) where TArgs : EventArgs
+        {
+            throw new NotImplementedException();
+        }
+
+        public void RemoveHandler<TSource, TArgs>(TSource source, string name, EventHandler<TArgs> handler) where TArgs : EventArgs
+        {
+            throw new NotImplementedException();
+        }
     }
 }

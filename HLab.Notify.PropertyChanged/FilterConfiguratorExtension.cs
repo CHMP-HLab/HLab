@@ -1,19 +1,20 @@
 ﻿using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {
     public static class FilterConfiguratorExtension
     {
-        public static NotifyConfigurator<TClass, ObservableFilter<T>> AddFilter<TClass, T>(this NotifyConfigurator<TClass, ObservableFilter<T>> c,
+        public static NotifyConfigurator<TClass, ObservableFilterPropertyHolder<T>> AddFilter<TClass, T>(this NotifyConfigurator<TClass, ObservableFilterPropertyHolder<T>> c,
             Func<T, bool> expression)
             where TClass : class, INotifyPropertyChangedWithHelper
         {
             return c
                 .Do((target,filter)=>filter.AddFilter(expression));
         }
-        public static NotifyConfigurator<TClass, ObservableFilter<T>> AddFilter<TClass, T>(this NotifyConfigurator<TClass, ObservableFilter<T>> c,
+        public static NotifyConfigurator<TClass, ObservableFilterPropertyHolder<T>> AddFilter<TClass, T>(this NotifyConfigurator<TClass, ObservableFilterPropertyHolder<T>> c,
             Func<TClass,T, bool> expression)
             where TClass : class, INotifyPropertyChangedWithHelper
         {
@@ -24,7 +25,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, TFilter> Link<TClass, TFilter>(this NotifyConfigurator<TClass, TFilter> c,
             Func<TClass,INotifyCollectionChanged> expression)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where TFilter : IObservableFilter
+            where TFilter : class, IObservableFilter
         {
             return c
                 .Do((target,filter)=>filter.Link(() => expression(target)));

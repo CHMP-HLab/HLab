@@ -1,10 +1,13 @@
 ﻿using System;
 using System.ComponentModel;
+using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public interface IChildObject : IDisposable
+    public interface IChildObject
     {
-        void SetParent(INotifyPropertyChangedWithHelper parent);
+        INotifyPropertyChangedWithHelper Parent{get;set; }
+
+        public void OnDispose(Action action);
     }
 }

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.NotifyParsers
@@ -41,35 +43,33 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
                 _property = property;
             }
 
-
-
             public event EventHandler<ExtendedPropertyChangedEventArgs> ExtendedPropertyChanged;
 
             public void TargetPropertyChanged(object sender, PropertyChangedEventArgs args)
             {
+                var value = _property.GetValue(_target);
+                var oldValue = Interlocked.Exchange(ref _value, value);
+
                 if (ExtendedPropertyChanged == null) return;
+                if (ReferenceEquals(oldValue, value)) return;
 
-                var oldValue = _value;
-                _value = _property.GetValue(_target);
-                if (Equals(oldValue,_value)) return;
-
-                ExtendedPropertyChanged?.Invoke(sender,new ExtendedPropertyChangedEventArgs(args, oldValue,_value));
+                ExtendedPropertyChanged(sender, new ExtendedPropertyChangedEventArgs(args, oldValue, value));
             }
 
 
             public void InitialRegisterValue(Type type)
             {
                 if (_property.DeclaringType != type) return;
-                if (ExtendedPropertyChanged == null) return;
+                //if (ExtendedPropertyChanged == null) return;
 
                 if (_target.GetType().GetProperty(Name).GetMethod != _property.GetMethod) return;
 
-                var oldValue = _value;
+                var value = _property.GetValue(_target);
+                var oldValue = Interlocked.Exchange(ref _value, value);
 
-                _value = _property.GetValue(_target);
-                if (Equals(oldValue, _value)) return;
+                if (ReferenceEquals(oldValue, value)) return;
 
-                ExtendedPropertyChanged.Invoke(_target, new ExtendedPropertyChangedEventArgs(Name, oldValue, _value));
+                ExtendedPropertyChanged?.Invoke(_target, new ExtendedPropertyChangedEventArgs(Name, oldValue, _value));
             }
 
             public void Link(EventHandler<ExtendedPropertyChangedEventArgs> handler)
@@ -88,20 +88,31 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
 
                 ExtendedPropertyChanged -= handler;
             }
-            public ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+            
+            private List<EventHandler<ExtendedPropertyChangedEventArgs>> _triggerEntries = new();
+
+            public ITriggerEntry GetTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {
-                return new TriggerEntryNotifier(this, path, handler);
+                _triggerEntries.Add(handler);
+                var entry = new TriggerEntryNotifier(this, handler);
+                return entry;
             }
 
-            public void Dispose()
+            //public ITriggerEntry GetTrigger(Action<object, ExtendedPropertyChangedEventArgs> handler)
+            //{
+            //    var entry = new TriggerEntryNotifier(this, handler);
+            //    _triggerEntries.Add(entry);
+            //    return entry;
+            //}
+            public ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {
-                if (ExtendedPropertyChanged == null) return;
-                foreach (var d in ExtendedPropertyChanged.GetInvocationList())
-                {
-                    if (d is EventHandler<ExtendedPropertyChangedEventArgs> h)
-                        Unlink(h);
-                }
+                var entry = new TriggerEntryNotifierWithPath(this, path, handler);
+                //_triggerEntries.Add(entry);
+                return entry;
             }
+
+            public override string ToString() => _target.ToString() + " : " + Name ;
+
         }
 
     }
