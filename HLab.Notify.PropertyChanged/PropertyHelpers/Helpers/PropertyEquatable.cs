@@ -19,14 +19,15 @@ namespace HLab.Notify.PropertyChanged
             {
                 if(value == null) return false;
                 _value = value;
-                _holder.OnPropertyChanged();
+                _holder.OnPropertyChanged(default(T),value);
                 return true;
             }
 
             if (!_value.Equals(value, StructuralComparisons.StructuralEqualityComparer))
             {
+                var old = _value;
                 _value = value;
-                _holder.OnPropertyChanged();
+                _holder.OnPropertyChanged(old,value);
                 return true;
             }
             else return false;
@@ -49,8 +50,9 @@ namespace HLab.Notify.PropertyChanged
         {
             if (_value != value)
             {
+                var old = _value;
                 _value = value;
-                _holder.OnPropertyChanged();
+                _holder.OnPropertyChanged(old,value);
                 return true;
             }
             else return false;

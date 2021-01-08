@@ -20,13 +20,15 @@ namespace HLab.Notify.PropertyChanged
 
         public bool Set(DateTime value)
             {
+                DateTime oldValue;
                 lock (_lock)
                 {
                     if (_value == value) return false;
+                    oldValue = _value;
                     _value = value;
                 }
 
-                _holder.OnPropertyChanged();
+                _holder.OnPropertyChanged(oldValue,value);
                 return true;
             }
 

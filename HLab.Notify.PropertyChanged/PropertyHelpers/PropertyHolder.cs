@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged.NotifyParsers;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers
@@ -28,7 +29,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         where TClass : NotifierBase
     {
         class H : H<PropertyHolderN<TClass, T>> { }
-        public PropertyHolderN(ConfiguratorEntry configurator = null) : base(configurator)
+        public PropertyHolderN(PropertyActivator activator = null) : base(activator)
         {
             ClassHelper = new NotifyClassHelper(this);
         }
@@ -70,7 +71,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
     //}
     public abstract class PropertyHolder : ChildObject
     {
-        protected PropertyHolder(ConfiguratorEntry configurator) : base(configurator)
+        protected PropertyHolder(PropertyActivator activator) : base(activator)
         {
         }
     }
@@ -80,7 +81,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
     {
         protected internal IPropertyValue<T> PropertyValue;
 
-        public PropertyHolder(ConfiguratorEntry configurator) : base(configurator)
+        public PropertyHolder(PropertyActivator activator) : base(activator)
         {
         }
 
@@ -115,13 +116,12 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         {
             Interlocked.Exchange(ref PropertyValue, property);
         }
-        protected override void Configure()
+        protected override void Activate()
         {
-            base.Configure();
+            base.Activate();
 
             if(PropertyValue==null)
                 SetProperty(new PropertyValueLazy<T>(this, o => default(T)));
         }
-
     }
 }

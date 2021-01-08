@@ -16,7 +16,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 
                 var old = Interlocked.Exchange(ref _value, v);
                 if (old == v) return false;
-                _holder.OnPropertyChanged();
+                _holder.OnPropertyChanged(old==1,value);
                 return true;
             }
 

@@ -21,7 +21,7 @@ namespace HLab.Notify.PropertyChanged
 
             if (!Equals(old, value))
             {
-                _holder.OnPropertyChanged();
+                _holder.OnPropertyChanged(old,value);
                 return true;
             }
             else return false;

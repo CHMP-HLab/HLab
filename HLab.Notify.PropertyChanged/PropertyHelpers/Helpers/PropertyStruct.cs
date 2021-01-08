@@ -16,13 +16,15 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
 
         public bool Set(T value)
         {
+            T old;
             lock (_lock)
             {
                 if (Equals(_value, value)) return false;
+                old = _value;
                 _value = value;
             }
 
-            _holder.OnPropertyChanged();
+            _holder.OnPropertyChanged(old,value);
             return true;
         }
 
