@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HLab.Erp.Lims.Monographs.Loader"
+        xmlns:local="clr-namespace:HLab.Erp.Lims.Monographs.Loader" xmlns:wpf="clr-namespace:HLab.Base.Wpf;assembly=HLab.Base.Wpf"
         mc:Ignorable="d"
         SizeToContent ="WidthAndHeight"
         Title="Problem report" Height="450" Width="800"
@@ -59,18 +59,18 @@
                 </Path>
             </Canvas>
         </Viewbox>
-        <TextBlock VerticalAlignment="Bottom" x:Name="tbMessage" Foreground="White" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"> Your application quit unexpectedly.</TextBlock>
-        <TextBlock x:Name="tbSubMessage" Foreground="White" FontStyle="Italic">Click Reopen to open the application again. </TextBlock>
+        <TextBlock VerticalAlignment="Bottom" x:Name="tbMessage" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"> Your application quit unexpectedly.</TextBlock>
+        <TextBlock x:Name="tbSubMessage" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" FontStyle="Italic">Click Reopen to open the application again. </TextBlock>
         <CheckBox 
             x:Name="chkReport" 
             Margin="0,20,0,20" 
             IsChecked="True" 
-            Foreground="White"
+            Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
             Content="Send report"
             Checked="ChkReport_OnChecked"
             Unchecked="ChkReport_OnUnchecked"
             />
-        <TextBlock x:Name="tbComment" Margin="0,10,0,0" Foreground="White">Comments :</TextBlock>
+        <TextBlock x:Name="tbComment" Margin="0,10,0,0" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}">Comments :</TextBlock>
         <TextBox x:Name="txtComment" MinHeight="100" Margin="0,20">No comment</TextBox>
         <DockPanel>
             <ToggleButton 
@@ -84,10 +84,10 @@
 
             <StackPanel HorizontalAlignment="Right" DockPanel.Dock="Right" Orientation="Horizontal">
                 <Button x:Name="ButtonOk" FontWeight="Bold" Click="ButtonOk_OnClick" Margin="0,0,20,0"  Width="100" IsDefault="True">Ok</Button>
-                <Button Foreground="White" Background="Green" x:Name="ButtonReopen" Click="ButtonReopen_OnClick" Width="100" IsDefault="True">Reopen</Button> 
+                <Button Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" Background="Green" x:Name="ButtonReopen" Click="ButtonReopen_OnClick" Width="100" IsDefault="True">Reopen</Button> 
             </StackPanel>
         </DockPanel>
-        <ScrollViewer
+        <wpf:ScrollViewerEx
             MaxWidth="800"
             MaxHeight="400"
             x:Name="ScrollViewer"
@@ -95,9 +95,9 @@
         >
             <TextBlock 
 
-            Foreground="White"
+            Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
             x:Name="txtDetail" 
             Visibility="Collapsed"/>
-        </ScrollViewer>
+        </wpf:ScrollViewerEx>
     </StackPanel>
 </Window>

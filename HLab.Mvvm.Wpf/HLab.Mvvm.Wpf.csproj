@@ -36,6 +36,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="MahApps.Metro" Version="2.4.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.Core\HLab.Core.csproj" />
@@ -47,7 +51,7 @@
 
   <ItemGroup>
     <Reference Include="MahApps.Metro">
-      <HintPath>C:\Users\mathieu.AD\.nuget\packages\mahapps.metro\2.1.1\lib\netcoreapp3.1\MahApps.Metro.dll</HintPath>
+      <HintPath>..\..\..\..\..\.nuget\packages\mahapps.metro\2.3.4\lib\netcoreapp3.1\MahApps.Metro.dll</HintPath>
     </Reference>
   </ItemGroup>
 

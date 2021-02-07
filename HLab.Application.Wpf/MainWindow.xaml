@@ -72,11 +72,11 @@
                     <StackPanel>
                         <StackPanel Orientation="Horizontal" >
                             <Viewbox HorizontalAlignment="Left" Height="16">
-                                 <icons:IconView Opacity="1" Foreground="White" Path="{Binding Content.DataContext.IconPath}"/>
+                                 <icons:IconView Opacity="1" Foreground="{DynamicResource MahApps.Brushes.Badged.Foreground}" Path="{Binding Content.DataContext.IconPath}"/>
                             </Viewbox>
                             <lang:LocalizedLabel Margin="10,0,0,0" FontSize="14" FontWeight="Bold" Text="{Binding Content.DataContext.Title}"/>
                         </StackPanel>
-                        <StackPanel Background="#80000000" Visibility="{Binding Content.DataContext.SubTitle,Converter={StaticResource ToVisibility},FallbackValue=Collapsed}">
+                        <StackPanel Background="{DynamicResource MahApps.Brushes.Badged.Background}" Visibility="{Binding Content.DataContext.SubTitle,Converter={StaticResource ToVisibility},FallbackValue=Collapsed}">
                             <lang:LocalizedLabel Margin="3,0" FontSize="12" FontStyle="Italic" Text="{Binding Content.DataContext.SubTitle}"/>
                         </StackPanel>                        
                     </StackPanel>
