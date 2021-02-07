@@ -158,11 +158,11 @@ namespace HLab.Mvvm
             /*, Type regFrom = null*/)
         {
             var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom).Where(t => !t.IsAssignableFrom(baseType)).Where(t => !typeof(IViewModelDesign).IsAssignableFrom(t)));
-            //var linkedTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(linkedType.IsAssignableFrom));
+            var linkedTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(linkedType.IsAssignableFrom)).ToList();
 
             foreach (var bt in basesTypes)
-               // foreach (var lt in linkedTypes)
-                    Register(bt, linkedType /*lt*/, viewClass, viewMode);
+                foreach (var lt in linkedTypes)
+                    Register(bt, lt /*lt*/, viewClass, viewMode);
 
         }
         public void Register(
@@ -172,6 +172,8 @@ namespace HLab.Mvvm
             , Type viewMode
             )
         {
+            if (!viewClass.IsInterface) throw new ArgumentOutOfRangeException("viewClass must be interface " + viewClass.Name);
+
             if (typeof(IViewModelDesign).IsAssignableFrom(linkedType)) return;
 
             Debug.WriteLine(baseType.Name+"->"+linkedType.Name+":"+viewClass.Name+"#"+viewMode.Name );

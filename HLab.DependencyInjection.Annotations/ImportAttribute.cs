@@ -5,7 +5,7 @@ namespace HLab.DependencyInjection.Annotations
     /// <summary>
     ///   Automate importation while Locate
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Field| AttributeTargets.Constructor)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method | AttributeTargets.Field| AttributeTargets.Constructor |AttributeTargets.Parameter)]
     public class ImportAttribute : Attribute
     {
         public ImportAttribute(InjectLocation location = InjectLocation.BeforeConstructor)

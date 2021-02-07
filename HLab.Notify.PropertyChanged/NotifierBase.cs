@@ -7,11 +7,12 @@ namespace HLab.Notify.PropertyChanged
 {
     public abstract class NotifierBase : INotifyPropertyChangedWithHelper//, IDisposable
     {
-        public INotifyClassHelper ClassHelper { get; }
+        private INotifyClassHelper _classHelper;
+        public INotifyClassHelper ClassHelper => _classHelper??(_classHelper = NotifyClassHelperBase.GetNewHelper(this));
 
         protected NotifierBase()
         {
-            ClassHelper = NotifyClassHelperBase.GetNewHelper(this);
+            _classHelper = NotifyClassHelperBase.GetNewHelper(this);
         }
             
         public event PropertyChangedEventHandler PropertyChanged

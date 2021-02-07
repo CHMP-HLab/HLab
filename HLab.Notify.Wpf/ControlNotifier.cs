@@ -6,20 +6,21 @@ using HLab.Notify.PropertyChanged.NotifyParsers;
 
 namespace HLab.Notify.Wpf
 {
-    public class UserControlNotifier : UserControl, INotifyPropertyChanged
+    public class UserControlNotifier : UserControl, INotifyPropertyChangedWithHelper
     {
 
-        protected INotifyClassHelper Parser;
+         public INotifyClassHelper ClassHelper { get; }
 
         protected UserControlNotifier()
         {
-            Parser = NotifyClassHelper.GetHelper(this);
+            ClassHelper = NotifyClassHelper.GetNewHelper(this);
         }
 
         public event PropertyChangedEventHandler PropertyChanged
         {
-            add => Parser.AddHandler(value);
-            remove => Parser.RemoveHandler(value);
+            add => ClassHelper.AddHandler(value);
+            remove => ClassHelper.RemoveHandler(value);
         }
+
     }
 }

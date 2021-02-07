@@ -2,6 +2,7 @@
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Windows;
+using System.Windows.Data;
 
 namespace HLab.Base
 {
@@ -130,6 +131,7 @@ namespace HLab.Base
         public DependencyConfigurator<TClass, TValue> BindsTwoWayByDefault => Do(() => _propertyMetadata.BindsTwoWayByDefault = true);
         public DependencyConfigurator<TClass, TValue> Journal => Do(() => _propertyMetadata.Journal = true);
         public DependencyConfigurator<TClass, TValue> SubPropertiesDoNotAffectRender => Do(() => _propertyMetadata.SubPropertiesDoNotAffectRender = true);
+        public DependencyConfigurator<TClass, TValue> DefaultUpdateSourceTrigger(UpdateSourceTrigger trigger)  => Do(() => _propertyMetadata.DefaultUpdateSourceTrigger  = trigger);
 
         public DependencyConfigurator<TClass,TValue> OnChange<TSender>(Action<TSender, DependencyPropertyChangedEventArgs<TValue>> action)
         where TSender : DependencyObject

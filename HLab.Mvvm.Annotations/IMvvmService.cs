@@ -41,6 +41,7 @@ namespace HLab.Mvvm.Annotations
 
         IMvvmContext GetNewContext(IMvvmContext parent, string name);
         void Register();
+        void Register(Type baseType, Type type, Type viewMode, Type viewClass);
         void PrepareView(object view);
     }
 }

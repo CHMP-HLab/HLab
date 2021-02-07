@@ -21,6 +21,8 @@ namespace HLab.Notify.PropertyChanged
     {
         public string IconPath { get; set; }
         public string ToolTipText { get; set; }
+
+        public void CheckCanExecute();
     }
     public class NCommand : INotifyCommand
     {
@@ -158,7 +160,7 @@ namespace HLab.Notify.PropertyChanged
 
         public bool SetCanExecute(bool value)
         {
-            if (_canExecute == value) return value;
+            //if (_canExecute == value) return value;
 
             _canExecute = value;
 
@@ -186,6 +188,12 @@ namespace HLab.Notify.PropertyChanged
                 await _executeAsync(parameter).ConfigureAwait(true);
             else
                 _execute?.Invoke(parameter);
+        }
+        public void CheckCanExecute()
+        {
+            var old = _canExecute;
+            _canExecute = _canExecuteFunc(null);
+            if(old!=_canExecute) CanExecuteChanged?.Invoke(this,new EventArgs());
         }
 
         public event EventHandler CanExecuteChanged;
