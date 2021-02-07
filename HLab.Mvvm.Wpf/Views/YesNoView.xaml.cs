@@ -1,4 +1,6 @@
-﻿using System.Windows;
+﻿using System;
+using System.Diagnostics;
+using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using HLab.Base;
@@ -22,7 +24,7 @@ namespace HLab.Mvvm.Views
         public static DependencyProperty ValueProperty = H.Property<bool?>()
             .OnChange((s, a) =>
             {
-                s.SetValue(a.NewValue);
+                s.UpdateValue(a.NewValue, a.OldValue);
 
             }).BindsTwoWayByDefault
             .Register();
@@ -32,6 +34,24 @@ namespace HLab.Mvvm.Views
             {
                 e.SetReadOnly();
             }).Register();
+
+        public static readonly DependencyProperty AllowNaProperty =
+            H.Property<bool>().Default(false).OnChange((e, a) =>
+            {
+                e.SetNa(a.NewValue);
+            }).Register();
+
+        public static readonly DependencyProperty StringProperty =
+            H.Property<string>().Default(null).OnChange((e, a) =>
+            {
+                e.UpdateString(a.NewValue);
+            }).Register();
+
+        private void SetNa(bool na)
+        {
+            ButtonNa.Visibility =  na?Visibility.Visible:Visibility.Collapsed;
+            Spacer.Visibility = na?Visibility.Visible:Visibility.Collapsed;
+        }
 
         public bool? Value
         {
@@ -43,22 +63,77 @@ namespace HLab.Mvvm.Views
             get => (bool)GetValue(IsReadOnlyProperty);
             set => SetValue(IsReadOnlyProperty, value);
         }
-
-        private void SetValue(bool? value)
+        public bool AllowNa
         {
-            ButtonYes.IsChecked = value == true;
-            ButtonNo.IsChecked = value == false;
+            get => (bool)GetValue(AllowNaProperty);
+            set => SetValue(AllowNaProperty, value);
+        }
+        public string String
+        {
+            get => (string)GetValue(StringProperty);
+            set => SetValue(StringProperty, value);
+        }
+
+        private void UpdateString(string s)
+        {
+            ButtonYes.IsChecked = s == "true";
+            ButtonNa.IsChecked = s == "na";
+            ButtonNo.IsChecked = s == "false";
+
+            if (s == "true") Value = true;
+            if (s == "false") Value = false;
+            if (s == "na") Value = null;
+            if (s == "") Value = null;
+        }
+
+        private void UpdateValue(bool? v, bool? old)
+        {
+            ButtonYes.IsChecked = v == true;
+            ButtonNo.IsChecked = v == false;
+
+            if (v == true) String = "true";
+            if (v == false) String = "false";
+
+            if (v == null)
+            {
+                if (old != null)
+                {
+                    String = "";
+                }
+            }
         }
 
         private void Button_OnChecked(object sender, RoutedEventArgs e)
         {
             if (IsReadOnly)
             {
-                SetValue(Value);
+                UpdateString(String);
                 return;
             }
-            if (ReferenceEquals(sender, ButtonYes)) Value = true;
-            if (ReferenceEquals(sender, ButtonNo)) Value = false;
+
+            if (ReferenceEquals(sender, ButtonYes))
+            {
+                if(ButtonYes.IsChecked==true)
+                    String = "true";
+                else
+                    String = "";
+            }
+
+            if (ReferenceEquals(sender, ButtonNo))
+            {
+                if(ButtonNo.IsChecked==true)
+                    String = "false";
+                else
+                    String = "";
+            }
+
+            if (ReferenceEquals(sender, ButtonNa))
+            {
+                if(ButtonNa.IsChecked==true)
+                    String = "na";
+                else
+                    String = "";
+            }
         }
         private void SetReadOnly()
         {
@@ -75,6 +150,14 @@ namespace HLab.Mvvm.Views
         }
 
         private void Button_OnMouseDown(object sender, MouseButtonEventArgs e)
+        {
+            if (IsReadOnly)
+            {
+                e.Handled = true;
+            }
+        }
+
+        private void Button_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (IsReadOnly)
             {

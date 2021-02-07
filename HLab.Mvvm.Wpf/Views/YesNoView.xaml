@@ -5,13 +5,19 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:lang="clr-namespace:HLab.Mvvm.Lang"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
+             d:DesignHeight="450" d:DesignWidth="800"
+             Background="Transparent"
+             >
     <StackPanel Orientation="Horizontal">
-        <RadioButton Checked="Button_OnChecked" Click="Button_OnClick" MouseDown="Button_OnMouseDown" Name="ButtonNo" BorderBrush="#80000000">
+        <RadioButton Background="Transparent" Checked="Button_OnChecked" PreviewMouseDown="Button_OnPreviewMouseDown" Click="Button_OnClick" MouseDown="Button_OnMouseDown" Name="ButtonNo" BorderBrush="#80000000" >
             <lang:Localize  Id="{}{No}" />
         </RadioButton>
         <Label/>
-        <RadioButton Checked="Button_OnChecked" Click="Button_OnClick" MouseDown="Button_OnMouseDown" Name="ButtonYes" BorderBrush="#80000000">
+        <RadioButton Visibility="Collapsed" Background="Transparent" Checked="Button_OnChecked" PreviewMouseDown="Button_OnPreviewMouseDown" Click="Button_OnClick" MouseDown="Button_OnMouseDown" Name="ButtonNa" BorderBrush="#80000000">
+            <lang:Localize  Id="{}{N/A}" />
+        </RadioButton>
+        <Label x:Name="Spacer"  Visibility="Collapsed"/>
+        <RadioButton Background="Transparent" Checked="Button_OnChecked" PreviewMouseDown="Button_OnPreviewMouseDown" Click="Button_OnClick" MouseDown="Button_OnMouseDown" Name="ButtonYes" BorderBrush="#80000000">
             <lang:Localize  Id="{}{Yes}" />
         </RadioButton>
     </StackPanel>
