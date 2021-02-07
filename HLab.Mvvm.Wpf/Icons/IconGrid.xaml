@@ -10,12 +10,12 @@
         <ContentControl x:Name="MainIcon"/>
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition/>
-                    <ColumnDefinition/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
                 <Grid.RowDefinitions>
-                    <RowDefinition/>
-                    <RowDefinition/>
+                    <RowDefinition Height="*"/>
+                    <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
                 <ContentControl x:Name="TopLeftIcon" Grid.Row="0" Grid.Column="0"/>
                 <ContentControl x:Name="TopRightIcon" Grid.Row="0" Grid.Column="1"/>
