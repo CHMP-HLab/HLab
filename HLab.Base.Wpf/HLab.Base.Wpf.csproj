@@ -28,7 +28,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Windows.API\HLab.Sys.Windows.API.csproj" />
+    <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
   </ItemGroup>
 
 </Project>

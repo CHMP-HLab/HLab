@@ -8,6 +8,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HLab.Core.Annotations\HLab.Core.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
   </ItemGroup>
 
   <ItemGroup>
