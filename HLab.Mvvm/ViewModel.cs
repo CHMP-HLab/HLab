@@ -39,7 +39,7 @@ namespace HLab.Mvvm
 
         private static int _lastId = 0;
 
-        private readonly Lazy<int> _id = new Lazy<int>(() => Interlocked.Increment(ref _lastId));
+        private readonly Lazy<int> _id = new(() => Interlocked.Increment(ref _lastId));
 
         public int Id => _id.Value;
 

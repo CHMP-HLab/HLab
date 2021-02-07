@@ -36,7 +36,7 @@ namespace HLab.Notify.PropertyChanged
             {
                 _next = null;
             }
-       }
+        }
 
 
         public override void Dispose()
