@@ -7,7 +7,7 @@
 
     <Platforms>AnyCPU;x64;x86</Platforms>
 
-    <LangVersion>latest</LangVersion>
+    <LangVersion>9.0</LangVersion>
 
     <Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
   </PropertyGroup>

@@ -12,6 +12,9 @@
     <Compile Update="DateEx.xaml.cs">
       <DependentUpon>DateEx.xaml</DependentUpon>
     </Compile>
+    <Compile Update="MandatoryAdorner.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
   </ItemGroup>
 
   <ItemGroup>
@@ -19,6 +22,14 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Update="DateEx.xaml">
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="MandatoryAdorner.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Resources.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
