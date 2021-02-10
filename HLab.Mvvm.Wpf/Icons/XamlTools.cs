@@ -139,7 +139,7 @@ namespace HLab.Mvvm.Icons
                 
                 xr.LoadCompleted += (o, e) =>
                 {
-                    if (!(obj is UIElement icon)) return;
+                    if (obj is not UIElement icon) return;
                     tcs.SetResult(icon);
                     SetBinding(icon,_foreColor,_backColor);
                 };

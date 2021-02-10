@@ -20,6 +20,9 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
+
+using System;
+using System.Collections.Generic;
 using System.Text.RegularExpressions;
 
 namespace HLab.Base.Extensions
@@ -70,6 +73,25 @@ namespace HLab.Base.Extensions
             var i = s.IndexOf(suffix);
             if (i >= 0) return s.Substring(0, i);
             return s;
+        }
+        public static IEnumerable<string> GetInside(this string source,char left, char right)
+        {
+            var s = "";
+            var level = 0;
+            foreach (var c in source)
+            {
+                if(c==right)
+                {
+                    level--;
+                    if (level != 0) continue;
+                    yield return s;
+                    s = "";
+                }
+                else if(c==left) level++;
+                else if (level>0) s += c;
+            }
+
+            if (level != 0) throw new ArgumentException("Invalid expression");
         }
 
     }

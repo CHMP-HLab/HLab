@@ -1,8 +1,13 @@
-﻿using System.Collections.ObjectModel;
+﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.Tracing;
+using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
 using HLab.Base;
+using HLab.Base.Extensions;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Lang
@@ -41,6 +46,7 @@ namespace HLab.Mvvm.Lang
                 {
                     var localize = (ILocalizationService) s.GetValue(Localize.LocalizationServiceProperty);
                     s.TextBoxDisabled.Text = await localize.LocalizeAsync(e.NewValue).ConfigureAwait(true);
+                    await s.PopulateAsync(e.NewValue);
                 })
                 .Register();
 
@@ -66,13 +72,21 @@ namespace HLab.Mvvm.Lang
 
 
 
-        public ObservableCollection<ILocalizeEntry> Translations { get; } = new ObservableCollection<ILocalizeEntry>();
+        public ObservableCollection<ILocalizeEntry> Translations { get; } = new();
 
-        private void Populate()
+        private async Task PopulateAsync(string source)
         {
             var service = (ILocalizationService)GetValue(Localize.LocalizationServiceProperty);
+            var list = source.GetInside('{', '}').ToList();
 
+            Translations.Clear();
+
+            foreach (var s in list)
+            {
+                Translations.Add(await service.GetLocalizeEntryAsync("fr-fr",s));
+            }
         }
+
 
     }
 
