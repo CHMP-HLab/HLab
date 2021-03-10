@@ -1,50 +1,27 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
 namespace HLab.Base.Wpf
 {
-    public static class ControlExtentions
+    public static class ControlExtensions
     {
-        public static void SetMouseWheel(this FrameworkElement fe)
+        public static IEnumerable<T> FindVisualChildren<T>(this DependencyObject depObj) where T : DependencyObject
         {
-            foreach (var c in FindVisualChildren<ScrollViewer>(fe))
-            {
-                if (c is ScrollViewer sc)
-                    sc.PreviewMouseWheel += Sc_PreviewMouseWheel;
-            }
-        }
+            if (depObj == null) yield break;
 
-        private static void Sc_PreviewMouseWheel(object sender, System.Windows.Input.MouseWheelEventArgs e)
-        {
-            if (sender is ScrollViewer sc)
+            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
             {
-                sc.ScrollToVerticalOffset(sc.VerticalOffset - e.Delta);
-                e.Handled = true;
-            }
-        }
-
-        public static IEnumerable<T> FindVisualChildren<T>(DependencyObject depObj) where T : DependencyObject
-        {
-            if (depObj != null)
-            {
-                for (int i = 0; i < VisualTreeHelper.GetChildrenCount(depObj); i++)
+                var child = VisualTreeHelper.GetChild(depObj, i);
+                if (child is T childT)
                 {
-                    DependencyObject child = VisualTreeHelper.GetChild(depObj, i);
-                    if (child != null && child is T)
-                    {
-                        yield return (T)child;
-                    }
+                    yield return childT;
+                }
 
-                    foreach (T childOfChild in FindVisualChildren<T>(child))
-                    {
-                        yield return childOfChild;
-                    }
+                foreach (var childOfChild in child.FindVisualChildren<T>())
+                {
+                    yield return childOfChild;
                 }
             }
         }

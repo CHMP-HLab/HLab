@@ -42,32 +42,47 @@ namespace HLab.Options
             return new StreamWriter(fileName);
         }
 
+        public IEnumerable<string> GetSubList(string path, string name, int? userid, string providerName = null)
+            => GetSubListAsync(path, name, userid, providerName).Result;
 
-        public void SetValue<T>(string name, T value, string provider = null, int? userid = null)
-            => SetValueAsync(name, value, provider, userid);
+
+        public void SetValue<T>(string path, string name, T value, string provider = null, int? userid = null)
+            => SetValueAsync(path, name, value, provider, userid);
 
 
-        public T GetValue<T>(string name, int? userid = null, Func<T> defaultValue = null, string providerName = null) 
-            => GetValueAsync(name, defaultValue, providerName, userid).Result;
+        public T GetValue<T>(string path, string name, int? userid = null, Func<T> defaultValue = null, string providerName = null) 
+            => GetValueAsync(path, name, defaultValue, providerName, userid).Result;
 
-        public async Task<T> GetValueAsync<T>(string name, Func<T> defaultValue = null, string providerName = null, int? userid = null)
+        public async Task<IEnumerable<string>> GetSubListAsync(string path, string name, int? userid, string providerName = null)
         {
             foreach (var provider in _providers)
             {
                 if (!string.IsNullOrWhiteSpace(providerName) && providerName != provider.Name) continue;
-                var result = await provider.GetValueAsync<T>(name, userid).ConfigureAwait(false);
+                var result = await provider.GetSubListAsync(path,name, userid).ConfigureAwait(false);
+                return result;
+            }
+
+            return new List<string>();
+        }
+
+        public async Task<T> GetValueAsync<T>(string path, string name, Func<T> defaultValue = null, string providerName = null, int? userid = null)
+        {
+            foreach (var provider in _providers)
+            {
+                if (!string.IsNullOrWhiteSpace(providerName) && providerName != provider.Name) continue;
+                var result = await provider.GetValueAsync<T>(path,name, userid).ConfigureAwait(false);
                 return result;
             }
 
             return defaultValue == null ? default : defaultValue();
         }
 
-        public async Task SetValueAsync<T>(string name, T value, string providerName=null, int? userid=null)
+        public async Task SetValueAsync<T>(string path, string name, T value, string providerName=null, int? userid=null)
         {
             foreach (var provider in _providers)
             {
                 if (!string.IsNullOrWhiteSpace(providerName) && providerName != provider.Name) continue;
-                await provider.SetValueAsync<T>(name, value, userid);
+                await provider.SetValueAsync<T>(path, name, value, userid);
             }
         }
         public static T GetValueFromString<T>(string value, Func<T> defaultValue = null)

@@ -8,6 +8,8 @@ using HLab.Core.Annotations;
 using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Acl;
 using HLab.Erp.Core;
+using HLab.Icons.Annotations.Icons;
+using HLab.Icons.Wpf;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
 
@@ -50,6 +52,8 @@ namespace HLab.Mvvm.Application.Wpf
 
         [Import]
         public ILocalizationService LocalizationService { get; }
+        [Import]
+        public IIconService IconService { get; }
 
         public ObservableCollection<object> Anchorables { get; } = new ObservableCollection<object>();
         public ObservableCollection<object> Documents { get; } = new ObservableCollection<object>();

@@ -64,7 +64,7 @@ namespace HLab.Mvvm.Application.Wpf
             var sb = new StringBuilder();
             using var writer = new StringWriter(sb);
             layoutSerializer.Serialize(writer);
-            _options.SetValue<string>("Layout", sb.ToString(),"", UserId);
+            _options.SetValue<string>("","Layout", sb.ToString(),"", UserId);
         }
 
         private async void LoadLayout()
@@ -73,7 +73,7 @@ namespace HLab.Mvvm.Application.Wpf
 
             try
             {
-                var layout = await _options.GetValueAsync<string>("Layout",null,null,UserId).ConfigureAwait(true);
+                var layout = await _options.GetValueAsync<string>("","Layout",null,null,UserId).ConfigureAwait(true);
                 //using var reader = _options.GetOptionFileReader(LayoutFileName);
                 if (!string.IsNullOrWhiteSpace(layout))
                 {

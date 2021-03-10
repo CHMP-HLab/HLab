@@ -26,7 +26,7 @@ using System;
 
 ////using System.Data.Model;
 
-namespace HLab.Mvvm
+namespace HLab.Mvvm.Annotations
 {
     public class ProgressEventArgs : EventArgs
     {

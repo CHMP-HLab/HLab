@@ -1,0 +1,48 @@
+﻿<UserControl x:Class="HLab.Mvvm.Application.Wpf.Icons.IconSelectorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:wpf="clr-namespace:HLab.Icons.Wpf;assembly=HLab.Icons.Wpf"
+             xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="15" d:DesignWidth="200"
+             >
+    <Grid>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <icons:IconView HorizontalAlignment="Center" Margin="0,0,10,0" Height="25" Path ="{Binding Path=Path,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"/>
+        <TextBox Grid.Column="1" Text ="{Binding Path=Path,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"/>
+
+        <StackPanel Grid.Column="2" Orientation="Horizontal">
+
+            <Button x:Name="Button" Click="ButtonDropDown_OnClick">
+                <StackPanel>
+                    <icons:IconView x:Name="Label" Path="Icons/SelectForeign" MaxHeight="10"/>
+                    <Popup 
+                        x:Name="Popup" 
+                        StaysOpen="False"
+                        Placement="Left"
+                        AllowsTransparency="True">
+                        
+                        <Border CornerRadius="10" BorderBrush="White" Background="#F0000000" BorderThickness="0">
+                            <Grid Margin="10">
+                                <ContentPresenter x:Name="PopupContent"/>
+                            </Grid>
+                        </Border>
+                        
+                    </Popup>
+                </StackPanel>
+            </Button>
+
+            <Button Click="ButtonBase_OnClick" Height="15">
+                <icons:IconView Path="icons/OpenForeign"/>
+            </Button>
+
+        </StackPanel>
+    </Grid>
+</UserControl>

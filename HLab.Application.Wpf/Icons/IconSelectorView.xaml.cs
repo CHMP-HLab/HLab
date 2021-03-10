@@ -1,0 +1,64 @@
+﻿using System;
+using System.Windows;
+using System.Windows.Controls;
+using HLab.Base.Wpf;
+using HLab.DependencyInjection.Annotations;
+using HLab.Erp.Core;
+using HLab.Icons.Annotations.Icons;
+using HLab.Icons.Wpf;
+using HLab.Mvvm.Annotations;
+
+namespace HLab.Mvvm.Application.Wpf.Icons
+{
+    using H = DependencyHelper<IconSelectorView>;
+
+    /// <summary>
+    /// Logique d'interaction pour IconSelectorView.xaml
+    /// </summary>
+    public partial class IconSelectorView : UserControl
+    {
+        public IconSelectorView()
+        {
+            InitializeComponent();
+        }
+
+        public static readonly DependencyProperty PathProperty = H.Property<string>().BindsTwoWayByDefault/*.OnChange((e,a) => e.OnPathChanged(a))*/.Register();
+
+        public string Path
+        {
+            get => (string) GetValue(PathProperty);
+            set => SetValue(PathProperty, value);
+        }
+
+        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        {
+            var icon = ViewLocator.GetMvvmContext(this).Scope.Locate<IIconService>().GetIconAsync(Path);
+            ViewLocator.GetMvvmContext(this).Scope.Locate<IDocumentService>().OpenDocumentAsync(icon);
+        }
+
+        //[Import] private Func<IconListViewModel> _getIconListViewModel;
+
+        private void ButtonDropDown_OnClick(object sender, RoutedEventArgs e)
+        {
+            if (Popup.IsOpen) return;
+
+            Popup.IsOpen = true;
+            var ctx = ViewLocator.GetMvvmContext(this);
+
+            var vm = ctx.Scope.Locate<IconListViewModel>(this);
+
+            if (vm is IEntityListViewModel lvm)
+            {
+                lvm.SetSelectAction(t =>
+                {
+                    Popup.IsOpen = false;
+                    Path = vm.Selected.Path;
+                });
+            }
+
+            //var view = ctx.GetView(vm,typeof(ViewModeDefault),typeof(IViewClassDefault));
+            PopupContent.Content = vm;
+        }
+
+    }
+}

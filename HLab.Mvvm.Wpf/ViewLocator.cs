@@ -27,6 +27,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using HLab.Base;
+using HLab.Base.Wpf;
 using HLab.Mvvm.Annotations;
 namespace HLab.Mvvm
 {
@@ -86,6 +87,8 @@ namespace HLab.Mvvm
         public static void SetViewMode(DependencyObject obj, Type value)
             => obj.SetValue(ViewModeProperty, value);
 
+        public static Type GetViewClass(DependencyObject obj)
+            => (Type)obj.GetValue(ViewClassProperty);
         public static void SetViewClass(DependencyObject obj, Type value) 
             => obj.SetValue(ViewClassProperty, value);
         

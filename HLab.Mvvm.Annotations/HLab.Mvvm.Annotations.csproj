@@ -12,6 +12,7 @@
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.Core.Annotations\HLab.Core.Annotations.csproj" />
     <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
+    <ProjectReference Include="..\Hlab.Icons.Annotations\HLab.Icons.Annotations.csproj" />
   </ItemGroup>
 
 </Project>

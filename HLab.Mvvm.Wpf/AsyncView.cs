@@ -2,7 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using H = HLab.Base.DependencyHelper<HLab.Mvvm.AsyncView>;
+using H = HLab.Base.Wpf.DependencyHelper<HLab.Mvvm.AsyncView>;
 
 namespace HLab.Mvvm
 {

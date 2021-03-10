@@ -3,12 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mvvm="clr-namespace:HLab.Mvvm"
+             xmlns:lang="clr-namespace:HLab.Localization.Wpf.Lang;assembly=HLab.Localization.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="50" d:DesignWidth="800">
-    <UserControl.Resources>
-        <mvvm:LocalizationConverter x:Key="LocalizationConverter"/>
-    </UserControl.Resources>
     <Grid HorizontalAlignment="Center">
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
@@ -17,15 +14,17 @@
         <Button 
             Margin="5" 
             Width="{Binding Width, ElementName=CancelButton}"
-            Content="{Binding Localization, Converter=LocalizationConverter, ConverterParameter=Ok}"
             Command="{Binding OkCommand}"
-            />
+            >
+            <lang:LocalizedLabel Text="{}{OK}"/>
+        </Button>
         <Button 
             x:Name="CancelButton" 
             Grid.Column="1" 
             Margin="5"
-            Content="{Binding Localization, Converter=LocalizationConverter, ConverterParameter=Cancel}"
             Command="{Binding CancelCommand}"
-            />
+            >
+            <lang:LocalizedLabel Text="{}{Cancel}"/>
+        </Button>
     </Grid>
 </UserControl>

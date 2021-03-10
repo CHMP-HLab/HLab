@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
+    <ProjectReference Include="..\HLab.Icons.Wpf\HLab.Icons.Wpf.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Lang\LocalizedLabel.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Update="Lang\LocalizeTextBox.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Lang\LocalizedLabel.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Lang\LocalizeTextBox.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>

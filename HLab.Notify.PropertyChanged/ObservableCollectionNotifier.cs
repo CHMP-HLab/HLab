@@ -39,9 +39,9 @@ namespace HLab.Notify.PropertyChanged
         IList<T>, IList, IReadOnlyList<T>, INotifyCollectionChanged, ILockable
         //where T : INotifyPropertyChanged
     {
-        public ObservableCollectionNotifier()
+        protected ObservableCollectionNotifier()
         {
-            if (_eventHandlerService == null) _eventHandlerService = NotifyHelper.EventHandlerService;
+            _eventHandlerService ??= NotifyHelper.EventHandlerService;
             H<ObservableCollectionNotifier<T>>.Initialize(this);
         }
 
@@ -53,12 +53,11 @@ namespace HLab.Notify.PropertyChanged
 
         #endregion
 
-        private readonly List<T> _list = new List<T>();
+        private readonly List<T> _list = new();
 
-        private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
-        protected AsyncReaderWriterLock Lock => _lock;
+        protected AsyncReaderWriterLock Lock { get; } = new();
 
-        private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _changedQueue = new ConcurrentQueue<NotifyCollectionChangedEventArgs>();
+        private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _changedQueue = new();
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -300,5 +299,6 @@ namespace HLab.Notify.PropertyChanged
             }
 
         }
+
     }
 }

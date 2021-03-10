@@ -1,9 +1,7 @@
 ﻿using System.Windows;
 using System.Windows.Media;
 using System.Windows.Shapes;
-using HLab.Core;
 using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Flowchart.Models;
 using HLab.Notify.Annotations;
@@ -15,8 +13,6 @@ namespace HLab.Mvvm.Flowchart.ViewModel
     using H = H<PinViewModel>;
     public class PinViewModel : ViewModel<IPin>, IPinViewModel
     {
-        [Import]
-        public IIconService IconService { get; }
 
         public PinViewModel(IMessageBus messageBus, IGraphService graphService)
         {

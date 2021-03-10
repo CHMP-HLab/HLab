@@ -7,5 +7,6 @@ namespace HLab.Mvvm.Flowchart.Models
         IGraphElement Parent { get; set; }
         string Id { get; set; }
         string Caption { get; set; }
+        string IconPath { get; set; }
     }
 }

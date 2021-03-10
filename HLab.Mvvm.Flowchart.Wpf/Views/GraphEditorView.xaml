@@ -25,9 +25,7 @@
                 </DrawingBrush>
             </Grid.Background>
         </Grid>
-        <Grid x:Name="WorkArea">
-            
-        </Grid>
+        <Grid x:Name="WorkArea" />
         <TextBlock TextAlignment="Left" Width="100" Height="100" Foreground="White" Text="{Binding Id,FallbackValue=1}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
     </Grid>
 </UserControl>

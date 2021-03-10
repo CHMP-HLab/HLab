@@ -2,6 +2,9 @@
 
 namespace HLab.Base.Fluent
 {
+
+    public delegate void FluentConfiguratorDelegate<in T>(IFluentConfigurator<T> configurator); 
+
     public interface IFluentConfigurator<out T>
     {
         T Target { get; }

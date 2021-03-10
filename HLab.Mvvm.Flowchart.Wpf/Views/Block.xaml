@@ -5,8 +5,9 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:HLab.Mvvm.Flowchart.Views"
              xmlns:viewModel="clr-namespace:HLab.Mvvm.Flowchart.ViewModel"
-             xmlns:icons="clr-namespace:HLab.Mvvm.Icons;assembly=HLab.Mvvm.Wpf"
              xmlns:mvvm="clr-namespace:HLab.Mvvm;assembly=HLab.Mvvm.Wpf"
+             xmlns:wpf="clr-namespace:HLab.Icons.Wpf;assembly=HLab.Icons.Wpf"
+             xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="325.5" d:DesignWidth="328.5"
              
@@ -28,7 +29,8 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
 
-        <Border Visibility="{Binding SelectedVisibility,FallbackValue=Collapsed}" BorderThickness="3" BorderBrush="{Binding Model.Color,Converter={StaticResource ColorToBorderConverter}}" Margin="-5" Grid.RowSpan="2" CornerRadius="10"><Border.Effect><BlurEffect Radius="5" KernelType="Gaussian"></BlurEffect></Border.Effect></Border>
+        <Border Visibility="{Binding SelectedVisibility,FallbackValue=Collapsed}" BorderThickness="3" BorderBrush="{Binding Model.Color,Converter={StaticResource ColorToBorderConverter}}" Margin="-5" Grid.RowSpan="2" CornerRadius="10"><Border.Effect><BlurEffect Radius="5" KernelType="Gaussian" />
+        </Border.Effect></Border>
         
         <Grid
             Grid.Row="0">
@@ -47,7 +49,6 @@
                     Margin="3"
                     Opacity="0.7"
                     Foreground="White"
-                    IconService="{Binding IconService}"
                     Path="{Binding Model.IconPath}" Height="20"/>
                 <TextBox 
                     Background="Transparent"

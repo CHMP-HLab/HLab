@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using HLab.DependencyInjection.Annotations;
 using Microsoft.Win32;
@@ -12,23 +14,35 @@ namespace HLab.Options.Wpf
 
         public IOptionsService Options { get; set; }
 
-
-        public Task SetValueAsync<T>(string name, T value, int? userid)
+        public Task<IEnumerable<string>> GetSubListAsync(string path, string name, int? userid)
         {
-            var t = new Task( () =>
+            var t = new Task<IEnumerable<string>>( () =>
                 {
-                    using var rk = Registry.CurrentUser.CreateSubKey(@"Software\" + Options.OptionsPath);
-                    rk.SetValue(name, value?.ToString() ?? "");
+                    using var rk = Registry.CurrentUser.OpenSubKey(@$"Software\{Options.OptionsPath}{getPath(path)}\{name}");
+                    return rk?.GetSubKeyNames().ToList() ?? new List<string>();
                 });
             t.Start();
             return t;
         }
 
-        public async Task<T> GetValueAsync<T>(string name, int? userid = null, Func<T> defaultValue = null)
+        private string getPath(string path) => (string.IsNullOrEmpty(path))?"":$@"\{path}";
+
+        public Task SetValueAsync<T>(string path, string name, T value, int? userid)
+        {
+            var t = new Task( () =>
+            {
+                    using var rk = Registry.CurrentUser.CreateSubKey(@$"Software\{Options.OptionsPath}{getPath(path)}");
+                    rk?.SetValue(name, value?.ToString() ?? "");
+                });
+            t.Start();
+            return t;
+        }
+
+        public async Task<T> GetValueAsync<T>(string path, string name, int? userid = null, Func<T> defaultValue = null)
         {
             return await Task.Run( () =>
             {
-                using var rk = Registry.CurrentUser.OpenSubKey(@"Software\" + Options.OptionsPath);
+                using var rk = Registry.CurrentUser.OpenSubKey(@$"Software\{Options.OptionsPath}{getPath(path)}");
                 if (rk == null) return defaultValue==null?default:defaultValue();
                 var s = rk.GetValue(name)?.ToString();
 

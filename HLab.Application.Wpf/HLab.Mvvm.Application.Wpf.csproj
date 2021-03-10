@@ -20,19 +20,24 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.1" />
-    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.50.1" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.3" />
+    <PackageReference Include="Dirkster.AvalonDock" Version="4.50.2" />
+    <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.50.2" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\..\HLab.Erp\HLab.Erp.Acl\HLab.Erp.Acl.csproj" />
+    <ProjectReference Include="..\..\HLab.Erp\HLab.Erp.Core.Wpf\HLab.Erp.Core.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Application\HLab.Mvvm.Application.csproj" />
+    <ProjectReference Include="..\HLab.Icons.Wpf\HLab.Icons.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Mvvm.Wpf\HLab.Mvvm.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Options\HLab.Options.csproj" />
   </ItemGroup>
 
   <ItemGroup>
+    <Compile Update="Icons\IconSelectorView.xaml.cs">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Update="Update\ApplicationUpdateView.xaml.cs">
       <DependentUpon>ApplicationUpdateView.xaml</DependentUpon>
     </Compile>
@@ -42,6 +47,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Update="Icons\IconSelectorView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Update\ApplicationUpdateView.xaml">
       <SubType>Designer</SubType>
     </Page>

@@ -137,11 +137,11 @@ namespace HLab.Mvvm
                         if (viewClasses.Count > 0)
                         {
                             foreach (var cls in viewClasses)
-                                Register(baseType, viewType, cls, viewMode);
+                                RegisterAll(baseType, viewType, cls, viewMode);
                         }
                         else
                         {
-                            Register(baseType, viewType, typeof(IViewClassDefault), viewMode);
+                            RegisterAll(baseType, viewType, typeof(IViewClassDefault), viewMode);
                         }
                     }
 
@@ -157,6 +157,9 @@ namespace HLab.Mvvm
             , Type viewMode
             /*, Type regFrom = null*/)
         {
+            Register(baseType, linkedType /*lt*/, viewClass, viewMode);
+
+
             var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom).Where(t => !t.IsAssignableFrom(baseType)).Where(t => !typeof(IViewModelDesign).IsAssignableFrom(t)));
             var linkedTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(linkedType.IsAssignableFrom)).ToList();
 
@@ -165,6 +168,8 @@ namespace HLab.Mvvm
                     Register(bt, lt /*lt*/, viewClass, viewMode);
 
         }
+
+
         public void Register(
             Type baseType
             , Type linkedType
@@ -193,6 +198,9 @@ namespace HLab.Mvvm
                 Register(modelType, baseType, viewClass, viewMode);
 
         }
+
+
+
         /// <summary>
         /// Get all ViewClass assigned to a specific type
         /// </summary>

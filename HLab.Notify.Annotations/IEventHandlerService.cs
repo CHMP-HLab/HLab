@@ -6,6 +6,16 @@ using System.Threading.Tasks;
 namespace HLab.Notify.Annotations
 {
 
+    public interface IGuiTimer
+    {
+        void Start();
+        void Stop();
+        void DoTick();
+        TimeSpan Interval { get; set; }
+        bool IsEnabled { get; set; }
+
+        event EventHandler Tick;
+    }
 
 
     public interface IEventHandlerService
@@ -32,6 +42,8 @@ namespace HLab.Notify.Annotations
 
         void RemoveHandler<TSource, TArgs>(TSource source, string name, EventHandler<TArgs> handler)
             where TArgs : EventArgs;
+
+        IGuiTimer GetTimer();
     }
 
     public class EventHandlerService : IEventHandlerService
@@ -68,8 +80,6 @@ namespace HLab.Notify.Annotations
             => source.ExtendedPropertyChanged -= handler;
 
 
-
-
         public void AddHandler(INotifyPropertyChanged source, EventHandler<PropertyChangedEventArgs> handler,string propertyName)
         {
             throw new NotImplementedException();
@@ -97,6 +107,11 @@ namespace HLab.Notify.Annotations
         }
 
         public void RemoveHandler<TSource, TArgs>(TSource source, string name, EventHandler<TArgs> handler) where TArgs : EventArgs
+        {
+            throw new NotImplementedException();
+        }
+
+        public IGuiTimer GetTimer()
         {
             throw new NotImplementedException();
         }

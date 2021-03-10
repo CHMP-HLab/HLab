@@ -119,7 +119,7 @@ namespace HLab.Notify.PropertyChanged
         /// <param name="expr"></param>
         /// <returns></returns>
         public static NotifyConfigurator<TClass, TMember> 
-            OneWayBind<TClass, TMember,T>(this NotifyConfigurator<TClass, TMember> c, Expression<Func<TClass, T>> expr)
+            Bind<TClass, TMember,T>(this NotifyConfigurator<TClass, TMember> c, Expression<Func<TClass, T>> expr)
             where TClass : class, INotifyPropertyChangedWithHelper
             where TMember : PropertyHolder<T>
         {

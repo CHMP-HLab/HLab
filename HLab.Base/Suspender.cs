@@ -47,26 +47,29 @@ namespace HLab.Base
     }
     public class Suspender
     {
-        private readonly ReaderWriterLockSlim _wlock = new ReaderWriterLockSlim();
-        private readonly HashSet<SuspenderToken> _list = new HashSet<SuspenderToken>();
-        private readonly Action _action;
+        private readonly ReaderWriterLockSlim _wLock = new();
+        private readonly HashSet<SuspenderToken> _list = new();
+        private readonly Action _suspendedAction;
+        private readonly Action _resumeAction;
 
-        public Suspender(Action action=null)
+        public Suspender(Action suspendedAction=null, Action resumeAction=null)
         {
-            _action = action;
+            _suspendedAction = suspendedAction;
+            _resumeAction = resumeAction;
         }
         public SuspenderToken Get()
         {
-            _wlock.EnterWriteLock();
+            _wLock.EnterWriteLock();
             try
             {
-                SuspenderToken s = new SuspenderToken(this);
+                if(_list.Count == 0) _suspendedAction?.Invoke();
+                var s = new SuspenderToken(this);
                 _list.Add(s);
                 return s;
             }
             finally
             {
-                _wlock.ExitWriteLock();
+                _wLock.ExitWriteLock();
             }
         }
 
@@ -74,14 +77,14 @@ namespace HLab.Base
         {
             get
             {
-                _wlock.EnterReadLock();
+                _wLock.EnterReadLock();
                 try
                 {
                     return _list.Count > 0;
                 }
                 finally
                 {
-                    _wlock.ExitReadLock();
+                    _wLock.ExitReadLock();
                 }
 
             }            
@@ -89,7 +92,7 @@ namespace HLab.Base
 
         public void Resume(SuspenderToken s)
         {
-            _wlock.EnterWriteLock();
+            _wLock.EnterWriteLock();
             try
             {
                 _list.Remove(s);
@@ -98,12 +101,12 @@ namespace HLab.Base
             }
             finally
             {
-                _wlock.ExitWriteLock();
+                _wLock.ExitWriteLock();
             }
 
             //            try
             {
-                _action?.Invoke();
+                _resumeAction?.Invoke();
             }
 //            catch (Exception)
             {

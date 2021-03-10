@@ -3,8 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:HLab.Bugs.Wpf"
-        xmlns:wpf="clr-namespace:HLab.Base.Wpf;assembly=HLab.Base.Wpf"
+        xmlns:controlsEx="clr-namespace:HLab.Base.Wpf.ControlsEx;assembly=HLab.Base.Wpf"
         mc:Ignorable="d"
         Background="DarkBlue"
         Title="Bug report" Height="450" Width="800"
@@ -65,7 +64,7 @@
                 <Button Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" Background="Green" x:Name="ButtonReopen" Click="ButtonReopen_OnClick" Width="100" IsDefault="True">Reopen</Button>
             </StackPanel>
         </DockPanel>
-        <wpf:ScrollViewerEx
+        <controlsEx:ScrollViewerEx
             MaxWidth="800"
             MaxHeight="400"
             x:Name="ScrollViewer"
@@ -76,6 +75,6 @@
             Foreground="White"
             x:Name="txtDetail" 
             Visibility="Collapsed"/>
-        </wpf:ScrollViewerEx>
+        </controlsEx:ScrollViewerEx>
     </StackPanel>
 </Window>

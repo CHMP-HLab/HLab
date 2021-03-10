@@ -181,5 +181,48 @@ namespace HLab.Notify.Wpf
             => WeakEventManager<TSource,TArgs>.AddHandler(source,name,handler);
         public void RemoveHandler<TSource,TArgs>(TSource source, string name, EventHandler<TArgs> handler) where TArgs : EventArgs
             => WeakEventManager<TSource,TArgs>.RemoveHandler(source,name,handler);
+
+        public IGuiTimer GetTimer() => new GuiTimer();
+    }
+
+
+    public class GuiTimer : IGuiTimer
+    {
+        private readonly DispatcherTimer _timer;
+        private Dispatcher _dispatcher;
+
+        public GuiTimer()
+        {
+            _dispatcher = Application.Current.Dispatcher;
+            _timer = new DispatcherTimer(DispatcherPriority.DataBind,_dispatcher);
+            _timer.Tick += _timer_Tick;
+        }
+
+        private void _timer_Tick(object sender, EventArgs e)
+        {
+            Tick?.Invoke(sender, e);
+        }
+
+        public void Start() => _timer.Start();
+        public void Stop() => _timer.Stop();
+        public void DoTick()
+        {
+            _dispatcher.BeginInvoke(() => Tick?.Invoke(this, new EventArgs()));
+            _timer.Start();
+        }
+
+        public TimeSpan Interval
+        {
+            get => _timer.Interval;
+            set => _timer.Interval = value;
+        }
+
+        public bool IsEnabled
+        {
+            get => _timer.IsEnabled; 
+            set => _timer.IsEnabled = value;
+        }
+
+        public event EventHandler Tick;
     }
 }

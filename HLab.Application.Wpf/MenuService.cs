@@ -4,8 +4,8 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Core;
-using HLab.Mvvm.Icons;
-using HLab.Mvvm.Lang;
+using HLab.Icons.Wpf.Icons;
+using HLab.Localization.Wpf.Lang;
 
 namespace HLab.Mvvm.Application.Wpf
 {

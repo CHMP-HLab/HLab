@@ -107,6 +107,14 @@ namespace HLab.Mvvm.Flowchart.Models
 
         private readonly IProperty<string> _caption = H.Property<string>(c => c.Default(""));
 
+        [DataMember]
+        public virtual string IconPath
+        {
+            get => _iconPath.Get();
+            set => _iconPath.Set(value);
+        }
+
+        private readonly IProperty<string> _iconPath = H.Property<string>(c => c.Default(""));
 
 
         public virtual Color Color => Colors.White;

@@ -114,7 +114,7 @@ namespace HLab.Mvvm
                 var parts = value.Split("=");
                 if (parts.Length > 1)
                 {
-                    var p = parts[0].ToLower();
+                    var p = parts[0].ToLower().Replace("us","en");
                     if (p == tag || p == tag.Substring(0, 2))
                     {
                         text = text.Replace(match.Value, parts[1]);

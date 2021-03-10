@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="colors.xml" />
+    <None Remove="html2xaml.xslt" />
+    <None Remove="svg2xaml.old.xsl" />
+    <None Remove="svg2xaml.xsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Icons\svg2xaml.old.xsl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Icons\colors.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\html2xaml.xslt" />
+    <EmbeddedResource Include="Icons\svg2xaml.xsl">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
+    <ProjectReference Include="..\HLab.Core\HLab.Core.csproj" />
+    <ProjectReference Include="..\Hlab.Icons.Annotations\HLab.Icons.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="Icons\IconView.xaml.cs">
+      <DependentUpon>IconView.xaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Update="Icons\IconGrid.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+    </Page>
+    <Page Update="Icons\IconView.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+  </ItemGroup>
+
+</Project>
