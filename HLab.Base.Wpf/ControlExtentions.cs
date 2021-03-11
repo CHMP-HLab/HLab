@@ -7,7 +7,7 @@ namespace HLab.Base.Wpf
 {
     public static class ControlExtensions
     {
-        public static IEnumerable<T> FindVisualChildren<T>(this DependencyObject depObj) where T : DependencyObject
+        public static IEnumerable<T> FindVisualChildren<T>(this DependencyObject depObj) 
         {
             if (depObj == null) yield break;
 
