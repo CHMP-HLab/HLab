@@ -65,7 +65,7 @@ namespace HLab.Mvvm.Application.Wpf
             MainWindow = new DefaultWindow()
             {
                 //WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                //WindowState =  WindowState.Maximized
+                WindowState =  WindowState.Maximized
             };
 
             MainWindow.Closing += (sender, args) => System.Windows.Application.Current.Shutdown();
