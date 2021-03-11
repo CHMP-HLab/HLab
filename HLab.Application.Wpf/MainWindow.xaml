@@ -5,25 +5,21 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:lang="clr-namespace:HLab.Localization.Wpf.Lang;assembly=HLab.Localization.Wpf"
         xmlns:xcad="https://github.com/Dirkster99/AvalonDock"
-        xmlns:converters="clr-namespace:HLab.Base.Wpf.Converters;assembly=HLab.Base.Wpf"
         xmlns:wpf="clr-namespace:HLab.Mvvm.Application.Wpf"
-        xmlns:wpf1="clr-namespace:HLab.Icons.Wpf;assembly=HLab.Icons.Wpf"
         xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=wpf:MainWpfViewModel, IsDesignTimeCreatable=True}"
         icons:IconView.IconService="{Binding IconService}"
         lang:Localize.LocalizationService="{Binding LocalizationService}"
 >
-    <UserControl.Resources>
-        <converters:ToVisibilityConverter x:Key="ToVisibility"/>
-    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-        
+
+        <!-- Menu Bar-->
         <Grid
                    MouseDown="MainWindow_OnMouseDown"
                    MouseMove="UIElement_OnMouseMove"
@@ -35,19 +31,29 @@
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Viewbox  Height="25"><icons:IconView Path="icons/logo" Grid.Column="0"/></Viewbox>
+
+            <Viewbox  Height="25">
+                <icons:IconView Path="icons/logo" />
+            </Viewbox>
+
             <ContentControl Grid.Column="1" FontSize="25" Content="{Binding Menu}"/>
+
             <Label Opacity="0.5" Grid.Column="2" 
                    HorizontalContentAlignment="Center" 
                    Content="{Binding Title}" 
             />
+
             <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,120,0">
                 <Button Command="{Binding OpenUserCommand}" Content ="{Binding Acl.Connection.User.Caption}"/>
                 <icons:IconView Margin="7" Path="Icons/Entities/User" Height="20"/>
             </StackPanel>
         </Grid>
-        <Viewbox Height="1000" Grid.Row="2" Opacity="0.1"><icons:IconView Path="icons/LogoBackground"/></Viewbox>
+
+        <Viewbox Height="1000" Grid.Row="2" Opacity="0.1">
+            <icons:IconView Path="icons/LogoBackground"/>
+        </Viewbox>
         
+        <!-- Documents-->
         <xcad:DockingManager x:Name="DockingManager" Grid.Row="2"
                              
                         DocumentsSource="{Binding Documents}"
@@ -56,9 +62,6 @@
                         IsEnabled="{Binding IsEnabled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
                         Background="Transparent"
                        >
-                        <!--application:AvalonDockLayoutSerializer.LoadLayoutCommand="{Binding ADLayout.LoadLayoutCommand}"
-                        application:AvalonDockLayoutSerializer.SaveLayoutCommand="{Binding ADLayout.SaveLayoutCommand}"-->
-
 
             <xcad:DockingManager.Theme>
                 <xcad:Vs2013DarkTheme />
@@ -77,7 +80,7 @@
                             </Viewbox>
                             <lang:LocalizedLabel Margin="10,0,0,0" FontSize="14" FontWeight="Bold" Text="{Binding Content.DataContext.Title}"/>
                         </StackPanel>
-                        <StackPanel Background="{DynamicResource MahApps.Brushes.Badged.Background}" Visibility="{Binding Content.DataContext.SubTitle,Converter={StaticResource ToVisibility},FallbackValue=Collapsed}">
+                        <StackPanel Background="{DynamicResource MahApps.Brushes.Badged.Background}" Visibility="{Binding Content.DataContext.SubTitle,Converter={StaticResource ToVisibilityConverter},FallbackValue=Collapsed}">
                             <lang:LocalizedLabel Margin="3,0" FontSize="12" FontStyle="Italic" Text="{Binding Content.DataContext.SubTitle}"/>
                         </StackPanel>                        
                     </StackPanel>

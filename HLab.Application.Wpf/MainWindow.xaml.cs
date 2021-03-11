@@ -60,7 +60,6 @@ namespace HLab.Mvvm.Application.Wpf
         private void SaveLayout()
         {
             var layoutSerializer = new XmlLayoutSerializer(DockingManager);
-            //using var writer = _options.GetOptionFileWriter(LayoutFileName);
             var sb = new StringBuilder();
             using var writer = new StringWriter(sb);
             layoutSerializer.Serialize(writer);
@@ -74,7 +73,6 @@ namespace HLab.Mvvm.Application.Wpf
             try
             {
                 var layout = await _options.GetValueAsync<string>("","Layout",null,null,UserId).ConfigureAwait(true);
-                //using var reader = _options.GetOptionFileReader(LayoutFileName);
                 if (!string.IsNullOrWhiteSpace(layout))
                 {
                     using var reader = new StringReader(layout);

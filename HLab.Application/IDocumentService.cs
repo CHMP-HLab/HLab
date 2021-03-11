@@ -1,7 +1,6 @@
-﻿using System;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-namespace HLab.Erp.Core
+namespace HLab.Mvvm.Application
 {
     public interface IDocumentService
     {

@@ -32,7 +32,7 @@ namespace HLab.Mvvm.Application.Wpf
         }
         public Type MainViewMode { get; private set; }
 
-        public MainWpfViewModel ViewModel { get; set; } //= new ApplicationViewModel().SetParentMvvmContext(MvvmService.MainContext);
+        public MainWpfViewModel ViewModel { get; set; } 
         public Window MainWindow { get; protected set; }
  
         private static void InitializeCultures()
