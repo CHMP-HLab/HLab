@@ -21,18 +21,15 @@ namespace HLab.Mvvm.Application.Wpf
     public class MainWpfViewModel : NotifierBase
     {
 
-        [Import] public MainWpfViewModel(IAclService acl)
+        [Import] public MainWpfViewModel(IAclService acl, IMessageBus message)
         {
             Acl = acl;
+            _message = message;
             H.Initialize(this);
         }
 
        
         public IAclService Acl {get; }
-
-        //[Import] TODO
-        //private readonly IDragDropService _dragDrop;
-        [Import]
         private readonly IMessageBus _message;
 
         [Import(InjectLocation.AfterConstructor)]
