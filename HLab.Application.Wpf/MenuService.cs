@@ -11,14 +11,27 @@ namespace HLab.Mvvm.Application.Wpf
 {
     class MenuPath
     {
-        public string Name {get;} = "";
-        public MenuPath Next {get;} = null;
-        public MenuPath(string path):this(path.Split('/')) {  }
-        public MenuPath(IEnumerable<string> path)
+        public string Name { get; }
+        public MenuPath Next {get; private set; } = null;
+        private MenuPath(string name)
         {
-            Name = path.First();
-            if(path.Count()>1)
-                Next = new MenuPath(path.Skip(1));
+            Name = name;
+        }
+
+        public static MenuPath Get(string path) => Get(path.Split('/'));
+        public static MenuPath Get(IEnumerable<string> path)
+        {
+            using var e = path.GetEnumerator();
+            
+            if (!e.MoveNext()) return null;
+
+            var result = new MenuPath(e.Current);
+            var current = result;
+            while (e.MoveNext())
+            {
+                current = current.Next = new MenuPath(e.Current);
+            }
+            return result;
         }
     }
 
@@ -30,7 +43,7 @@ namespace HLab.Mvvm.Application.Wpf
         private MainWpfViewModel _viewModel;
 
         public bool RegisterMenu(string path, object header, ICommand command, string iconPath) 
-            => RegisterMenu(new MenuPath(path),_viewModel.Menu.Items, header, command, iconPath);
+            => RegisterMenu( MenuPath.Get(path),_viewModel.Menu.Items, header, command, iconPath);
 
         private static bool RegisterMenu(MenuPath path, ItemCollection items, object header, ICommand command, string iconPath)
         {
