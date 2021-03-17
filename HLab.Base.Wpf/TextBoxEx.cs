@@ -14,174 +14,166 @@ using System.Windows.Input;
 
 // A FAIRE : Téléphone, email, RCS, Siret, Siren... etc (masque ?)
 
-namespace HLab.Base
+namespace HLab.Base.Wpf
 {
+    using H = DependencyHelper<TextBoxEx>;
+    //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+    // AffichageZero
+
+    public enum DisplayZeros
+    {
+        Always,
+        Never,
+        Free
+    }
+    public enum TextBoxMode
+    {
+        /// <summary>
+        /// Mode normal du TextBox
+        /// </summary>
+        Text = 0,
+        Texte = 0,
+        /// <summary>
+        /// N'accepte que des chiffres 
+        /// </summary>
+        Digit = 1,
+        Chiffre = 1,
+        /// <summary>
+        /// Un nombre entier
+        /// </summary>
+        Integer = 2,
+        Entier = 2,
+        /// <summary>
+        /// Un nombre décimal avec un nombre de chiffres après la virgule fixe
+        /// </summary>
+        Double=3,
+
+        /// <summary>
+        /// Un nombre décimal qui n'affiche les chiffres après la virgule (nombre fixe) que si la valeur n'est pas entière
+        /// </summary>
+        Number = 4,
+        Nombre = 4,
+        /// <summary>
+        /// Pour une date
+        /// </summary>
+        Date =5,
+
+        /// <summary>
+        /// Pour une heure
+        /// </summary>
+        Time = 6,
+        Heure = 6,
+        /// <summary>
+        /// Adresse e-mail
+        /// </summary>
+        Email = 7
+    }
+ 
    public class TextBoxEx : TextBox
    {
       //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       // Modes
 
-      public enum Modes
-      {
-         /// <summary>
-         /// Mode normal du TextBox
-         /// </summary>
-         Texte,
-
-         /// <summary>
-         /// N'accepte que des chiffres 
-         /// </summary>
-         Chiffres,
-
-         /// <summary>
-         /// Un nombre entier
-         /// </summary>
-         Entier,
-
-         /// <summary>
-         /// Un nombre décimal avec un nombre de chiffres après la virgule fixe
-         /// </summary>
-         Double,
-
-         /// <summary>
-         /// Un nombre décimal qui n'affiche les chiffres après la virgule (nombre fixe) que si la valeur n'est pas entière
-         /// </summary>
-         Nombre,
-
-         /// <summary>
-         /// Pour une date
-         /// </summary>
-         Date,
-
-         /// <summary>
-         /// Pour une heure
-         /// </summary>
-         Heure,
-
-         /// <summary>
-         /// Adresse e-mail
-         /// </summary>
-         Email
-      }
 
 
-      //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      // AffichageZero
 
-      public enum AffichageZeros
-      {
-         Toujours,
-         Jamais,
-         Libre
-      }
 
 
       //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       // Mode
 
-      public static readonly DependencyProperty ModeProperty = DependencyProperty.Register("Mode", typeof(Modes), typeof(TextBoxEx), new UIPropertyMetadata(Modes.Texte, ModeChanged));
+      public static readonly DependencyProperty ModeProperty = H
+          .Property<TextBoxMode>()
+          .Default(TextBoxMode.Text)
+          .OnChange((e,a) => e.OnModeChanged(a.NewValue))
+          .Register();
 
-      public Modes Mode
+      public TextBoxMode Mode
       {
-         set { SetValue(ModeProperty, value); }
-         get { return (Modes)GetValue(ModeProperty); }
+         set => SetValue(ModeProperty, value);
+         get => (TextBoxMode)GetValue(ModeProperty);
       }
 
-      public static void ModeChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+      public void OnModeChanged(TextBoxMode mode)
       {
-         if(d == null)
-            return;
-
-         if(d is TextBox)
-         {
-            TextBox tb = (d as TextBox);
-            Modes mode = (Modes)e.NewValue;
-
-            if(mode == Modes.Email)
+            if(mode == TextBoxMode.Email)
             {
-               tb.TextChanged += new TextChangedEventHandler(Ex_TextChanged);
+               TextChanged += Ex_TextChanged;
             }
-            else if(mode != Modes.Texte)
+            else if(mode != TextBoxMode.Text)
             {
-               int decimales = (int)d.GetValue(DecimalesProperty);
-               AffichageZeros affichageZero = (AffichageZeros)d.GetValue(AffichageZeroProperty);
-               double valeurDouble = (double)d.GetValue(DoubleProperty);
-               DateTime valeurDateTime = (DateTime)d.GetValue(DateProperty);
-               bool valide = true;
-               int debutSelection = tb.SelectionStart;
-               int longueurSelection = tb.SelectionLength;
+               var decimals = Decimales;
+               var displayZeros = DisplayZeros;
+               var doubleValue = Double;
+               var dateTimeValue = Date;
+               var valid = true;
+               var selectionStart = SelectionStart;
+               var selectionLength = SelectionLength;
 
-               String txt = Nettoye(tb.Text, mode, ref debutSelection, ref longueurSelection);
-               tb.Text = Formate(mode, decimales, affichageZero, txt, ref debutSelection, ref valeurDouble, ref valeurDateTime, ref valide);
-
-////               tb.PreviewKeyDown += Ex_PreviewKeyDown;
+               var txt = Cleanup(Text, mode, ref selectionStart, ref selectionLength);
+               Text = Format(mode, decimals, displayZeros, txt, ref selectionStart, ref doubleValue, ref dateTimeValue, ref valid);
             }
-////            else
-////               tb.PreviewKeyDown -= Ex_PreviewKeyDown;
-
-            // Sauve le BackGround de la TextBox
-            //tb.SetValue(SavBackgroundProperty, tb.Background);
-         }
       }
 
 
       //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       // AffichageZero
 
-      public static readonly DependencyProperty AffichageZeroProperty = DependencyProperty.Register("AffichageZero", typeof(AffichageZeros), typeof(TextBoxEx), new UIPropertyMetadata(AffichageZeros.Toujours));
-
-      public AffichageZeros AffichageZero
+      public static readonly DependencyProperty DisplayZerosProperty =
+          H.Property<DisplayZeros>()
+              .Default(DisplayZeros.Always)
+              .Register();
+ 
+      public DisplayZeros DisplayZeros
       {
-         set { SetValue(AffichageZeroProperty, value); }
-         get { return (AffichageZeros)GetValue(AffichageZeroProperty); }
+         set => SetValue(DisplayZerosProperty, value);
+         get => (DisplayZeros)GetValue(DisplayZerosProperty);
       }
-
 
       //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       // Decimales
 
-      public static readonly DependencyProperty DecimalesProperty = DependencyProperty.Register("Decimales", typeof(int), typeof(TextBoxEx), new UIPropertyMetadata(2));
+      public static readonly DependencyProperty DecimalesProperty = 
+          H.Property<int>()
+              .Default(2)
+              .Register(); 
       
       public int Decimales
       {
-         set { SetValue(DecimalesProperty, value); }
-         get { return (int)GetValue(DecimalesProperty); }
+         set => SetValue(DecimalesProperty, value);
+         get => (int)GetValue(DecimalesProperty);
       }
 
 
       //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       // Date
 
-      public static readonly DependencyProperty DateProperty = DependencyProperty.Register("Date", typeof(DateTime), typeof(TextBoxEx), new FrameworkPropertyMetadata(DateTime.MinValue, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, DateChanged));//new UIPropertyMetadata(DateTime.MinValue, DateChanged));
-      
+      public static readonly DependencyProperty DateProperty = 
+          H.Property<DateTime>()
+              .Default(DateTime.MinValue)
+              .OnChange((e,a)=>e.OnDateChanged(a.NewValue))
+              .Register();
+          
       public DateTime Date
       {
-         set { SetValue(DateProperty, value); }
-         get { return (DateTime)GetValue(DateProperty); }
+         set => SetValue(DateProperty, value);
+         get => (DateTime)GetValue(DateProperty);
       }
 
-      private static void DateChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+      private void OnDateChanged(DateTime date)
       {
-         TextBoxEx tb = (d as TextBoxEx);         
-         if( !tb._bloqueChanged )
-         {
+          if (_preventChange) return;
 
-            DateTime date = (DateTime)e.NewValue;
-
-            if(date == DateTime.MinValue)
-               tb.Text = "__ / __ / ____";
-            else
-               tb.Text = date.ToString("dd / MM / yyyy");
-         }
+          Text = date == DateTime.MinValue ? "__ / __ / ____" : date.ToString("dd / MM / yyyy");
       }
 
 
-      public static readonly RoutedEvent DateChangeEvent = EventManager.RegisterRoutedEvent("DateChange", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextBoxEx));
+      public static readonly RoutedEvent DateChangeEvent = H.Event().Bubble.Register();
 
       public event RoutedEventHandler DateChange
       {
-         add { AddHandler(DateChangeEvent, value); }
-         remove { RemoveHandler(DateChangeEvent, value); }
+         add => AddHandler(DateChangeEvent, value);
+         remove => RemoveHandler(DateChangeEvent, value);
       }
 
       public void DateDuJour()
@@ -195,63 +187,36 @@ namespace HLab.Base
 
       //[BindableAttribute(true, BindingDirection.TwoWay)]
       //public static readonly DependencyProperty DoubleProperty = DependencyProperty.RegisterAttached("Double", typeof(double), typeof(TextBoxEx), new UIPropertyMetadata(0.0, DoubleChanged));
-      public static readonly DependencyProperty DoubleProperty = DependencyProperty.Register("Double", typeof(double), typeof(TextBoxEx), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, DoubleChanged));
+      public static readonly DependencyProperty DoubleProperty = 
+          H.Property<double>()
+              .Default(0.0)
+              .OnChange((e,a)=>e.OnDoubleChanged(a.NewValue))
+              .BindsTwoWayByDefault
+              .Register();
+          //DependencyProperty.Register("Double", typeof(double), typeof(TextBoxEx), new FrameworkPropertyMetadata(0.0, FrameworkPropertyMetadataOptions.BindsTwoWayByDefault, DoubleChanged));
       
       public double Double
       {
-         set { SetValue(DoubleProperty, value); }
-         get { return (double)GetValue(DoubleProperty); }
+         set => SetValue(DoubleProperty, value);
+         get => (double)GetValue(DoubleProperty);
       }
 
-      private static void DoubleChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+      private void OnDoubleChanged(double value)
       {
-         TextBoxEx tb = (d as TextBoxEx);
-         if(!tb._bloqueChanged)
-         {
+          if (_preventChange) return;
 
-            Modes mode = (Modes)tb.GetValue(ModeProperty);
-            int decimales = tb.Decimales;// GetDecimales(tb);
-            AffichageZeros affichageZero = ((TextBoxEx)d).AffichageZero;// GetAffichageZero(tb);
+          var mode = Mode;
+          var decimals = Decimales;
+          var displayZeros = DisplayZeros;
 
-            int debutSelection = 0;
+          var selectionStart = 0;
 
-            double valeurDouble = 0.0;
-            DateTime valeurDateTime = DateTime.MinValue;
-            bool valide = true;
+          var valueDouble = 0.0;
+          var dateTimeValue = DateTime.MinValue;
+          var valid = true;
 
-            //if( mode == Modes.Chiffres )
-               tb.Text = Formate(mode, decimales, affichageZero, e.NewValue.ToString(), ref debutSelection, ref valeurDouble, ref valeurDateTime, ref valide);
-            //else
-           //    tb.Text = Formate(mode, decimales, affichageZero, ((double)e.NewValue).ToString("N"+decimales), ref debutSelection, ref valeurDouble, ref valeurDateTime, ref valide);
-         }
+          Text = Format(mode, decimals, displayZeros, value.ToString(CultureInfo.CurrentCulture), ref selectionStart, ref valueDouble, ref dateTimeValue, ref valid);
       }
-
-      //[BindableAttribute(true, BindingDirection.TwoWay)]
-
-
-      /*public static double GetDouble(DependencyObject obj)
-      {
-         return (double)obj.GetValue(DoubleProperty);
-      }
-
-      public static void SetDouble(DependencyObject obj, double value)
-      {
-         obj.SetValue(DoubleProperty, value);
-
-         TextBox tb = (obj as TextBox);
-         Modes mode = (Modes)tb.GetValue(ModeProperty);
-         int decimales = GetDecimales(tb);
-         AffichageZeros affichageZero = GetAffichageZero(tb);
-
-         int debutSelection = 0;
-
-         double valeurDouble = 0.0;
-         DateTime valeurDateTime = DateTime.MinValue;
-         bool valide = true;
-         
-         tb.Text = Formate(mode, decimales, affichageZero, value.ToString(), ref debutSelection, ref valeurDouble, ref valeurDateTime, ref valide);
-      }*/
-
 
       public static readonly RoutedEvent DoubleChangeEvent = EventManager.RegisterRoutedEvent("DoubleChange", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextBoxEx));
 
@@ -263,50 +228,46 @@ namespace HLab.Base
 
 
       //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-      // Valide
+      // IsValid
 
-      public static readonly DependencyProperty ValideProperty = DependencyProperty.RegisterAttached("Valide", typeof(bool), typeof(TextBoxEx), new UIPropertyMetadata(true));
+      public static readonly DependencyProperty IsValidProperty = H.Property<bool>().Default(true).Register();
 
-      public static bool GetValide(DependencyObject d)
+      public bool IsValid
       {
-         return (bool)d.GetValue(ValideProperty);
+          set
+          {
+              if (IsValid == value) return;
+              SetValue(IsValidProperty, value);
+              RaiseEvent(new RoutedEventArgs(TextBoxEx.IsValidChangedEvent, this));
+          }
+          get => (bool)GetValue(IsValidProperty);
       }
 
-      public static void SetValide(DependencyObject d, bool value)
+      public static readonly RoutedEvent IsValidChangedEvent = H.Event().Bubble.Register();
+
+      public event RoutedEventHandler IsValidChanged
       {
-         d.SetValue(ValideProperty, value);
+         add => AddHandler(IsValidChangedEvent, value);
+         remove => RemoveHandler(IsValidChangedEvent, value);
       }
 
-      public bool Valide
-      {
-         set { SetValue(ValideProperty, value); }
-         get { return (bool)GetValue(ValideProperty); }
-      }
-
-      public static readonly RoutedEvent ValideChangeEvent = EventManager.RegisterRoutedEvent("ValideChange", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextBoxEx));
-
-      public event RoutedEventHandler ValideChange
-      {
-         add { AddHandler(ValideChangeEvent, value); }
-         remove { RemoveHandler(ValideChangeEvent, value); }
-      }
-
-      private bool _bloqueChanged = false;
+      private bool _preventChange = false;
 
 
       //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
       // Eclaire
 
-      public static readonly DependencyProperty EclaireProperty = DependencyProperty.RegisterAttached("Eclaire", typeof(bool), typeof(TextBoxEx), new UIPropertyMetadata(false));
+      public static readonly DependencyProperty EnlightenedProperty = H.Property<bool>().Default(false).Register();
+          //DependencyProperty.RegisterAttached("Eclaire", typeof(bool), typeof(TextBoxEx), new UIPropertyMetadata(false));
 
-      public static bool GetEclaire(DependencyObject d)
+      public static bool GetEnlightened(DependencyObject d)
       {
-         return (bool)d.GetValue(EclaireProperty);
+         return (bool)d.GetValue(EnlightenedProperty);
       }
 
-      public static void SetEclaire(DependencyObject d, bool value)
+      public static void SetEnlightened(DependencyObject d, bool value)
       {
-         d.SetValue(EclaireProperty, value);
+         d.SetValue(EnlightenedProperty, value);
       }
 
 
@@ -318,19 +279,17 @@ namespace HLab.Base
 
       static void Ex_TextChanged(object sender, TextChangedEventArgs e)
       {
-         TextBox tb = sender as TextBox;
-         Modes mode = (Modes)tb.GetValue(ModeProperty);
-
-         // Vérifie l'adresse e-mail
-         if(mode == Modes.Email)
+         if(sender is TextBoxEx tb)
          {
-            bool valide = ValideEmail(tb.Text);
+             // Vérifie l'adresse e-mail
+             if (tb.Mode == TextBoxMode.Email)
+             {
+                 var valid = ValidateEmail(tb.Text);
 
-            if((bool)tb.GetValue(ValideProperty) != valide)
-            {
-               tb.SetValue(ValideProperty, valide);
-               tb.RaiseEvent(new RoutedEventArgs(TextBoxEx.ValideChangeEvent, tb));
-            }
+                 if (tb.IsValid == valid) return;
+
+                 tb.IsValid = valid;
+             }
          }
       }
 
@@ -343,77 +302,74 @@ namespace HLab.Base
 
       protected override void OnPreviewKeyDown(KeyEventArgs e)
       {
-         if(Mode == Modes.Email || Mode == Modes.Texte)
-            return;
+         if(Mode == TextBoxMode.Email || Mode == TextBoxMode.Text) return;
 
          e.Handled = true;
 
-         // Si on est en mode lecture seule
-         if(IsReadOnly)
-            return;
+         if(IsReadOnly) return;
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Convertie la touche en lettre
 
-         String lettre = "";
+         char letter;
          switch(e.Key)
          {
             // 0
             case Key.NumPad0:
-            case Key.D0: lettre = "0"; break;
+            case Key.D0: letter = '0'; break;
 
             // 1
             case Key.NumPad1:
-            case Key.D1: lettre = "1"; break;
+            case Key.D1: letter = '1'; break;
 
             // 2
             case Key.NumPad2:
-            case Key.D2: lettre = "2"; break;
+            case Key.D2: letter = '2'; break;
 
             // 3
             case Key.NumPad3:
-            case Key.D3: lettre = "3"; break;
+            case Key.D3: letter = '3'; break;
 
             // 4
             case Key.NumPad4:
-            case Key.D4: lettre = "4"; break;
+            case Key.D4: letter = '4'; break;
 
             // 5
             case Key.NumPad5:
-            case Key.D5: lettre = "5"; break;
+            case Key.D5: letter = '5'; break;
 
             // 6
             case Key.NumPad6:
-            case Key.D6: lettre = "6"; break;
+            case Key.D6: letter = '6'; break;
 
             // 7
             case Key.NumPad7:
-            case Key.D7: lettre = "7"; break;
+            case Key.D7: letter = '7'; break;
 
             // 8
             case Key.NumPad8:
-            case Key.D8: lettre = "8"; break;
+            case Key.D8: letter = '8'; break;
 
             // 9
             case Key.NumPad9:
-            case Key.D9: lettre = "9"; break;
+            case Key.D9: letter = '9'; break;
 
             // Virgule
             case Key.Decimal:
             case Key.OemComma:
-            case Key.OemPeriod: lettre = ","; break;
+            case Key.OemPeriod: letter = Separator; break;
 
             // Retour
-            case Key.Back: lettre = "R"; break;
+            case Key.Back: letter = 'R'; break;
 
             // Supprimer
-            case Key.Delete: lettre = "S"; break;
+            case Key.Delete: letter = 'S'; break;
 
             // Droite
-            case Key.Right: lettre = "D"; break;
+            case Key.Right: letter = 'D'; break;
 
             // Gauche
-            case Key.Left: lettre = "G"; break;
+            case Key.Left: letter = 'G'; break;
 
             // Touches a laisser passer
             case Key.Up:
@@ -433,478 +389,220 @@ namespace HLab.Base
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Paramètres existants
 
-         int debutSelection    = SelectionStart;
-         int longueurSelection = SelectionLength;
+         var selectionStart    = SelectionStart;
+         var selectionLength = SelectionLength;
 
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Traite les cas particuliers 
 
-         if(Mode == Modes.Entier && Text == "0" && debutSelection == 0 && longueurSelection == 0)
-            debutSelection = 1;
-
-         if((Mode == Modes.Double || Mode == Modes.Nombre) && debutSelection == 0 && longueurSelection == 0 && Text.Length > 0 && Text[0] == '0')
-            debutSelection = 1;
+         switch (Mode)
+         {
+             case TextBoxMode.Integer when Text == "0" && selectionStart == 0 && selectionLength == 0:
+             case TextBoxMode.Double or TextBoxMode.Number when selectionStart == 0 && selectionLength == 0 && Text.Length > 0 && Text[0] == '0':
+                 selectionStart = 1;
+                 break;
+         }
 
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Nettoye la chaine de caractère en fonction du mode
 
-         String txt = Nettoye(Text, Mode, ref debutSelection, ref longueurSelection);
+         var txt = Cleanup(Text, Mode, ref selectionStart, ref selectionLength);
 
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Traite la chaine nettoyée
 
-         if(lettre == "D")
+         if(letter == 'D')
          {
-            if(debutSelection < txt.Length)
-               debutSelection++;
+            if(selectionStart < txt.Length)
+               selectionStart++;
          }
-         else if(lettre == "G")
+         else if(letter == 'G')
          {
-            if(debutSelection > 0)
-               debutSelection--;
+            if(selectionStart > 0)
+               selectionStart--;
          }
-         else if(lettre == "R")
+         else if(letter == 'R')
          {
             // Remplace par des '_'
-            if(Mode == Modes.Date || Mode == Modes.Heure)
+            if(Mode == TextBoxMode.Date || Mode == TextBoxMode.Time)
             {
-               if(longueurSelection == 0)
+               if(selectionLength == 0)
                {
-                  if(debutSelection > 0)
+                  if(selectionStart > 0)
                   {
-                     debutSelection--;
-                     txt = txt.Substring(0, debutSelection) + '_' + txt.Substring(debutSelection + 1, txt.Length - debutSelection - 1);
+                     selectionStart--;
+                     txt = txt.Substring(0, selectionStart) + '_' + txt.Substring(selectionStart + 1, txt.Length - selectionStart - 1);
                   }
                }
                else
-                  txt = txt.Substring(0, debutSelection) + String.Empty.PadRight(longueurSelection, '_') + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
+                  txt = txt.Substring(0, selectionStart) + String.Empty.PadRight(selectionLength, '_') + txt.Substring(selectionStart + selectionLength, txt.Length - selectionStart - selectionLength);
             }
 
             // Les autres cas
             else
             {
-               if(longueurSelection == 0)
-                  if(debutSelection > 0)
+               if(selectionLength == 0)
+                  if(selectionStart > 0)
                   {
-                     debutSelection--;
-                     if((Mode != Modes.Double && Mode != Modes.Nombre) || txt[debutSelection] != ',') // Ne supprime pas la virgule pour les doubles
-                        longueurSelection = 1;
+                     selectionStart--;
+                     if((Mode != TextBoxMode.Double && Mode != TextBoxMode.Number) || txt[selectionStart] != ',') // Ne supprime pas la virgule pour les doubles
+                        selectionLength = 1;
                   }
 
-               txt = txt.Substring(0, debutSelection) + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
+               txt = txt.Substring(0, selectionStart) + txt.Substring(selectionStart + selectionLength, txt.Length - selectionStart - selectionLength);
             }
          }
-         else if(lettre == "S")
+         else if(letter == 'S')
          {
             // Remplace par des '_'
-            if(Mode == Modes.Date || Mode == Modes.Heure)
+            if(Mode == TextBoxMode.Date || Mode == TextBoxMode.Time)
             {
-               if(longueurSelection == 0)
+               if(selectionLength == 0)
                {
-                  if(debutSelection < txt.Length)
+                  if(selectionStart < txt.Length)
                   {
-                     txt = txt.Substring(0, debutSelection) + '_' + txt.Substring(debutSelection + 1, txt.Length - debutSelection - 1);
-                     debutSelection++;
+                     txt = txt.Substring(0, selectionStart) + '_' + txt.Substring(selectionStart + 1, txt.Length - selectionStart - 1);
+                     selectionStart++;
                   }
                }
                else
-                  txt = txt.Substring(0, debutSelection) + String.Empty.PadRight(longueurSelection, '_') + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
+                  txt = txt.Substring(0, selectionStart) + String.Empty.PadRight(selectionLength, '_') + txt.Substring(selectionStart + selectionLength, txt.Length - selectionStart - selectionLength);
             }
 
             // Les autres cas
             else
             {
-               if(longueurSelection == 0)
-                  if(debutSelection < txt.Length)
+               if(selectionLength == 0)
+                  if(selectionStart < txt.Length)
                   {
-                     if((Mode == Modes.Double || Mode == Modes.Nombre) && txt[debutSelection] == ',') // Ne supprime pas la virgule pour les doubles
-                        debutSelection++;
+                     if((Mode == TextBoxMode.Double || Mode == TextBoxMode.Number) && txt[selectionStart] == ',') // Ne supprime pas la virgule pour les doubles
+                        selectionStart++;
                      else
-                        longueurSelection = 1;
+                        selectionLength = 1;
                   }
 
-               txt = txt.Substring(0, debutSelection) + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
+               txt = txt.Substring(0, selectionStart) + txt.Substring(selectionStart + selectionLength, txt.Length - selectionStart - selectionLength);
             }
          }
-         else if(lettre == ",")
+         else if(letter == Separator)
          {
             // Ignore la virgule
-            if(Mode == Modes.Chiffres || Mode == Modes.Entier || Mode == Modes.Date || Mode == Modes.Heure)
+            if(Mode == TextBoxMode.Digit || Mode == TextBoxMode.Integer || Mode == TextBoxMode.Date || Mode == TextBoxMode.Time)
                return;
 
             // Ajoute la virgule
-            txt = txt.Substring(0, debutSelection) + "," + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
-            debutSelection++;
+            txt = txt.Substring(0, selectionStart) + Separator + txt.Substring(selectionStart + selectionLength, txt.Length - selectionStart - selectionLength);
+            selectionStart++;
          }
          else
          {
+             var insert = letter.ToString();
             // Remplace les caractères tapés
-            if(Mode == Modes.Date || Mode == Modes.Heure)
-               if(debutSelection < txt.Length)
+            if(Mode == TextBoxMode.Date || Mode == TextBoxMode.Time)
+               if(selectionStart < txt.Length)
                {
-                  if(longueurSelection == 0)
-                     longueurSelection = 1;
+                  if(selectionLength == 0)
+                     selectionLength = 1;
                   else
-                     lettre = lettre.PadRight(longueurSelection, '_');
+                     insert = insert.PadRight(selectionLength, '_');
                }
 
             // Insert les caractères
-            txt = txt.Substring(0, debutSelection) + lettre + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
-            debutSelection++;
+            txt = txt.Substring(0, selectionStart) + insert + txt.Substring(selectionStart + selectionLength, txt.Length - selectionStart - selectionLength);
+            selectionStart++;
          }
 
          // Supprime les éventuelles autres virgules
-         txt = Nettoye(txt, Mode, ref debutSelection, ref longueurSelection);
+         txt = Cleanup(txt, Mode, ref selectionStart, ref selectionLength);
 
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Reformate la chaine résultante
 
-         double valeurDouble = 0.0;
-         DateTime valeurDateTime = DateTime.MinValue;
-         bool valide = true;
-         Text = Formate(Mode, Decimales, AffichageZero, txt, ref debutSelection, ref valeurDouble, ref valeurDateTime, ref valide);
-         SelectionStart = debutSelection;
+         var doubleValue = 0.0;
+         var dateTimeValue = DateTime.MinValue;
+         var valid = true;
+         Text = Format(Mode, Decimales, DisplayZeros, txt, ref selectionStart, ref doubleValue, ref dateTimeValue, ref valid);
+         SelectionStart = selectionStart;
          SelectionLength = 0;
 
-         _bloqueChanged = true;
+         _preventChange = true;
 
-         if(Mode == Modes.Date || Mode == Modes.Heure)
+         if(Mode == TextBoxMode.Date || Mode == TextBoxMode.Time)
          {
-            if(this.Date != valeurDateTime)
+            if(this.Date != dateTimeValue)
             {
-               SetValue(DateProperty, valeurDateTime);
+               SetValue(DateProperty, dateTimeValue);
                RaiseEvent(new RoutedEventArgs(DateChangeEvent, this));
             }
          }
          else
          {
-            if(this.Double != valeurDouble)
+            if(this.Double != doubleValue)
             {
-               SetValue(DoubleProperty, valeurDouble);
+               SetValue(DoubleProperty, doubleValue);
                RaiseEvent(new RoutedEventArgs(DoubleChangeEvent, this));
             }
          }
 
-         if(this.Valide != valide)
+         if(this.IsValid != valid)
          {
-            SetValue(ValideProperty, valide);
-            RaiseEvent(new RoutedEventArgs(ValideChangeEvent, this));
+            SetValue(IsValidProperty, valid);
+            RaiseEvent(new RoutedEventArgs(IsValidChangedEvent, this));
          }
 
-         _bloqueChanged = false;
+         _preventChange = false;
       }
 
-
-/*
-      static void Ex_PreviewKeyDown(object sender, System.Windows.Input.KeyEventArgs e)
-      {
-         if(!(sender is TextBox))
-            return;
-
-         e.Handled = true;
-         TextBoxEx tb = sender as TextBoxEx;
-
-         if(tb.IsReadOnly)
-            return;
-
-         //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-         // Convertie la touche en lettre
-
-         String lettre = "";
-         switch(e.Key)
-         {
-            // 0
-            case Key.NumPad0:
-            case Key.D0: lettre = "0"; break;
-
-            // 1
-            case Key.NumPad1:
-            case Key.D1: lettre = "1"; break;
-
-            // 2
-            case Key.NumPad2:
-            case Key.D2: lettre = "2"; break;
-
-            // 3
-            case Key.NumPad3:
-            case Key.D3: lettre = "3"; break;
-
-            // 4
-            case Key.NumPad4:
-            case Key.D4: lettre = "4"; break;
-
-            // 5
-            case Key.NumPad5:
-            case Key.D5: lettre = "5"; break;
-
-            // 6
-            case Key.NumPad6:
-            case Key.D6: lettre = "6"; break;
-
-            // 7
-            case Key.NumPad7:
-            case Key.D7: lettre = "7"; break;
-
-            // 8
-            case Key.NumPad8:
-            case Key.D8: lettre = "8"; break;
-
-            // 9
-            case Key.NumPad9:
-            case Key.D9: lettre = "9"; break;
-
-            // Virgule
-            case Key.Decimal:
-            case Key.OemComma:
-            case Key.OemPeriod: lettre = ","; break;
-
-            // Retour
-            case Key.Back: lettre = "R"; break;
-
-            // Supprimer
-            case Key.Delete: lettre = "S"; break;
-
-            // Droite
-            case Key.Right: lettre = "D"; break;
-
-            // Gauche
-            case Key.Left: lettre = "G"; break;
-
-            // Touches a laisser passer
-            case Key.Up:
-            case Key.Down:
-            case Key.Enter:
-            case Key.Tab:
-            case Key.PageUp:
-            case Key.PageDown:
-            case Key.Home:
-            case Key.End: e.Handled = false; return;
-
-            // Les autres touches à interdire
-            default: return;
-         }
-
-
-         //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-         // Paramètres existants
-
-         int debutSelection = tb.SelectionStart;
-         int longueurSelection = tb.SelectionLength;
-         Modes mode = (Modes)tb.GetValue(ModeProperty);
-         int decimales = tb.Decimales;
-         AffichageZeros affichageZero = ((TextBoxEx)tb).AffichageZero; //GetAffichageZero(tb);
-
-
-         //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-         // Traite les cas particuliers 
-
-         if(mode == Modes.Entier && tb.Text == "0" && debutSelection == 0 && longueurSelection == 0)
-            debutSelection = 1;
-
-         if((mode == Modes.Double || mode == Modes.Nombre) && debutSelection == 0 && longueurSelection == 0 && tb.Text.Length > 0 && tb.Text[0] == '0')
-            debutSelection = 1;
-
-
-         //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-         // Nettoye la chaine de caractère en fonction du mode
-
-         String txt = Nettoye(tb.Text, mode, ref debutSelection, ref longueurSelection);
-
-
-         //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-         // Traite la chaine nettoyée
-
-         if(lettre == "D")
-         {
-            if(debutSelection < txt.Length)
-               debutSelection++;
-         }
-         else if(lettre == "G")
-         {
-            if(debutSelection > 0)
-               debutSelection--;
-         }
-         else if(lettre == "R")
-         {
-            // Remplace par des '_'
-            if(mode == Modes.Date || mode == Modes.Heure)
-            {
-               if(longueurSelection == 0)
-               {
-                  if(debutSelection > 0)
-                  {
-                     debutSelection--;
-                     txt = txt.Substring(0, debutSelection) + '_' + txt.Substring(debutSelection + 1, txt.Length - debutSelection - 1);
-                  }
-               }
-               else
-                  txt = txt.Substring(0, debutSelection) + String.Empty.PadRight(longueurSelection, '_') + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
-            }
-               
-            // Les autres cas
-            else
-            {
-               if(longueurSelection == 0)
-                  if(debutSelection > 0)
-                  {
-                     debutSelection--;
-                     if((mode != Modes.Double && mode != Modes.Nombre) || txt[debutSelection] != ',' ) // Ne supprime pas la virgule pour les doubles
-                        longueurSelection = 1;
-                  }
-
-               txt = txt.Substring(0, debutSelection) + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
-            }
-         }
-         else if(lettre == "S")
-         {
-            // Remplace par des '_'
-            if(mode == Modes.Date || mode == Modes.Heure)
-            {
-               if(longueurSelection == 0)
-               {
-                  if(debutSelection < txt.Length)
-                  {
-                        txt = txt.Substring(0, debutSelection) + '_' + txt.Substring(debutSelection + 1, txt.Length - debutSelection - 1);
-                     debutSelection++;
-                  }
-               }
-               else
-                  txt = txt.Substring(0, debutSelection) + String.Empty.PadRight(longueurSelection, '_') + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
-            }
-
-            // Les autres cas
-            else
-            {
-               if(longueurSelection == 0)
-                  if(debutSelection < txt.Length)
-                  {
-                     if((mode == Modes.Double || mode == Modes.Nombre) && txt[debutSelection] == ',') // Ne supprime pas la virgule pour les doubles
-                           debutSelection++;
-                     else
-                        longueurSelection = 1;
-                  }
-
-               txt = txt.Substring(0, debutSelection) + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
-            }
-         }
-         else if(lettre == ",")
-         {
-            // Ignore la virgule
-            if(mode == Modes.Chiffres || mode == Modes.Entier || mode == Modes.Date || mode == Modes.Heure)
-               return;
-
-            // Ajoute la virgule
-            txt = txt.Substring(0, debutSelection) + "," + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
-            debutSelection++;
-         }
-         else
-         {
-            // Remplace les caractères tapés
-            if(mode == Modes.Date || mode == Modes.Heure)
-               if(debutSelection < txt.Length)
-               {
-                  if(longueurSelection == 0)
-                     longueurSelection = 1;
-                  else
-                     lettre = lettre.PadRight(longueurSelection, '_');
-               }
-
-            // Insert les caractères
-            txt = txt.Substring(0, debutSelection) + lettre + txt.Substring(debutSelection + longueurSelection, txt.Length - debutSelection - longueurSelection);
-            debutSelection++;
-         }
-
-         // Supprime les éventuelles autres virgules
-         txt = Nettoye(txt, mode, ref debutSelection, ref longueurSelection);
-
-
-         //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
-         // Reformate la chaine résultante
-         
-         double valeurDouble = 0.0;
-         DateTime valeurDateTime = DateTime.MinValue;
-         bool valide = true;
-         tb.Text = Formate(mode, decimales, affichageZero, txt, ref debutSelection, ref valeurDouble, ref valeurDateTime, ref valide);
-         tb.SelectionStart = debutSelection;
-         tb.SelectionLength = 0;
-
-         //_bloqueChanged = true;
-
-         if(mode == Modes.Date || mode == Modes.Heure)
-         {
-            if((DateTime)tb.GetValue(DateProperty) != valeurDateTime)
-            {
-               tb.SetValue(DateProperty, valeurDateTime);
-               tb.RaiseEvent(new RoutedEventArgs(DateChangeEvent, tb));
-            }
-         }
-         else
-         {
-            if((double)tb.GetValue(DoubleProperty) != valeurDouble)
-            {
-               tb.SetValue(DoubleProperty, valeurDouble);
-               tb.RaiseEvent(new RoutedEventArgs(DoubleChangeEvent, tb));
-            }
-         }
-
-         if((bool)tb.GetValue(ValideProperty) != valide)
-         {
-            tb.SetValue(ValideProperty, valide);
-            tb.RaiseEvent(new RoutedEventArgs(ValideChangeEvent, tb));
-         }
-
-         _bloqueChanged = false;
-      }
-      */
 
       /********************************************************************************************************************************************************************************************************************************************************************************
       * 
-      * Nettoye la chaine de caractères originale
+      * Cleanup original string
       * 
       ***********************************************************************************************************************************************************************************************************************************************************************************/
 
-      public static String Nettoye(String texte, Modes mode, ref int debutSelection, ref int longueurSelection)
+      private static string Cleanup(string text, TextBoxMode mode, ref int selectionStart, ref int selectionLength)
       {
-         String resultat = "";
-         int debutResultat = debutSelection;
-         int longeurResultat = longueurSelection;
+         var result = "";
+         var resultStart = selectionStart;
+         var resultLength = selectionLength;
 
          // Replace l'eventuelle point par une virgule
-         texte = texte.Replace( "." , "," );
+         text = text.Replace( "." , "," );
 
-         // Supprime tous sauf les nombres et la première virgule
-         char[] caracteres = texte.ToCharArray();
-         int positionTexte = 0;
-         int positionVirgule = -1;
-         foreach(char c in caracteres)
+         // remove all numbers and first coma
+         var chars = text.ToCharArray();
+         var textPosition = 0;
+         var comaPosition = -1;
+         foreach(var c in chars)
          {
             if((c >= '0' && c <= '9') || c == '_' )
-               resultat += c;
-            else if( (mode == Modes.Double || mode == Modes.Nombre ) && c == ',' && positionVirgule < 0)
+               result += c;
+            else if( (mode == TextBoxMode.Double || mode == TextBoxMode.Number ) && c == ',' && comaPosition < 0)
             {
-               resultat += c;
-               positionVirgule = positionTexte;
+               result += c;
+               comaPosition = textPosition;
             }
             else
             {
-               if(positionTexte < debutSelection)
-                  debutResultat--;
-               else if(positionTexte - debutSelection < longueurSelection)
-                  longeurResultat--;
+               if(textPosition < selectionStart)
+                  resultStart--;
+               else if(textPosition - selectionStart < selectionLength)
+                  resultLength--;
             }
 
-            positionTexte++;
+            textPosition++;
          }
 
-         debutSelection = debutResultat;
-         longueurSelection = longeurResultat;
-         return resultat;
+         selectionStart = resultStart;
+         selectionLength = resultLength;
+         return result;
       }
 
+      private static readonly char Separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
 
       /********************************************************************************************************************************************************************************************************************************************************************************
       * 
@@ -912,64 +610,62 @@ namespace HLab.Base
       * 
       ***********************************************************************************************************************************************************************************************************************************************************************************/
 
-      public static String Formate(Modes mode, int decimales, AffichageZeros affichageZero, String texte, ref int positionCurseur, ref double valeurDouble, ref DateTime valeurDateTime, ref bool valide)
+      private static string Format(TextBoxMode mode, int decimals, DisplayZeros displayZeros, string text, ref int cursorPos, ref double doubleValue, ref DateTime dateTimeValue, ref bool valid)
       {
-         String resultat = "";
-         valide = true;
+         var result = "";
+         valid = true;
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Chiffres
 
-         if(mode == Modes.Chiffres)
+         if(mode == TextBoxMode.Digit)
          {
-            resultat = texte;
-            double.TryParse(resultat, out valeurDouble);
+            result = text;
+            double.TryParse(result, out doubleValue);
          }
 
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Entier
 
-         if(mode == Modes.Entier)
+         else if(mode == TextBoxMode.Integer)
          {
-            String temp = texte.TrimStart(new char[] { '0' });
-            positionCurseur -= texte.Length - temp.Length;
-            double.TryParse(temp, out valeurDouble);
+            var temp = text.TrimStart(new char[] { '0' });
+            cursorPos -= text.Length - temp.Length;
+            double.TryParse(temp, out doubleValue);
 
-            if(positionCurseur < 0)
-               positionCurseur = 0;
+            if(cursorPos < 0)
+               cursorPos = 0;
 
             // Partie entière
-            int chiffre = 0;
-            int i = temp.Length - 1;
+            var digit = 0;
+            var i = temp.Length - 1;
             while(i >= 0)
             {
-               if(chiffre != 0 && chiffre % 3 == 0)
+               if(digit != 0 && digit % 3 == 0)
                {
-                  resultat = " " + resultat;
-                  if(positionCurseur > i)
-                     positionCurseur++;
+                  result = " " + result;
+                  if(cursorPos > i)
+                     cursorPos++;
                }
-               resultat = temp[i] + resultat;
+               result = temp[i] + result;
                i--;
-               chiffre++;
+               digit++;
             }
 
-            // Traite les valeurs vides
-            if(resultat == "")
+            if (result != "") return result;
+
+            if(displayZeros == DisplayZeros.Always)
             {
-               if(affichageZero == AffichageZeros.Toujours)
-               {
-                  resultat = "0";
-                  positionCurseur = 1;
-               }
-               else if(affichageZero == AffichageZeros.Libre)
-               {
-                  if(texte != "")
-                     positionCurseur = 1;
-                  else
-                     positionCurseur = 0;
-               }
+                result = "0";
+                cursorPos = 1;
+            }
+            else if(displayZeros == DisplayZeros.Free)
+            {
+                if(text != "")
+                    cursorPos = 1;
+                else
+                    cursorPos = 0;
             }
          }
 
@@ -977,9 +673,9 @@ namespace HLab.Base
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Double
 
-         else if(mode == Modes.Double)
+         else if(mode == TextBoxMode.Double)
          {
-            valeurDouble = FormateDouble(texte, decimales, ref positionCurseur, ref resultat);
+            doubleValue = DoubleFormat(text, decimals, ref cursorPos, ref result);
 
             // A FAIRE AffichageZero
          }
@@ -988,189 +684,188 @@ namespace HLab.Base
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Nombre
 
-         else if(mode == Modes.Nombre)
+         else if(mode == TextBoxMode.Number)
          {
-            valeurDouble = FormateDouble(texte, decimales, ref positionCurseur, ref resultat);
+            doubleValue = DoubleFormat(text, decimals, ref cursorPos, ref result);
 
-            if(valeurDouble == Math.Truncate(valeurDouble))
+            if(doubleValue == Math.Truncate(doubleValue))
             {
-               int positionVirgule = resultat.IndexOf(',');
-               if(positionCurseur <= positionVirgule)
-                  resultat = resultat.Substring(0, positionVirgule);
+               int positionVirgule = result.IndexOf(',');
+               if(cursorPos <= positionVirgule)
+                  result = result.Substring(0, positionVirgule);
             }
 
-            // A FAIRE AffichageZero
          }
 
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Date
 
-         else if(mode == Modes.Date)
+         else if(mode == TextBoxMode.Date)
          {
             // Prépare le découpage de la date            
-            texte = texte.PadRight(8, '_');
+            text = text.PadRight(8, '_');
 
             // Jour
-            String jour = texte.Substring(0, 2);
+            var day = text.Substring(0, 2);
 
-            if(jour[0] != '_' && jour[1] == '_')
+            if(day[0] != '_' && day[1] == '_')
             {
-               if(jour[0] > '3')
+               if(day[0] > '3')
                {
-                  jour = "0" + jour[0];
-                  if(positionCurseur == 1)
-                     positionCurseur = 2;
+                  day = "0" + day[0];
+                  if(cursorPos == 1)
+                     cursorPos = 2;
                }
                else
-                  jour = jour[0] + "0";
+                  day = day[0] + "0";
             }
 
-            jour = jour.Replace('_', '0');
-            int iJour = int.Parse(jour);
+            day = day.Replace('_', '0');
+            int iDay = int.Parse(day);
 
-            if(iJour > 31)
+            if(iDay > 31)
             {
-               iJour = 31;
-               jour = "31";
+               iDay = 31;
+               day = "31";
             }
 
-            if(iJour < 1)
+            if(iDay < 1)
             {
-               jour = "__";
-               valide = false;
+               day = "__";
+               valid = false;
             }
 
 
             // Mois
-            String mois = texte.Substring(2, 2);
+            var month = text.Substring(2, 2);
 
-            if(mois[0] != '_' && mois[1] == '_')
+            if(month[0] != '_' && month[1] == '_')
             {
-               if(mois[0] > '1')
+               if(month[0] > '1')
                {
-                  mois = "0" + mois[0];
-                  if(positionCurseur == 3)
-                     positionCurseur = 4;
+                  month = "0" + month[0];
+                  if(cursorPos == 3)
+                     cursorPos = 4;
                }
                else
-                  mois = mois[0] + "0";
+                  month = month[0] + "0";
             }
 
-            mois = mois.Replace('_', '0');
-            int iMois = int.Parse(mois);
+            month = month.Replace('_', '0');
+            int iMois = int.Parse(month);
 
             if(iMois > 12)
             {
                iMois = 12;
-               mois = "12";
+               month = "12";
             }
 
             if(iMois < 1)
             {
-               mois = "__";
-               valide = false;
+               month = "__";
+               valid = false;
             }
 
 
             //Année
-            String annee = texte.Substring(4, 4);
+            var year = text.Substring(4, 4);
 
             // Que le premier chiffre
-            if(annee[0] != '_' && annee[1] == '_' && annee[2] == '_' && annee[3] == '_')
+            if(year[0] != '_' && year[1] == '_' && year[2] == '_' && year[3] == '_')
             {
-               if(annee[0] == '0') // Années >= 2000
+               if(year[0] == '0') // Années >= 2000
                {
-                  annee = "200_";
-                  if(positionCurseur == 5)
-                     positionCurseur = 7;
+                  year = "200_";
+                  if(cursorPos == 5)
+                     cursorPos = 7;
                }
             }
 
             // Les deux premiers chiffres entrés
-            if(annee[0] != '_' && annee[1] != '_' && annee[2] == '_' && annee[3] == '_')
+            if(year[0] != '_' && year[1] != '_' && year[2] == '_' && year[3] == '_')
             {
                // Cas ou la date ne sera qu'à partir de 2010
-               if(annee[0] == '1')
+               if(year[0] == '1')
                {
-                  if(annee[1] < '9')
+                  if(year[1] < '9')
                   {
-                     annee = "20" + annee[0] + annee[1];
-                     if(positionCurseur == 6)
-                        positionCurseur = 8;
+                     year = "20" + year[0] + year[1];
+                     if(cursorPos == 6)
+                        cursorPos = 8;
                   }
                }
 
-               else if(annee[0] > '2')
+               else if(year[0] > '2')
                {
-                  annee = "19" + annee[0] + annee[1];
-                  if(positionCurseur == 6)
-                     positionCurseur = 8;
+                  year = "19" + year[0] + year[1];
+                  if(cursorPos == 6)
+                     cursorPos = 8;
                }
             }
 
-            int iAnnee = int.Parse(annee.Replace('_', '0'));
+            int iAnnee = int.Parse(year.Replace('_', '0'));
 
             if(iAnnee > 2050)
-               valide = false;
+               valid = false;
 
             if(iAnnee < 1900)
-               valide = false;
+               valid = false;
 
             if(iAnnee < 1)
-               annee = "____";
+               year = "____";
 
 
             // Validation de la date
-            resultat = jour + " / " + mois + " / " + annee;
+            result = day + " / " + month + " / " + year;
 
-            if( resultat.Contains("_") )
-               valide = false;            
+            if( result.Contains("_") )
+               valid = false;            
             
-            valeurDateTime = DateTime.MinValue;
-            valeurDouble = 0.0;
-            if(valide)
+            dateTimeValue = DateTime.MinValue;
+            doubleValue = 0.0;
+            if(valid)
             {
                try
                {
-                  valeurDateTime = new DateTime(iAnnee, iMois, iJour);
-                  valeurDouble = valeurDateTime.Year * 10000.0 + valeurDateTime.Month * 100.0 + valeurDateTime.Day;
+                   dateTimeValue = new DateTime(iAnnee, iMois, iDay);
+                  doubleValue = dateTimeValue.Year * 10000.0 + dateTimeValue.Month * 100.0 + dateTimeValue.Day;
                }
                catch(Exception)
                {
-                  valide = false;
+                  valid = false;
                }
             }
 
             //if(valeurDateTime.Day != iJour || valeurDateTime.Month != iMois)
             //   valide = false;
 
-            if(resultat == "__ / __ / ____")
-               valide = true;
+            if(result == "__ / __ / ____")
+               valid = true;
 
             // Modifie la position du curseur
-            if(positionCurseur >= 4)
-               positionCurseur += 6;
-            else if(positionCurseur >= 2)
-               positionCurseur += 3;
+            if(cursorPos >= 4)
+               cursorPos += 6;
+            else if(cursorPos >= 2)
+               cursorPos += 3;
          }
 
 
          //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
          // Heure
 
-         else if(mode == Modes.Heure)
+         else if(mode == TextBoxMode.Time)
          {
             // Prépare le découpage de la date            
-            texte = texte.PadRight(6, '_');
+            text = text.PadRight(6, '_');
 
             // Heure
-            String heure = texte.Substring(0, 2);
+            String heure = text.Substring(0, 2);
             int iHeure = int.Parse(heure.Replace('_', '0'));
 
 
             // Minutes
-            String minute = texte.Substring(2, 2);
+            String minute = text.Substring(2, 2);
 
             if(minute[0] != '_' && minute[1] == '_')
             {
@@ -1187,7 +882,7 @@ namespace HLab.Base
             }
 
             // Secondes
-            String seconde = texte.Substring(4, 2);
+            String seconde = text.Substring(4, 2);
 
             if(seconde[0] != '_' && seconde[1] == '_')
             {
@@ -1204,36 +899,36 @@ namespace HLab.Base
             }
 
             // Validation de la date
-            valeurDateTime = DateTime.MinValue;
-            valeurDouble = 0.0;
-            if(valide)
+            dateTimeValue = DateTime.MinValue;
+            doubleValue = 0.0;
+            if(valid)
             {
                try
                {
-                  valeurDateTime = new DateTime(1, 1, 1, iHeure, iMinute, iSeconde);
-                  valeurDouble = valeurDateTime.Hour * 10000.0 + valeurDateTime.Minute * 100.0 + valeurDateTime.Second;
+                   dateTimeValue = new DateTime(1, 1, 1, iHeure, iMinute, iSeconde);
+                  doubleValue = dateTimeValue.Hour * 10000.0 + dateTimeValue.Minute * 100.0 + dateTimeValue.Second;
                }
                catch(Exception)
                {
-                  valide = false;
+                  valid = false;
                }
             }
 
             //if(valeurDateTime.Day != iJour || valeurDateTime.Month != iMois)
             //   valide = false;
 
-            resultat = heure + " : " + minute + " : " + seconde;
-            if(resultat == "__ : __ : __")
-               valide = true;
+            result = heure + " : " + minute + " : " + seconde;
+            if(result == "__ : __ : __")
+               valid = true;
 
             // Modifie la position du curseur
-            if(positionCurseur >= 4)
-               positionCurseur += 6;
-            else if(positionCurseur >= 2)
-               positionCurseur += 3;
+            if(cursorPos >= 4)
+               cursorPos += 6;
+            else if(cursorPos >= 2)
+               cursorPos += 3;
          }
 
-         return resultat;
+         return result;
       }
 
 
@@ -1243,73 +938,66 @@ namespace HLab.Base
       * 
       ***********************************************************************************************************************************************************************************************************************************************************************************/
 
-      private static double FormateDouble(String texte, int decimales, ref int positionCurseur, ref String resultat)
+      private static double DoubleFormat(string text, int decimals, ref int cursorPos, ref string result)
       {
-         String temp = texte.TrimStart(new char[] { '0' });
-         int tailleTemp = temp.Length;
-         positionCurseur -= texte.Length - tailleTemp;
+         var temp = text.TrimStart(new char[] { '0' });
+         var tempLength = temp.Length;
+         cursorPos -= text.Length - tempLength;
 
-         if(positionCurseur < 0)
-            positionCurseur = 0;
+         if (cursorPos < 0) cursorPos = 0;
 
-         int positionVirgule = temp.IndexOf(',');
+         var separatorPos = temp.IndexOf(Separator);
 
-         if(positionVirgule == -1)
-            positionVirgule = tailleTemp;
+         if(separatorPos == -1)
+            separatorPos = tempLength;
 
-         // Partie entière
-         int chiffre = 0;
-         int i = positionVirgule - 1;
+         // Integer part
+         var digit = 0;
+         var i = separatorPos - 1;
          while(i >= 0)
          {
-            if(chiffre != 0 && chiffre % 3 == 0)
+            if(digit != 0 && digit % 3 == 0)
             {
-               resultat = " " + resultat;
-               if(positionCurseur > i)
-                  positionCurseur++;
+               result = " " + result;
+               if(cursorPos > i)
+                  cursorPos++;
             }
-            resultat = temp[i] + resultat;
+            result = temp[i] + result;
             i--;
-            chiffre++;
+            digit++;
          }
 
-         // Partie décimale
-         chiffre = 0;
-         i = positionVirgule;
-         while(i < tailleTemp && chiffre <= decimales)
+         // Decimal part
+         digit = 0;
+         i = separatorPos;
+         while(i < tempLength && digit <= decimals)
          {
-            resultat += temp[i];
-            //if(chiffre != 0 && chiffre % 3 == 0)
-            //{
-            //   resultat += " ";
-            //   if(positionCurseur > i)
-            //      positionCurseur++;
-            //}
+            result += temp[i];
             i++;
-            chiffre++;
+            digit++;
          }
 
-         if(positionCurseur > resultat.Length)
-            positionCurseur = resultat.Length;
+         if(cursorPos > result.Length)
+            cursorPos = result.Length;
 
-         // Remplie après la virgule
-         positionVirgule = resultat.IndexOf(',');
-         if(positionVirgule == -1)
+         // Filling after separator
+         separatorPos = result.IndexOf(Separator);
+         if(separatorPos == -1)
          {
-            resultat += ",";
-            positionVirgule = resultat.Length - 1; 
+            result += Separator;
+            separatorPos = result.Length - 1; 
          }
-         resultat = resultat.PadRight(positionVirgule + 1 + decimales, '0');
+         result = result.PadRight(separatorPos + 1 + decimals, '0');
 
-         // Si il n'y a pas de zéro devant
-         if(resultat[0] == ',')
+         // if no zero in front
+         if(result[0] == Separator)
          {
-            resultat = "0" + resultat;
-            positionCurseur++;
+            result = "0" + result;
+            cursorPos++;
          }
 
          // Valeur double
-         return double.Parse(resultat.Replace(" ", ""));
+         return double.Parse(result.Replace(" ", ""));
       }
 
 
@@ -1390,26 +1078,22 @@ namespace HLab.Base
          //return Regex.IsMatch(email, "(?:[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*|\"(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21\x23-\x5b\x5d-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])*\")@(?:(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?|\\[(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?|[a-z0-9-]*[a-z0-9]:(?:[\x01-\x08\x0b\x0c\x0e-\x1f\x21-\x5a\x53-\x7f]|\\[\x01-\x09\x0b\x0c\x0e-\x7f])+)\\])", RegexOptions.IgnoreCase);
 
 
-      public static bool ValideEmail(String email)
+      public static bool ValidateEmail(string email)
       {
-         if(String.IsNullOrEmpty(email))
+         if(string.IsNullOrEmpty(email))
             return true;
 
          // Use IdnMapping class to convert Unicode domain names.
          email = Regex.Replace(email, @"(@)(.+)$", DomainMapper);
-         if(email == "")
-            return false;
-
-         // Return true if strIn is in valid e-mail format.
-         return Regex.IsMatch(email, @"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$", RegexOptions.IgnoreCase);
+         return email != "" && Regex.IsMatch(email, @"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$", RegexOptions.IgnoreCase);
       }
 
       private static string DomainMapper(Match match)
       {
          // IdnMapping class with default property values.
-         IdnMapping idn = new IdnMapping();
+         IdnMapping idn = new();
 
-         string domainName = match.Groups[2].Value;
+         var domainName = match.Groups[2].Value;
          try
          {
             domainName = idn.GetAscii(domainName);
@@ -1417,7 +1101,6 @@ namespace HLab.Base
          catch(ArgumentException)
          {
             return "";
-            //invalid = true;
          }
          return match.Groups[1].Value + domainName;
       }
