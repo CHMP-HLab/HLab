@@ -29,13 +29,10 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm
 {
-    using H = H<ViewModel>;
-
     public interface IModel {}
 
-    public abstract class ViewModel : NotifierBase, IViewModel
+    public abstract class ViewModel : NotifierBase
     {
-        protected ViewModel() => H.Initialize(this);
 
         private static int _lastId = 0;
 
@@ -44,25 +41,25 @@ namespace HLab.Mvvm
         public int Id => _id.Value;
 
         public IMvvmContext MvvmContext { get; set; }
-
-        public virtual Type ModelType => null;
-        public object Model
-        {
-            get => _model.Get();
-            set => _model.Set(value);
-        }
-        private readonly IProperty<object> _model = H.Property<object>();
     }
 
     public abstract class ViewModel<T> : ViewModel, IViewModel<T>
     {
+        protected ViewModel() => H<ViewModel<T>>.Initialize(this);
 
-        public new T Model
+        object IViewModel.Model
         {
-            get => (T)base.Model;
-            set => base.Model = value;
+            get => Model;
+            set => Model = (T) value;
         }
 
-        public override Type ModelType => typeof(T);
+        public T Model
+        {
+            get => _model.Get();
+            set => _model.Set(value);
+        }
+        private readonly IProperty<T> _model = H<ViewModel<T>>.Property<T>();
+
+        public Type ModelType => typeof(T);
     }
 }
