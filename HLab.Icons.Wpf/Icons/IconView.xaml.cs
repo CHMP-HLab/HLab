@@ -49,6 +49,10 @@ namespace HLab.Icons.Wpf.Icons
             H.Property<double>().Default(30.0)
             .Register();
 
+        public static readonly DependencyProperty IconMaxWidthProperty = 
+            H.Property<double>().Default(double.NaN)
+            .Register();
+
         public string Path
         {
             get => (string)GetValue(PathProperty);
@@ -64,6 +68,11 @@ namespace HLab.Icons.Wpf.Icons
         {
             get => (double)GetValue(IconMaxHeightProperty);
             set => SetValue(IconMaxHeightProperty, value);
+        }
+        public double IconMaxWidth
+        {
+            get => (double)GetValue(IconMaxWidthProperty);
+            set => SetValue(IconMaxWidthProperty, value);
         }
 
         public static readonly DependencyProperty ForegroundMatchColorProperty =

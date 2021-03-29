@@ -1,19 +1,23 @@
 ﻿using System;
 using System.Resources;
 using System.Threading.Tasks;
-using HLab.Icons.Annotations;
 using HLab.Icons.Annotations.Icons;
-using HLab.Icons.Wpf.Icons;
 
-namespace HLab.Icons.Wpf.Providers
+namespace HLab.Icons.Wpf.Icons.Providers
 {
     public class IconProviderSvg : IIconProvider
     {
         private readonly ResourceManager _resourceManager;
         private readonly string _name;
+        private int? _foreground;
+
 //        private readonly IIconService _icons;
-        public IconProviderSvg(ResourceManager resourceManager, string name)
-        { _resourceManager = resourceManager; _name = name; }
+        public IconProviderSvg(ResourceManager resourceManager, string name, int? foreground)
+        {
+            _resourceManager = resourceManager; 
+            _name = name;
+            _foreground = foreground;
+        }
 
 
 
@@ -23,7 +27,7 @@ namespace HLab.Icons.Wpf.Providers
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
             await using var svg = _resourceManager.GetStream(_name);
-            return await XamlTools.FromSvgStreamAsync(svg).ConfigureAwait(false);
+            return await XamlTools.FromSvgStreamAsync(svg,_foreground).ConfigureAwait(false);
         }
 
     }

@@ -4,7 +4,7 @@
 Copyright (c) 2005-2015 authors:
 Original version: Toine de Greef (a.degreef@chello.nl)
 Modified (2010-2015) by Nicolas Dufour (nicoduf@yahoo.fr) (blur support, units
-conversion, comments, and some other fixes)
+convertion, comments, and some other fixes)
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -22,10 +22,10 @@ FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
 AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
-THE SOFTWARE. 
+THE SOFTWARE.
 -->
 
-<xsl:stylesheet version="1.0"
+<xsl:stylesheet version="2.0"
 xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
 xmlns:xlink="http://www.w3.org/1999/xlink"
 xmlns:xs="http://www.w3.org/2001/XMLSchema"
@@ -33,13 +33,13 @@ xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
 xmlns:exsl="http://exslt.org/common"
-xmlns:libxslt="urn:schemas-microsoft-com:xslt"
+xmlns:libxslt="http://exslt.org/common"
 xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
 exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
 
 <xsl:strip-space elements="*" />
 <xsl:output method="xml" encoding="UTF-8" indent="yes"/>
-
+  
 <xsl:param name="silverlight" select="false" />
 <xsl:param name="silverlight_compatible" select="$silverlight" />
 
@@ -230,41 +230,21 @@ exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
     </xsl:when>
     
     <!-- Rotate transform -->
-    <!--<xsl:when test="starts-with($input, 'rotate(')">
+    <xsl:when test="starts-with($input, 'rotate(')">
       <RotateTransform>
         <xsl:attribute name="Angle">
-          <xsl:value-of select="normalize-space(translate(substring-before(substring-after($input, 'rotate('), ')'), ',', ' '))" />
+          <xsl:value-of select="substring-before(normalize-space(translate(substring-before(substring-after($input, 'rotate('), ')'), ',', ' ')), ' ')" />
         </xsl:attribute>
-        <xsl:if test="@rx">
-          <xsl:attribute name="CenterX">
-            <xsl:value-of select="@rx" />
-          </xsl:attribute>
-        </xsl:if>
-        <xsl:if test="@ry">
-          <xsl:attribute name="CenterY">
-            <xsl:value-of select="@ry" />
-          </xsl:attribute>
-        </xsl:if>
+        <xsl:attribute name="CenterX">
+          <xsl:value-of select="substring-before(substring-after(normalize-space(translate(substring-before(substring-after($input, 'rotate('), ')'), ',', ' ')), ' '), ' ')" />
+        </xsl:attribute>
+        <xsl:attribute name="CenterY">
+          <xsl:value-of select="substring-after(substring-after(normalize-space(translate(substring-before(substring-after($input, 'rotate('), ')'), ',', ' ')), ' '), ' ')" />
+        </xsl:attribute>
       </RotateTransform>
       <xsl:call-template name="parse_transform">
         <xsl:with-param name="input" select="substring-after($input, ') ')" />
       </xsl:call-template>
-    </xsl:when>-->
-    <xsl:when test="starts-with($input, 'rotate(')">
-	    <RotateTransform>
-		    <xsl:attribute name="Angle">
-			    <xsl:value-of select="format-number(substring-before(normalize-space(translate(substring-before(substring-after($input, 'rotate('), ')'), ',', ' ')), ' '), '0.#')" />
-		    </xsl:attribute>
-		    <xsl:attribute name="CenterX">
-			    <xsl:value-of select="format-number(substring-before(substring-after(normalize-space(translate(substring-before(substring-after($input, 'rotate('), ')'), ',', ' ')), ' '), ' '), '0.#')" />
-		    </xsl:attribute>
-		    <xsl:attribute name="CenterY">
-			    <xsl:value-of select="format-number(substring-after(substring-after(normalize-space(translate(substring-before(substring-after($input, 'rotate('), ')'), ',', ' ')), ' '), ' '), '0.#')" />
-		    </xsl:attribute>
-	    </RotateTransform>
-	    <xsl:call-template name="parse_transform">
-		    <xsl:with-param name="input" select="substring-after($input, ') ')" />
-	    </xsl:call-template>
     </xsl:when>
     
     <!-- Skew transform -->
@@ -672,7 +652,7 @@ exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
         <xsl:choose>
           <xsl:when test="@xlink:href">
             <xsl:variable name="reference_id" select="@xlink:href" />
-            <xsl:apply-templates mode="forward" select="//*[name(.) = 'linearGradient' and $reference_id = concat('#', @id)]/*" />
+            <xsl:apply-templates mode="forward" select="//*[$reference_id = concat('#', @id)]/*" />
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates mode="forward" />
@@ -793,7 +773,8 @@ exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
         <xsl:choose>
           <xsl:when test="@xlink:href">
             <xsl:variable name="reference_id" select="@xlink:href" />
-            <xsl:apply-templates mode="forward" select="//*[name(.) = 'radialGradient' and $reference_id = concat('#', @id)]/*" />
+            <!-- mgth: not only linearGradients but radialGradients too-->
+            <xsl:apply-templates mode="forward" select="//*[$reference_id = concat('#', @id)]/*" />
           </xsl:when>
           <xsl:otherwise>
             <xsl:apply-templates mode="forward" />
@@ -860,7 +841,7 @@ exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
   * Use
   * RDF and foreign objects
   * Misc ignored stuff (markers, patterns, styles)
-  * Unknown tags
+  * Unknows tags
 -->
 
 <!--
@@ -967,7 +948,8 @@ exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
   (since it is not supported by Inkscape, not implemented yet)
 -->
 <xsl:template mode="forward" match="*[name(.) = 'use']">
-<!-- Errors when more than one use element share the same reference
+
+<!-- Errors when more than one use element share the same reference-->
   <Canvas>
     <xsl:if test="@width and not(contains(@width, '%'))">
       <xsl:attribute name="Width">
@@ -997,16 +979,23 @@ exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
       </xsl:attribute>
     </xsl:if>
     
-    <StaticResource>
-      <xsl:if test="@xlink:href">
+        <!--<xsl:choose>
+          <xsl:when test="@xlink:href">
+            <xsl:variable name="reference_id" select="@xlink:href" />
+            <xsl:apply-templates mode="forward" select="//*[$reference_id = concat('#', @id)]" />
+          </xsl:when>
+          <xsl:otherwise>
+            <xsl:apply-templates mode="forward" />
+          </xsl:otherwise>
+        </xsl:choose>-->
+    <!--<StaticResource>
         <xsl:attribute name="ResourceKey">
           <xsl:value-of select="substring-after(@xlink:href, '#')" />
         </xsl:attribute>
-      </xsl:if>
       <xsl:apply-templates mode="forward" />
-    </StaticResource>
+    </StaticResource>-->
   </Canvas>
-  -->
+  <!-- -->
 </xsl:template>
 
 <!--
@@ -1146,7 +1135,7 @@ exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
       </xsl:choose>
     </xsl:when>
     <xsl:otherwise>
-      <xsl:variable name="named_color_hex" select="document('colors.xml')/colors/color[@name = translate($colorspec, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@hex" />
+      <xsl:variable name="named_color_hex" select="document('Icons/colors.xml')/colors/color[@name = translate($colorspec, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')]/@hex" />
       <xsl:choose>
         <xsl:when test="$named_color_hex and $named_color_hex != ''">
           <xsl:value-of select="'#'" />
@@ -2921,7 +2910,7 @@ exclude-result-prefixes="rdf xlink xs exsl libxslt inkscape">
 </xsl:template>
 <!-- 
   // Clip Geometry for path //
-  TODO: PathGeometry is positioned in the object's space, and thus needs to be translated.
+  TODO: PathGeometry is positionned in the object's space, and thus needs to be translated.
 -->
 <xsl:template mode="geometry" match="*[name(.) = 'path']">
   <PathGeometry>

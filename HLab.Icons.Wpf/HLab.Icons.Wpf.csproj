@@ -7,27 +7,35 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="colors.xml" />
     <None Remove="html2xaml.xslt" />
+    <None Remove="Icons\svg2xaml-2007.xsl" />
+    <None Remove="Icons\svg2xaml.xsl" />
     <None Remove="svg2xaml.old.xsl" />
     <None Remove="svg2xaml.xsl" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="Icons\svg2xaml.old.xsl" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <EmbeddedResource Include="Icons\colors.xml">
+    <EmbeddedResource Include="colors.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </EmbeddedResource>
     <EmbeddedResource Include="Icons\html2xaml.xslt" />
+    <EmbeddedResource Include="Icons\svg2xaml-2007.xsl">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <EmbeddedResource Include="Icons\svg2xaml.xsl">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Icons\svg2xaml.mgth.xsl">
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="libxslt" Version="1.1.28" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Erp.Lims\HLab.Erp.Lims.Analysis\HLab.Colors.Wpf\HLab.ColorTools.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Core\HLab.Core.csproj" />
     <ProjectReference Include="..\Hlab.Icons.Annotations\HLab.Icons.Annotations.csproj" />

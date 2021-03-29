@@ -24,7 +24,7 @@ namespace HLab.Mvvm.Application.Wpf.Icons
 
             using (List.Suspender.Get())
             {
-                Filter<TextFilter>(f => f. Title("{Path}"))
+                Filter<TextFilter>(). Title("{Path}")
                     .Link(List,e => e.Path);
             }
         }

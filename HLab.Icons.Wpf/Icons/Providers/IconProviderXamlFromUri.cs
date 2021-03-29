@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using HLab.Icons.Annotations;
 using HLab.Icons.Annotations.Icons;
-using HLab.Icons.Wpf.Icons;
 
-namespace HLab.Icons.Wpf.Providers
+namespace HLab.Icons.Wpf.Icons.Providers
 {
     public class IconProviderXamlFromUri : IIconProvider
     {
@@ -19,7 +17,7 @@ namespace HLab.Icons.Wpf.Providers
         public async Task<object> GetAsync()
         {
             AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
-            var icon = System.Windows.Application.LoadComponent(_uri);
+            var icon = Application.LoadComponent(_uri);
             if(icon is DependencyObject d)
                 XamlTools.SetBinding(d);
 

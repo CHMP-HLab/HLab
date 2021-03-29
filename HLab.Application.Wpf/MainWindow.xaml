@@ -14,7 +14,7 @@
 >
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="Auto" />
+            <RowDefinition Height="30" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
@@ -26,14 +26,14 @@
                    MouseUp="UIElement_OnMouseUp"
         >
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="30"/>
                 <ColumnDefinition Width="Auto"/>
                 <ColumnDefinition/>
                 <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Viewbox  Height="25">
-                <icons:IconView Path="icons/logo" />
+            <Viewbox  >
+                <icons:IconView Path="icons/logo" IconMaxHeight="30"/>
             </Viewbox>
 
             <ContentControl Grid.Column="1" FontSize="25" Content="{Binding Menu}"/>
@@ -44,6 +44,9 @@
             />
 
             <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,120,0">
+                <Label Content="{Binding ApplicationInfo.DataSource}"/>
+                <Label Content="{Binding ApplicationInfo.Name}"/>
+                <Label Content="{Binding ApplicationInfo.Version}"/>
                 <Button Command="{Binding OpenUserCommand}" Content ="{Binding Acl.Connection.User.Caption}"/>
                 <icons:IconView Margin="7" Path="Icons/Entities/User" Height="20"/>
             </StackPanel>
