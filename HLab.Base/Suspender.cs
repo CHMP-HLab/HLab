@@ -21,6 +21,7 @@
 	  http://www.mgth.fr
 */
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -28,6 +29,9 @@ namespace HLab.Base
 {
     public class SuspenderToken : IDisposable
     {
+        internal readonly ConcurrentQueue<Action> Actions = new();
+        public void EnqueueAction(Action action) => Actions.Enqueue(action);
+
         private readonly Suspender _suspender;
 #if DEBUG_SUSPENDER
         public readonly StackTrace StackTrace;
@@ -51,6 +55,7 @@ namespace HLab.Base
         private readonly HashSet<SuspenderToken> _list = new();
         private readonly Action _suspendedAction;
         private readonly Action _resumeAction;
+        private readonly ConcurrentQueue<Action> _resumeActions = new();
 
         public Suspender(Action suspendedAction=null, Action resumeAction=null)
         {
@@ -96,6 +101,9 @@ namespace HLab.Base
             try
             {
                 _list.Remove(s);
+                while (s.Actions.TryDequeue(out var action))
+                    _resumeActions.Enqueue(action);
+
                 if (_list.Count > 0)
                     return;
             }
@@ -106,6 +114,9 @@ namespace HLab.Base
 
             //            try
             {
+                while (_resumeActions.TryDequeue(out var action))
+                    action();
+
                 _resumeAction?.Invoke();
             }
 //            catch (Exception)
