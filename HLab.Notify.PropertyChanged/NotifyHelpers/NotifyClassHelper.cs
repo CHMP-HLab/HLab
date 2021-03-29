@@ -1,19 +1,20 @@
 ﻿using System.ComponentModel;
-using System.Linq;
+using System.Diagnostics.CodeAnalysis;
 
-namespace HLab.Notify.PropertyChanged.NotifyParsers
+namespace HLab.Notify.PropertyChanged.NotifyHelpers
 {
 
     public partial class NotifyClassHelper : NotifyClassHelperBase
     {
         public NotifyClassHelper(object target) : base(target) { }
 
-        public override void OnPropertyChanged(PropertyChangedEventArgs args)
+        public override void OnPropertyChanged([NotNull]PropertyChangedEventArgs args)
         {
+            using var s = GetSuspender();
             base.OnPropertyChanged(args);
             if (Dict.TryGetValue(args.PropertyName, out var propertyEntry))
             {
-                propertyEntry.TargetPropertyChanged(Target,args);
+                s.EnqueueAction(()=> propertyEntry.TargetPropertyChanged(Target,args));
             }
         }
     }

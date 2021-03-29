@@ -1,9 +1,6 @@
-﻿using System;
-using System.ComponentModel;
-using System.Threading;
-using HLab.Notify.PropertyChanged.PropertyHelpers;
+﻿using System.Threading;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyObject<T> : IPropertyValue<T>
         where T : class

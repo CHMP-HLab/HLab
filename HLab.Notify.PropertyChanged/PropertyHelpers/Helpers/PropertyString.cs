@@ -1,8 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
-using HLab.Notify.PropertyChanged.PropertyHelpers;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyString : IPropertyValue<string>
     {

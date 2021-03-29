@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.Reflection;
-using System.Text;
 using System.Threading;
 using HLab.Notify.Annotations;
 
-namespace HLab.Notify.PropertyChanged.NotifyParsers
+namespace HLab.Notify.PropertyChanged.NotifyHelpers
 {
     public partial class NotifyClassHelper
     {

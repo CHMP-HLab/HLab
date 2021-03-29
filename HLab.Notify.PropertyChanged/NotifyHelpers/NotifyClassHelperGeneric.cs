@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace HLab.Notify.PropertyChanged.NotifyParsers
+namespace HLab.Notify.PropertyChanged.NotifyHelpers
 {
     public partial class NotifyClassHelperGeneric : NotifyClassHelperBase
     {

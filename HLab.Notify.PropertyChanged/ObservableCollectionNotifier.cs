@@ -37,19 +37,14 @@ namespace HLab.Notify.PropertyChanged
 {
     public abstract class ObservableCollectionNotifier<T> : NotifierBase,
         IList<T>, IList, IReadOnlyList<T>, INotifyCollectionChanged, ILockable
-        //where T : INotifyPropertyChanged
     {
         protected ObservableCollectionNotifier()
         {
-            _eventHandlerService ??= NotifyHelper.EventHandlerService;
             H<ObservableCollectionNotifier<T>>.Initialize(this);
         }
 
 
         #region Dependencies
-
-        [Import]
-        private readonly IEventHandlerService _eventHandlerService;
 
         #endregion
 
@@ -64,28 +59,11 @@ namespace HLab.Notify.PropertyChanged
 
         public virtual T Selected
         {
-            get
-            {
-                using(Lock.ReaderLock())
-                {
-                    return _selected.Get();
-                }
-            }
-            set
-            {
-                using(Lock.WriterLock())
-                {
-                    _selected.Set(value);
-                }
-            }
+            get => DoReadLocked(() => _selected.Get());
+            set => DoWriteLocked(()=>_selected.Set(value));
         }
+        private readonly IProperty<T> _selected = H<ObservableCollectionNotifier<T>>.Property<T>();
 
-        protected readonly IProperty<T> _selected = H<ObservableCollectionNotifier<T>>.Property<T>();
-
-        private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
-        {
-            CollectionChanged?.Invoke(this,arg);
-        }
 
 
 
@@ -118,31 +96,17 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        public bool AddUnique(T item)
+        public bool AddUnique(T item) => DoWriteLocked<bool>(() =>
         {
-            try
-            {
-                using (Lock.WriterLock())
-                {
                     if (Contains(item)) return false;
                     var index = Count;
                     _list.Add(item);
                     _count.Set(_list.Count);
                     _changedQueue.Enqueue(
                         new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, item, index));
-                }
-            }
-            finally
-            {
-                OnCollectionChanged();
-            }
-            return true;
-        }
+                    return true;
+        });
 
-        void IList.Remove(object item)
-        {
-            Remove((T) item);
-        }
 
         public bool Remove(T item) => DoWriteLocked(() =>
             {
@@ -154,6 +118,7 @@ namespace HLab.Notify.PropertyChanged
                 return r;
             }
         );
+
 
 
 
@@ -169,7 +134,6 @@ namespace HLab.Notify.PropertyChanged
 
 
 
-        void IList.Insert(int index, object value) => Insert(index, (T)value);
         public virtual void Insert(int index, T item) => DoWriteLocked(() => InsertNoLock(index, item));
 
         protected void InsertNoLock(int index, T item)
@@ -182,20 +146,14 @@ namespace HLab.Notify.PropertyChanged
 
 
 
-        public void CopyTo(Array array, int index) => DoWriteLocked(() =>
+        public void CopyTo(Array array, int index) => DoReadLocked(() =>
         {
             ((IList) _list).CopyTo(array, index);
-            _count.Set(_list.Count);
-            _changedQueue.Enqueue(
-                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, array, index));
         });
 
-        public void CopyTo(T[] array, int arrayIndex) => DoWriteLocked(() =>
+        public void CopyTo(T[] array, int arrayIndex) => DoReadLocked(() =>
         {
             _list.CopyTo(array, arrayIndex);
-            _count.Set(_list.Count);
-            _changedQueue.Enqueue(
-                new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, array, arrayIndex));
         });
 
         public void Clear() => DoWriteLocked(() =>
@@ -208,21 +166,15 @@ namespace HLab.Notify.PropertyChanged
 
         public bool Contains(T item) => DoReadLocked(() => _list.Contains(item));
 
-
+        void IList.Insert(int index, object value) => Insert(index, (T)value);
+        void IList.Remove(object item) => Remove((T) item);
         int IList.IndexOf(object value) => DoReadLocked(() => ((IList)_list).IndexOf(value));
-
         public int IndexOf(T item) => DoReadLocked(() => _list.IndexOf(item));
-
         object ICollection.SyncRoot => DoReadLocked(() => ((ICollection) _list).SyncRoot);
-
         bool ICollection.IsSynchronized => DoReadLocked(() => ((ICollection) _list).IsSynchronized);
-
         bool IList.IsFixedSize => DoReadLocked(() => ((IList)_list).IsFixedSize);
-
         bool ICollection<T>.IsReadOnly => DoReadLocked(() => ((ICollection<T>) _list).IsReadOnly);
-
         bool IList.IsReadOnly => DoReadLocked(() => ((IList)_list).IsReadOnly);
-
 
         object IList.this[int index]
         {
@@ -254,29 +206,34 @@ namespace HLab.Notify.PropertyChanged
                 while (_changedQueue.TryDequeue(out var a))
                     OnCollectionChanged(a);
         }
+        private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
+        {
+            CollectionChanged?.Invoke(this,arg);
+        }
 
         AsyncReaderWriterLock ILockable.Lock => Lock;
-        private RT DoReadLocked<RT>(Func<RT> action)
+        private TR DoReadLocked<TR>(Func<TR> action)
         {
-            //try
-            //{
             using (Lock.ReaderLock())
             {
                 return action();
             }
-            //}
-            //finally
-            //{
-            //   OnCollectionChanged();
-            //}
         }
-        private RT DoWriteLocked<RT>(Func<RT> action)
+        private void DoReadLocked(Action action)
+        {
+            using (Lock.ReaderLock())
+            {
+                action();
+            }
+        }
+        private TR DoWriteLocked<TR>(Func<TR> action)
         {
             try
             {
                 using (Lock.WriterLock())
                 {
-                    return action();
+                    using(ClassHelper.GetSuspender())
+                        return action();
                 }
             }
             finally
@@ -290,15 +247,14 @@ namespace HLab.Notify.PropertyChanged
             {
                 using (Lock.WriterLock())
                 {
-                    action();
+                    using(ClassHelper.GetSuspender())
+                        action();
                 }
             }
             finally
             {
                 OnCollectionChanged();
             }
-
         }
-
     }
 }

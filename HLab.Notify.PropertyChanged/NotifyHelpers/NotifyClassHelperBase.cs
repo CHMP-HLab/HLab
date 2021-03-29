@@ -4,12 +4,16 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using HLab.Base;
 using HLab.Notify.Annotations;
 
-namespace HLab.Notify.PropertyChanged.NotifyParsers
+namespace HLab.Notify.PropertyChanged.NotifyHelpers
 {
     public class NotifyClassHelperBase : INotifyClassHelper
     {
+        private readonly Suspender _suspender  = new();
+        public SuspenderToken GetSuspender() => _suspender.Get();
+
         private static readonly ConditionalWeakTable<object, INotifyClassHelper> Cache = new();
         public static INotifyClassHelper GetExistingHelper(object target) => Cache.TryGetValue(target, out var p) ? p : null;
         public static INotifyClassHelper GetNewHelper(object target)
@@ -73,6 +77,11 @@ namespace HLab.Notify.PropertyChanged.NotifyParsers
 
         public void RemoveHandler(PropertyChangedEventHandler value) => Handler -= value;
 
-        public virtual void OnPropertyChanged(PropertyChangedEventArgs args) => Handler?.Invoke(Target, args);
+        public virtual void OnPropertyChanged(PropertyChangedEventArgs args)
+        {
+            using var s = GetSuspender();
+            s.EnqueueAction(()=>Handler?.Invoke(Target, args));
+        }
+
     }
 }

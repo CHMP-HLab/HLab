@@ -3,7 +3,7 @@
 using System;
 using System.Collections.Concurrent;
 using HLab.Notify.Annotations;
-using HLab.Notify.PropertyChanged.NotifyParsers;
+using NotifyClassHelper = HLab.Notify.PropertyChanged.NotifyHelpers.NotifyClassHelper;
 
 namespace HLab.Notify.PropertyChanged
 {

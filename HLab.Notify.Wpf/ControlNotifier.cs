@@ -1,8 +1,7 @@
 ﻿using System.ComponentModel;
 using System.Windows.Controls;
 using HLab.Notify.Annotations;
-using HLab.Notify.PropertyChanged;
-using HLab.Notify.PropertyChanged.NotifyParsers;
+using HLab.Notify.PropertyChanged.NotifyHelpers;
 
 namespace HLab.Notify.Wpf
 {
@@ -13,7 +12,7 @@ namespace HLab.Notify.Wpf
 
         protected UserControlNotifier()
         {
-            ClassHelper = NotifyClassHelper.GetNewHelper(this);
+            ClassHelper = NotifyClassHelperBase.GetNewHelper(this);
         }
 
         public event PropertyChangedEventHandler PropertyChanged

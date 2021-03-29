@@ -3,10 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Linq;
 using HLab.Notify.Annotations;
 
-namespace HLab.Notify.PropertyChanged.NotifyParsers
+namespace HLab.Notify.PropertyChanged.NotifyHelpers
 {
     class CollectionPropertyEntry : IPropertyEntry
     {

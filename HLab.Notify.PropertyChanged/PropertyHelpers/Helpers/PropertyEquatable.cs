@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Collections;
-using System.ComponentModel;
-using HLab.Notify.PropertyChanged.PropertyHelpers;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyStructuralEquatable<T> : IPropertyValue<T>
         where T : IStructuralEquatable

@@ -1,11 +1,9 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Threading;
-using HLab.Notify.PropertyChanged.PropertyHelpers;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyEnum<T> : IPropertyValue<T>
         where T : struct, Enum, IComparable

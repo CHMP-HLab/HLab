@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
     public class PropertyAttribute : Attribute
     {

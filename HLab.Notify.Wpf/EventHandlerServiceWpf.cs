@@ -189,7 +189,7 @@ namespace HLab.Notify.Wpf
     public class GuiTimer : IGuiTimer
     {
         private readonly DispatcherTimer _timer;
-        private Dispatcher _dispatcher;
+        private readonly Dispatcher _dispatcher;
 
         public GuiTimer()
         {

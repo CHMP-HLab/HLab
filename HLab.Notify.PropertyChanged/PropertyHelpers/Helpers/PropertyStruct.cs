@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HLab.Notify.PropertyChanged.PropertyHelpers
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyStruct<T> : IPropertyValue<T>
     {

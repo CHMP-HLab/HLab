@@ -13,7 +13,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <ContentControl x:Name="IconContent" MaxHeight="{Binding IconMaxHeight, ElementName=UserControl}"/>
+        <ContentControl x:Name="IconContent" MaxWidth="{Binding IconMaxHeight, ElementName=UserControl}" MaxHeight="{Binding IconMaxHeight, ElementName=UserControl}"/>
         <ContentControl 
             x:Name ="CaptionContent" 
             Margin="10,0,0,0" 

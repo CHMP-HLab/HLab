@@ -1,9 +1,7 @@
 ﻿using System;
-using System.ComponentModel;
 using System.Threading;
-using HLab.Notify.PropertyChanged.PropertyHelpers;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyFloat : IPropertyValue<float>
     {

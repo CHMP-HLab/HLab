@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Text;
+using HLab.Base;
 
 namespace HLab.Notify.Annotations
 {
@@ -15,6 +16,7 @@ namespace HLab.Notify.Annotations
     
     public interface INotifyClassHelper //: IDisposable
     {
+        SuspenderToken GetSuspender();
         IPropertyEntry GetPropertyEntry(string name);
         //ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
         IEnumerable<IPropertyEntry> LinkedProperties();

@@ -22,8 +22,4 @@
     <ProjectReference Include="..\HLab.Notify.Annotations\HLab.Notify.Annotations.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="obsolete\" />
-  </ItemGroup>
-
 </Project>
