@@ -2,7 +2,7 @@
 using System.Globalization;
 using System.Windows.Data;
 using System.Windows.Media;
-using HLab.Mvvm._Colors;
+using HLab.ColorTools.Wpf;
 
 namespace HLab.Mvvm.Flowchart.Views
 {
