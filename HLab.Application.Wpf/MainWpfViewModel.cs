@@ -42,7 +42,7 @@ namespace HLab.Mvvm.Application.Wpf
         private IDocumentService _doc;
 
         [Import]
-        private readonly IApplicationInfoService _info;
+        public IApplicationInfoService ApplicationInfo { get; }
 
         [Import]
         private readonly Func<object, SelectedMessage> _getSelectedMessage;
@@ -115,7 +115,7 @@ namespace HLab.Mvvm.Application.Wpf
         public Menu Menu { get; } = new Menu {IsMainMenu = true}; 
 
         public string Title => _title.Get();
-        private readonly IProperty<string> _title = H.Property<string>(c => c.Set(e => e._info.Name));
+        private readonly IProperty<string> _title = H.Property<string>(c => c.Set(e => e.ApplicationInfo.Name));
 
         public ICommand Exit  { get; } = H.Command(c => c
             .Action(e => System.Windows.Application.Current.Shutdown())
