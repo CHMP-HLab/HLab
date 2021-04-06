@@ -9,31 +9,50 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Compiler.Wpf
+namespace HLab.Compiler.Wpf
 {
-    public class Compiler
+    public class CompileError
     {
-        public static Assembly Compile(out string messages, params string[] sources)
+        public string Message { get; set; }
+        public int Line { get; set; }
+        public int Pos { get; set; }
+        public int Length { get; set; }
+    }
+
+    public static class Compiler
+    {
+
+        public static Assembly Compile(out IEnumerable<CompileError> errors, params string[] sources)
         {
             using var peStream = new MemoryStream();
 
             var result = GenerateCode(sources).Emit(peStream);
 
+            errors = null;
+
             if (!result.Success)
             {
-                messages = "Compilation failed.";
-
                 var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
 
-                foreach (var diagnostic in failures)
+                var errs = new List<CompileError>();
+                foreach (var failure in failures)
                 {
-                    messages += $"\n{diagnostic.Id}: {diagnostic.GetMessage()}";
+                    var span = failure.Location.GetLineSpan().Span;
+
+                    var err = new CompileError
+                    {
+                        Message = failure.GetMessage(),
+                            Line = span.Start.Line+1,
+                            Pos = span.Start.Character+1,
+                            Length = span.End.Character - span.Start.Character
+                    };
+                    errs.Add(err);
                 }
+
+                errors = errs;
 
                 return null;
             }
-
-            messages = "C# OK";
 
             peStream.Seek(0, SeekOrigin.Begin);
 
@@ -50,7 +69,7 @@ namespace Compiler.Wpf
             foreach (var source in sources)
             {
                 var codeString = SourceText.From(source);
-                var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.CSharp7_3);
+                var options = CSharpParseOptions.Default.WithLanguageVersion(LanguageVersion.Latest);
 
                 parsedSyntaxTrees.Add(SyntaxFactory.ParseSyntaxTree(codeString, options));
             }
@@ -69,7 +88,7 @@ namespace Compiler.Wpf
                     assemblyIdentityComparer: DesktopAssemblyIdentityComparer.Default));
         }
 
-        public void Execute(byte[] compiledAssembly, string[] args)
+        public static void Execute(byte[] compiledAssembly, string[] args)
         {
             var assemblyLoadContextWeakRef = LoadAndExecute(compiledAssembly, args);
 
