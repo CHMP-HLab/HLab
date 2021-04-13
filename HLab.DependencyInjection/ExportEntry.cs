@@ -9,13 +9,13 @@ namespace HLab.DependencyInjection
 {
     public class ClassActivator
     {
-        public ClassActivator(DependencyLocator activator, DependencyInjector injector)
+        public ClassActivator(IDependencyLocator activator, DependencyInjector injector)
         {
             Activator = activator;
             Injector = injector;
         }
 
-        public DependencyLocator Activator { get; }
+        public IDependencyLocator Activator { get; }
         public DependencyInjector Injector { get; }
     }
 
@@ -35,7 +35,7 @@ namespace HLab.DependencyInjection
         }
 
         public Func<IActivatorTree,Type> ExportType { get; set; }
-        public Func<IActivatorTree, DependencyLocator> Locator { get; set; }
+        public Func<IActivatorTree, IDependencyLocator> Locator { get; set; }
         private Func<IActivatorTree, bool> _condition;
 
         public Func<IRuntimeImportContext, bool> RuntimeCondition { get; set; }
@@ -45,8 +45,8 @@ namespace HLab.DependencyInjection
         public void AddMode(ExportMode mode) => this.Mode |= mode;
         public void SetPriority(int priority) => Priority = priority;
 
-        private readonly ConcurrentDictionary<IActivatorKey, DependencyLocator> _activators
-            = new ConcurrentDictionary<IActivatorKey, DependencyLocator>();
+        private readonly ConcurrentDictionary<IActivatorKey, IDependencyLocator> _activators
+            = new();
 
         public ExportEntry(IExportLocatorScope container)
         {
@@ -56,7 +56,7 @@ namespace HLab.DependencyInjection
 
         public IActivatorKey GetActivatorKey(IActivatorTree tree) => new ActivatorKey(ExportType(tree), tree.Context.Signature);
 
-        private DependencyLocator GetActivator(IActivatorTree tree)
+        private IDependencyLocator GetActivator(IActivatorTree tree)
         {
             var key = new ActivatorKey(ExportType(tree), tree.Context.Signature);
             tree.Key = key;
@@ -86,7 +86,7 @@ namespace HLab.DependencyInjection
             _condition = cnd;
         }
 
-        private DependencyLocator GetNewClassActivator(IActivatorTree tree)
+        private IDependencyLocator GetNewClassActivator(IActivatorTree tree)
         {
 
             var ctor = tree.Key.GetConstructor();
@@ -94,28 +94,28 @@ namespace HLab.DependencyInjection
 
             var inject = Scope.GetClassInjector(tree);
 
-            DependencyInjector locator = inject.Item1;
+            var locator = inject.PreConstructor;
 
             if(ctor!=null) 
             {
                 if(ctor.GetParameters().Length>0)
                     locator += (ctx,args,o) => ctor.Invoke(o,args);
-                else if(inject.Item2==null)
+                else if(inject.Constructor==null)
                     locator += (ctx,args,o) => ctor.Invoke(o,null);
                 else
-                        locator += inject.Item2;
+                        locator += inject.Constructor;
             }
-            else locator += inject.Item2;
+            else locator += inject.Constructor;
 
-            locator += inject.Item3;
+            locator += inject.PostConstructor;
 
-            return (c, args) =>
+            return new DependencyLocator<object>((c, args) =>
             {
                 var o = FormatterServices.GetUninitializedObject(type);
-                c = c.Get(o);
+                c = c.NewChild(o);
                 locator?.Invoke(c, args, o);
                 return o;
-            };
+            });
         }
 
         public void SetSingletonLocator()
@@ -131,11 +131,11 @@ namespace HLab.DependencyInjection
                     t =>
                     {
                         tree.Key = new ActivatorKey(type, null);
-                        return locator(tree)(
+                        return locator(tree).Locate(
                             RuntimeImportContext.GetStatic(null, tree.Context.ImportType), null);
                     });
 
-                return (ric, a) => singleton;
+                return new DependencyLocator<object>((ric, a) => singleton);
 
             };
         }

@@ -5,6 +5,6 @@ namespace HLab.DependencyInjection.Annotations
     public interface IActivator
     {
         DependencyInjector GetActivator(
-            Func<IActivatorTree, DependencyLocator> getLocator, IActivatorTree tree);
+            Func<IActivatorTree, IDependencyLocator> getLocator, IActivatorTree tree);
     }
 }

@@ -77,7 +77,7 @@ namespace HLab.Core
             public override string ToString() => Name;
         }
 
-        private readonly ConcurrentQueue<Entry> _queue = new ConcurrentQueue<Entry>();
+        private readonly ConcurrentQueue<Entry> _queue = new();
         public void Boot()
         {
             if(_configured==false) Configure();
@@ -108,7 +108,7 @@ namespace HLab.Core
                 var inserted = false;
                 for (var i = 0; i < result.Count; i++)
                 {
-                    if (boot.GetType().Assembly.Referencies(result[i].GetType().Assembly.GetName().Name))
+                    if (boot.GetType().Assembly.References(result[i].GetType().Assembly.GetName().Name))
                     {
                         result.Insert(i, boot);
                         inserted = true;
@@ -142,26 +142,6 @@ namespace HLab.Core
             return result;
         }
 
-        private static IEnumerable<Assembly> Sort(IEnumerable<Assembly> src)
-        {
-            var result = new List<Assembly>();
-            foreach (var assembly in src)
-            {
-                var inserted = false;
-                for (var i = 0; i < result.Count; i++)
-                {
-                    if (assembly.Referencies(result[i].GetName().Name))
-                    {
-                        result.Insert(i,assembly);
-                        inserted = true;
-                        break;
-                    }
-                }
-                if(!inserted) result.Add(assembly);
-            }
-
-            return result;
-        }
 
 
 
@@ -204,12 +184,6 @@ namespace HLab.Core
 
         private void LoadModules()
         {
-            // var all = AppDomain.CurrentDomain.GetAssemblies();
-            //foreach (var assembly in all)
-            //{
-            //    if(!_loadedAssemblies.ContainsKey(assembly.Location))
-            //        _loadedAssemblies.Add(assembly.Location,assembly);
-            //}
 
             var directory = AppDomain.CurrentDomain.BaseDirectory;
             if (directory != null) // on android 
@@ -222,37 +196,12 @@ namespace HLab.Core
                 }
             }
 
+            Container.AddReference<ImportAttribute>();
+            Container.ExportReferencingAssemblies();
 
-
-
-//            var loadedAssemblies = new Dictionary<string,Assembly>();
-
-            //var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            var assemblies = Sort(AssemblyHelper.GetReferencingAssemblies("HLab.DependencyInjection.Annotations"));
-            foreach (var assembly in assemblies)
-            {
-                Container.ExportAssembly(assembly);
-            }
 
             Container.StaticInjection();
 
-            //var directory = AppDomain.CurrentDomain.BaseDirectory;
-            //if (directory!=null) // on android 
-            //{
-            //    var dlls = Directory.GetFiles(directory, "*.Module.dll");
-            //    foreach (var f in dlls)
-            //    {
-            //        if (loadedAssemblies.ContainsKey(f)) continue;
-            //        try { 
-            //            var assembly = Assembly.LoadFile(f);
-            //            if (loadedAssemblies.ContainsValue(assembly)) continue;
-            //            loadedAssemblies.Add(assembly.Location,assembly);
-            //            LoadModule(assembly);
-            //        }
-            //        catch(BadImageFormatException)
-            //        { }
-            //    }
-            //}
         }
 
         public void Enqueue(string name,Action<IBootContext> action)

@@ -18,7 +18,7 @@ namespace HLab.DependencyInjection
                 return null;
             return backingField;
         }
-        public virtual DependencyInjector GetActivator(Func<IActivatorTree, DependencyLocator> getLocator, IActivatorTree tree)
+        public virtual DependencyInjector GetActivator(Func<IActivatorTree, IDependencyLocator> getLocator, IActivatorTree tree)
         {
             if (tree.Context.TargetMemberInfo is PropertyInfo pi)
             {
@@ -26,10 +26,10 @@ namespace HLab.DependencyInjection
                 {
                     var propertyCtx = tree.Context = tree.Context.Get(pi.PropertyType);
                     var propertyActivator = getLocator(tree);
-                    return (c, a, o) =>
+                    return (c, args, o) =>
                     {
                         var propertyInfo = pi;
-                        var value = propertyActivator(c.Get(o, propertyCtx), a);
+                        var value = propertyActivator.Locate(c.NewChild(o, propertyCtx), args);
                         propertyInfo.SetValue(o, value);
                     };
                 }
@@ -44,7 +44,7 @@ namespace HLab.DependencyInjection
                     var autoActivator = getLocator(tree);
                     return (c, args, target) =>
                     {
-                        var value = autoActivator(c.Get(target, autoCtx), args);
+                        var value = autoActivator.Locate(c.NewChild(target, autoCtx), args);
                         fi.SetValue(target, value);
                     };
                 }

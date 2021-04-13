@@ -2,10 +2,16 @@
 
 namespace HLab.DependencyInjection
 {
+    public class ActivatorTree<T> : ActivatorTree
+    {
+        public ActivatorTree(IActivatorTree parent, IImportContext<T> context) : base(parent, context)
+        {
+        }
+    }
+
     public class ActivatorTree : IActivatorTree
     {
         private IActivatorKey _key;
-        //#if DEBUG
         public override string ToString()
         {
             var target = Context.TargetType?.GenericReadableName() ?? "null";
@@ -50,7 +56,6 @@ namespace HLab.DependencyInjection
 
             return s;
         }
-        //#endif
         public IActivatorTree Parent { get; }
         public IImportContext Context { get; set; }
 

@@ -8,7 +8,7 @@ namespace HLab.DependencyInjection
 {
     public class MethodActivator : IActivator
     {
-        public DependencyInjector GetActivator(Func<IActivatorTree, DependencyLocator> getLocator, IActivatorTree tree)
+        public DependencyInjector GetActivator(Func<IActivatorTree, IDependencyLocator> getLocator, IActivatorTree tree)
         {
             if (tree.Context.TargetMemberInfo is MethodInfo mi)
             {
@@ -19,7 +19,7 @@ namespace HLab.DependencyInjection
                     var methodCtx = tree.Context = tree.Context.Get(parameterInfo.ParameterType);
                     var methodActivator = getLocator(tree);
                     var pos = i;
-                    setParameters += (c, a, o) => o[pos] = methodActivator(c.Get(o, methodCtx), a);
+                    setParameters += (c, a, o) => o[pos] = methodActivator.Locate(c.NewChild(o, methodCtx), a);
                     i++;
                 }
 

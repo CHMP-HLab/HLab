@@ -10,7 +10,7 @@ namespace HLab.Notify.PropertyChanged
 {
     public class Persister : NotifierBase
     {
-        protected ConcurrentHashSet<PropertyInfo> Dirty { get; } = new ConcurrentHashSet<PropertyInfo>();
+        protected ConcurrentHashSet<PropertyInfo> Dirty { get; } = new();
         public bool IsDirty
         {
             get => _isDirty.Get();

@@ -6,8 +6,8 @@
         IImportContext StaticContext { get; }
         object Target { get; }
 
-        IRuntimeImportContext Get(object target);
-        IRuntimeImportContext Get(object target, IImportContext ctx);
+        IRuntimeImportContext NewChild(object target);
+        IRuntimeImportContext NewChild(object target, IImportContext ctx);
         T GetTarget<T>();
     }
 }

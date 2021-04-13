@@ -27,14 +27,14 @@ namespace HLab.DependencyInjection
             Target = target
         };
 
-        public IRuntimeImportContext Get(object target) => new RuntimeImportContext(this,
+        public IRuntimeImportContext NewChild(object target) => new RuntimeImportContext(this,
             ImportContext.Get( null, target.GetType() ))
         {
             Target = target,
         };
 
 
-        public IRuntimeImportContext Get(object target, IImportContext ctx) => new RuntimeImportContext(this,ctx)
+        public IRuntimeImportContext NewChild(object target, IImportContext ctx) => new RuntimeImportContext(this,ctx)
         {
             Target = target,
         };

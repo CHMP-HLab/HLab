@@ -6,7 +6,7 @@ namespace HLab.DependencyInjection.Activators
 {
     public class FieldActivator : IActivator
     {
-        public DependencyInjector GetActivator(Func<IActivatorTree, DependencyLocator> getLocator, IActivatorTree tree)
+        public DependencyInjector GetActivator(Func<IActivatorTree, IDependencyLocator> getLocator, IActivatorTree tree)
         {
             if (tree.Context.TargetMemberInfo is FieldInfo fi)
             {
@@ -14,7 +14,7 @@ namespace HLab.DependencyInjection.Activators
                 var fieldActivator = getLocator(tree);
                 return (c, a, o) =>
                 {
-                    var value = fieldActivator(c.Get(o, fieldCtx), a);
+                    var value = fieldActivator.Locate(c.NewChild(o, fieldCtx), a);
                     fi.SetValue(o, value);
                 };
             }

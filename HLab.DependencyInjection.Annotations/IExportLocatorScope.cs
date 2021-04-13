@@ -12,10 +12,12 @@ namespace HLab.DependencyInjection.Annotations
         void Inject(object obj, object[] args, IRuntimeImportContext ctx);
 
         IExportLocatorScope Configure(Func<IConfigurator, IConfigurator> configurator);
-        Tuple<DependencyInjector,DependencyInjector,DependencyInjector> GetClassInjector(IActivatorTree tree);
+        DependencyInjectorSet GetClassInjector(IActivatorTree tree);
         IExportLocatorScope AutoConfigure<T>(Func<IConfigurator, IConfigurator> configurator);
+        IExportLocatorScope AddReference<T>();
 
         void ExportAssembly(Assembly assembly);
+        void ExportReferencingAssemblies();
         void ExportInitialize<T>(Action<IRuntimeImportContext, object[], T> action);
 
         void StaticInjection();
