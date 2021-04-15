@@ -1,38 +1,46 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
+using System.Diagnostics;
 using System.Linq;
-using System.Net;
 using System.Net.Http;
-using System.Text;
+using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using MantisBTRestAPIClient;
 
-namespace HLab.Erp.Lims.Monographs.Loader
+namespace HLab.Bugs.Wpf
 {
     /// <summary>
     /// Logique d'interaction pour Exception.xaml
     /// </summary>
     public partial class ExceptionView : Window
     {
+        private Exception _exception;
+
         public ExceptionView()
         {
             InitializeComponent();
             SetLanguage();
 
-            txtComment.Focus();
-            txtComment.SelectAll();
+            CommentTextBox.Focus();
+            CommentTextBox.SelectAll();
+
+            if (Debugger.IsAttached)
+            {
+                ThrowButton.Visibility = Visibility.Visible;
+                ReportCheckBox.IsChecked = false;
+            }
         }
 
-        public Exception Exception { get; set; }
+        public Exception Exception
+        {
+            get => _exception;
+            set
+            {
+                _exception = value;
+                ErrorMessageTextBlock.Text = Exception.Message;
+            }
+        }
+
         public string Token { get; set; }
         public string Url { get; set; }
         public string Project { get; set; }
@@ -40,40 +48,40 @@ namespace HLab.Erp.Lims.Monographs.Loader
 
         private void SetLanguage()
         {
-            CultureInfo currentCulture = Thread.CurrentThread.CurrentUICulture;
+            var currentCulture = Thread.CurrentThread.CurrentUICulture;
             if (currentCulture.Name == "fr-FR")
             {
                 Title = "Rapport d'anomalie";
-                tbMessage.Text = "Arret impromptu de l'application";
-                tbSubMessage.Text =
+                MessageTextBlock.Text = "Arret impromptu de l'application";
+                SubMessageTextBlock.Text =
                     "Cliquez sur relancer pour rouvrir l'application.";
-                chkReport.Content = "Envoyer un rapport";
-                tbComment.Text = "Informations complèmentaires :";
-                txtComment.Text = "Pas de commentaire";
-                ButtonShowDetail.Content = "Détail";
-                ButtonOk.Content = "Ok";
-                ButtonReopen.Content = "Relancer";
+                ReportCheckBox.Content = "Envoyer un rapport";
+                CommentTextBlock.Text = "Informations complèmentaires :";
+                CommentTextBox.Text = "Pas de commentaire";
+                ShowDetailButton.Content = "Détail";
+                OkButton.Content = "Ok";
+                ReopenButton.Content = "Relancer";
             }
         }
 
 
-        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        private void ShowDetailButton_OnChecked(object sender, RoutedEventArgs e)
         {
-            txtDetail.Text = Exception.ToString();
+            DetailTextBlock.Text = Exception.ToString();
             ScrollViewer.Visibility = Visibility.Visible;
-            txtDetail.Visibility = Visibility.Visible;
+            DetailTextBlock.Visibility = Visibility.Visible;
         }
 
-        private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
+        private void ShowDetailButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
             ScrollViewer.Visibility = Visibility.Collapsed;
-            txtDetail.Visibility = Visibility.Collapsed;
+            DetailTextBlock.Visibility = Visibility.Collapsed;
         }
 
 
         private void Post()
         {
-            if (chkReport.IsChecked != true) return;
+            if (ReportCheckBox.IsChecked != true) return;
             if (string.IsNullOrWhiteSpace(Token)) return;
 
             var httpClient = new HttpClient();
@@ -113,7 +121,7 @@ namespace HLab.Erp.Lims.Monographs.Loader
                 Reporter = account,
                 Project = project,
                 Category = category,
-                Description = txtComment.Text, 
+                Description = CommentTextBox.Text, 
                 Additional_information = Exception.StackTrace,
                 
             };
@@ -121,31 +129,36 @@ namespace HLab.Erp.Lims.Monographs.Loader
             client.IssueAdd(issue);
         }
 
-        private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
+        private void OkButton_OnClick(object sender, RoutedEventArgs e)
         {
             Post();
             Application.Current.Shutdown();
         }
 
-        private void ButtonReopen_OnClick(object sender, RoutedEventArgs e)
+        private void ReopenButton_OnClick(object sender, RoutedEventArgs e)
         {
             Post();
             System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }
 
-        private void ChkReport_OnChecked(object sender, RoutedEventArgs e)
+        private void ReportCheckBox_OnChecked(object sender, RoutedEventArgs e)
         {
-            if (txtComment == null) return;
-            txtComment.Visibility = Visibility.Visible;
-            tbComment.Visibility = Visibility.Visible;
+            if (CommentTextBox == null) return;
+            CommentTextBlock.Visibility = Visibility.Visible;
+            CommentTextBox.Visibility = Visibility.Visible;
         }
 
-        private void ChkReport_OnUnchecked(object sender, RoutedEventArgs e)
+        private void ReportCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
         {
-            if (txtComment == null) return;
-            txtComment.Visibility = Visibility.Collapsed;
-            tbComment.Visibility = Visibility.Collapsed;
+            if (CommentTextBox == null) return;
+            CommentTextBlock.Visibility = Visibility.Collapsed;
+            CommentTextBox.Visibility = Visibility.Collapsed;
+        }
+
+        private void ThrowButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            Close();
         }
     }
 }

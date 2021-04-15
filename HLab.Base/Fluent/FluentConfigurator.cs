@@ -28,5 +28,11 @@ namespace HLab.Base.Fluent
             action(conf.Target);
             return conf;
         }
+
+        public static T Fluently<T>(this T obj, Action<T> action)
+        {
+            action(obj);
+            return obj;
+        }
     }
 }
