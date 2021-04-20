@@ -24,7 +24,7 @@ namespace HLab.DependencyInjection
             {
                 if (pi.CanWrite)
                 {
-                    var propertyCtx = tree.Context = tree.Context.Get(pi.PropertyType);
+                    var propertyCtx = tree.Context = tree.Context.CreateChild(pi.PropertyType);
                     var propertyActivator = getLocator(tree);
                     return (c, args, o) =>
                     {
@@ -40,7 +40,7 @@ namespace HLab.DependencyInjection
                         throw new Exception("Property " + pi.Name + " in " + tree.Context.TargetType.Name + " not writable");
 
 
-                    var autoCtx = tree.Context = tree.Context.Get(fi.FieldType);
+                    var autoCtx = tree.Context = tree.Context.CreateChild(fi.FieldType);
                     var autoActivator = getLocator(tree);
                     return (c, args, target) =>
                     {

@@ -192,11 +192,11 @@ namespace HLab.DependencyInjection
         {
             Action<IRuntimeImportContext, object[], List<T>> action = null;
 
-            var testTree = new ActivatorTree(tree, tree.Context.Get<T>());
+            var testTree = new ActivatorTree(tree, tree.Context.CreateChild<T>());
 
             foreach (var e in _locatorEntries.Where(l => l.Test(testTree)).ToList())
             {
-                var activator = e.Locator(new ActivatorTree(tree, tree.Context.Get<T>()));
+                var activator = e.Locator(new ActivatorTree(tree, tree.Context.CreateChild<T>()));
 
                 action += (c,a,l) => l.Add((T)activator.Locate(c,a));
             }
@@ -213,7 +213,7 @@ namespace HLab.DependencyInjection
 
         private DependencyLocator<Lazy<T>> GetNewLocatorLazy1<T>(ActivatorTree tree)
         {
-            tree = new ActivatorTree<T>(tree,tree.Context.Get<T>());
+            tree = new ActivatorTree<T>(tree,tree.Context.CreateChild<T>());
 
             var locator = GetLocator(tree);
             return new DependencyLocator<Lazy<T>>((c, a) => new Lazy<T>(() => (T)locator.Locate(c, a)));
@@ -221,7 +221,7 @@ namespace HLab.DependencyInjection
 
         private DependencyLocator<Func<T>> GetNewLocatorFunc1<T>(ActivatorTree tree)
         {
-            tree = new ActivatorTree(tree, tree.Context.Get<T>());
+            tree = new ActivatorTree(tree, tree.Context.CreateChild<T>());
             var locator = GetLocator(tree);
 
             return new DependencyLocator<Func<T>>(
@@ -231,8 +231,8 @@ namespace HLab.DependencyInjection
 
         private DependencyLocator<Func<TArg,TResult>> GetNewLocatorFunc2<TArg, TResult>(ActivatorTree tree)
         {
-            tree = new ActivatorTree(tree, tree.Context.Get<TResult>(new MethodSignature(typeof(TArg))));
-            var locator = GetLocator(tree);
+            var childTree = new ActivatorTree(tree, tree.Context.CreateChild<TResult>(new MethodSignature(typeof(TArg))));
+            var locator = GetLocator(childTree);
             return new DependencyLocator<Func<TArg, TResult>>(
                 (c, _) => 
                     t => (TResult)locator.Locate(c, new object[] { t })
@@ -240,7 +240,7 @@ namespace HLab.DependencyInjection
         }
         private DependencyLocator<Func<T1, T2, TResult>> GetNewLocatorFunc3<T1, T2, TResult>(ActivatorTree tree)
         {
-            tree = new ActivatorTree(tree, tree.Context.Get(typeof(TResult), new MethodSignature(typeof(T1), typeof(T2))));
+            tree = new ActivatorTree(tree, tree.Context.CreateChild(typeof(TResult), new MethodSignature(typeof(T1), typeof(T2))));
             var locator = GetLocator(tree);
             return new DependencyLocator<Func<T1, T2, TResult>>(
                 (c, _) => 
@@ -249,7 +249,7 @@ namespace HLab.DependencyInjection
         }
         private DependencyLocator<Func<T1, T2, T3, TResult>> GetNewLocatorFunc4<T1, T2, T3, TResult>(ActivatorTree tree)
         {
-            tree = new ActivatorTree(tree, tree.Context.Get(typeof(TResult), new MethodSignature(typeof(T1), typeof(T2), typeof(T3))));
+            tree = new ActivatorTree(tree, tree.Context.CreateChild(typeof(TResult), new MethodSignature(typeof(T1), typeof(T2), typeof(T3))));
             var locator = GetLocator(tree);
             return new DependencyLocator<Func<T1, T2, T3, TResult>>(
                 (c, _) => 
@@ -258,7 +258,7 @@ namespace HLab.DependencyInjection
         }
         private DependencyLocator<Func<T1, T2, T3, T4, TResult>> GetNewLocatorFunc5<T1, T2, T3, T4, TResult>(ActivatorTree tree)
         {
-            tree = new ActivatorTree(tree, tree.Context.Get(typeof(TResult), new MethodSignature(typeof(T1), typeof(T2), typeof(T3), typeof(T4))));
+            tree = new ActivatorTree(tree, tree.Context.CreateChild(typeof(TResult), new MethodSignature(typeof(T1), typeof(T2), typeof(T3), typeof(T4))));
             var locator = GetLocator(tree);
             return new DependencyLocator<Func<T1, T2, T3, T4, TResult>>(
                 (c, _) => 
@@ -279,14 +279,14 @@ namespace HLab.DependencyInjection
                 if (args.Length==2 && args[0] == typeof(Type) && args[1] == typeof(object))
                     return (IDependencyLocator<T>)new DependencyLocator<Func<Type, object>>(
                         (c, _) => 
-                            t => Locate(c.NewChild(c.Target, tree.Context.Get(t))));
+                            t => Locate(c.NewChild(c.Target, tree.Context.CreateChild(t))));
 
                 //return a Func<Type,object[],object> to provide a generic locator with arguments
                 if (args.Length == 3 && args[0] == typeof(Type) && args[1] == typeof(object[]) && args[2] == typeof(object))
                     return (IDependencyLocator<T>)new DependencyLocator<Func<Type, object[], object>>((c, _) => (t,ar) =>
                     {
                         var types = new MethodSignature(ar);
-                        return Locate(c.NewChild(c.Target, tree.Context.Get(t,types)), ar);
+                        return Locate(c.NewChild(c.Target, tree.Context.CreateChild(t,types)), ar);
                     });
 
                 var name = g.Name.Split('`')[0];
@@ -370,7 +370,7 @@ namespace HLab.DependencyInjection
                 foreach (var de in decorators)
                 {
                     var decorator = de.Locator(new ActivatorTree(tree,
-                        tree.Context.Get(importType, new MethodSignature(importType))));
+                        tree.Context.CreateChild(importType, new MethodSignature(importType))));
 
                     var old = activator;
 
@@ -413,7 +413,7 @@ namespace HLab.DependencyInjection
                 {
                     foreach (var attr in p.GetCustomAttributes<ImportAttribute>())
                     {
-                        var ctx = ImportContext.Get(type, p).Get(typeof(IActivator));
+                        var ctx = ImportContext.Get(type, p).CreateChild(typeof(IActivator));
                         var l = GetLocator(new ActivatorTree(tree, ctx));
                         var a = (IActivator)(l.Locate(RuntimeImportContext.GetStatic(null,ctx),null));
 

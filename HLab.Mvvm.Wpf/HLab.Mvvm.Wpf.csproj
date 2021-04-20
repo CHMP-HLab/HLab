@@ -16,7 +16,6 @@
     <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.Core\HLab.Core.csproj" />
-    <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
     <ProjectReference Include="..\HLab.Icons.Wpf\HLab.Icons.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Localization.Wpf\HLab.Localization.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />

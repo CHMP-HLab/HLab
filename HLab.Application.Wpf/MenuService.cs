@@ -2,7 +2,7 @@
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
-using HLab.DependencyInjection.Annotations;
+using Grace.DependencyInjection.Attributes;
 using HLab.Erp.Core;
 using HLab.Icons.Wpf.Icons;
 using HLab.Localization.Wpf.Lang;
@@ -39,8 +39,12 @@ namespace HLab.Mvvm.Application.Wpf
     [Export(typeof(IMenuService)), Singleton]
     public class MenuService : IMenuService
     {
-        [Import]
-        private MainWpfViewModel _viewModel;
+        private readonly MainWpfViewModel _viewModel;
+
+        public MenuService(MainWpfViewModel viewModel)
+        {
+            _viewModel = viewModel;
+        }
 
         public bool RegisterMenu(string path, object header, ICommand command, string iconPath) 
             => RegisterMenu( MenuPath.Get(path),_viewModel.Menu.Items, header, command, iconPath);

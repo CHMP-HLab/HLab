@@ -41,10 +41,10 @@ namespace HLab.Compiler.Wpf
         }
         public bool BeforeClassContent()
         { 
-            var bracePos = Code.IndexOf('{',Index);
-            var semicolonPos = Code.IndexOf(';',Index);
+            var bracePos = Code.IndexOf('{', Index);
+            var semicolonPos = Code.IndexOf(';', Index);
 
-            if(bracePos>=0 && bracePos < semicolonPos)
+            if(bracePos >= 0 && (bracePos < semicolonPos || semicolonPos < 0))
             {
                 Index = bracePos;
                 return true;
@@ -61,9 +61,9 @@ namespace HLab.Compiler.Wpf
 
         public bool ClassContent()
         {
-            var bracePos = Code.IndexOf('{',Index);
-            var semicolonPos = Code.IndexOf(';',Index);
-            if (bracePos>=0 && bracePos < semicolonPos)
+            var bracePos = Code.IndexOf('{', Index);
+            var semicolonPos = Code.IndexOf(';', Index);
+            if (bracePos >= 0 && (bracePos < semicolonPos || semicolonPos < 0))
             {
                 Index = bracePos;
                 NextWord();

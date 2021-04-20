@@ -77,6 +77,7 @@ namespace HLab.DependencyInjection
 
         public ActivatorTree(IActivatorTree parent, IImportContext context)
         {
+            if(parent?.Key?.ReturnType.Name=="ErpServices" && context.ImportType!=null && context.ImportType.Name.Contains("ViewModel")) {}
             Parent = parent;
             Context = context;
         }

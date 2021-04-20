@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using HLab.DependencyInjection.Annotations;
+using Grace.DependencyInjection.Attributes;
 
 namespace HLab.Core.DebugTools
 {

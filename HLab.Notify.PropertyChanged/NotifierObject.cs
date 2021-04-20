@@ -1,11 +1,4 @@
-﻿using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
-using System.Text;
-using System.Threading;
-using HLab.Base;
-using HLab.DependencyInjection.Annotations;
-using HLab.Notify.Annotations;
+﻿using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged
 {

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Flowchart.ViewModel;
 
@@ -17,8 +16,9 @@ namespace HLab.Mvvm.Flowchart.Views
         IView<ViewModeDefault,IGraphViewModel>,
         IViewClassFlowchart
     {
-        public FlowchartEditorView()
+        public FlowchartEditorView(Func<GraphToolboxViewModel> getGraphToolboxViewModel)
         {
+            _getGraphToolboxViewModel = getGraphToolboxViewModel;
             InitializeComponent();
             DataContextChanged += GraphEditorView_DataContextChanged;
         }
@@ -66,7 +66,7 @@ namespace HLab.Mvvm.Flowchart.Views
 
         private IGraphViewModel ViewModel => DataContext as IGraphViewModel;
 
-        [Import] private Func<GraphToolboxViewModel> _getGraphToolboxViewModel;
+        private readonly Func<GraphToolboxViewModel> _getGraphToolboxViewModel;
 
         private FrameworkElement _toolbox;
         private void ShowToolBox(Point p)

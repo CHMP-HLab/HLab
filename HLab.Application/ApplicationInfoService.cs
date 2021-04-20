@@ -1,5 +1,5 @@
 ﻿using System;
-using HLab.DependencyInjection.Annotations;
+using Grace.DependencyInjection.Attributes;
 using HLab.Erp.Core;
 
 namespace HLab.Mvvm.Application

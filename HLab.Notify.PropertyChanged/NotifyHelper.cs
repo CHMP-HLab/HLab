@@ -7,7 +7,6 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
 using System.Windows.Input;
-using HLab.DependencyInjection;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged.PropertyHelpers;
 
@@ -284,9 +283,7 @@ namespace HLab.Notify.PropertyChanged
                     }
 
 
-                    var returnType = f.GetReturnType();
-
-
+                    //var returnType = f.GetReturnType();
                 }
 
                 type = type.BaseType;

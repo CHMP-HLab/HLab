@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Media;
+using HLab.Mvvm.Annotations;
 using HLab.Notify;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
@@ -92,5 +93,8 @@ namespace HLab.Mvvm.Flowchart.Models
             .On(e => e.LinkedOutput)
             .Set(e => e.LinkedOutput != null));
 
+        protected InputPin(IMvvmService mvvmService) : base(mvvmService)
+        {
+        }
     }
 }

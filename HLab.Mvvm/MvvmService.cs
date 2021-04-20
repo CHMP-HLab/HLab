@@ -9,28 +9,30 @@ using System.Reflection;
 using HLab.Base;
 using HLab.Core;
 using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
     public abstract class MvvmService : IMvvmService
     {
-        [Import]
         private readonly IMessageBus _messageBus;
 
         private readonly string _assemblyName;
 
 
-        [Import] private readonly Func<IMvvmContext, string, IMvvmContext> _getNewContext;
+        private readonly Func<IMvvmService, object, string, IMvvmContext> _getNewContext;
 
-        public IMvvmContext GetNewContext(IMvvmContext parent, string name) => _getNewContext(parent, name);
+        public IMvvmContext GetNewContext(IMvvmContext parent, string name) => _getNewContext(parent.Mvvm, parent, name);
 
 
-        protected MvvmService()
+        protected MvvmService(
+            IMessageBus messageBus, 
+            Func<IMvvmService, object, string, IMvvmContext> getNewContext)
         {
+            _messageBus = messageBus;
+            _getNewContext = getNewContext;
             ServiceState = ServiceState.NotConfigured;
-            MainContext = _getNewContext(null,"root");
+            MainContext = _getNewContext(this, null,"root");
             _assemblyName = Assembly.GetAssembly(typeof(IView)).GetName().Name;
         }
 

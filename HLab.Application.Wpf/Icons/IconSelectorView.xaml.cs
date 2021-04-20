@@ -2,7 +2,6 @@
 using System.Windows;
 using System.Windows.Controls;
 using HLab.Base.Wpf;
-using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Core;
 using HLab.Icons.Annotations.Icons;
 using HLab.Icons.Wpf;

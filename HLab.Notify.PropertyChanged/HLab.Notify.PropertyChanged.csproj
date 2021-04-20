@@ -17,8 +17,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
-    <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
-    <ProjectReference Include="..\HLab.DependencyInjection\HLab.DependencyInjection.csproj" />
     <ProjectReference Include="..\HLab.Notify.Annotations\HLab.Notify.Annotations.csproj" />
   </ItemGroup>
 

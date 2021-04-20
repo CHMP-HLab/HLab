@@ -15,7 +15,7 @@ namespace HLab.DependencyInjection.Activators
             var i = 0;
             foreach (var parameterInfo in ci.GetParameters())
             {
-                var ctx = tree.Context = tree.Context.Get(parameterInfo.ParameterType);
+                var ctx = tree.Context = tree.Context.CreateChild(parameterInfo.ParameterType);
                 var locator = getLocatorFunc(tree);
                 var pos = i;
                 setParameters += (c, a, o) => o[pos] = locator.Locate(c.NewChild(o, ctx), a);

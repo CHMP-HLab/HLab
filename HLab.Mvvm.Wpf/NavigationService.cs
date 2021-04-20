@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows;
+using Grace.DependencyInjection.Attributes;
 using HLab.Core;
-using HLab.DependencyInjection.Annotations;
 
 namespace HLab.Mvvm
 {

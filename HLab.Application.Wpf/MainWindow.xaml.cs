@@ -5,7 +5,6 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using AvalonDock.Layout.Serialization;
-using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Acl.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Options;
@@ -21,8 +20,9 @@ namespace HLab.Mvvm.Application.Wpf
     {
         private const string LayoutFileName = "layout.xml";
 
-        public MainWindow()
+        public MainWindow(IOptionsService options)
         {
+            _options = options;
             InitializeComponent();
 
             LoadLayout();
@@ -45,8 +45,7 @@ namespace HLab.Mvvm.Application.Wpf
             SaveLayout();
         }
 
-        [Import]
-        private IOptionsService _options;
+        private readonly IOptionsService _options;
         //[Import] TODO
         //private IAclService _acl;
 

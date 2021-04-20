@@ -24,30 +24,32 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using HLab.DependencyInjection.Annotations;
-using HLab.DependencyInjection;
+using Grace.DependencyInjection;
+using Grace.DependencyInjection.Attributes;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
     [Export(typeof(IMvvmContext))]
-    public class MvvmContext : IMvvmContext, IInitializer
+    public class MvvmContext : IMvvmContext//, IInitializer
     {
-        private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext,object>>> _creators = new ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext,object>>>();
+        private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext,object>>> _creators = new();
 
         private readonly Lazy<ViewModelCache> _cache;
 
-        [Import]
-        public IExportLocatorScope Scope { get; private set; }
-
-        public IMvvmService Mvvm { get; private set; }
+        public IExportLocatorScope Scope { get; }
+        public IMvvmService Mvvm { get; }
 
         public string Name { get; }
         public IMvvmContext Parent { get; }
 
-        public MvvmContext(IMvvmContext parent, string name)
+        public MvvmContext(IMvvmService mvvm, object parent, string name, [Import]IExportLocatorScope scope)
         {
-            Parent = parent;
+            Scope = scope;
+            Mvvm = mvvm;
+
+            if(parent is IMvvmContext ctx)
+                Parent = ctx;
             Name = name;
             _cache = new Lazy<ViewModelCache>(() => new ViewModelCache(this,Mvvm));
         }
@@ -100,7 +102,9 @@ namespace HLab.Mvvm
 
         public object Locate(Type type, object baseObject = null)
         {
-            return Locate(() => Scope.Locate(RuntimeImportContext.GetStatic(this, type)), baseObject);
+            // TODO check
+            //return Locate(() => Scope.Locate(RuntimeImportContext.GetStatic(this, type)), baseObject);
+            return Locate(() => Scope.Locate(type),baseObject);
         }
 
         public T Locate<T>(Func<T> locate, object baseObject = null)
@@ -138,9 +142,10 @@ namespace HLab.Mvvm
             return obj;
         }
 
-        public void Initialize(IRuntimeImportContext ctx, object[] args)
-        {
-            Mvvm = ctx.GetTarget<IMvvmService>();
-        }
+        // TODO : missing
+        //public void Initialize(IRuntimeImportContext ctx, object[] args)
+        //{
+        //    Mvvm = ctx.GetTarget<IMvvmService>();
+        //}
     }
 }

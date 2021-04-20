@@ -10,7 +10,7 @@ namespace HLab.DependencyInjection.Activators
         {
             if (tree.Context.TargetMemberInfo is FieldInfo fi)
             {
-                var fieldCtx = tree.Context = tree.Context.Get(fi.FieldType);
+                var fieldCtx = tree.Context = tree.Context.CreateChild(fi.FieldType);
                 var fieldActivator = getLocator(tree);
                 return (c, a, o) =>
                 {

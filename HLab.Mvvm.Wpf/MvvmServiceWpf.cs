@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using HLab.DependencyInjection.Annotations;
+using Grace.DependencyInjection.Attributes;
+using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Views;
 
@@ -10,7 +11,7 @@ namespace HLab.Mvvm
     [Export(typeof(IMvvmService)), Singleton]
     public class MvvmServiceWpf : MvvmService
     {
-        private readonly ResourceDictionary _dictionary = new ResourceDictionary();
+        private readonly ResourceDictionary _dictionary = new();
         [Import]
         public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
         //[Import]
@@ -18,6 +19,9 @@ namespace HLab.Mvvm
         //public MvvmServiceWpf(IExportLocatorScope scope, Func<Type,object> locate, IMessageBus msg) : base(scope,locate,msg)
         //{
         //}
+        public MvvmServiceWpf(IMessageBus messageBus, Func<IMvvmService, object, string, IMvvmContext> getNewContext) : base(messageBus, getNewContext)
+        {
+        }
 
 
         public  void RegisterWithProgress()
@@ -84,5 +88,6 @@ namespace HLab.Mvvm
                                       + "\n" + (viewClass?.FullName ?? "??") }
             };
         }
+
     }
 }

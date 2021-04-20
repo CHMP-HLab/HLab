@@ -3,14 +3,9 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Net;
-using System.Net.Mime;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
-using System.Security.Cryptography;
 using System.Threading.Tasks;
-using HLab.Base;
-using HLab.Core;
-using HLab.DependencyInjection.Annotations;
 using HLab.Notify.Annotations;
 
 namespace HLab.Network
@@ -27,7 +22,7 @@ namespace HLab.Network
 
         private readonly ObservableCollection<string> _foundServers = new ObservableCollection<string>();
 
-        [Import] public IpScanner(IEventHandlerService eventHandlerService)
+        public IpScanner(IEventHandlerService eventHandlerService)
         {
             _eventHandlerService = eventHandlerService;
             FoundServers = new ReadOnlyObservableCollection<string>(_foundServers);

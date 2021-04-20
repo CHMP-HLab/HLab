@@ -7,17 +7,15 @@ using System.Resources;
 using System.Windows.Media;
 using HLab.ColorTools.Wpf;
 using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
 using HLab.Icons.Annotations.Icons;
 using HLab.Icons.Wpf.Icons.Providers;
-using HLab.Icons.Wpf.Providers;
 
 namespace HLab.Icons.Wpf.Icons
 {
     public class IconBootloader : IBootloader
     {
         private readonly IIconService _icons;
-        [Import] public IconBootloader(IIconService icons)
+        public IconBootloader(IIconService icons)
         {
             _icons = icons;
         }

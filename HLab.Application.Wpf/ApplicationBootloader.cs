@@ -3,28 +3,35 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Markup;
+using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Core;
 using HLab.Erp.Core.Update;
 using HLab.Mvvm.Annotations;
-using HLab.Mvvm.Views;
 
 namespace HLab.Mvvm.Application.Wpf
 {
     public class ApplicationBootloader : IBootloader
     {
-        [Import]
-        private IMenuService _menu;
+        private readonly IMenuService _menu;
 
-        [Import]
-        private IMvvmService _mvvm;
+        private readonly IMvvmService _mvvm;
 
-        [Import]
-        private IApplicationInfoService _info;
+        private readonly IApplicationInfoService _info;
 
         public IUpdater Updater { get; set; }
-        [Import] private readonly Func<MainWpfViewModel> _getVm;
+        private readonly Func<MainWpfViewModel> _getVm;
+
+        [Import]
+        public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
+
+        public ApplicationBootloader(IMenuService menu, IMvvmService mvvm, IApplicationInfoService info, Func<MainWpfViewModel> getVm)
+        {
+            _menu = menu;
+            _mvvm = mvvm;
+            _info = info;
+            _getVm = getVm;
+        }
 
         public void SetMainViewMode(Type vm)
         {
@@ -48,8 +55,6 @@ namespace HLab.Mvvm.Application.Wpf
         //[Import]
         //public Func<ILoginViewModel> GetLoginViewModel { get; set; }
 
-        [Import]
-        public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
 
 
 

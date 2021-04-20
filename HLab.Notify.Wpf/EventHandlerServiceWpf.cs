@@ -4,8 +4,8 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using Grace.DependencyInjection.Attributes;
 using HLab.Base;
-using HLab.DependencyInjection.Annotations;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 

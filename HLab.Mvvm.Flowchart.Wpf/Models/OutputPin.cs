@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Media;
+using HLab.Mvvm.Annotations;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 
@@ -21,7 +22,7 @@ namespace HLab.Mvvm.Flowchart.Models
     [DataContract]
     public class OutputPin : Pin, IOutputPin
     {
-        public OutputPin() => H.Initialize(this);
+        public OutputPin(IMvvmService mvvmService):base(mvvmService) => H.Initialize(this);
 
         //public ObservableCollection<IInputPin> LinkedInputs => N.Get(() => new ObservableCollection<IInputPin>());
 

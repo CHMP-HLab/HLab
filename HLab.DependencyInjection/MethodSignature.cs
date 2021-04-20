@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using HLab.DependencyInjection.Annotations;
 using HashCode = HLab.Base.HashCode;
 
@@ -54,6 +55,12 @@ namespace HLab.DependencyInjection
             if (ReferenceEquals(this, obj)) return true;
             if (obj.GetType() != this.GetType()) return false;
             return Equals((MethodSignature) obj);
+        }
+
+        public override string ToString()
+        {
+            if (Types == null) return "(null)";
+            return "(" + String.Join(",",Types.Select(t => t.Name)) + ")";
         }
     }
 }

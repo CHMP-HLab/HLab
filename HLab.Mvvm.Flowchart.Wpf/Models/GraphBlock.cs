@@ -4,7 +4,7 @@ using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows;
 using HLab.Base.Extensions;
-using HLab.DependencyInjection.Annotations;
+using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
@@ -13,15 +13,16 @@ namespace HLab.Mvvm.Flowchart.Models
 
     public abstract class GraphBlock : GraphElement, IGraphBlock
     {
-        protected GraphBlock()
+        protected GraphBlock(Func<IGraphBlock, string, PinLocation, string, PinGroup> getPinGroup, IMvvmService mvvmService) : base(mvvmService)
         {
+            _getPinGroup = getPinGroup;
             MainLeftGroup = GetOrAddGroup("Left", PinLocation.Left);
             MainRightGroup = GetOrAddGroup("Right", PinLocation.Right);
 
             H.Initialize(this);
         }
 
-        [Import] private Func<IGraphBlock,string, PinLocation, string, PinGroup> _getPinGroup;
+        private readonly Func<IGraphBlock,string, PinLocation, string, PinGroup> _getPinGroup;
 
         public IPinGroup GetOrAddGroup(string id, PinLocation location, string caption="")
         {

@@ -9,8 +9,8 @@ using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml;
 using System.Xml.Serialization;
+using Grace.DependencyInjection.Attributes;
 using HLab.Base;
-using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Flowchart.Models;
 
 namespace HLab.Mvvm.Flowchart
@@ -18,8 +18,9 @@ namespace HLab.Mvvm.Flowchart
     [Export(typeof(IGraphService)),Singleton]
     public class GraphService : IGraphService
     {
-        public GraphService()
+        public GraphService(Func<IEnumerable<IToolGraphBlock>> getBlocks)
         {
+            _getBlocks = getBlocks;
             Register();
         }
 
@@ -36,7 +37,7 @@ namespace HLab.Mvvm.Flowchart
         public ConcurrentDictionary<string,Type> Types = new ConcurrentDictionary<string, Type>();
         public ConcurrentDictionary<string,GraphValueType> ValueTypes = new ConcurrentDictionary<string, GraphValueType>();
 
-        [Import] private Func<IEnumerable<IToolGraphBlock>> _getBlocks;
+        private Func<IEnumerable<IToolGraphBlock>> _getBlocks;
 
         public void Register(Assembly assembly)
         {

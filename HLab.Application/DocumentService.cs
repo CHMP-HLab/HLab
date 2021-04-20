@@ -1,15 +1,20 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HLab.DependencyInjection.Annotations;
-using HLab.Erp.Core;
+using Grace.DependencyInjection.Attributes;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Application
 {
     public abstract class DocumentService : IDocumentService
     {
-        [Import] private IMvvmService _mvvm { get; }
-        [Import] private Func<Type, object> _getter { get; }
+        private readonly IMvvmService _mvvm;
+        private readonly Func<Type, object> _getter;
+
+        protected DocumentService(IMvvmService mvvm, Func<Type, object> getter)
+        {
+            _mvvm = mvvm;
+            _getter = getter;
+        }
 
         public abstract Task OpenDocumentAsync(IView content);
         public abstract Task CloseDocumentAsync(object content);

@@ -38,10 +38,10 @@ namespace HLab.DependencyInjection
         public static IImportContext Get(Type targetType, Type importType, IMethodSignature parametersTypes = null) 
             => new ImportContext(targetType, importType, null, parametersTypes);
 
-        public IImportContext Get(Type importType, IMethodSignature parametersTypes = null) 
+        public IImportContext CreateChild(Type importType, IMethodSignature parametersTypes = null) 
             => new ImportContext(TargetType,importType,TargetMemberInfo,parametersTypes);
 
-        public IImportContext<T> Get<T>(IMethodSignature parametersTypes = null)
+        public IImportContext<T> CreateChild<T>(IMethodSignature parametersTypes = null)
             => new ImportContext<T>(TargetType,TargetMemberInfo,parametersTypes);
 
         public override int GetHashCode() => _hash;
@@ -65,6 +65,11 @@ namespace HLab.DependencyInjection
         public override bool Equals(object obj)
         {
             return obj is IImportContext ic && this == ic;
+        }
+
+        public override string ToString()
+        {
+            return $"{ImportType?.Name} in {TargetType?.Name} = {TargetMemberInfo?.DeclaringType?.Name}{TargetMemberInfo?.Name}{Signature}";
         }
     }
     public readonly struct ImportContext<T> : IImportContext<T>// : IEquatable<ImportContext>
@@ -98,10 +103,10 @@ namespace HLab.DependencyInjection
         public static IImportContext Get(Type targetType, Type importType, IMethodSignature parametersTypes = null) 
             => new ImportContext(targetType, importType, null, parametersTypes);
 
-        public IImportContext Get(Type importType, IMethodSignature parametersTypes = null) 
+        public IImportContext CreateChild(Type importType, IMethodSignature parametersTypes = null) 
             => new ImportContext(TargetType,importType,TargetMemberInfo,parametersTypes);
 
-        public IImportContext<T1> Get<T1>(IMethodSignature parametersTypes = null)
+        public IImportContext<T1> CreateChild<T1>(IMethodSignature parametersTypes = null)
             => new ImportContext<T1>(TargetType,TargetMemberInfo,parametersTypes);
 
         public override int GetHashCode() => _hash;
@@ -125,6 +130,10 @@ namespace HLab.DependencyInjection
         public override bool Equals(object obj)
         {
             return obj is IImportContext ic && this == ic;
+        }
+        public override string ToString()
+        {
+            return $"{ImportType.Name} as {TargetType.Name} => {TargetMemberInfo.DeclaringType?.Name}{TargetMemberInfo.Name}{Signature}";
         }
     }
 }

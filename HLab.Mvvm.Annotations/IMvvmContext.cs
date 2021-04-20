@@ -1,5 +1,5 @@
 ﻿using System;
-using HLab.DependencyInjection.Annotations;
+using Grace.DependencyInjection;
 
 namespace HLab.Mvvm.Annotations
 {

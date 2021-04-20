@@ -9,9 +9,12 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Grace" Version="7.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.Core.Annotations\HLab.Core.Annotations.csproj" />
-    <ProjectReference Include="..\HLab.DependencyInjection.Annotations\HLab.DependencyInjection.Annotations.csproj" />
     <ProjectReference Include="..\Hlab.Icons.Annotations\HLab.Icons.Annotations.csproj" />
   </ItemGroup>
 

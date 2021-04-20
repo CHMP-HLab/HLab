@@ -16,7 +16,7 @@ namespace HLab.DependencyInjection
                 var i = 0;
                 foreach (var parameterInfo in mi.GetParameters())
                 {
-                    var methodCtx = tree.Context = tree.Context.Get(parameterInfo.ParameterType);
+                    var methodCtx = tree.Context = tree.Context.CreateChild(parameterInfo.ParameterType);
                     var methodActivator = getLocator(tree);
                     var pos = i;
                     setParameters += (c, a, o) => o[pos] = methodActivator.Locate(c.NewChild(o, methodCtx), a);

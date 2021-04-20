@@ -1,6 +1,5 @@
 ﻿using HLab.Core;
 using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
 using HLab.Notify.PropertyChanged;
 
 
@@ -22,17 +21,12 @@ namespace HLab.Mvvm
 
     public class ProgressLoadingViewModel : ViewModel
     {
-        public ProgressLoadingViewModel()
+        public ProgressLoadingViewModel(IMessageBus msg)
         {
             H.Initialize(this);
-        }
-
-
-        [Import]
-        public void Import(IMessageBus msg)
-        {
             msg.Subscribe<ProgressMessage>(OnProgress);
         }
+
 
         public void OnProgress(ProgressMessage msg)
         {

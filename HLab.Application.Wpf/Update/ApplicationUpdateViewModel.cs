@@ -5,7 +5,6 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Windows.Input;
-using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Core;
 using HLab.Erp.Core.Update;
 using HLab.Notify.PropertyChanged;
@@ -17,7 +16,6 @@ namespace HLab.Mvvm.Application.Wpf.Update
     public class UpdaterWpf : NotifierBase, IUpdater
     {
         private readonly IApplicationInfoService _info;
-        [Import]
         public UpdaterWpf(IApplicationInfoService info)
         {
             _info = info;

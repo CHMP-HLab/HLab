@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Core;
 using HLab.Mvvm.Annotations;
 
@@ -12,9 +12,21 @@ namespace HLab.Mvvm.Application.Wpf
     [Export(typeof(IDocumentService)),Singleton]
     public class DocumentServiceWpf : DocumentService
     {
-        [Import] public IMessageBus MessageBus { get; private set; }
+        public IMessageBus MessageBus { get; }
+        private Func<object, ISelectedMessage> GetMessage { get; }
 
-        [Import] private Func<object, SelectedMessage> GetMessage { get; set; }
+        public DocumentServiceWpf(
+            IMessageBus messageBus, 
+            Func<object, ISelectedMessage> getMessage,
+            IMvvmService mvvm, 
+            Func<Type, object> getter
+            ):base(mvvm,getter)
+        {
+            MessageBus = messageBus;
+            GetMessage = getMessage;
+        }
+
+
 
         public override async Task OpenDocumentAsync(IView content)
         {

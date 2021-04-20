@@ -29,7 +29,6 @@ using System.Collections.Specialized;
 using System.Diagnostics;
 using System.Threading;
 using HLab.Base;
-using HLab.DependencyInjection.Annotations;
 using HLab.Notify.Annotations;
 using Nito.AsyncEx;
 

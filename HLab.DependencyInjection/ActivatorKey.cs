@@ -46,5 +46,10 @@ namespace HLab.DependencyInjection
         {
             return ReturnType.GetConstructor(Signature?.Types??Type.EmptyTypes);
         }
+
+        public override string ToString()
+        {
+            return ReturnType.ToString() + ":" + Signature;
+        }
     }
 }

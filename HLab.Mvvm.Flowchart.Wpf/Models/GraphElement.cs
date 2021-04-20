@@ -9,7 +9,6 @@ using System.Windows.Media;
 using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
-using HLab.DependencyInjection.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Notify;
 using HLab.Notify.PropertyChanged;
@@ -20,9 +19,12 @@ namespace HLab.Mvvm.Flowchart.Models
 
     public abstract class GraphElement : NotifierBase, IGraphElement
     {
-        public GraphElement() => H.Initialize(this);
+        public GraphElement(IMvvmService mvvmService)
+        {
+            MvvmService = mvvmService;
+            H.Initialize(this);
+        }
 
-        [Import]
         public IMvvmService MvvmService { get; }
 
         public XmlSchema GetSchema() => null;

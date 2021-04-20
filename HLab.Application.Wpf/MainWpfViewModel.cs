@@ -4,12 +4,10 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
 using HLab.Erp.Acl;
-using HLab.Erp.Core;
 using HLab.Icons.Annotations.Icons;
-using HLab.Icons.Wpf;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
 
@@ -20,40 +18,38 @@ namespace HLab.Mvvm.Application.Wpf
     [Export(typeof(MainWpfViewModel)), Singleton]
     public class MainWpfViewModel : NotifierBase
     {
+        public IAclService Acl {get; }
+        private readonly IMessageBus _message;
+        private readonly IDocumentService _doc;
+        public IApplicationInfoService ApplicationInfo { get; }
+        private readonly Func<object, ISelectedMessage> _getSelectedMessage;
+        public ILocalizationService LocalizationService { get; }
+        public IIconService IconService { get; }
 
-        [Import] public MainWpfViewModel(IAclService acl, IMessageBus message)
+        public MainWpfViewModel(
+            IAclService acl, 
+            IMessageBus message, 
+            IDocumentService doc, 
+            IApplicationInfoService applicationInfo, 
+            ILocalizationService localizationService, 
+            Func<object, ISelectedMessage> getSelectedMessage, 
+            IIconService iconService)
         {
             Acl = acl;
             _message = message;
+            doc.MainViewModel = this;
+            _doc = doc;
+            ApplicationInfo = applicationInfo;
+            LocalizationService = localizationService;
+            _getSelectedMessage = getSelectedMessage;
+            IconService = iconService;
+
             H.Initialize(this);
         }
 
-       
-        public IAclService Acl {get; }
-        private readonly IMessageBus _message;
 
-        [Import(InjectLocation.AfterConstructor)]
-        public void SetDoc(IDocumentService doc)
-        {
-            doc.MainViewModel = this;
-            _doc = doc;
-        }
-
-        private IDocumentService _doc;
-
-        [Import]
-        public IApplicationInfoService ApplicationInfo { get; }
-
-        [Import]
-        private readonly Func<object, SelectedMessage> _getSelectedMessage;
-
-        [Import]
-        public ILocalizationService LocalizationService { get; }
-        [Import]
-        public IIconService IconService { get; }
-
-        public ObservableCollection<object> Anchorables { get; } = new ObservableCollection<object>();
-        public ObservableCollection<object> Documents { get; } = new ObservableCollection<object>();
+        public ObservableCollection<object> Anchorables { get; } = new();
+        public ObservableCollection<object> Documents { get; } = new();
 
 
 

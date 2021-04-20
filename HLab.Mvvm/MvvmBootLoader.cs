@@ -1,13 +1,17 @@
-﻿using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
+﻿using Grace.DependencyInjection.Attributes;
+using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
     class MvvmBootloader : IBootloader
     {
-        [Import]
         private readonly IMvvmService _mvvm;
+
+        public MvvmBootloader(IMvvmService mvvm)
+        {
+            _mvvm = mvvm;
+        }
 
         public void Load(IBootContext b)
         {

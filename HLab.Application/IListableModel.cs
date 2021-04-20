@@ -1,4 +1,4 @@
-﻿namespace HLab.Erp.Core
+﻿namespace HLab.Mvvm.Application
 {
     public interface IListableModel
     {

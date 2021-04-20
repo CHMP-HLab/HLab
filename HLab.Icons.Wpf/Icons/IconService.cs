@@ -5,14 +5,14 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using Grace.DependencyInjection.Attributes;
 using HLab.Core;
-using HLab.DependencyInjection.Annotations;
 using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Wpf.Icons
 {
     [Export(typeof(IIconService)), Singleton]
-    internal class IconService : Service, IIconService
+    public class IconService : Service, IIconService
     {
         private readonly ConcurrentDictionary<string, IIconProvider> _cache = new ();
 

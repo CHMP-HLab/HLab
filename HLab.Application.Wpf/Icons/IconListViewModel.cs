@@ -10,7 +10,7 @@ namespace HLab.Mvvm.Application.Wpf.Icons
 {
     public class IconListViewModel: EntityListViewModel<Icon>, IMvvmContextProvider
     {
-        public IconListViewModel() 
+        protected override void Configure()
         {
             AddAllowed = true;
             DeleteAllowed = true;
@@ -35,6 +35,7 @@ namespace HLab.Mvvm.Application.Wpf.Icons
         public void ConfigureMvvmContext(IMvvmContext ctx)
         {
         }
+
 
         protected override async Task ImportAsync(IDataService data, Icon newValue)
         {

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
+using HLab.Mvvm.Annotations;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 
@@ -8,7 +9,7 @@ namespace HLab.Mvvm.Flowchart.Models
 {
     public abstract class Pin : GraphElement, IPin
     {
-        protected Pin() => H<Pin>.Initialize(this);
+        protected Pin(IMvvmService mvvmService):base(mvvmService) => H<Pin>.Initialize(this);
 
         [TriggerOn(nameof(Parent))]
         public IPinGroup Group

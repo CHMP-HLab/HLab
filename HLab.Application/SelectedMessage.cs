@@ -1,7 +1,7 @@
-﻿using HLab.DependencyInjection.Annotations;
+﻿using Grace.DependencyInjection.Attributes;
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Erp.Core
+namespace HLab.Mvvm.Application
 {
     public interface ISelectedMessage
     { }
@@ -13,12 +13,11 @@ namespace HLab.Erp.Core
     {
         private IView _view;
         private IViewModel _viewModel;
-
-        [Import]
         private readonly IMvvmService _mvvm;
 
-        public SelectedMessage(object item)
+        public SelectedMessage(object item, [Import]IMvvmService mvvm)
         {
+            _mvvm = mvvm;
             if (item is IView view)
                 View = view;
 

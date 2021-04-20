@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
-using HLab.DependencyInjection.Annotations;
 
 namespace HLab.Options
 {
@@ -13,7 +13,7 @@ namespace HLab.Options
     {
         private readonly List<IOptionsProvider> _providers;
 
-        [Import] public OptionsServices(IEnumerable<IOptionsProvider> providers)
+        public OptionsServices(IEnumerable<IOptionsProvider> providers)
         {
             _providers = providers.ToList();
             foreach (var provider in _providers)
