@@ -110,8 +110,6 @@ namespace HLab.Notify.Annotations
         public static TriggerPath Factory(Expression path)
         {
             var body = (path as LambdaExpression)?.Body ;
-            if (body?.NodeType == ExpressionType.Convert)
-                body = (body as UnaryExpression)?.Operand;
 
             var e = body;
             TriggerPath triggerPath = null;
@@ -119,7 +117,11 @@ namespace HLab.Notify.Annotations
             while (e != null)
             {
                 var name = "";
-                if (e is MemberExpression m)
+                if (e.NodeType == ExpressionType.Convert)
+                {
+                    e = (e as UnaryExpression)?.Operand;
+                }
+                else if (e is MemberExpression m)
                 {
                     name = m.Member.Name;
                     e = m.Expression;
@@ -139,7 +141,7 @@ namespace HLab.Notify.Annotations
                     e = null;
                     triggerPath = Factory(triggerPath, name);
                 }
-                else
+                else if(!String.IsNullOrWhiteSpace(name))
                 {
                     triggerPath = Factory(triggerPath, name);
                 }

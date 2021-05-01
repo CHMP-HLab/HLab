@@ -17,6 +17,8 @@ namespace HLab.Mvvm.Application
         }
 
         public abstract Task OpenDocumentAsync(IView content);
+        public virtual Task OpenDocumentAsync<T>() => OpenDocumentAsync(typeof(T));
+
         public abstract Task CloseDocumentAsync(object content);
 
         public object MainViewModel {get;set;}

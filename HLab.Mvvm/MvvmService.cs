@@ -217,8 +217,6 @@ namespace HLab.Mvvm
         private readonly ConcurrentDictionary<Type, Type> _modelsTypes = new ConcurrentDictionary<Type, Type>();
         private Type GetModelType(Type type)
         {
-            if(type.Name.Contains("DetailsViewModel")) {}
-
             return _modelsTypes.GetOrAdd(type, (t) => {
                 //if (!typeof(IViewModel).IsAssignableFrom(type)) return null; //throw new ArgumentException(type + " does not implement IViewModel");
                 foreach (var iface in t.GetInterfaces())

@@ -22,7 +22,7 @@ namespace HLab.Mvvm.Flowchart.Models
     [DataContract]
     public class OutputPin : Pin, IOutputPin
     {
-        public OutputPin(IMvvmService mvvmService):base(mvvmService) => H.Initialize(this);
+        public OutputPin() => H.Initialize(this);
 
         //public ObservableCollection<IInputPin> LinkedInputs => N.Get(() => new ObservableCollection<IInputPin>());
 

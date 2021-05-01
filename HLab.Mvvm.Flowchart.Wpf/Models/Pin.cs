@@ -9,7 +9,7 @@ namespace HLab.Mvvm.Flowchart.Models
 {
     public abstract class Pin : GraphElement, IPin
     {
-        protected Pin(IMvvmService mvvmService):base(mvvmService) => H<Pin>.Initialize(this);
+        protected Pin() => H<Pin>.Initialize(this);
 
         [TriggerOn(nameof(Parent))]
         public IPinGroup Group

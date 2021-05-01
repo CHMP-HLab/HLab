@@ -187,13 +187,16 @@ namespace HLab.Notify.PropertyChanged
             if (_executeAsync != null)
                 await _executeAsync(parameter).ConfigureAwait(true);
             else
-                _execute?.Invoke(parameter);
+            {
+                _ = _execute ?? throw new NullReferenceException("Child Command not initialized");
+                _execute.Invoke(parameter);
+            }
         }
         public void CheckCanExecute()
         {
             var old = _canExecute;
             _canExecute = _canExecuteFunc(null);
-            if(old!=_canExecute) CanExecuteChanged?.Invoke(this,new EventArgs());
+            if (old != _canExecute) CanExecuteChanged?.Invoke(this, new EventArgs());
         }
 
         public event EventHandler CanExecuteChanged;

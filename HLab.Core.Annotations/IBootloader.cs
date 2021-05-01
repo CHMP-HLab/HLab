@@ -5,19 +5,20 @@ namespace HLab.Core.Annotations
     // TODO : Progress for bootloader
 
 
-    public static class BootstrapperExtension
-    {
-        public static void Enqueue(this IBootContext context, IBootloader bootloader)
-        {
-            context.Enqueue(bootloader.GetType().Name,bootloader.Load);
-        }
-    }
 
     public interface IBootContext
     {
         void Requeue();
-        void Enqueue(string name,Action<IBootContext> action);
-        bool Contains(string name);
+        bool StillContains(params string[] name);
+
+        bool StillContainsAndRequeue(params string[] name)
+        {
+            var contains = StillContains(name);
+            if (contains) Requeue();
+            return contains;
+        }
+
+        bool StillContainsAndRequeue<T>() => StillContainsAndRequeue(typeof(T).Name);
     }
 
     public interface IBootloader
@@ -25,8 +26,4 @@ namespace HLab.Core.Annotations
         void Load(IBootContext bootstrapper);
     }
 
-    public interface IBootloaderDependent : IBootloader
-    {
-        string[] DependsOn {get;}
-    }
 }

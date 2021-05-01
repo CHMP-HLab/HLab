@@ -22,10 +22,11 @@
   <ItemGroup>
     <PackageReference Include="Dirkster.AvalonDock" Version="4.50.3" />
     <PackageReference Include="Dirkster.AvalonDock.Themes.VS2013" Version="4.50.3" />
-    <PackageReference Include="MahApps.Metro" Version="2.4.4" />
+    <PackageReference Include="MahApps.Metro" Version="2.4.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Erp\HLab.Erp.Acl.Wpf\HLab.Erp.Acl.Wpf.csproj" />
     <ProjectReference Include="..\..\HLab.Erp\HLab.Erp.Acl\HLab.Erp.Acl.csproj" />
     <ProjectReference Include="..\..\HLab.Erp\HLab.Erp.Core.Wpf\HLab.Erp.Core.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Application\HLab.Mvvm.Application.csproj" />

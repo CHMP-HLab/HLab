@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using Grace.DependencyInjection.Attributes;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
@@ -24,7 +25,8 @@ namespace HLab.Mvvm.Flowchart.Models
     [DataContract]
     public class PinGroup : GraphElement, IPinGroup
     {
-        public PinGroup(IGraphBlock block, string id, PinLocation location, string caption,IMvvmService mvvmService):base(mvvmService)
+        [Import]
+        public void Inject(IGraphBlock block, string id, PinLocation location, string caption)
         {
             Block = block;
             Id = id;

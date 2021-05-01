@@ -4,8 +4,10 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Reflection.Emit;
 using Grace.DependencyInjection;
 using Grace.DependencyInjection.Attributes;
+using Grace.DependencyInjection.Impl.CompiledStrategies;
 using HLab.Base;
 using HLab.Core.Annotations;
 
@@ -20,71 +22,57 @@ namespace HLab.Core
         private class Context : IBootContext
         {
             private readonly Bootstrapper _bootstrapper;
-            private readonly Entry _entry;
+            private readonly Action<IBootContext> _action;
+            public string Name { get; }
 
-            public Context(Bootstrapper bootstrapper, Entry entry)
+            public Context(Bootstrapper bootstrapper, string name, Action<IBootContext> action)
             {
                 _bootstrapper = bootstrapper;
-                _entry = entry;
+                _action = action;
+                Name = name;
             }
 
             public void Requeue()
             {
-                _bootstrapper.Enqueue(_entry.Name, _entry.Action);
+                _bootstrapper.Enqueue(this);
             }
 
             public void Enqueue(string name, Action<IBootContext> action)
             {
-                _bootstrapper.Enqueue(name,action);
+                _bootstrapper.Enqueue(name, action);
             }
 
-            public bool Contains(string name) => _bootstrapper.Contains(name);
-        }
+            public void Invoke() => _action(this);
 
-
-        private bool _configured = false;
-        private IExportLocatorScope _scope;
-
-        public void Configure(DependencyInjectionContainer  container)
-        {
-            // TODO : Container.AutoConfigure<IBootloader>(c => c.As<IBootloader>());
-            _scope = container;
-            LoadModules(container);
-
-            // TODO : Container.ExportInitialize<IInitializer>((c, a, o) => o.Initialize(c, a));
-
-            _configured = true;
-        }
-
-        private readonly struct Entry
-        {
-            public readonly string Name;
-            public readonly Action<IBootContext> Action;
-
-            public Entry(string name, Action<IBootContext> action)
-            {
-                Name = name;
-                Action = action;
-            }
-
+            public bool StillContains(params string[] name) => _bootstrapper.Contains(name);
             public override string ToString() => Name;
         }
 
-        private readonly ConcurrentQueue<Entry> _queue = new();
+
+        private DependencyInjectionContainer _scope;
+
+        public void Configure(DependencyInjectionContainer container)
+        {
+            _scope = container;
+            LoadModules();
+
+            // TODO : Container.ExportInitialize<IInitializer>((c, a, o) => o.Initialize(c, a));
+        }
+
+
+        private readonly ConcurrentQueue<Context> _queue = new();
         public void Boot()
         {
-            //if(!_configured) Configure();
-
-            var bootLoaders = SortBootloaders(Sort(_scope.Locate<IEnumerable<IBootloader>>(this))).Reverse().ToList();
+            var bootLoaders = Sort(_scope.Locate<IEnumerable<IBootloader>>(this));
 
             foreach (var bootLoader in bootLoaders)
             {
                 Enqueue(bootLoader.GetType().Name, bs => bootLoader.Load(bs));
             }
 
-            while ( _queue.TryDequeue(out var entry) )
+            while (_queue.TryDequeue(out var context))
             {
-                entry.Action(new Context(this,entry));
+                context.Invoke();
             }
         }
 
@@ -93,38 +81,18 @@ namespace HLab.Core
             var result = new List<T>();
             foreach (var boot in src)
             {
-                var inserted = false;
+                var bootAssemblyName = boot.GetType().Assembly.GetName().Name;
                 for (var i = 0; i < result.Count; i++)
                 {
-                    if (boot.GetType().Assembly.References(result[i].GetType().Assembly.GetName().Name))
+                    var a = result[i].GetType().Assembly;
+                    if (a.References(bootAssemblyName))
                     {
                         result.Insert(i, boot);
-                        inserted = true;
-                        break;
+                        goto inserted;
                     }
                 }
-                if (!inserted) result.Add(boot);
-            }
-
-            return result;
-        }
-        private static IEnumerable<IBootloader> SortBootloaders(IEnumerable<IBootloader> src)
-        {
-            var result = new List<IBootloader>();
-            foreach (var boot in src)
-            {
-                var inserted = false;
-                if(boot is IBootloaderDependent bd)
-                    for (var i = 0; i < result.Count; i++)
-                    {
-                        if (bd.DependsOn.Contains(result[i].GetType().Name))
-                        {
-                            result.Insert(i, boot);
-                            inserted = true;
-                            break;
-                        }
-                    }
-                if (!inserted) result.Add(boot);
+                result.Add(boot);
+            inserted:;
             }
 
             return result;
@@ -162,15 +130,35 @@ namespace HLab.Core
 
                 return true;
             }
-            catch(FileNotFoundException )
-            {}
+            catch (FileNotFoundException)
+            { }
             catch (BadImageFormatException)
             {
-            } 
+            }
             return false;
         }
 
-        private void LoadModules(DependencyInjectionContainer container)
+        class strategy : IActivationStrategyInspector
+        {
+            public void Inspect<T>(T strategy) where T : class, IActivationStrategy
+            {
+                throw new NotImplementedException();
+            }
+        }
+
+        public void Export<T>()
+        {
+            _scope.Configure(c =>
+            {
+                c
+                    .ExportAssemblies(
+                        ReferencingAssemblies())
+                    .Where(y => typeof(T).IsAssignableFrom(y))
+                    .ByInterfaces().ByType().ExportAttributedTypes();
+            });
+        }
+
+        private void LoadModules()
         {
 
             var directory = AppDomain.CurrentDomain.BaseDirectory;
@@ -188,7 +176,7 @@ namespace HLab.Core
 
             var assemblies = ReferencingAssemblies();
 
-            container.Configure(c => c
+            _scope.Configure(c => c
                 .ExportAssemblies(assemblies).ExportAttributedTypes().ByInterface<IBootloader>()
             );
 
@@ -200,15 +188,19 @@ namespace HLab.Core
             // TODO : Container.StaticInjection();
 
         }
-
-        public void Enqueue(string name,Action<IBootContext> action)
+        private void Enqueue(Context context)
         {
-            _queue.Enqueue(new Entry(name, action));
+            _queue.Enqueue(context);
         }
 
-        public bool Contains(string name)
+        public void Enqueue(string name, Action<IBootContext> action)
         {
-            return _queue.Any(e => e.Name == name);
+            Enqueue(new Context(this, name, action));
+        }
+
+        public bool Contains(params string[] names)
+        {
+            return names.Any(name => _queue.Any(e => e.Name == name));
         }
 
         private readonly ConcurrentHashSet<Assembly> _referencesAssemblies = new();

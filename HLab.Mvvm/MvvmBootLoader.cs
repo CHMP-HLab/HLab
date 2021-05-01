@@ -4,7 +4,7 @@ using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
-    class MvvmBootloader : IBootloader
+    public class MvvmBootloader : IBootloader
     {
         private readonly IMvvmService _mvvm;
 

@@ -32,6 +32,7 @@
 
   <ItemGroup>
     <PackageReference Include="libxslt" Version="1.1.28" />
+    <PackageReference Include="Svg" Version="3.2.3" />
   </ItemGroup>
 
   <ItemGroup>

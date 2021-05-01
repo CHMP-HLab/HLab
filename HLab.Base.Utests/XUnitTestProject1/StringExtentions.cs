@@ -8,7 +8,7 @@ using Xunit;
 
 namespace HLab.Base.UTests
 {
-    public class StringExtentionsUnitTests
+    public class StringExtensionsUnitTests
     {
         [Fact]
         public void Test()

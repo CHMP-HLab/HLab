@@ -50,7 +50,7 @@ namespace HLab.Icons.Wpf.Icons
             .Register();
 
         public static readonly DependencyProperty IconMaxWidthProperty = 
-            H.Property<double>().Default(double.NaN)
+            H.Property<double>().Default(50.0)
             .Register();
 
         public string Path

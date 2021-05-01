@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows;
+using Grace.DependencyInjection.Attributes;
 using HLab.Base.Extensions;
 using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
@@ -13,7 +14,8 @@ namespace HLab.Mvvm.Flowchart.Models
 
     public abstract class GraphBlock : GraphElement, IGraphBlock
     {
-        protected GraphBlock(Func<IGraphBlock, string, PinLocation, string, PinGroup> getPinGroup, IMvvmService mvvmService) : base(mvvmService)
+        [Import]
+        public void Inject(Func<IGraphBlock, string, PinLocation, string, PinGroup> getPinGroup)
         {
             _getPinGroup = getPinGroup;
             MainLeftGroup = GetOrAddGroup("Left", PinLocation.Left);
@@ -22,7 +24,7 @@ namespace HLab.Mvvm.Flowchart.Models
             H.Initialize(this);
         }
 
-        private readonly Func<IGraphBlock,string, PinLocation, string, PinGroup> _getPinGroup;
+        private Func<IGraphBlock,string, PinLocation, string, PinGroup> _getPinGroup;
 
         public IPinGroup GetOrAddGroup(string id, PinLocation location, string caption="")
         {
@@ -38,8 +40,8 @@ namespace HLab.Mvvm.Flowchart.Models
         public ObservableCollection<IPinGroup> Groups { get; } = new ObservableCollection<IPinGroup>();
 
 
-        public IPinGroup MainLeftGroup { get; }
-        public IPinGroup MainRightGroup { get; }
+        public IPinGroup MainLeftGroup { get; private set; }
+        public IPinGroup MainRightGroup { get; private set; }
 
 
         [DataMember]

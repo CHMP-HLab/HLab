@@ -5,7 +5,6 @@ using System.Linq;
 using System.Reflection;
 using System.Resources;
 using System.Windows.Media;
-using HLab.ColorTools.Wpf;
 using HLab.Core.Annotations;
 using HLab.Icons.Annotations.Icons;
 using HLab.Icons.Wpf.Icons.Providers;
@@ -43,12 +42,12 @@ namespace HLab.Icons.Wpf.Icons
                         if (resourcePath.EndsWith(".xaml"))
                         {
                             var n = resourcePath.Remove(resourcePath.Length-5);
-                            _icons.AddIconProvider(n, new IconProviderXamlFromResource(resourceManager, resourcePath, Colors.Black.ToInt()));
+                            _icons.AddIconProvider(n, new IconProviderXamlFromResource(resourceManager, resourcePath, Colors.Black));
                         }
                         else if (resourcePath.EndsWith(".svg"))
                         {
                             var n = resourcePath.Remove(resourcePath.Length-4);
-                            _icons.AddIconProvider(n, new IconProviderSvg(resourceManager, resourcePath, Colors.Black.ToInt()));
+                            _icons.AddIconProvider(n, new IconProviderSvg(resourceManager, resourcePath, Colors.Black));
                         }
                         else if (resourcePath.EndsWith(".baml"))
                         {

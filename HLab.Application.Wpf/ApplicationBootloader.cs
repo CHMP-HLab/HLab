@@ -5,7 +5,9 @@ using System.Windows;
 using System.Windows.Markup;
 using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
+using HLab.Erp.Acl.LoginServices;
 using HLab.Erp.Core;
+using HLab.Erp.Core.Localization;
 using HLab.Erp.Core.Update;
 using HLab.Mvvm.Annotations;
 
@@ -52,20 +54,11 @@ namespace HLab.Mvvm.Application.Wpf
         }
 
 
-        //[Import]
-        //public Func<ILoginViewModel> GetLoginViewModel { get; set; }
-
-
-
 
         public void Load(IBootContext b)
         {
-            if (b.Contains("LocalizeBootloader"))
-            {
-                b.Requeue();
-                return;
-            }
-
+            if (b.StillContainsAndRequeue<LocalizeBootloader>()) return;
+            if (b.StillContainsAndRequeue<LoginBootloader>()) return;
 
             MainWindow = new DefaultWindow()
             {

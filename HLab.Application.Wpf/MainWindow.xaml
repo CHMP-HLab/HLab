@@ -18,7 +18,6 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="*" />
         </Grid.RowDefinitions>
-
         <!-- Menu Bar-->
         <Grid
                    MouseDown="MainWindow_OnMouseDown"
@@ -81,7 +80,7 @@
                             <Viewbox HorizontalAlignment="Left" Height="16">
                                  <icons:IconView Opacity="1" Foreground="{DynamicResource MahApps.Brushes.Badged.Foreground}" Path="{Binding Content.DataContext.IconPath}"/>
                             </Viewbox>
-                            <lang:LocalizedLabel Margin="10,0,0,0" FontSize="14" FontWeight="Bold" Text="{Binding Content.DataContext.Title}"/>
+                            <lang:LocalizedLabel Margin="10,0,0,0" FontSize="14" FontWeight="Bold" Text="{Binding Content.DataContext.Header}"/>
                         </StackPanel>
                         <StackPanel Background="{DynamicResource MahApps.Brushes.Badged.Background}" Visibility="{Binding Content.DataContext.SubTitle,Converter={StaticResource ToVisibilityConverter},FallbackValue=Collapsed}">
                             <lang:LocalizedLabel Margin="3,0" FontSize="12" FontStyle="Italic" Text="{Binding Content.DataContext.SubTitle}"/>
@@ -128,6 +127,7 @@
         </xcad:DockingManager>
 
         <ContentControl Grid.Row="0" Content="{Binding DragCanvas}"/>
+        <Canvas Grid.Row="0" x:Name="DragCanvas"/>
 
     </Grid>
 </UserControl>

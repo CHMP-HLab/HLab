@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 using System.Windows.Markup;
 using HLab.Base.Wpf;
 using HLab.Mvvm.Annotations;
@@ -18,7 +19,10 @@ namespace HLab.Localization.Wpf.Lang
             System.ComponentModel.DependencyPropertyDescriptor pdIsAvailable = System.ComponentModel.DependencyPropertyDescriptor.FromProperty
                     (LanguageProperty, typeof(FrameworkElement));
             pdIsAvailable.AddValueChanged(this, async (o,h) => await UpdateAsync(Language, LocalizationService, Id,StringFormat));
+
         }
+
+        
 
         public string Id
         {
@@ -59,6 +63,7 @@ namespace HLab.Localization.Wpf.Lang
             get => (ILocalizationService)GetValue(LocalizationServiceProperty);
             set => SetValue(LocalizationServiceProperty, value);
         }
+
 
         public async Task UpdateAsync(XmlLanguage lang, ILocalizationService service, string source, string format)
         {

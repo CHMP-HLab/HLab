@@ -4,7 +4,7 @@ namespace HLab.Mvvm.Annotations
 {
     public interface IMvvmContextProvider
     {
-        void ConfigureMvvmContext(IMvvmContext ctx);
+        void ConfigureMvvmContext(IMvvmContext ctx) { }
     }
 
     public interface IViewModel 

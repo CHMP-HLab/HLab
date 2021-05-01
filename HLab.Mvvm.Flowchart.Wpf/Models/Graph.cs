@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
+using Grace.DependencyInjection.Attributes;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Flowchart.Models
@@ -12,7 +13,7 @@ namespace HLab.Mvvm.Flowchart.Models
     {
         public event EventHandler BlocksLoaded;
 
-        private readonly GraphService _graphService;
+        private GraphService _graphService;
 
         [DataMember] public ObservableCollection<IGraphBlock> Blocks { get; } = new ObservableCollection<IGraphBlock>();  // => N.Get(() => );
         public void Load(string s)
@@ -45,7 +46,8 @@ namespace HLab.Mvvm.Flowchart.Models
             Blocks.Add(block);
         }
 
-        public Graph(GraphService graphService, IMvvmService mvvmService) : base(mvvmService)
+        [Import]
+        public void Inject(GraphService graphService)
         {
             _graphService = graphService;
             Id = "#";

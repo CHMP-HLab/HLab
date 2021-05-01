@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Library</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+	  <UseWPF>true</UseWPF>
+	  <StartupObject></StartupObject>
+	  <Platforms>AnyCPU;x64</Platforms>
+	  <ApplicationIcon />
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <PlatformTarget>x64</PlatformTarget>
+  </PropertyGroup>
+
+
+
+  <ItemGroup>
+    <PackageReference Include="BenchmarkDotNet" Version="0.12.1.1530" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Icons.Wpf\HLab.Icons.Wpf.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icons\location.rsc.svg" />
+    <Resource Include="Icons\location.rsc.xaml" />
+  </ItemGroup>
+
+</Project>

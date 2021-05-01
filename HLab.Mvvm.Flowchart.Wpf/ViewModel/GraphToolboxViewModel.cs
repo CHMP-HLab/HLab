@@ -4,7 +4,7 @@ using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.ViewModel
 {
-    public class GraphToolboxViewModel : ViewModel<GraphToolboxViewModel>
+    public class GraphToolboxViewModel : Mvvm.ViewModel
     {
         private readonly IGraphService _graph;
 

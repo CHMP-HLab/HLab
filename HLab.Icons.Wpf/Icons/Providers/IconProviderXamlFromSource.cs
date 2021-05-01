@@ -1,4 +1,7 @@
 ﻿using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Markup;
+using HLab.ColorTools.Wpf;
 using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Wpf.Icons.Providers
@@ -6,8 +9,9 @@ namespace HLab.Icons.Wpf.Icons.Providers
     public class IconProviderXamlFromSource : IIconProvider
     {
         private readonly string _name;
-        private readonly string _source;
+        private string _source;
         private readonly int? _foreground;
+        private bool _parsed = false;
  
         public IconProviderXamlFromSource(string source, string name, int? foreground)
         { 
@@ -20,7 +24,32 @@ namespace HLab.Icons.Wpf.Icons.Providers
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
-            return await XamlTools.FromXamlStringAsync(_source,_foreground).ConfigureAwait(false);
+            var icon = await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(false);
+
+            if (!_parsed && _foreground != null && icon is UIElement ui)
+            {
+                XamlTools.SetBinding(ui, _foreground.ToColor());
+                _source = XamlWriter.Save(ui);
+                _parsed = true;
+            }
+
+            return icon;
+        }
+
+        public object Get()
+        {
+            if (string.IsNullOrWhiteSpace(_name)) return null;
+
+            var icon = XamlTools.FromXamlString(_source);
+
+            if (!_parsed && _foreground != null && icon is UIElement ui)
+            {
+                XamlTools.SetBinding(ui, _foreground.ToColor());
+                _source = XamlWriter.Save(ui);
+                _parsed = true;
+            }
+
+            return icon;
         }
     }
 }

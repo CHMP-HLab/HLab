@@ -101,7 +101,13 @@ namespace HLab.Notify.PropertyChanged
 
         private static bool CheckDependencies(Todo todo, ICollection<string> done, Queue<Todo> todoQueue)
         {
-            var a = PropertyCache<TClass>.GetByHolder(todo.MemberInfo.Name);
+            var name = todo.MemberInfo.Name;
+            var a = PropertyCache<TClass>.GetByHolder(name);
+            if(a==null)
+            {
+                done.Add(name);
+                return true;
+            }
 //            var p = todo.ConfiguratorEntry;
             if (a.DependsOn
                 .Where(d => !done.Contains(d))
@@ -201,8 +207,16 @@ namespace HLab.Notify.PropertyChanged
                                 if (!CheckDependencies(todo, done, todoList)) continue;
                                 activator += t =>
                                 {
-                                    ((IChildObject) propertyInfo.GetValue(t))
-                                        .Parent = t;
+                                    var pi = propertyInfo;
+                                    var value = propertyInfo.GetValue(t);
+                                    if(value is IChildObject child)
+                                    {
+                                        child.Parent = t;
+                                    }
+                                    else
+                                    {
+
+                                    }
                                 };
                             }
                             else if (typeof(ICommand).IsAssignableFrom(propertyInfo.PropertyType))
