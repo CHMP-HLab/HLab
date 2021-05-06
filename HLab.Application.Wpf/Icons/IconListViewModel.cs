@@ -4,6 +4,7 @@ using Grace.DependencyInjection.Attributes;
 using HLab.Erp.Base.Data;
 using HLab.Erp.Core;
 using HLab.Erp.Core.EntityLists;
+using HLab.Erp.Core.ListFilterConfigurators;
 using HLab.Erp.Core.ListFilters;
 using HLab.Erp.Data;
 using HLab.Mvvm.Annotations;
@@ -13,18 +14,16 @@ namespace HLab.Mvvm.Application.Wpf.Icons
     public class IconListViewModel: EntityListViewModel<Icon>, IMvvmContextProvider
     {
         public IconListViewModel() : base(c => c
-            .AddAllowed()
-            .DeleteAllowed()
-                .Column()
-                    .Header("{Path}")
-                    .Width(210)
-                    .Content(e => e.Path)
-                    .Filter<TextFilter>()
-                    .Link(e => e.Path)
+// TODO                .AddAllowed()
+            // TODO                .DeleteAllowed()
+            .Column()
+            .Header("{Path}")
+            .Width(210).Link(e => e.Path)
+                    .Filter()
                 .Column()
                     .Icon(s => s.Path)
                 .Width(70)
-                .OrderBy(s => s.Path)            
+//                .OrderBy(s => s.Path)            
         )
         {
         }
