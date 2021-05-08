@@ -11,6 +11,7 @@
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition x:Name="Spacer" Width="10"/>
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <ContentControl x:Name="IconContent" 
@@ -18,9 +19,9 @@
                         MaxHeight="{Binding IconMaxHeight, ElementName=UserControl}"/>
         <ContentControl 
             x:Name ="CaptionContent" 
-            Margin="10,0,0,0" 
+            Margin="0,0,0,0" 
             VerticalAlignment="Center" 
-            Grid.Column="1" 
+            Grid.Column="2" 
             />
     </Grid>
 </UserControl>

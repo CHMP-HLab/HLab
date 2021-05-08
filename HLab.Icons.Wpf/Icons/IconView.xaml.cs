@@ -125,17 +125,23 @@ namespace HLab.Icons.Wpf.Icons
                 else return;
             }
 
+            Spacer.Width = new GridLength(10.0);
+
             if (string.IsNullOrWhiteSpace(path))
             {
                 IconContent.Visibility = Visibility.Collapsed;
+                Spacer.Width = new GridLength(0.0);
             }
             else
             {
-                IconContent.Content = (UIElement) await service.GetIconAsync(path).ConfigureAwait(true);
-                IconContent.Visibility = Visibility.Visible;
-                #if DEBUG
-                IconContent.ToolTip = path;
-                #endif
+                await Dispatcher.Invoke(async () =>
+                {
+                    IconContent.Content = (UIElement) await service.GetIconAsync(path).ConfigureAwait(true);
+                    IconContent.Visibility = Visibility.Visible;
+                    #if DEBUG
+                    IconContent.ToolTip = path;
+                    #endif
+                } );
             }
 
             switch (caption)
@@ -144,6 +150,7 @@ namespace HLab.Icons.Wpf.Icons
                 case string c when string.IsNullOrWhiteSpace(c):
                     CaptionContent.Content = null;
                     CaptionContent.Visibility = Visibility.Collapsed;
+                    Spacer.Width = new GridLength(0.0);
                     break;
                 default:
                     CaptionContent.Content = caption;
