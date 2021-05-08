@@ -13,6 +13,8 @@ namespace HLab.Mvvm.Annotations
 
     public interface ILocalizationService
     {
+        string  Localize(string lang, string value);
+        string  Localize(string value);
         Task<string>  LocalizeAsync(string lang, string value);
         Task<string>  LocalizeAsync(string value);
         Task<ILocalizeEntry> GetLocalizeEntryAsync(string lang, string value);
@@ -23,8 +25,11 @@ namespace HLab.Mvvm.Annotations
 
     public interface ILocalizationProvider
     {
+        string Localize(string lang, string value);
         Task<string> LocalizeAsync(string lang, string value);
+        ILocalizeEntry GetLocalizeEntry(string lang, string value);
         Task<ILocalizeEntry> GetLocalizeEntryAsync(string lang, string value);
+        IEnumerable<ILocalizeEntry> GetLocalizeEntries(string value);
         IAsyncEnumerable<ILocalizeEntry> GetLocalizeEntriesAsync(string value);
         void Register(string tag, string code, string value, bool quality);
     }

@@ -67,6 +67,8 @@ namespace HLab.Mvvm
 
         public object GetLinked(object baseObject,Type viewMode, Type viewClass)
         {
+            if(baseObject==null) return null;
+
             var context = _context;
             { 
                 if (baseObject is IViewModel vm)
@@ -87,7 +89,7 @@ namespace HLab.Mvvm
                         context = vm.MvvmContext;
                 }
             }
-            var linkedType = _mvvm.GetLinkedType(baseObject?.GetType(), viewMode, viewClass);
+            var linkedType = _mvvm.GetLinkedType(baseObject.GetType(), viewMode, viewClass);
 
             if (linkedType == null)
             {

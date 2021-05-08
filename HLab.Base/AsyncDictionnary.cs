@@ -61,6 +61,19 @@ namespace HLab.Base
                 _semaphore.Release();
             }
         }
+        public IEnumerable<T> Where(Func<T, bool> where)
+        {
+            _semaphore.Wait();    
+            try
+            {
+                foreach (var item in _cache.Values.Where(where)) yield return item;
+                //return await Task.Run(()=>_cache.Values.Where(where).ToList()).ConfigureAwait(false);
+            }
+            finally
+            {
+                _semaphore.Release();
+            }
+        }
 
         public async IAsyncEnumerable<T> WhereAsync(Func<T, bool> where)
         {
@@ -75,19 +88,16 @@ namespace HLab.Base
                 _semaphore.Release();
             }
         }
+        public IEnumerable<T> Where(Expression<Func<T, bool>> expression)
+        {
+            var where = expression.Compile();
+            return Where(where);
+        }
+
         public IAsyncEnumerable<T> WhereAsync(Expression<Func<T, bool>> expression)
         {
             var where = expression.Compile();
             return WhereAsync(where);
-            //await _semaphore.WaitAsync().ConfigureAwait(false);    
-            //try
-            //{
-            //    foreach (var item in _cache.Values.Where(where)) yield return item;
-            //}
-            //finally
-            //{
-            //    _semaphore.Release();
-            //}
         }
 
         #region Dispose
