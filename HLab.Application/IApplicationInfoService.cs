@@ -6,7 +6,7 @@ namespace HLab.Mvvm.Application
     {
 
         Version Version { get; set; }
-        String Name { get; set; }
-        String DataSource { get; set; }
+        string Name { get; set; }
+        string DataSource { get; set; }
     }
 }

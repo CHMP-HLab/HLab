@@ -69,7 +69,7 @@ namespace HLab.Mvvm.Application.Wpf
             MainWindow.Closing += (sender, args) => System.Windows.Application.Current.Shutdown();
             MainWindow.Show();
 
-            _info.Version = Assembly.GetCallingAssembly().GetName().Version;
+            _info.Version = Assembly.GetEntryAssembly()?.GetName().Version;
 
             InitializeCultures();
 
