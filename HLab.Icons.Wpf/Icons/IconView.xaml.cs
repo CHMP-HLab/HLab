@@ -23,33 +23,33 @@ namespace HLab.Icons.Wpf.Icons
 
         private void IconView_Loaded(object sender, RoutedEventArgs e)
         {
-            Update(IconService, Path, Caption,ForegroundMatchColor, BackgroundMatchColor);
+            Update(IconService, Path, Caption, ForegroundMatchColor, BackgroundMatchColor);
         }
 
-        public static readonly DependencyProperty PathProperty = 
+        public static readonly DependencyProperty PathProperty =
             H.Property<string>().AffectsRender
-            .OnChange((s, e) => s.Update(s.IconService, e.NewValue, s.Caption,s.ForegroundMatchColor, s.BackgroundMatchColor))
+            .OnChange((s, e) => s.Update(s.IconService, e.NewValue, s.Caption, s.ForegroundMatchColor, s.BackgroundMatchColor))
             .Register();
 
-        public static readonly DependencyProperty CaptionProperty = 
+        public static readonly DependencyProperty CaptionProperty =
             H.Property<object>().AffectsRender
             .OnChange((s, e) => s.Update(s.IconService, s.Path, e.NewValue, s.ForegroundMatchColor, s.BackgroundMatchColor))
             .Register();
- 
-        public static readonly DependencyProperty IconServiceProperty = 
+
+        public static readonly DependencyProperty IconServiceProperty =
             H.Property<IIconService>()
-            .OnChange((s,e)=>
+            .OnChange((s, e) =>
             {
-                    s.Update(e.NewValue, s.Path, s.Caption,s.ForegroundMatchColor, s.BackgroundMatchColor);
+                s.Update(e.NewValue, s.Path, s.Caption, s.ForegroundMatchColor, s.BackgroundMatchColor);
             })
             .Inherits
             .RegisterAttached();
 
-        public static readonly DependencyProperty IconMaxHeightProperty = 
+        public static readonly DependencyProperty IconMaxHeightProperty =
             H.Property<double>().Default(30.0)
             .Register();
 
-        public static readonly DependencyProperty IconMaxWidthProperty = 
+        public static readonly DependencyProperty IconMaxWidthProperty =
             H.Property<double>().Default(50.0)
             .Register();
 
@@ -78,13 +78,13 @@ namespace HLab.Icons.Wpf.Icons
         public static readonly DependencyProperty ForegroundMatchColorProperty =
             H.Property<Color>()
                 .Default(Colors.Black)
-                .OnChange((s, e) => s.Update(s.IconService, s.Path, s.Caption,e.NewValue, s.BackgroundMatchColor))
+                .OnChange((s, e) => s.Update(s.IconService, s.Path, s.Caption, e.NewValue, s.BackgroundMatchColor))
                 .Inherits.AffectsRender
                 .RegisterAttached();
 
         public Color ForegroundMatchColor
         {
-            get => (Color) GetValue(ForegroundMatchColorProperty);
+            get => (Color)GetValue(ForegroundMatchColorProperty);
             set => SetValue(ForegroundMatchColorProperty, value);
         }
 
@@ -102,7 +102,7 @@ namespace HLab.Icons.Wpf.Icons
 
         public IIconService IconService
         {
-            get => (IIconService)GetValue(IconServiceProperty); 
+            get => (IIconService)GetValue(IconServiceProperty);
             set => SetValue(IconServiceProperty, value);
         }
 
@@ -134,14 +134,13 @@ namespace HLab.Icons.Wpf.Icons
             }
             else
             {
-                await Dispatcher.Invoke(async () =>
-                {
-                    IconContent.Content = (UIElement) await service.GetIconAsync(path).ConfigureAwait(true);
-                    IconContent.Visibility = Visibility.Visible;
-                    #if DEBUG
-                    IconContent.ToolTip = path;
-                    #endif
-                } );
+                var content = (UIElement)await service.GetIconAsync(path).ConfigureAwait(true);
+
+                IconContent.Content = content;
+                IconContent.Visibility = Visibility.Visible;
+#if DEBUG
+                IconContent.ToolTip = path;
+#endif
             }
 
             switch (caption)

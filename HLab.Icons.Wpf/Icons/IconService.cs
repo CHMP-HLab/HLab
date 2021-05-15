@@ -23,7 +23,7 @@ namespace HLab.Icons.Wpf.Icons
             var paths = path.Split('|');
             foreach (var p in paths)
             {
-                var icon = await GetSingleIconAsync(p);
+                var icon = await GetSingleIconAsync(p).ConfigureAwait(true);
                 if(result == null)
                 {
                     result = icon; continue;
@@ -43,12 +43,12 @@ namespace HLab.Icons.Wpf.Icons
 
             if (_cache.TryGetValue(path.ToLower(), out var iconProvider))
             {
-                return await iconProvider.GetAsync().ConfigureAwait(false);
+                return await iconProvider.GetAsync().ConfigureAwait(true);
             }
 
             if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
             {
-                return await iconProviderDefault.GetAsync().ConfigureAwait(false);
+                return await iconProviderDefault.GetAsync().ConfigureAwait(true);
             }
 
             Debug.Print("Icon not found : " + path);

@@ -24,7 +24,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
-            var icon = await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(false);
+            var icon = await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(true);
 
             if (!_parsed && _foreground != null && icon is UIElement ui)
             {
