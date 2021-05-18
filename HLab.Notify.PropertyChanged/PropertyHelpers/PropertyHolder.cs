@@ -94,6 +94,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         }
 
 #if DEBUG
+        [DebuggerStepThrough]
         public T Get([CallerMemberName] string name = null)
         {
             if (name != null && name != "SetOneToMany" && name != "Set")

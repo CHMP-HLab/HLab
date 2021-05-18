@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
@@ -24,6 +25,17 @@ namespace HLab.Base.Wpf
                     yield return childOfChild;
                 }
             }
+        }
+
+        public static void SwitchVisibility(this UIElement element)
+        {
+            element.Visibility = element.Visibility switch
+            {
+                Visibility.Hidden => Visibility.Hidden,
+                Visibility.Collapsed => Visibility.Visible,
+                Visibility.Visible => Visibility.Collapsed,
+                _ => throw new ArgumentOutOfRangeException()
+            };
         }
     }
 }

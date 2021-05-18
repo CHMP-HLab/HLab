@@ -8,23 +8,23 @@ namespace HLab.Base
 
     public static class ObjectsExtension
     {
-        class ObjectHelper<T>
+        private class ObjectHelper<T>
         {
-            private static readonly Action<T, T> _copyPrimitivesTo = GetCopyTo(true);
-            private static readonly Action<T, T> _copyTo = GetCopyTo(false);
+            private static readonly Action<T, T> CopyPrimitivesToAction = GetCopyTo(true);
+            private static readonly Action<T, T> CopyToAction = GetCopyTo(false);
 
             public static void CopyPrimitivesTo(T source, T target)
             {
                 if (target != null && source != null && !ReferenceEquals(source, target))
                 {
-                    _copyPrimitivesTo?.Invoke(source, target);
+                    CopyPrimitivesToAction?.Invoke(source, target);
                 }
             }
             public static void CopyTo(T source, T target)
             {
                 if (target != null && source != null && !ReferenceEquals(source, target))
                 {
-                    _copyTo?.Invoke(source, target);
+                    CopyToAction?.Invoke(source, target);
                 }
             }
 

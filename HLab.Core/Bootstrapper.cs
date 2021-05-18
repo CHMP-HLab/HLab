@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Reflection.Emit;
 using Grace.DependencyInjection;
 using Grace.DependencyInjection.Attributes;
-using Grace.DependencyInjection.Impl.CompiledStrategies;
 using HLab.Base;
 using HLab.Core.Annotations;
 
@@ -49,25 +48,22 @@ namespace HLab.Core
         }
 
 
-        private DependencyInjectionContainer _scope;
-
-        public void Configure(DependencyInjectionContainer container)
-        {
-            _scope = container;
-            LoadModules();
-
-            // TODO : Container.ExportInitialize<IInitializer>((c, a, o) => o.Initialize(c, a));
-        }
+        public DependencyInjectionContainer Scope { get; } = new DependencyInjectionContainer();
 
 
         private readonly ConcurrentQueue<Context> _queue = new();
         public void Boot()
         {
-            var bootLoaders = Sort(_scope.Locate<IEnumerable<IBootloader>>(this));
+            var bootLoaders = Sort(Scope.Locate<IEnumerable<IBootloader>>(this));
+
+            HashSet<string> done = new();
 
             foreach (var bootLoader in bootLoaders)
             {
-                Enqueue(bootLoader.GetType().Name, bs => bootLoader.Load(bs));
+                var name = bootLoader.GetType().FullName;
+                if (done.Contains(name)) continue;
+                Enqueue(name, bs => bootLoader.Load(bs));
+                done.Add(name);
             }
 
             while (_queue.TryDequeue(out var context))
@@ -142,23 +138,66 @@ namespace HLab.Core
         {
             public void Inspect<T>(T strategy) where T : class, IActivationStrategy
             {
-                throw new NotImplementedException();
             }
         }
 
         public void Export<T>()
         {
-            _scope.Configure(c =>
+            if(typeof(T).IsInterface)
             {
-                c
-                    .ExportAssemblies(
-                        ReferencingAssemblies())
-                    .Where(y => typeof(T).IsAssignableFrom(y))
-                    .ByInterfaces().ByType().ExportAttributedTypes();
-            });
+                Scope.Configure(c =>
+                {
+                    var list = ReferencingAssemblies(typeof(T));
+                    
+                    foreach (var a in list)
+                    {
+                        var types = a.ExportedTypes.Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(T)));
+                        foreach(var type in types)
+                        {
+                            c
+                            .Export(type)
+                            .IfNotRegistered(type)
+                            .ImportMembers(MembersThat.HaveAttribute<ImportAttribute>(),includeMethods:true)
+                            .As(typeof(T));
+                        }
+                    }
+                });
+            }
+            else
+            {
+            }
+        }
+        public void Export<T>(Type generic)
+        {
+            if (generic.IsInterface && generic.IsGenericType)
+            {
+                Scope.Configure(c =>
+                {
+                    var list = ReferencingAssemblies(typeof(T));
+
+                    foreach (var a in list)
+                    {
+                        var types = a.ExportedTypes.Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(T)));
+                        foreach (var type in types)
+                        {
+                            var generics = type.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == generic);
+                            foreach (var t in generics)
+                            {
+                                c
+                                .Export(type)
+                                .ImportMembers(MembersThat.HaveAttribute<ImportAttribute>(), includeMethods: true)
+                                .As(t);
+                            }
+                        }
+                    }
+                });
+            }
+            else
+            {
+            }
         }
 
-        private void LoadModules()
+        public void LoadModules()
         {
 
             var directory = AppDomain.CurrentDomain.BaseDirectory;
@@ -172,21 +211,26 @@ namespace HLab.Core
                 }
             }
 
-            AddReference<ImportAttribute>();
+            //AddReference<ImportAttribute>();
 
-            var assemblies = ReferencingAssemblies();
+            //var assemblies = ReferencingAssemblies();
 
-            _scope.Configure(c => c
-                .ExportAssemblies(assemblies).ExportAttributedTypes().ByInterface<IBootloader>()
+            Scope.Configure(c => c
+                .ImportMembers(MembersThat.HaveAttribute<ImportAttribute>()
+                ,true)
+                );
+
+
+            Export<IBootloader>();
+
+            var list = ReferencingAssemblies(typeof(ExportAttribute));
+
+            Scope.Configure(c => c
+                .ExportAssemblies(list)
+                .ExportAttributedTypes()
+            //    .ByInterfaces()
+
             );
-
-            //container.Configure(c => c
-            //    .ExportAssemblies(assemblies).ByInterface<IBootloader>()
-            //);
-
-
-            // TODO : Container.StaticInjection();
-
         }
         private void Enqueue(Context context)
         {
@@ -211,6 +255,12 @@ namespace HLab.Core
         public void AddReference<T>()
         {
             _referencesAssemblies.Add(typeof(T).Assembly);
+        }
+        public IEnumerable<Assembly> ReferencingAssemblies(Type type)
+        {
+            var list = AssemblyHelper.GetReferencingAssemblies(type.Assembly).SortByReferences().ToList();
+
+            return list;
         }
 
     }

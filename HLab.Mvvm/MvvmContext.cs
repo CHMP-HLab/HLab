@@ -33,7 +33,7 @@ namespace HLab.Mvvm
     [Export(typeof(IMvvmContext))]
     public class MvvmContext : IMvvmContext//, IInitializer
     {
-        private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext,object>>> _creators = new();
+        private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
 
         private readonly Lazy<ViewModelCache> _cache;
 
@@ -43,33 +43,33 @@ namespace HLab.Mvvm
         public string Name { get; }
         public IMvvmContext Parent { get; }
 
-        public MvvmContext(IMvvmService mvvm, object parent, string name, [Import]IExportLocatorScope scope)
+        public MvvmContext(IMvvmService mvvm, object parent, string name, [Import] IExportLocatorScope scope)
         {
             Scope = scope;
             Mvvm = mvvm;
 
-            if(parent is IMvvmContext ctx)
+            if (parent is IMvvmContext ctx)
                 Parent = ctx;
             Name = name;
-            _cache = new Lazy<ViewModelCache>(() => new ViewModelCache(this,Mvvm));
+            _cache = new Lazy<ViewModelCache>(() => new ViewModelCache(this, Mvvm));
         }
 
         public IMvvmContext GetChildContext(string name)
         {
-            var ctx = Mvvm.GetNewContext(this,name);
+            var ctx = Mvvm.GetNewContext(this, name);
             return ctx;
         }
 
         public IMvvmContext AddCreator<T>(Action<T> action)
         {
-            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext,object>>());
-            list.Enqueue((ctx,e) => action((T) e));
+            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext, object>>());
+            list.Enqueue((ctx, e) => action((T)e));
             return this;
         }
-        public IMvvmContext AddCreator<T>(Action<IMvvmContext,T> action)
+        public IMvvmContext AddCreator<T>(Action<IMvvmContext, T> action)
         {
-            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext,object>>());
-            list.Enqueue((ctx,e) => action(ctx,(T) e));
+            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext, object>>());
+            list.Enqueue((ctx, e) => action(ctx, (T)e));
             return this;
         }
 
@@ -83,33 +83,33 @@ namespace HLab.Mvvm
             {
                 foreach (var creator in kv.Value)
                 {
-                    creator(this,linked);
+                    creator(this, linked);
                 }
             }
         }
 
-        public object GetLinked(object o, Type viewMode, Type viewClass) => _cache.Value.GetLinked(o, viewMode,viewClass);
+        public object GetLinked(object o, Type viewMode, Type viewClass) => _cache.Value.GetLinked(o, viewMode, viewClass);
 
 
-        public IView GetView(object baseObject) => GetView(baseObject,typeof(ViewModeDefault),typeof(IViewClassDefault));
+        public IView GetView(object baseObject) => GetView(baseObject, typeof(ViewModeDefault), typeof(IViewClassDefault));
 
         public IView GetView(object baseObject, Type viewMode, Type viewClass)
-            => _cache.Value.GetView(baseObject,viewMode,viewClass);
+            => _cache.Value.GetView(baseObject, viewMode, viewClass);
 
         //private readonly Func<Type, object> _locate ;
-        public T Locate<T>( object baseObject = null) => (T)Locate(typeof(T), baseObject);
+        public T Locate<T>(object baseObject = null) => (T)Locate(typeof(T), baseObject);
 
 
         public object Locate(Type type, object baseObject = null)
         {
             // TODO check
             //return Locate(() => Scope.Locate(RuntimeImportContext.GetStatic(this, type)), baseObject);
-            return Locate(() => Scope.Locate(type),baseObject);
+            return Locate(() => Scope.Locate(type), baseObject);
         }
 
         public T Locate<T>(Func<T> locate, object baseObject = null)
         {
-            return (T) Locate(new Func<object>(() => locate()), baseObject);
+            return (T)Locate(new Func<object>(() => locate()), baseObject);
         }
 
         public object Locate(Func<object> locate, object baseObject = null)
@@ -118,21 +118,21 @@ namespace HLab.Mvvm
             switch (obj)
             {
                 case IView v:
-                    var h = Mvvm.ViewHelperFactory.Get(v, hh => hh.Context=this);
+                    var h = Mvvm.ViewHelperFactory.Get(v, hh => hh.Context = this);
                     h.Linked = baseObject;
                     CallCreators(v);
                     break;
                 case IViewModel vm:
-                        IMvvmContext context = this;
-                        if (vm is IMvvmContextProvider p)
-                        {
-                            context = GetChildContext(vm.GetType().Name);
-                            p.ConfigureMvvmContext(context);
-                        }
-                        vm.MvvmContext = context;
-                        vm.Model = baseObject;
+                    IMvvmContext context = this;
+                    if (vm is IMvvmContextProvider p)
+                    {
+                        context = GetChildContext(vm.GetType().Name);
+                        p.ConfigureMvvmContext(context);
+                    }
+                    vm.MvvmContext = context;
+                    vm.Model = baseObject;
 
-                        CallCreators(vm);
+                    CallCreators(vm);
                     break;
             }
             if (baseObject is IViewModel vmb)

@@ -174,6 +174,11 @@ namespace HLab.Notify.PropertyChanged
             return SetCanExecute(CanExecute());
         }
 
+        public bool SetCanExecute(object arg)
+        {
+            return SetCanExecute(CanExecute(arg));
+        }
+
         public bool CanExecute(object parameter=null)
         {
             if (_executing) return false;
