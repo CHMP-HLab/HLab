@@ -21,10 +21,10 @@
 	  http://www.mgth.fr
 */
 
+using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
-using HLab.Sys.Windows.API;
 
 namespace HLab.Base.Wpf
 {
@@ -71,5 +71,45 @@ namespace HLab.Base.Wpf
 
             Marshal.FreeHGlobal(accentPtr);
         }
+    }
+
+    static partial class NativeMethods
+    {
+        public enum AccentState
+        {
+            ACCENT_DISABLED = 0,
+            ACCENT_ENABLE_GRADIENT = 1,
+            ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
+            ACCENT_ENABLE_BLURBEHIND = 3,
+            ACCENT_INVALID_STATE = 4
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct AccentPolicy
+        {
+            public AccentState AccentState;
+            public int AccentFlags;
+            public int GradientColor;
+            public int AnimationId;
+        }
+
+        public enum WindowCompositionAttribute
+        {
+            // ...
+            WCA_ACCENT_POLICY = 19
+            // ...
+        }
+
+        [StructLayout(LayoutKind.Sequential)]
+        public struct WindowCompositionAttributeData
+        {
+            public WindowCompositionAttribute Attribute;
+            public IntPtr Data;
+            public int SizeOfData;
+        }
+
+        [DllImport("user32.dll")]
+        public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
+
     }
 }

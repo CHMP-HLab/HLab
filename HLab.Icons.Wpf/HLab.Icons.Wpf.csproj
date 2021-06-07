@@ -36,7 +36,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\HLab.Erp.Lims\HLab.Erp.Lims.Analysis\HLab.Colors.Wpf\HLab.ColorTools.Wpf.csproj" />
+    <ProjectReference Include="..\HLab.ColorTools.Wpf\HLab.ColorTools.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Core\HLab.Core.csproj" />
     <ProjectReference Include="..\Hlab.Icons.Annotations\HLab.Icons.Annotations.csproj" />
