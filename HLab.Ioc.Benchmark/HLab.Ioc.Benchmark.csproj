@@ -9,4 +9,8 @@
     <PackageReference Include="BenchmarkDotNet" Version="0.13.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Ioc\HLab.Ioc.csproj" />
+  </ItemGroup>
+
 </Project>

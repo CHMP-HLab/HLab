@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
@@ -23,27 +24,27 @@ namespace HLab.Icons.Wpf.Icons
 
         private void IconView_Loaded(object sender, RoutedEventArgs e)
         {
-            Update(IconService, Path, Caption, ForegroundMatchColor, BackgroundMatchColor);
+            Update();
         }
-
-        public static readonly DependencyProperty PathProperty =
-            H.Property<string>().AffectsRender
-            .OnChange((s, e) => s.Update(s.IconService, e.NewValue, s.Caption, s.ForegroundMatchColor, s.BackgroundMatchColor))
-            .Register();
-
-        public static readonly DependencyProperty CaptionProperty =
-            H.Property<object>().AffectsRender
-            .OnChange((s, e) => s.Update(s.IconService, s.Path, e.NewValue, s.ForegroundMatchColor, s.BackgroundMatchColor))
-            .Register();
 
         public static readonly DependencyProperty IconServiceProperty =
             H.Property<IIconService>()
-            .OnChange((s, e) =>
+            .OnChange(async (s, e) =>
             {
-                s.Update(e.NewValue, s.Path, s.Caption, s.ForegroundMatchColor, s.BackgroundMatchColor);
+                await s.UpdateIconServiceAsync(e.NewValue).ConfigureAwait(true);
             })
             .Inherits
             .RegisterAttached();
+
+        public static readonly DependencyProperty PathProperty =
+            H.Property<string>()
+            .OnChange(async (s, e) => await s.UpdateIconAsync(e.NewValue).ConfigureAwait(true))
+            .Register();
+
+        public static readonly DependencyProperty CaptionProperty =
+            H.Property<object>()
+            .OnChange((s, e) => s.Update())
+            .Register();
 
         public static readonly DependencyProperty IconMaxHeightProperty =
             H.Property<double>().Default(30.0)
@@ -75,30 +76,30 @@ namespace HLab.Icons.Wpf.Icons
             set => SetValue(IconMaxWidthProperty, value);
         }
 
-        public static readonly DependencyProperty ForegroundMatchColorProperty =
-            H.Property<Color>()
-                .Default(Colors.Black)
-                .OnChange((s, e) => s.Update(s.IconService, s.Path, s.Caption, e.NewValue, s.BackgroundMatchColor))
-                .Inherits.AffectsRender
-                .RegisterAttached();
+        //public static readonly DependencyProperty ForegroundMatchColorProperty =
+        //    H.Property<Color>()
+        //        .Default(Colors.Black)
+        //        .OnChange((s, e) => s.Update())
+        //        .Inherits
+        //        .RegisterAttached();
 
-        public Color ForegroundMatchColor
-        {
-            get => (Color)GetValue(ForegroundMatchColorProperty);
-            set => SetValue(ForegroundMatchColorProperty, value);
-        }
+        //public Color ForegroundMatchColor
+        //{
+        //    get => (Color)GetValue(ForegroundMatchColorProperty);
+        //    set => SetValue(ForegroundMatchColorProperty, value);
+        //}
 
-        public static readonly DependencyProperty BackgroundMatchColorProperty =
-            H.Property<Color>()
-                .Default(Colors.White)
-                .OnChange((s, e) => s.Update(s.IconService, s.Path, s.Caption, s.ForegroundMatchColor, e.NewValue))
-                .Inherits.AffectsRender
-                .RegisterAttached();
-        public Color BackgroundMatchColor
-        {
-            get => (Color)GetValue(BackgroundMatchColorProperty);
-            set => SetValue(BackgroundMatchColorProperty, value);
-        }
+        //public static readonly DependencyProperty BackgroundMatchColorProperty =
+        //    H.Property<Color>()
+        //        .Default(Colors.White)
+        //        .OnChange((s, e) => s.Update())
+        //        .Inherits
+        //        .RegisterAttached();
+        //public Color BackgroundMatchColor
+        //{
+        //    get => (Color)GetValue(BackgroundMatchColorProperty);
+        //    set => SetValue(BackgroundMatchColorProperty, value);
+        //}
 
         public IIconService IconService
         {
@@ -107,11 +108,12 @@ namespace HLab.Icons.Wpf.Icons
         }
 
         private static IIconService _designTimeService = null;
-        public async void Update(IIconService service, string path, object caption, Color foreMatch, Color backMatch)
+
+        public async Task UpdateIconAsync(string path)
         {
-            if (!IsLoaded) return;
-            if (service == null)
+            if (IconService == null)
             {
+#if DEBUG
                 if (DesignerProperties.GetIsInDesignMode(this))
                 {
                     if (_designTimeService == null)
@@ -120,41 +122,58 @@ namespace HLab.Icons.Wpf.Icons
                         new IconBootloader(_designTimeService).Load(null);
                     }
 
-                    service = _designTimeService;
+                    IconService = _designTimeService;
                 }
-                else return;
+                else
+#endif
+                    return;
             }
 
-            Spacer.Width = new GridLength(10.0);
+            IconContent.Content = (UIElement)await IconService.GetIconAsync(path).ConfigureAwait(true);
+            Update();
+        }
 
-            if (string.IsNullOrWhiteSpace(path))
+        public async Task UpdateIconServiceAsync(IIconService service)
+        {
+            if (Path == null) return;
+            await UpdateIconAsync(Path);
+        }
+
+        public void Update()
+        {
+            if(!IsLoaded) return;
+
+            if (IconContent.Content == null)
             {
                 IconContent.Visibility = Visibility.Collapsed;
                 Spacer.Width = new GridLength(0.0);
+
+                switch (Caption)
+                {
+                    case null:
+                    case string c when string.IsNullOrWhiteSpace(c):
+                        CaptionContent.Visibility = Visibility.Collapsed;
+                        break;
+                    default:
+                        CaptionContent.Visibility = Visibility.Visible;
+                        break;
+                }
             }
             else
             {
-                var content = (UIElement)await service.GetIconAsync(path).ConfigureAwait(true);
-
-                IconContent.Content = content;
                 IconContent.Visibility = Visibility.Visible;
-#if DEBUG
-                IconContent.ToolTip = path;
-#endif
-            }
-
-            switch (caption)
-            {
-                case null:
-                case string c when string.IsNullOrWhiteSpace(c):
-                    CaptionContent.Content = null;
-                    CaptionContent.Visibility = Visibility.Collapsed;
-                    Spacer.Width = new GridLength(0.0);
-                    break;
-                default:
-                    CaptionContent.Content = caption;
-                    CaptionContent.Visibility = Visibility.Visible;
-                    break;
+                switch (Caption)
+                {
+                    case null:
+                    case string c when string.IsNullOrWhiteSpace(c):
+                        CaptionContent.Visibility = Visibility.Collapsed;
+                        Spacer.Width = new GridLength(0.0);
+                        break;
+                    default:
+                        CaptionContent.Visibility = Visibility.Visible;
+                        Spacer.Width = new GridLength(10.0);
+                        break;
+                }
             }
         }
 
@@ -172,14 +191,14 @@ namespace HLab.Icons.Wpf.Icons
             obj.SetValue(IconServiceProperty, value);
         }
 
-        public static Color GetForegroundMatchColor(DependencyObject obj)
-        {
-            return (Color)obj.GetValue(ForegroundMatchColorProperty);
-        }
-        public static void SetForegroundMatchColor(DependencyObject obj, Color value)
-        {
-            obj.SetValue(ForegroundMatchColorProperty, value);
-        }
+        //public static Color GetForegroundMatchColor(DependencyObject obj)
+        //{
+        //    return (Color)obj.GetValue(ForegroundMatchColorProperty);
+        //}
+        //public static void SetForegroundMatchColor(DependencyObject obj, Color value)
+        //{
+        //    obj.SetValue(ForegroundMatchColorProperty, value);
+        //}
 
     }
 }

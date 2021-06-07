@@ -2,39 +2,38 @@
 
 namespace HLab.DependencyInjection.Annotations
 {
-    public delegate void DependencyInjector(IRuntimeImportContext ctx, object[] args, object target);
+    public delegate void DependencyInjector(object[] args, object target);
     //public delegate T DependencyLocator<out T>(IRuntimeImportContext ctx, object[] args);
     //public delegate object DependencyLocator(IRuntimeImportContext ctx, object[] args);
 
     public interface IDependencyLocator
     {
-        public object Locate(IRuntimeImportContext ctx, object[] args);
+        public object Locate(object[] args);
     }
     public interface IDependencyLocator<out T> : IDependencyLocator
     {
-        public new T Locate(IRuntimeImportContext ctx, object[] args);
+        public new T Locate(object[] args);
     }
 
     public class DependencyLocator<T> : IDependencyLocator<T>
     {
-        private readonly Func<IRuntimeImportContext,object[],T> _locator;
-        public DependencyLocator(Func<IRuntimeImportContext,object[],T> locator)
+        private readonly Func<object[],T> _locator;
+        public DependencyLocator(Func<object[],T> locator)
         {
             _locator = locator;
         }
 
-        public T Locate(IRuntimeImportContext ctx, object[] args) => _locator(ctx,args);
+        public T Locate(object[] args) => _locator(args);
 
-        object IDependencyLocator.Locate(IRuntimeImportContext ctx, object[] args) => _locator(ctx,args);
+        object IDependencyLocator.Locate(object[] args) => _locator(args);
 
-        public static implicit operator DependencyLocator<T>(Func<IRuntimeImportContext, object[], T> locator) =>
+        public static implicit operator DependencyLocator<T>(Func<object[], T> locator) =>
             new(locator);
     }
 
 
     public struct DependencyInjectorSet
     {
-        public DependencyInjector PreConstructor;
         public DependencyInjector Constructor;
         public DependencyInjector PostConstructor;
     }
@@ -44,7 +43,6 @@ namespace HLab.DependencyInjection.Annotations
         IExportLocatorScope Scope { get; }
         void AndCondition(Func<IActivatorTree, bool> condition);
         void OrCondition(Func<IActivatorTree, bool> condition);
-        Func<IRuntimeImportContext, bool> RuntimeCondition { get; set; }
 
         IActivatorKey GetActivatorKey(IActivatorTree tree);
         bool Test(IActivatorTree tree);

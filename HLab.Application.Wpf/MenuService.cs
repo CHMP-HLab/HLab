@@ -2,14 +2,13 @@
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Grace.DependencyInjection.Attributes;
 using HLab.Erp.Core;
 using HLab.Icons.Wpf.Icons;
 using HLab.Localization.Wpf.Lang;
 
 namespace HLab.Mvvm.Application.Wpf
 {
-    class MenuPath
+    internal class MenuPath
     {
         public string Name { get; }
         public MenuPath Next {get; private set; } = null;
@@ -36,12 +35,11 @@ namespace HLab.Mvvm.Application.Wpf
     }
 
 
-    [Export(typeof(IMenuService)), Singleton]
     public class MenuService : IMenuService
     {
-        private readonly MainWpfViewModel _viewModel;
+        private MainWpfViewModel _viewModel;
 
-        public MenuService(MainWpfViewModel viewModel)
+        public void Inject(MainWpfViewModel viewModel)
         {
             _viewModel = viewModel;
         }

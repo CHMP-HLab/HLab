@@ -2,30 +2,22 @@
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
-using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
 using HLab.Erp.Core;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Application.Wpf
 {
-    [Export(typeof(IDocumentService)),Singleton]
     public class DocumentServiceWpf : DocumentService
     {
-        public IMessageBus MessageBus { get; }
-        private Func<object, ISelectedMessage> GetMessage { get; }
+        public IMessageBus MessageBus { get; private set; }
+        private Func<object, ISelectedMessage> GetMessage { get; set; }
 
-        public DocumentServiceWpf(
-            IMessageBus messageBus, 
-            Func<object, ISelectedMessage> getMessage,
-            IMvvmService mvvm, 
-            Func<Type, object> getter
-            ):base(mvvm,getter)
+        public void Inject(IMessageBus messageBus,Func<object, ISelectedMessage> getMessage)
         {
             MessageBus = messageBus;
             GetMessage = getMessage;
         }
-
 
 
         public override async Task OpenDocumentAsync(IView content)

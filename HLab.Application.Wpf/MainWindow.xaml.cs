@@ -21,7 +21,7 @@ namespace HLab.Mvvm.Application.Wpf
     {
         private const string LayoutFileName = "layout.xml";
 
-        public MainWindow(IOptionsService options, IDragDropService drag)
+        public MainWindow(IOptionsService options/*, IDragDropService drag*/)
         {
             _options = options;
             InitializeComponent();
@@ -31,7 +31,7 @@ namespace HLab.Mvvm.Application.Wpf
             Loaded += MainWindow_Loaded;
             DataContextChanged += MainWindow_DataContextChanged;
 
-            drag.RegisterDragCanvas(DragCanvas);
+            //drag.RegisterDragCanvas(DragCanvas);
         }
 
         private void MainWindow_Loaded(object sender, RoutedEventArgs e)

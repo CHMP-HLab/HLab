@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Grace" Version="7.2.1-Beta811" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\HLab.Core.Annotations\HLab.Core.Annotations.csproj" />
   </ItemGroup>
 

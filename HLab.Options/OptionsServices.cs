@@ -3,23 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
 
 namespace HLab.Options
 {
-    [Export(typeof(IOptionsService)), Singleton]
     public class OptionsServices : IOptionsService
     {
-        private readonly List<IOptionsProvider> _providers;
+        private List<IOptionsProvider> _providers = new();
 
-        public OptionsServices(IEnumerable<IOptionsProvider> providers)
+        public void AddProvider(IOptionsProvider provider)
         {
-            _providers = providers.ToList();
-            foreach (var provider in _providers)
-            {
                 provider.Options = this;
-            }
+                _providers.Add(provider);
         }
 
         public string OptionsPath { get; set; }

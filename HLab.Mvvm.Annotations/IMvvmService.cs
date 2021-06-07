@@ -39,9 +39,9 @@ namespace HLab.Mvvm.Annotations
         Type GetLinkedType(Type getType, Type viewMode, Type viewClass);
         IView GetNotFoundView(Type getType, Type viewMode, Type viewClass);
 
-        IMvvmContext GetNewContext(IMvvmContext parent, string name);
         void Register();
         void Register(Type baseType, Type type, Type viewMode, Type viewClass);
         void PrepareView(object view);
+
     }
 }

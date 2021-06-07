@@ -1,16 +1,15 @@
 ﻿using System;
 using System.Threading.Tasks;
-using Grace.DependencyInjection.Attributes;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Application
 {
     public abstract class DocumentService : IDocumentService
     {
-        private readonly IMvvmService _mvvm;
-        private readonly Func<Type, object> _getter;
+        private IMvvmService _mvvm;
+        private Func<Type, object> _getter;
 
-        protected DocumentService(IMvvmService mvvm, Func<Type, object> getter)
+        public void  Inject(IMvvmService mvvm, Func<Type, object> getter)
         {
             _mvvm = mvvm;
             _getter = getter;

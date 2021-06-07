@@ -1,4 +1,6 @@
-﻿namespace HLab.Core.Annotations
+﻿using System;
+
+namespace HLab.Core.Annotations
 {
     public enum ServiceState
     {

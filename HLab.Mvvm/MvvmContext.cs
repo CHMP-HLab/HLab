@@ -24,29 +24,25 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
-using Grace.DependencyInjection;
-using Grace.DependencyInjection.Attributes;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
-    [Export(typeof(IMvvmContext))]
     public class MvvmContext : IMvvmContext//, IInitializer
     {
         private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
 
         private readonly Lazy<ViewModelCache> _cache;
 
-        public IExportLocatorScope Scope { get; }
-        public IMvvmService Mvvm { get; }
+        public IMvvmService Mvvm => _mvvm;
+        private MvvmService _mvvm;
 
         public string Name { get; }
         public IMvvmContext Parent { get; }
 
-        public MvvmContext(IMvvmService mvvm, object parent, string name, [Import] IExportLocatorScope scope)
+        public MvvmContext(object parent, string name, MvvmService mvvm)
         {
-            Scope = scope;
-            Mvvm = mvvm;
+            _mvvm = mvvm;
 
             if (parent is IMvvmContext ctx)
                 Parent = ctx;
@@ -56,7 +52,7 @@ namespace HLab.Mvvm
 
         public IMvvmContext GetChildContext(string name)
         {
-            var ctx = Mvvm.GetNewContext(this, name);
+            var ctx = new MvvmContext(this,name,_mvvm);
             return ctx;
         }
 
@@ -104,7 +100,7 @@ namespace HLab.Mvvm
         {
             // TODO check
             //return Locate(() => Scope.Locate(RuntimeImportContext.GetStatic(this, type)), baseObject);
-            return Locate(() => Scope.Locate(type), baseObject);
+            return Locate(() => _mvvm.LocateFunc?.Invoke(type), baseObject);// _locateFunc();
         }
 
         public T Locate<T>(Func<T> locate, object baseObject = null)

@@ -9,7 +9,7 @@ using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Application
 {
-    public interface IApplicationService
+    public interface IApplicationService : IService
     {
         IApplicationInfoService Info { get; }
         IMvvmService Mvvm { get; }

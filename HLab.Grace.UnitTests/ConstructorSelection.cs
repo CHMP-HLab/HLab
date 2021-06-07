@@ -1,12 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Grace.DependencyInjection;
+﻿using HLab.DependencyInjection;
+using System;
+
 using Xunit;
 
-namespace HLab.Grace.UnitTests
+namespace HLab.Stashbox.UnitTests
 {
     class ClassA
     { }
@@ -37,6 +34,7 @@ namespace HLab.Grace.UnitTests
         public void Test()
         {
             var container = new DependencyInjectionContainer();
+            container.ExportAssembly(typeof(ClassA).Assembly);
 
             var funcA = container.Locate<Func<ClassA, InjectedClass>>();
             var classA = container.Locate<ClassA>();

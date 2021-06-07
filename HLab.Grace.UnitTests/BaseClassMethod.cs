@@ -1,36 +1,32 @@
-﻿using Grace.DependencyInjection;
-using Grace.DependencyInjection.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using HLab.Core.Annotations;
+using HLab.DependencyInjection;
+using HLab.DependencyInjection.Annotations;
 using Xunit;
 
-namespace HLab.Grace.UnitTests.BaseClassMethod
+namespace HLab.Stashbox.UnitTests.BaseClassMethod
 {
-    public class InjectedClassA
+    public class A
     { }
-    public class InjectedClassB
+    public class B
     { }
 
-    public abstract class BaseClass
+    public class BaseClass
     {
-        public object InjectedBase { get; set; }
+        public A A { get; set; }
         [Import]
-        public void Inject(object injected)
+        public void InjectA(A injected)
         {
-            InjectedBase = injected;
+            A = injected;
         }
     }
 
     public class MainClass : BaseClass
     {
-        public InjectedClassB InjectedMain { get; set; }
+        public B B { get; set; }
         [Import]
-        public void Inject(InjectedClassB injected)
+        public void InjectB(B injected)
         {
-            InjectedMain = injected;
+            B = injected;
         }
     }
 
@@ -40,12 +36,13 @@ namespace HLab.Grace.UnitTests.BaseClassMethod
         public void Test()
         {
             var container = new DependencyInjectionContainer();
-            container.Configure(c => c.ImportMembers(MembersThat.HaveAttribute<ImportAttribute>(),true));
+            //container.Configure(c => c.ImportMembers(MembersThat.HaveAttribute<ImportAttribute>(),true));
+            //container.Register<A>().Register<B>().Register<MainClass>();
 
             var main = container.Locate<MainClass>();
 
-            Assert.NotNull(main.InjectedMain);
-            Assert.NotNull(main.InjectedBase);
+            Assert.IsType<B>(main.B);
+            Assert.IsType<A>(main.A);
         }
     }
 }

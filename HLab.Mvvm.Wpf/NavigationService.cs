@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Windows;
-using Grace.DependencyInjection.Attributes;
 using HLab.Core;
 
 namespace HLab.Mvvm
 {
-    [Export(typeof(IDialogService)),Singleton]
     public class DialogService : Service, IDialogService
     {
         private bool? ShowMessage(string text, string caption, MessageBoxButton button, string icon)

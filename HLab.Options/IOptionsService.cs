@@ -21,6 +21,7 @@ namespace HLab.Options
         Task<T> GetValueAsync<T>(string path, string name, Func<T> defaultValue = null, string providerName = null,
             int? userid = null);
         Task SetValueAsync<T>(string path, string name, T value, string providerName = null, int? userid = null);
+        void AddProvider(IOptionsProvider provider);
     }
 
     public interface IOptionsProvider

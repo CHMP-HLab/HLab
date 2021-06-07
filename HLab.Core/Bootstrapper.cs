@@ -5,8 +5,6 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using Grace.DependencyInjection;
-using Grace.DependencyInjection.Attributes;
 using HLab.Base;
 using HLab.Core.Annotations;
 
@@ -47,14 +45,19 @@ namespace HLab.Core
             public override string ToString() => Name;
         }
 
+        private readonly Func<IEnumerable<IBootloader>> _getBootloaders;
 
-        public DependencyInjectionContainer Scope { get; } = new DependencyInjectionContainer();
+        public Bootstrapper(Func<IEnumerable<IBootloader>> getBootloaders)
+        {
+            _getBootloaders = getBootloaders;
+        }
+
 
 
         private readonly ConcurrentQueue<Context> _queue = new();
         public void Boot()
         {
-            var bootLoaders = Sort(Scope.Locate<IEnumerable<IBootloader>>(this));
+            var bootLoaders = Sort(_getBootloaders());
 
             HashSet<string> done = new();
 
@@ -101,137 +104,6 @@ namespace HLab.Core
 
 
 
-        public bool LoadDll(string name)
-        {
-            return LoadAbsolutePath(name);
-            //var path = AppDomain.CurrentDomain.BaseDirectory + name +".dll";
-            //return LoadAbsolutePath(path);
-        }
-
-        private bool LoadAbsolutePath(string path)
-        {
-            //if (!File.Exists(path)) return false;
-
-            if (AppDomain.CurrentDomain.GetAssemblies().Any(a => a.GetName().Name == path)) return false;
-
-            try
-            {
-                var assembly = Assembly.Load(path);
-
-                foreach (var referencedAssembly in assembly.GetReferencedAssemblies())
-                {
-
-                    LoadDll(referencedAssembly.Name);
-                }
-
-                return true;
-            }
-            catch (FileNotFoundException)
-            { }
-            catch (BadImageFormatException)
-            {
-            }
-            return false;
-        }
-
-        class strategy : IActivationStrategyInspector
-        {
-            public void Inspect<T>(T strategy) where T : class, IActivationStrategy
-            {
-            }
-        }
-
-        public void Export<T>()
-        {
-            if(typeof(T).IsInterface)
-            {
-                Scope.Configure(c =>
-                {
-                    var list = ReferencingAssemblies(typeof(T));
-                    
-                    foreach (var a in list)
-                    {
-                        var types = a.ExportedTypes.Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(T)));
-                        foreach(var type in types)
-                        {
-                            c
-                            .Export(type)
-                            .IfNotRegistered(type)
-                            .ImportMembers(MembersThat.HaveAttribute<ImportAttribute>(),includeMethods:true)
-                            .As(typeof(T));
-                        }
-                    }
-                });
-            }
-            else
-            {
-            }
-        }
-        public void Export<T>(Type generic)
-        {
-            if (generic.IsInterface && generic.IsGenericType)
-            {
-                Scope.Configure(c =>
-                {
-                    var list = ReferencingAssemblies(typeof(T));
-
-                    foreach (var a in list)
-                    {
-                        var types = a.ExportedTypes.Where(t => !t.IsAbstract && t.IsAssignableTo(typeof(T)));
-                        foreach (var type in types)
-                        {
-                            var generics = type.GetInterfaces().Where(i => i.IsGenericType && i.GetGenericTypeDefinition() == generic);
-                            foreach (var t in generics)
-                            {
-                                c
-                                .Export(type)
-                                .ImportMembers(MembersThat.HaveAttribute<ImportAttribute>(), includeMethods: true)
-                                .As(t);
-                            }
-                        }
-                    }
-                });
-            }
-            else
-            {
-            }
-        }
-
-        public void LoadModules()
-        {
-
-            var directory = AppDomain.CurrentDomain.BaseDirectory;
-            if (directory != null) // on android 
-            {
-                var dlls = Directory.GetFiles(directory, "*.Module.dll");
-                foreach (var path in dlls)
-                {
-                    var filename = Path.GetFileNameWithoutExtension(path);
-                    LoadAbsolutePath(filename);
-                }
-            }
-
-            //AddReference<ImportAttribute>();
-
-            //var assemblies = ReferencingAssemblies();
-
-            Scope.Configure(c => c
-                .ImportMembers(MembersThat.HaveAttribute<ImportAttribute>()
-                ,true)
-                );
-
-
-            Export<IBootloader>();
-
-            var list = ReferencingAssemblies(typeof(ExportAttribute));
-
-            Scope.Configure(c => c
-                .ExportAssemblies(list)
-                .ExportAttributedTypes()
-            //    .ByInterfaces()
-
-            );
-        }
         private void Enqueue(Context context)
         {
             _queue.Enqueue(context);
@@ -244,23 +116,7 @@ namespace HLab.Core
 
         public bool Contains(params string[] names)
         {
-            return names.Any(name => _queue.Any(e => e.Name == name));
-        }
-
-        private readonly ConcurrentHashSet<Assembly> _referencesAssemblies = new();
-        public IEnumerable<Assembly> ReferencingAssemblies()
-        {
-            return AssemblyHelper.GetReferencingAssemblies(_referencesAssemblies.ToList().ToArray()).SortByReferences();
-        }
-        public void AddReference<T>()
-        {
-            _referencesAssemblies.Add(typeof(T).Assembly);
-        }
-        public IEnumerable<Assembly> ReferencingAssemblies(Type type)
-        {
-            var list = AssemblyHelper.GetReferencingAssemblies(type.Assembly).SortByReferences().ToList();
-
-            return list;
+            return names.Any(name => _queue.Any(e => e.Name.EndsWith(name)));
         }
 
     }

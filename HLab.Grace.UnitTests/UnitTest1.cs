@@ -1,10 +1,10 @@
-using System;
 using System.Reflection;
-using Grace.DependencyInjection;
-using Grace.DependencyInjection.Attributes;
+using HLab.Core.Annotations;
+using HLab.DependencyInjection;
+using HLab.DependencyInjection.Annotations;
 using Xunit;
 
-namespace HLab.Grace.UnitTests
+namespace HLab.Stashbox.UnitTests
 {
     public class Exported
     { }
@@ -16,7 +16,7 @@ namespace HLab.Grace.UnitTests
         int C { get; }
     }
 
-    [Export(typeof(ITest))]
+//    [Export(typeof(ITest))]
     public class Test : ITest
     {
         public int P { get; set; } = 0;
@@ -57,16 +57,13 @@ namespace HLab.Grace.UnitTests
             var container = new DependencyInjectionContainer();
 
             var assembly = Assembly.GetAssembly(typeof(Test));
-
-            container.Configure(c => c
-                .ExportAssembly(assembly).ExportAttributedTypes()
-            );
+            container.ExportAssembly(assembly);
 
             var test = container.Locate<ITest>();
 
-            Assert.Equal(1,test.C);
-            Assert.Equal(1,test.P);
-            Assert.Equal(1,test.I);
+            Assert.Equal(1, test.C);
+            Assert.Equal(1, test.P);
+            Assert.Equal(1, test.I);
         }
         
         [Fact]
@@ -76,9 +73,10 @@ namespace HLab.Grace.UnitTests
 
             var assembly = Assembly.GetAssembly(typeof(Test));
 
-            container.Configure(c => c
-                .ExportAssembly(assembly).ByInterfaces().ExportAttributedTypes()
-            );
+            //container.Configure(c => c.
+            //    .ExportAssembly(assembly).ByInterfaces().ExportAttributedTypes()
+            //);
+            container.ExportAssembly(assembly);
 
             var test = container.Locate<ITest>();
 

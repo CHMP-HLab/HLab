@@ -14,14 +14,15 @@ namespace HLab.DependencyInjection
         private IActivatorKey _key;
         public override string ToString()
         {
-            var target = Context.TargetType?.GenericReadableName() ?? "null";
-            var t2 = Context.TargetMemberInfo?.DeclaringType?.GenericReadableName() ?? "none";
-            var member = Context.TargetMemberInfo?.Name ?? "unknown";
-            var import = Context.ImportType?.GenericReadableName() ?? "unknown";
 
-            if (target != t2) target = target + " : " + t2;
+            var targetType = Context.TargetType;
+            var member = Context.TargetMemberInfo;
+            var declaringType = member?.DeclaringType;
+            var importType = Context.ImportType;
 
-            return target + "." + member + " as " + import;
+            var targetTypeName = (targetType == declaringType) ? targetType.GenericReadableName() : $"{targetType.GenericReadableName()} : {declaringType.GenericReadableName()}";
+
+            return $"{targetTypeName}.{member} as {importType.GenericReadableName()}";
         }
         public string TabbedBranch()
         {
@@ -77,7 +78,6 @@ namespace HLab.DependencyInjection
 
         public ActivatorTree(IActivatorTree parent, IImportContext context)
         {
-            if(parent?.Key?.ReturnType.Name=="ErpServices" && context.ImportType!=null && context.ImportType.Name.Contains("ViewModel")) {}
             Parent = parent;
             Context = context;
         }

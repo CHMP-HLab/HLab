@@ -8,20 +8,20 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.Serialization;
 using System.Xml;
-using System.Xml.Serialization;
-using Grace.DependencyInjection.Attributes;
 using HLab.Base;
 using HLab.Mvvm.Flowchart.Models;
 
 namespace HLab.Mvvm.Flowchart
 {
-    [Export(typeof(IGraphService)),Singleton]
     public class GraphService : IGraphService
     {
-        public GraphService(Func<IEnumerable<IToolGraphBlock>> getBlocks)
+        public void Inject(Func<IEnumerable<IToolGraphBlock>> getBlocks)
         {
             _getBlocks = getBlocks;
+            // TODO :
+            /*
             Register();
+            */
         }
 
         public void Register()

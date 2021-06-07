@@ -1,5 +1,4 @@
-﻿using Grace.DependencyInjection.Attributes;
-using HLab.Mvvm.Annotations;
+﻿using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Application
 {
@@ -8,14 +7,13 @@ namespace HLab.Mvvm.Application
 
 
 
-    [Export(typeof(ISelectedMessage))]
     public class SelectedMessage : ISelectedMessage
     {
         private IView _view;
         private IViewModel _viewModel;
         private readonly IMvvmService _mvvm;
 
-        public SelectedMessage(object item, [Import]IMvvmService mvvm)
+        public SelectedMessage(object item, IMvvmService mvvm)
         {
             _mvvm = mvvm;
             if (item is IView view)

@@ -38,7 +38,6 @@ namespace HLab.DependencyInjection
         public Func<IActivatorTree, IDependencyLocator> Locator { get; set; }
         private Func<IActivatorTree, bool> _condition;
 
-        public Func<IRuntimeImportContext, bool> RuntimeCondition { get; set; }
         public ExportMode Mode { get; private set; }
         public int Priority { get; private set; } = 0;
 
@@ -94,14 +93,14 @@ namespace HLab.DependencyInjection
 
             var inject = Scope.GetClassInjector(tree);
 
-            var locator = inject.PreConstructor;
+            var locator = default(DependencyInjector);
 
             if(ctor!=null) 
             {
                 if(ctor.GetParameters().Length>0)
-                    locator += (ctx,args,o) => ctor.Invoke(o,args);
+                    locator += (args,o) => ctor.Invoke(o,args);
                 else if(inject.Constructor==null)
-                    locator += (ctx,args,o) => ctor.Invoke(o,null);
+                    locator += (args,o) => ctor.Invoke(o,null);
                 else
                         locator += inject.Constructor;
             }
@@ -109,11 +108,10 @@ namespace HLab.DependencyInjection
 
             locator += inject.PostConstructor;
 
-            return new DependencyLocator<object>((c, args) =>
+            return new DependencyLocator<object>((args) =>
             {
                 var o = FormatterServices.GetUninitializedObject(type);
-                c = c.NewChild(o);
-                locator?.Invoke(c, args, o);
+                locator?.Invoke(args, o);
                 return o;
             });
         }
@@ -135,7 +133,7 @@ namespace HLab.DependencyInjection
                             RuntimeImportContext.GetStatic(null, tree.Context.ImportType), null);
                     });
 
-                return new DependencyLocator<object>((ric, a) => singleton);
+                return new DependencyLocator<object>(a => singleton);
 
             };
         }

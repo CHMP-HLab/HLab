@@ -2,13 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Grace.DependencyInjection.Attributes;
 using Microsoft.Win32;
 
 namespace HLab.Options.Wpf
 {
-    [Export(typeof(IOptionsProvider)),Singleton]
-    public class OptionsProvider : IOptionsProvider
+    public class OptionsProviderRegistry : IOptionsProvider
     {
         public string Name => "registry";
 

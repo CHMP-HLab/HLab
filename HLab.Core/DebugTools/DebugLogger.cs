@@ -26,7 +26,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Grace.DependencyInjection.Attributes;
 
 namespace HLab.Core.DebugTools
 {
@@ -36,7 +35,6 @@ namespace HLab.Core.DebugTools
         Dictionary<string, DebugNotifierData> Timings { get; }
     }
 
-    [Export(typeof(IDebugLogger)),Singleton]
     public class DebugLogger : IDebugLogger
     {
         public Dictionary<string, DebugNotifierData> Timings { get; } = new Dictionary<string, DebugNotifierData>();

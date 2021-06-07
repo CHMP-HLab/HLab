@@ -7,7 +7,6 @@ using System.Reflection;
 
 
 using HLab.Base;
-using HLab.Core;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 
@@ -15,30 +14,26 @@ namespace HLab.Mvvm
 {
     public abstract class MvvmService : IMvvmService
     {
-        private readonly IMessageBus _messageBus;
+        private IMessageBus _messageBus;
 
-        private readonly string _assemblyName;
+        private string _assemblyName;
 
+        public IMvvmContext GetNewContext(IMvvmContext parent, string name) => new MvvmContext(parent, name, this); 
 
-        private readonly Func<IMvvmService, object, string, IMvvmContext> _getNewContext;
-
-        public IMvvmContext GetNewContext(IMvvmContext parent, string name) => _getNewContext(parent.Mvvm, parent, name);
-
-
-        protected MvvmService(
-            IMessageBus messageBus, 
-            Func<IMvvmService, object, string, IMvvmContext> getNewContext)
+        public void Inject(IMessageBus messageBus, Func<Type,object> locateFunc)
         {
+            LocateFunc = locateFunc;
             _messageBus = messageBus;
-            _getNewContext = getNewContext;
             ServiceState = ServiceState.NotConfigured;
-            MainContext = _getNewContext(this, null,"root");
+            MainContext = new MvvmContext(null,"root",this);
             _assemblyName = Assembly.GetAssembly(typeof(IView)).GetName().Name;
         }
 
+        public Func<Type,object> LocateFunc {get; private set;}
+
         public abstract void PrepareView(object view);
 
-        public IMvvmContext MainContext { get; }
+        public IMvvmContext MainContext { get; private set;}
 
         public HelperFactory<IViewHelper> ViewHelperFactory { get; } = new HelperFactory<IViewHelper>();
 
@@ -315,11 +310,7 @@ namespace HLab.Mvvm
 
             public override int GetHashCode()
             {
-                var hashCode = -946743261;
-                hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(LinkedType);
-                hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(ViewClass);
-                hashCode = hashCode * -1521134295 + EqualityComparer<Type>.Default.GetHashCode(ViewMode);
-                return hashCode;
+                return System.HashCode.Combine(LinkedType, ViewClass, ViewMode);
             }
 
             public static bool operator ==(MvvmLinkedEntry c1, MvvmLinkedEntry c2)

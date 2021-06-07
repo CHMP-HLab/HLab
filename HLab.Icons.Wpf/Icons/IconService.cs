@@ -1,37 +1,37 @@
 ﻿using System.Collections.Concurrent;
+using System.Configuration;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using Grace.DependencyInjection.Attributes;
 using HLab.Core;
 using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Wpf.Icons
 {
-    [Export(typeof(IIconService)), Singleton]
     public class IconService : Service, IIconService
     {
-        private readonly ConcurrentDictionary<string, IIconProvider> _cache = new ();
+        private readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
 
         public async Task<object> GetIconAsync(string path)
         {
-            if (path==null) return null;
+            if (path == null) return null;
             object result = null;
             var paths = path.Split('|');
+            
             foreach (var p in paths)
             {
                 var icon = await GetSingleIconAsync(p).ConfigureAwait(true);
-                if(result == null)
+                if (result == null)
                 {
-                    result = icon; continue;
+                    result = icon; 
+                    continue;
                 }
 
-                var grid = new IconGrid {MainIcon = {Content = result}, BottomRightIcon = {Content = icon}};
-
-                result=grid;
+                var grid = new IconGrid { MainIcon = { Content = result }, BottomRightIcon = { Content = icon } };
+                result = grid;
             }
             return result;
         }
@@ -43,12 +43,14 @@ namespace HLab.Icons.Wpf.Icons
 
             if (_cache.TryGetValue(path.ToLower(), out var iconProvider))
             {
-                return await iconProvider.GetAsync().ConfigureAwait(true);
+                var icon = await iconProvider.GetAsync().ConfigureAwait(true);
+                return icon;
             }
 
             if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
             {
-                return await iconProviderDefault.GetAsync().ConfigureAwait(true);
+                var icon = await iconProviderDefault.GetAsync().ConfigureAwait(true);
+                return icon;
             }
 
             Debug.Print("Icon not found : " + path);
@@ -58,14 +60,14 @@ namespace HLab.Icons.Wpf.Icons
 
         public void AddIconProvider(string name, IIconProvider provider)
         {
-            _cache.AddOrUpdate(name.ToLower(), n=>provider,(n,p)=>provider);
+            _cache.AddOrUpdate(name.ToLower(), n => provider, (n, p) => provider);
         }
 
         public async Task<object> GetIconBitmapAsync(string name, System.Drawing.Size size)
         {
-            var wSize = new Size(size.Height,size.Width);
+            var wSize = new Size(size.Height, size.Width);
 
-            var visual =(UIElement) await GetIconAsync(name).ConfigureAwait(true);
+            var visual = (UIElement)await GetIconAsync(name).ConfigureAwait(true);
 
             var grid = new Grid { Width = size.Width, Height = size.Height };
             var viewbox = new Viewbox

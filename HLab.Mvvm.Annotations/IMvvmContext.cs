@@ -1,5 +1,4 @@
 ﻿using System;
-using Grace.DependencyInjection;
 
 namespace HLab.Mvvm.Annotations
 {
@@ -12,7 +11,6 @@ namespace HLab.Mvvm.Annotations
         IMvvmContext AddCreator<T>(Action<T> action);
         IMvvmContext GetChildContext(string name);
         IMvvmService Mvvm { get; }
-        IExportLocatorScope Scope { get; }
 
         T Locate<T>(object baseObject = null);
         T Locate<T>(Func<T> locate, object baseObject = null);

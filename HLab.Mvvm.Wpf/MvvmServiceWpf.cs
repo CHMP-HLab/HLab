@@ -1,26 +1,24 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Views;
 
 namespace HLab.Mvvm
 {
-    [Export(typeof(IMvvmService)), Singleton]
     public class MvvmServiceWpf : MvvmService
     {
         private readonly ResourceDictionary _dictionary = new();
-        [Import]
         public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
-        //[Import]
+        //
         //public IApplicationInfoService InfoService { get; set; }
         //public MvvmServiceWpf(IExportLocatorScope scope, Func<Type,object> locate, IMessageBus msg) : base(scope,locate,msg)
         //{
         //}
-        public MvvmServiceWpf(IMessageBus messageBus, Func<IMvvmService, object, string, IMvvmContext> getNewContext) : base(messageBus, getNewContext)
+        public void Inject( Func<ProgressLoadingViewModel> getProgressLoadingViewModel) 
         {
+            GetProgressLoadingViewModel = getProgressLoadingViewModel;
         }
 
 

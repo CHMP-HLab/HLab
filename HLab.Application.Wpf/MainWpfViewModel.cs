@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
-using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
 using HLab.Erp.Acl;
 using HLab.Icons.Annotations.Icons;
@@ -15,18 +14,17 @@ namespace HLab.Mvvm.Application.Wpf
 {
     using H = H<MainWpfViewModel>;
 
-    [Export(typeof(MainWpfViewModel)), Singleton]
     public class MainWpfViewModel : NotifierBase
     {
-        public IAclService Acl {get; }
-        private readonly IMessageBus _message;
-        private readonly IDocumentService _doc;
-        public IApplicationInfoService ApplicationInfo { get; }
-        private readonly Func<object, ISelectedMessage> _getSelectedMessage;
-        public ILocalizationService LocalizationService { get; }
-        public IIconService IconService { get; }
+        public IAclService Acl {get; private set;}
+        private IMessageBus _message;
+        private IDocumentService _doc;
+        public IApplicationInfoService ApplicationInfo { get; private set; }
+        private Func<object, ISelectedMessage> _getSelectedMessage;
+        public ILocalizationService LocalizationService { get; private set; }
+        public IIconService IconService { get; private set; }
 
-        public MainWpfViewModel(
+        public void Inject(
             IAclService acl, 
             IMessageBus message, 
             IDocumentService doc, 

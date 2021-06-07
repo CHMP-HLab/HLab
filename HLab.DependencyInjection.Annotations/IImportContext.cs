@@ -15,8 +15,8 @@ namespace HLab.DependencyInjection.Annotations
         Type TargetType { get; }
 
         bool Equals(object obj);
-        IImportContext CreateChild(Type importType, IMethodSignature parametersTypes = null);
-        IImportContext<T> CreateChild<T>(IMethodSignature parametersTypes = null);
+        IImportContext CreateChild(Type importType, IMethodSignature signature = null);
+        IImportContext<T> CreateChild<T>(IMethodSignature signature = null);
         int GetHashCode();
     }
 

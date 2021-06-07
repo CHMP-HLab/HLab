@@ -4,14 +4,12 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using Grace.DependencyInjection.Attributes;
 using HLab.Base;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Notify.Wpf
 {
-    [Export(typeof(IEventHandlerService)), Singleton]
     public class EventHandlerServiceWpf : IEventHandlerService
     {
         public void Invoke(Delegate eventHandler, object source, EventArgs args)

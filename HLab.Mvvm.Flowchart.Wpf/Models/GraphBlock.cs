@@ -3,9 +3,6 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows;
-using Grace.DependencyInjection.Attributes;
-using HLab.Base.Extensions;
-using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
@@ -14,7 +11,6 @@ namespace HLab.Mvvm.Flowchart.Models
 
     public abstract class GraphBlock : GraphElement, IGraphBlock
     {
-        [Import]
         public void Inject(Func<IGraphBlock, string, PinLocation, string, PinGroup> getPinGroup)
         {
             _getPinGroup = getPinGroup;
@@ -28,7 +24,6 @@ namespace HLab.Mvvm.Flowchart.Models
 
         public IPinGroup GetOrAddGroup(string id, PinLocation location, string caption="")
         {
-            // TODO : new to Ioc
             return Groups.GetOrAdd(g => g.Id == id,
                 () => _getPinGroup(this,id,location,caption));
         }

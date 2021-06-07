@@ -193,7 +193,12 @@ namespace HLab.Icons.Wpf.Icons
             try
             {
                 var tcs = new TaskCompletionSource<UIElement>();
+                XmlReaderSettings settings = new XmlReaderSettings();
+settings.DtdProcessing = DtdProcessing.Parse;
+settings.MaxCharactersFromEntities = 1024;
+
                 var xr = new XamlReader();
+
 
                 object obj = null;
 

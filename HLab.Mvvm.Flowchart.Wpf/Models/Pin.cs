@@ -37,7 +37,7 @@ namespace HLab.Mvvm.Flowchart.Models
         [TriggerOn(nameof(IsLinked))]
         public void UpdateLinked()
         {
-            if (!IsLinked && Id.StartsWith("#"))
+            if (!IsLinked && (Id?.StartsWith("#")??false))
             {
                 Group.Pins.Remove(this);
                 Group = null;

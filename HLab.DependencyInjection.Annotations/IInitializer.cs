@@ -2,6 +2,6 @@
 {
     public interface IInitializer
     {
-        void Initialize(IRuntimeImportContext ctx, object[] args);
+        void Initialize(object[] args);
     }
 }

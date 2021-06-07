@@ -14,7 +14,7 @@ namespace ConsoleApp1
         [Benchmark]
         public void ConcatDollar()
         {
-            Result = $"{{{Param[0]}:{Param[0]}:{Param[0]}:{Param[0]}:{Param[0]}}}";
+            Result = $"{{{Param[0]}:{Param[1]}:{Param[2]}:{Param[3]}:{Param[4]}}}";
         }
 
         [Benchmark]

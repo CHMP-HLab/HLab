@@ -25,12 +25,10 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Grace.DependencyInjection.Attributes;
 using HLab.Core.Annotations;
 
 namespace HLab.Core
 {
-    [Export(typeof(IMessageBus)),Singleton]
     public class MessageBus : IMessageBus
     {
         private readonly object _lockDict = new object();

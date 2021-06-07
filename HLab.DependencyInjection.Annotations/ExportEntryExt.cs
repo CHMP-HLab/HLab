@@ -107,15 +107,6 @@ namespace HLab.DependencyInjection.Annotations
             c.LastEntry.OrCondition(condition);
             return c;
         }
-        public static IConfigurator WhenRuntime(this IConfigurator c, Func<IRuntimeImportContext, bool> condition)
-        {
-            var oldCondition = c.LastEntry.RuntimeCondition;
-            var cnd = (oldCondition == null)
-                ? condition
-                : ctx => oldCondition(ctx) && condition(ctx);
-            c.LastEntry.RuntimeCondition = cnd;
-            return c;
-        }
         public static IConfigurator WhenInjectedInto<T>(this IConfigurator c) => c.When(t => typeof(T).IsAssignableFrom(t.Context.TargetType));
 
         public static IConfigurator WhenInjectedInto(this IConfigurator c, Type targetType) => c.When(t => targetType.IsAssignableFrom(t.Context.TargetType));
@@ -166,6 +157,7 @@ namespace HLab.DependencyInjection.Annotations
 
         public static string GenericReadableName(this Type t)
         {
+            if(t==null) return "[none]";
             if (!t.IsGenericType)
                 return t.Name;
             var genericTypeName = t.GetGenericTypeDefinition().Name;

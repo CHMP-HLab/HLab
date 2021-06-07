@@ -3,13 +3,14 @@ using System.Globalization;
 using System.Reflection;
 using System.Windows;
 using System.Windows.Markup;
-using Grace.DependencyInjection.Attributes;
+
 using HLab.Core.Annotations;
 using HLab.Erp.Acl.LoginServices;
 using HLab.Erp.Core;
 using HLab.Erp.Core.Localization;
 using HLab.Erp.Core.Update;
 using HLab.Mvvm.Annotations;
+
 
 namespace HLab.Mvvm.Application.Wpf
 {
@@ -24,7 +25,6 @@ namespace HLab.Mvvm.Application.Wpf
         public IUpdater Updater { get; set; }
         private readonly Func<MainWpfViewModel> _getVm;
 
-        [Import]
         public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
 
         public ApplicationBootloader(IMenuService menu, IMvvmService mvvm, IApplicationInfoService info, Func<MainWpfViewModel> getVm)
@@ -57,8 +57,8 @@ namespace HLab.Mvvm.Application.Wpf
 
         public void Load(IBootContext b)
         {
-            if (b.StillContainsAndRequeue<LocalizeBootloader>()) return;
-            if (b.StillContainsAndRequeue<LoginBootloader>()) return;
+            if (b.WaitDependency<LocalizeBootloader>()) return;
+            if (b.WaitDependency<LoginBootloader>()) return;
 
             MainWindow = new DefaultWindow()
             {

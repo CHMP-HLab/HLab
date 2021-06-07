@@ -26,16 +26,16 @@ namespace HLab.Icons.Wpf.Icons.Providers
             if (string.IsNullOrWhiteSpace(_source)) return null;
 
             if (_parsed)
-                return await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(false);
+                return await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(true);
 
-            var icon = await XamlTools.FromSvgStringAsync(_source).ConfigureAwait(false);
-            if (_foreColor != null && icon is UIElement ui)
+            var icon = await XamlTools.FromSvgStringAsync(_source).ConfigureAwait(true);
+            if (icon is UIElement ui)
             {
-                XamlTools.SetBinding(ui, _foreColor.ToColor());
+                if(_foreColor != null) XamlTools.SetBinding(ui, _foreColor.ToColor());
                 _source = XamlWriter.Save(ui);
+                _parsed = true;
             }
 
-            _parsed = true;
             return icon;
         }
 

@@ -10,9 +10,9 @@ namespace HLab.DependencyInjection.Annotations
         protected ExportAttribute()
         { }
 
-        public ExportAttribute(Func<IActivatorTree, bool> condition, Func<IRuntimeImportContext, bool> runtimeCondition)
+        public ExportAttribute(Func<IActivatorTree, bool> condition)
         {
-            Configurator = c => c.When(condition).WhenRuntime(runtimeCondition);
+            Configurator = c => c.When(condition);
         }
 
         public ExportAttribute(Type exportAs)

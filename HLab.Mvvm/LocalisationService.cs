@@ -11,11 +11,9 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using Grace.DependencyInjection.Attributes;
 
 namespace HLab.Mvvm
 {
-    [Export(typeof(ILocalizationService)),Singleton]
     public class LocalizationService : ILocalizationService, IService
     {
         private CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;

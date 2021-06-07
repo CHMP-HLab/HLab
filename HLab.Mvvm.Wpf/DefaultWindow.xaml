@@ -11,7 +11,6 @@
     d:DesignHeight="450" d:DesignWidth="800"
     Title ="{Binding Title}"
     icons:IconView.IconService="{Binding IconService}"
-    icons:IconView.ForegroundMatchColor="Black"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
     ShowTitleBar="False"
     ShowSystemMenu="True"

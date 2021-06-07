@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Reflection;
 using HLab.DependencyInjection.Annotations;
-using HashCode = HLab.Base.HashCode;
 
 namespace HLab.DependencyInjection
 {
@@ -17,12 +16,7 @@ namespace HLab.DependencyInjection
             TargetType = targetType;
             Signature = signature;
 
-            _hash = HashCode.Start
-                .Add(targetMemberInfo)
-                .Add(importType)
-                .Add(targetType)
-                .Add(Signature)
-                .Value;
+            _hash = HashCode.Combine(targetMemberInfo,importType,targetType,Signature);
         }
 
         public Type ImportType { get; }
@@ -30,12 +24,12 @@ namespace HLab.DependencyInjection
         public MemberInfo TargetMemberInfo { get;}
         public IMethodSignature Signature { get; }
 
+        public int ParamIndex => throw new NotImplementedException();
 
-        public static IImportContext Get(Type targetType, MemberInfo mi, IMethodSignature parametersTypes = null) 
+        public static IImportContext Create(Type targetType, MemberInfo mi, IMethodSignature parametersTypes = null) 
             => new ImportContext(targetType, mi.GetReturnType(), mi, parametersTypes);
 
-
-        public static IImportContext Get(Type targetType, Type importType, IMethodSignature parametersTypes = null) 
+        public static IImportContext Create(Type targetType, Type importType, IMethodSignature parametersTypes = null) 
             => new ImportContext(targetType, importType, null, parametersTypes);
 
         public IImportContext CreateChild(Type importType, IMethodSignature parametersTypes = null) 
@@ -82,12 +76,7 @@ namespace HLab.DependencyInjection
             TargetType = targetType;
             Signature = signature;
 
-            _hash = HashCode.Start
-                .Add(targetMemberInfo)
-                .Add(typeof(T))
-                .Add(targetType)
-                .Add(Signature)
-                .Value;
+            _hash = HashCode.Combine(targetMemberInfo,typeof(T),targetType,Signature);
         }
 
         public Type ImportType => typeof(T);
@@ -95,12 +84,13 @@ namespace HLab.DependencyInjection
         public MemberInfo TargetMemberInfo { get;}
         public IMethodSignature Signature { get; }
 
+        public int ParamIndex => throw new NotImplementedException();
 
-        public static IImportContext Get(Type targetType, MemberInfo mi, IMethodSignature parametersTypes = null) 
+        public static IImportContext Create(Type targetType, MemberInfo mi, IMethodSignature parametersTypes = null) 
             => new ImportContext(targetType, mi.GetReturnType(), mi, parametersTypes);
 
 
-        public static IImportContext Get(Type targetType, Type importType, IMethodSignature parametersTypes = null) 
+        public static IImportContext Create(Type targetType, Type importType, IMethodSignature parametersTypes = null) 
             => new ImportContext(targetType, importType, null, parametersTypes);
 
         public IImportContext CreateChild(Type importType, IMethodSignature parametersTypes = null) 

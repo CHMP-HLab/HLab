@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31320.298
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "HLab.Ioc", "HLab.Ioc.csproj", "{77F068D7-9476-4A92-ACA1-1BAD431E5D30}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HLab.Ioc.Benchmark", "..\HLab.Ioc.Benchmark\HLab.Ioc.Benchmark.csproj", "{C6D663BD-23F6-447F-8801-2B6DB7CE50B0}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{77F068D7-9476-4A92-ACA1-1BAD431E5D30}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{77F068D7-9476-4A92-ACA1-1BAD431E5D30}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{77F068D7-9476-4A92-ACA1-1BAD431E5D30}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{77F068D7-9476-4A92-ACA1-1BAD431E5D30}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C6D663BD-23F6-447F-8801-2B6DB7CE50B0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C6D663BD-23F6-447F-8801-2B6DB7CE50B0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C6D663BD-23F6-447F-8801-2B6DB7CE50B0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C6D663BD-23F6-447F-8801-2B6DB7CE50B0}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {5969F330-83FA-402A-ACFF-C0AE423350CF}
+	EndGlobalSection
+EndGlobal
