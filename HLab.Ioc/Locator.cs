@@ -18,20 +18,20 @@ namespace HLab.Ioc
 
         public static void InitSingletons()
         {
-            while(initSingletons.TryDequeue(out var action))
+            while (initSingletons.TryDequeue(out var action))
             {
                 action();
             }
         }
 
 
-        private static ConcurrentDictionary<Type,Type> _openGenerics = new();
+        private static ConcurrentDictionary<Type, Type> _openGenerics = new();
         public static void SetOpenGenericFactory(Type type, Type factoryType)
         {
-            if(!factoryType.IsGenericTypeDefinition) throw new Exception("Should use generic");
-            if(!type.IsGenericTypeDefinition) throw new Exception("Should use generic");
+            if (!factoryType.IsGenericTypeDefinition) throw new Exception("Should use generic");
+            if (!type.IsGenericTypeDefinition) throw new Exception("Should use generic");
 
-            _openGenerics.TryAdd(type,factoryType);
+            _openGenerics.TryAdd(type, factoryType);
         }
         public static Func<T> GetOpenGenericFactory<T>()
         {
@@ -39,18 +39,18 @@ namespace HLab.Ioc
             var result = t.MakeGenericType(typeof(T).GetGenericArguments()[0]);
             var locator = typeof(Locator<>).MakeGenericType(result);
             var locate = locator.GetMethod("Locate");
-            return () => (T)locate.Invoke(null,null);
+            return () => (T)locate.Invoke(null, null);
         }
         public static Expression GetOpenGenericExpression<T>()
         {
             var type = typeof(T).GetGenericTypeDefinition();
-            if(_openGenerics.ContainsKey(type))
+            if (_openGenerics.ContainsKey(type))
             {
                 var t = _openGenerics[type];
                 var result = t.MakeGenericType(typeof(T).GetGenericArguments()[0]);
                 var locator = typeof(Locator<>).MakeGenericType(result);
                 var locate = locator.GetMethod("LocateExpression");
-                return (Expression)locate.Invoke(null,null);
+                return (Expression)locate.Invoke(null, null);
             }
             return null;
             throw new Exception($"Type not found : {type}");
@@ -73,7 +73,7 @@ namespace HLab.Ioc
         {
             var locator = typeof(Locator<>).MakeGenericType(type);
             var method = locator.GetMethod("LocateExpression");
-            var expression =  (Expression)method.Invoke(null,null);
+            var expression = (Expression)method.Invoke(null, null);
             return expression;
         }
 
@@ -82,10 +82,10 @@ namespace HLab.Ioc
             var locator = typeof(Locator<>).MakeGenericType(type);
             var targetType = (Type)locator.GetProperty("TargetType").GetValue(null);
 
-            if(targetType!=type) locator = typeof(Locator<>).MakeGenericType(targetType);
+            if (targetType != type) locator = typeof(Locator<>).MakeGenericType(targetType);
 
             var method = locator.GetMethod("AutoFactoryExpression");
-            var expression =  (Expression)method.Invoke(null,new object[]{parameters });
+            var expression = (Expression)method.Invoke(null, new object[] { parameters });
             return expression;
         }
         public static void Set(Type iface, Type t)
@@ -94,24 +94,25 @@ namespace HLab.Ioc
             var mSet = locator.GetMethod("Set");
             var mSetG = mSet.MakeGenericMethod(t);
 
-            mSetG.Invoke(null,null);
+            mSetG.Invoke(null, null);
         }
 
     }
 
     public static class Locator<T>
     {
-        public static Type TargetType {get ; private set;} = typeof(T);
+        public static Type TargetType { get; private set; } = typeof(T);
         static Locator()
         {
             var type = typeof(T);
 
-            if(type.IsInterface)
+            if (type.IsInterface)
             {
-                if(typeof(T).IsGenericType) {
+                if (typeof(T).IsGenericType)
+                {
 
                     var factory = Locator.GetOpenGenericExpression<T>();
-                    if (factory!=null)
+                    if (factory != null)
                     {
                         SetFactoryExpression(factory);
                     }
@@ -119,36 +120,36 @@ namespace HLab.Ioc
                 return;
             }
 
-            if(type.IsAbstract) return;
-            if(type.IsValueType) return;
+            if (type.IsAbstract) return;
+            if (type.IsValueType) return;
 
-            if(type.IsAssignableTo(typeof(Delegate))) 
+            if (type.IsAssignableTo(typeof(Delegate)))
             {
-                if(type == typeof(Func<Type,object>)) return;
+                if (type == typeof(Func<Type, object>)) return;
 
                 var def = type.GetGenericTypeDefinition();
-                if(def.BaseType==typeof(MulticastDelegate) && def.Name.StartsWith("Func`"))
+                if (def.BaseType == typeof(MulticastDelegate) && def.Name.StartsWith("Func`"))
                 {
                     var argumentsTypes = type.GetGenericArguments();
                     var n = argumentsTypes.Length - 1;
                     var returnType = argumentsTypes[n];
-                    if(n>0)
+                    if (n > 0)
                     {
                         var parameters = new ParameterExpression[n];
-                        for(int i = 0; i<n; i++)
+                        for (int i = 0; i < n; i++)
                         {
                             parameters[i] = Expression.Parameter(argumentsTypes[i]);
                         }
-                        var body = Locator.GetExpressionLocator(returnType,parameters);
+                        var body = Locator.GetExpressionLocator(returnType, parameters);
 
-                        var lambda = Expression.Lambda(type,body,parameters);
+                        var lambda = Expression.Lambda(type, body, parameters);
 
                         SetFactoryExpression(lambda);
                     }
                     else
                     {
                         var body = Locator.GetExpressionLocator(returnType);
-                        var lambda = Expression.Lambda(type,body);
+                        var lambda = Expression.Lambda(type, body);
                         SetFactoryExpression(lambda);
                     }
 
@@ -163,7 +164,7 @@ namespace HLab.Ioc
             {
                 SetAutoFactoryExpression();
             }
-            catch(Exception)
+            catch (Exception)
             { }
         }
 
@@ -203,7 +204,7 @@ namespace HLab.Ioc
 
         private static bool IsInjectMethod(MethodInfo info)
         {
-            if(info.Name=="Inject") return true;
+            if (info.Name == "Inject") return true;
             return false;
         }
 
@@ -218,29 +219,29 @@ namespace HLab.Ioc
             var methodsStack = new Stack<MethodInfo>();
             var type = typeof(T);
 
-            while(type!=typeof(object) && type!=null)
+            while (type != typeof(object) && type != null)
             {
-                var methods = type.GetMethods(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly);
-                foreach(var method in methods)
+                var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                foreach (var method in methods)
                 {
-                    if(IsInjectMethod(method)) methodsStack.Push(method);
+                    if (IsInjectMethod(method)) methodsStack.Push(method);
                 }
                 type = type.BaseType;
             }
 
             var constructors = typeof(T).GetConstructors();
 
-            foreach(var constructor in constructors)
+            foreach (var constructor in constructors)
             {
-                var instance = Expression.Variable(typeof(T),"instance");
+                var instance = Expression.Variable(typeof(T), "instance");
                 var list = new List<Expression>();
-                list.Add(Expression.Assign(instance, FactoryExpression(constructor,parameters)));
-                while(methodsStack.TryPop(out var method))
+                list.Add(Expression.Assign(instance, FactoryExpression(constructor, parameters)));
+                while (methodsStack.TryPop(out var method))
                 {
-                    list.Add(MethodInjectionExpression(instance,method,parameters));
+                    list.Add(MethodInjectionExpression(instance, method, parameters));
                 }
                 list.Add(instance);
-                var expression = Expression.Block(new ParameterExpression[] { instance },list);
+                var expression = Expression.Block(new ParameterExpression[] { instance }, list);
                 return expression;
             }
             throw new Exception($"No constructor found on class {typeof(T)}");
@@ -252,68 +253,88 @@ namespace HLab.Ioc
             var methodsStack = new Stack<MethodInfo>();
             var type = typeof(T);
 
-            while(type!=typeof(object) && type!=null)
+            while (type != typeof(object) && type != null)
             {
-                var methods = type.GetMethods(BindingFlags.Public|BindingFlags.Instance|BindingFlags.DeclaredOnly);
-                foreach(var method in methods)
+                var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
+                foreach (var method in methods)
                 {
-                    if(IsInjectMethod(method)) methodsStack.Push(method);
+                    if (IsInjectMethod(method)) methodsStack.Push(method);
                 }
                 type = type.BaseType;
             }
             var list = new List<Expression>();
             var instance = Expression.Parameter(typeof(T));
-            while(methodsStack.TryPop(out var method))
+            while (methodsStack.TryPop(out var method))
             {
-                list.Add(MethodInjectionExpression(instance,method,parameters));
+                list.Add(MethodInjectionExpression(instance, method, parameters));
             }
-            
-            return Expression.Lambda<Action<T>>(Expression.Block(list),new ParameterExpression[] {instance});
+
+            return Expression.Lambda<Action<T>>(Expression.Block(list), new ParameterExpression[] { instance });
         }
 
         private static Expression[] ArgumentsExpression(MethodBase info, ParameterExpression[] availableParameters)
         {
             var parameters = info.GetParameters();
             var size = parameters.Length;
-            if(size==0) return Array.Empty<ParameterExpression>();
+            if (size == 0) return Array.Empty<ParameterExpression>();
 
             var argumentExpression = new Expression[size];
 
-            for(int i = 0; i<size; i++)
+            try
             {
-                var type = parameters[i].ParameterType;
-
-                var available = availableParameters?.FirstOrDefault(e => e.Type.IsAssignableTo(type));
-
-                if(available!=null) argumentExpression[i] = available;
-                else
+                for (int i = 0; i < size; i++)
                 {
-                    var locator = Locator.GetExpressionLocator(type);
-
-                    if(locator==null)
-                    {
-                        if(parameters[i].IsOptional) locator = Expression.Constant(parameters[i].DefaultValue);
-                        else throw new Exception($"Unable to locate {type.Name} for {typeof(T)}.{info.Name}]"); 
-                    }
-                    argumentExpression[i] = locator;
+                    argumentExpression[i] = ArgumentExpression(parameters[i], availableParameters);
                 }
+                return argumentExpression;
+
             }
-            return argumentExpression;
+            catch(IocLocateException e)
+            {
+                throw new IocLocateException($"{e.Message} in {info.Name}", e);
+            }
+        }
+
+        private static Expression ArgumentExpression(ParameterInfo info, ParameterExpression[] availableParameters)
+        {
+            var available = availableParameters?.FirstOrDefault(e => e.Type.IsAssignableTo(info.ParameterType));
+            return available ?? ArgumentExpression(info);
+        }
+
+        private static Expression ArgumentExpression(ParameterInfo info)
+        {
+            return Locator.GetExpressionLocator(info.ParameterType)
+                ?? (info.IsOptional
+                    ? Expression.Constant(info.DefaultValue)
+                    : throw new IocLocateException($"Unable to locate {info.ParameterType.Name}"));
         }
 
         private static Expression FactoryExpression(ConstructorInfo info, ParameterExpression[] parameters)
         {
             var arguments = ArgumentsExpression(info, parameters);
-            return Expression.New(info,arguments);
+            return Expression.New(info, arguments);
         }
 
         private static Expression MethodInjectionExpression(Expression instance, MethodInfo info, ParameterExpression[] parameters)
         {
             var arguments = ArgumentsExpression(info, parameters);
-            return Expression.Call(instance,info,arguments);
+            return Expression.Call(instance, info, arguments);
         }
 
     }
+
+    public class IocLocateException : Exception
+    {
+        public IocLocateException(string message) : base(message)
+        {
+
+        }
+        public IocLocateException(string message, Exception inner) : base(message,inner)
+        {
+
+        }
+    }
+
 
     public static class SingletonLocator<T>
     {
@@ -335,33 +356,33 @@ namespace HLab.Ioc
             });
         }
 
-        public static void SetFactory(Expression<Func<T>> factory) => Locator<T>.SetFactory( () =>
-        {
-            Monitor.Enter(_lock);
-            try
-            {
-                if (_singletonInitialized) return Locator<T>.Locate();
-                var singleton = factory.Compile()();
+        public static void SetFactory(Expression<Func<T>> factory) => Locator<T>.SetFactory(() =>
+       {
+           Monitor.Enter(_lock);
+           try
+           {
+               if (_singletonInitialized) return Locator<T>.Locate();
+               var singleton = factory.Compile()();
 
-                var lambda = Expression.Lambda<Func<T>>(Expression.Constant(singleton));
+               var lambda = Expression.Lambda<Func<T>>(Expression.Constant(singleton));
 
-                Locator<T>.SetFactoryExpression(lambda);
+               Locator<T>.SetFactoryExpression(lambda);
 
-                _singletonInitialized = true;
-                return singleton;
-            }
-            finally
-            {
-                Monitor.Exit(_lock);
-            }
-        });
+               _singletonInitialized = true;
+               return singleton;
+           }
+           finally
+           {
+               Monitor.Exit(_lock);
+           }
+       });
     }
 
     public static class EnumerableLocator<T>
     {
         static List<Expression> _expressions = new();
         static ParameterExpression list = Expression.Variable(typeof(List<T>));
-        static MethodInfo Addmethod = typeof(List<T>).GetMethod("Add",new Type[]{typeof(T)});
+        static MethodInfo Addmethod = typeof(List<T>).GetMethod("Add", new Type[] { typeof(T) });
         static ConstructorInfo listConstructor = typeof(List<T>).GetConstructor(Array.Empty<Type>());
         public static void Add<T1>() where T1 : T
         {
@@ -369,11 +390,11 @@ namespace HLab.Ioc
             _expressions.Add(Expression.Call(list, Addmethod, expression));
 
             var e = new List<Expression>();
-            e.Add(Expression.Assign(list,Expression.New(listConstructor)));
+            e.Add(Expression.Assign(list, Expression.New(listConstructor)));
             e.AddRange(_expressions);
             e.Add(list);
 
-            var block = Expression.Block(typeof(IEnumerable<T>), new ParameterExpression[]{ list}, e);
+            var block = Expression.Block(typeof(IEnumerable<T>), new ParameterExpression[] { list }, e);
 
             Locator<IEnumerable<T>>.SetFactoryExpression(block);
         }
@@ -389,22 +410,22 @@ namespace HLab.Ioc
             Add<T1>();
         }
 
-        private static MethodInfo _addMethod = typeof(EnumerableLocator<T>).GetMethod("Add",1,new Type[]{ });
+        private static MethodInfo _addMethod = typeof(EnumerableLocator<T>).GetMethod("Add", 1, new Type[] { });
         public static void Add(Type t)
         {
-            if(t.IsGenericType) return;
+            if (t.IsGenericType) return;
 
             var method = _addMethod.MakeGenericMethod(t);
-            method.Invoke(null,null);
+            method.Invoke(null, null);
         }
 
-        private static MethodInfo _addAutoFactoryMethod = typeof(EnumerableLocator<T>).GetMethod("AddAutoFactory",1,new Type[]{ });
+        private static MethodInfo _addAutoFactoryMethod = typeof(EnumerableLocator<T>).GetMethod("AddAutoFactory", 1, new Type[] { });
         public static void AddAutoFactory(Type t)
         {
-            if(t.IsGenericType) return;
+            if (t.IsGenericType) return;
 
             var method = _addAutoFactoryMethod.MakeGenericMethod(t);
-            method.Invoke(null,null);
+            method.Invoke(null, null);
         }
     }
 
