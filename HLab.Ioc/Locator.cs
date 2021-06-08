@@ -53,7 +53,7 @@ namespace HLab.Ioc
                 return (Expression)locate.Invoke(null, null);
             }
             return null;
-            throw new Exception($"Type not found : {type}");
+            throw new IocLocateException($"Type not found : {type}");
         }
 
         public static void Configure()
@@ -322,6 +322,4 @@ namespace HLab.Ioc
         }
 
     }
-
-
 }
