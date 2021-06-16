@@ -12,20 +12,20 @@ namespace HLab.Ioc
 {
     public class Locator
     {
-        private static Queue<Action> initSingletons = new();
+        private static readonly Queue<Action> _initSingletons = new();
 
-        public static void Enqueue(Action action) => initSingletons.Enqueue(action);
+        public static void Enqueue(Action action) => _initSingletons.Enqueue(action);
 
         public static void InitSingletons()
         {
-            while (initSingletons.TryDequeue(out var action))
+            while (_initSingletons.TryDequeue(out var action))
             {
                 action();
             }
         }
 
 
-        private static ConcurrentDictionary<Type, Type> _openGenerics = new();
+        private static readonly ConcurrentDictionary<Type, Type> _openGenerics = new();
         public static void SetOpenGenericFactory(Type type, Type factoryType)
         {
             if (!factoryType.IsGenericTypeDefinition) throw new Exception("Should use generic");
@@ -234,14 +234,17 @@ namespace HLab.Ioc
             foreach (var constructor in constructors)
             {
                 var instance = Expression.Variable(typeof(T), "instance");
-                var list = new List<Expression>();
-                list.Add(Expression.Assign(instance, FactoryExpression(constructor, parameters)));
+                List<Expression> list = new()
+                {
+                    Expression.Assign(instance, FactoryExpression(constructor, parameters))
+                };
+
                 while (methodsStack.TryPop(out var method))
                 {
                     list.Add(MethodInjectionExpression(instance, method, parameters));
                 }
                 list.Add(instance);
-                var expression = Expression.Block(new ParameterExpression[] { instance }, list);
+                var expression = Expression.Block(new[] { instance }, list);
                 return expression;
             }
             throw new Exception($"No constructor found on class {typeof(T)}");
@@ -289,7 +292,7 @@ namespace HLab.Ioc
                 return argumentExpression;
 
             }
-            catch(IocLocateException e)
+            catch (IocLocateException e)
             {
                 throw new IocLocateException($"{e.Message} in {info.Name}", e);
             }
@@ -303,10 +306,12 @@ namespace HLab.Ioc
 
         private static Expression ArgumentExpression(ParameterInfo info)
         {
-            return Locator.GetExpressionLocator(info.ParameterType)
-                ?? (info.IsOptional
-                    ? Expression.Constant(info.DefaultValue)
-                    : throw new IocLocateException($"Unable to locate {info.ParameterType.Name}"));
+            var locator = Locator.GetExpressionLocator(info.ParameterType);
+            if (locator != null) return locator;
+
+            if (info.IsOptional) return Expression.Constant(info.DefaultValue);
+
+            throw new IocLocateException($"Unable to locate {info.ParameterType.Name}");
         }
 
         private static Expression FactoryExpression(ConstructorInfo info, ParameterExpression[] parameters)

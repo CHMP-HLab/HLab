@@ -12,8 +12,8 @@ namespace HLab.Notify.Annotations
 
         void TargetPropertyChanged(object sender, PropertyChangedEventArgs args);
 
-        ITriggerEntry GetTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler);
-        ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
+        ITriggerEntry BuildTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler);
+        ITriggerEntry BuildTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
 
         bool Linked { get; }
 

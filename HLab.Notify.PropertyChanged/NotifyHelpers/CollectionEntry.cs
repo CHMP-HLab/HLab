@@ -90,7 +90,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
 
         private List<ITriggerEntry> _triggerEntries = new List<ITriggerEntry>();
 
-        public ITriggerEntry GetTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        public ITriggerEntry BuildTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
             var entry = new TriggerEntryCollection(this, handler);
             _triggerEntries.Add(entry);
@@ -103,7 +103,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
         //    return entry;
         //}
 
-        public ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        public ITriggerEntry BuildTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
             var entry = new TriggerEntryCollectionWithPath(this, path, handler);
             _triggerEntries.Add(entry);

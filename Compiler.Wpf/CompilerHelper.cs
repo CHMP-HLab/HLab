@@ -65,8 +65,8 @@ namespace HLab.Compiler.Wpf
             var semicolonPos = Code.IndexOf(';', Index);
             if (bracePos >= 0 && (bracePos < semicolonPos || semicolonPos < 0))
             {
-                Index = bracePos;
-                NextWord();
+                Index = ++bracePos;
+                //var word = NextWord();
                 return true;
             }
 

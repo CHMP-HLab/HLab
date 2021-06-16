@@ -11,20 +11,20 @@ namespace HLab.Notify.PropertyChanged
 
     public delegate NotifyConfigurator<TClass, T> NotifyConfiguratorFactory<TClass, T>(NotifyConfigurator<TClass, T> c)
         where TClass : class, INotifyPropertyChangedWithHelper
-        where T : class,IChildObject
+        where T : class, IChildObject
         ;
 
 
     public abstract class PropertyActivator
     {
-        public  string PropertyName { get; internal set; }
+        public string PropertyName { get; internal set; }
         public List<string> DependsOn { get; } = new();
-        public abstract void Activate(INotifyPropertyChangedWithHelper parent,IChildObject child);
+        public abstract void Activate(INotifyPropertyChangedWithHelper parent, IChildObject child);
         public abstract void Update(IChildObject child);
     }
     public abstract class PropertyActivator<T> : PropertyActivator
     {
-        public abstract void Activate(INotifyPropertyChangedWithHelper parent,T child);
+        public abstract void Activate(INotifyPropertyChangedWithHelper parent, T child);
         public abstract void Update(T child);
     }
 
@@ -37,28 +37,27 @@ namespace HLab.Notify.PropertyChanged
 
         internal class TriggerEntry
         {
-            public List<Func<TClass,bool>> WhenList { get; } = new();
+            public List<Func<TClass, bool>> WhenList { get; } = new();
             public List<TriggerPath> TriggerOnList { get; } = new();
             public Action<TClass, T> Action { get; set; }
         }
 
         public class Activator : PropertyActivator
         {
-            private static Action<TClass, T> _defaultAction = (parent,child)=>{}; 
+            private static readonly Action<TClass, T> _defaultAction = (parent, child) => { };
             internal Action<TClass, T> Action { get; set; } = _defaultAction;
-            internal Action<TClass, T> UpdateAction { get;  set; } = _defaultAction;
+            internal Action<TClass, T> UpdateAction { get; set; } = _defaultAction;
 
             internal List<object> Triggers = new();
 
-
             public override void Activate(INotifyPropertyChangedWithHelper parent, IChildObject child)
             {
-                Action((TClass)parent,(T)child);
+                Action((TClass)parent, (T)child);
             }
 
             public override void Update(IChildObject child)
             {
-                UpdateAction((TClass)child.Parent,(T)child);
+                UpdateAction((TClass)child.Parent, (T)child);
             }
         }
 
@@ -117,7 +116,7 @@ namespace HLab.Notify.PropertyChanged
 
         public Action<TClass, T> GetDoWhenAction(Action<TClass, T> action)
         {
-            Func<TClass,bool> when = null;
+            Func<TClass, bool> when = null;
             foreach (var w in CurrentTrigger.WhenList)
             {
                 if (when == null)
@@ -129,13 +128,13 @@ namespace HLab.Notify.PropertyChanged
                 }
             }
 
-            if(when==null)
+            if (when == null)
                 return action;
 
             return (parent, child) =>
             {
-                if(when(parent))
-                    action(parent,child);
+                if (when(parent))
+                    action(parent, child);
             };
 
         }
@@ -152,17 +151,17 @@ namespace HLab.Notify.PropertyChanged
             foreach (var trigger in Triggers)
             {
                 // If the trigger does not contain triggerOn entries the action will occur at initialization 
-                if(trigger.TriggerOnList.Count==0) trigger.TriggerOnList.Add(null);
+                if (trigger.TriggerOnList.Count == 0) trigger.TriggerOnList.Add(null);
 
                 foreach (var path in trigger.TriggerOnList)
                 {
-                    if(path != null && !string.IsNullOrWhiteSpace(path.PropertyName) && ! _activator.DependsOn.Contains(path.PropertyName)) _activator.DependsOn.Add(path.PropertyName);
+                    if (path != null && !string.IsNullOrWhiteSpace(path.PropertyName) && !_activator.DependsOn.Contains(path.PropertyName)) _activator.DependsOn.Add(path.PropertyName);
 
                     var action = trigger.Action;
 
                     _activator.Triggers.Add(action);
 
-                    if(path==null || string.IsNullOrWhiteSpace(path.PropertyName))
+                    if (path == null || string.IsNullOrWhiteSpace(path.PropertyName))
                         _activator.Action += action;
                     else
                     {
@@ -171,12 +170,13 @@ namespace HLab.Notify.PropertyChanged
                         {
                             ITriggerEntry trigger = null;
                             var wr = new WeakReference<T>(property);
-                            trigger = path.GetTriggerB(parent.ClassHelper, handler);
-                            property.OnDispose(()=>trigger.Dispose());
+                            trigger = path.GetTrigger(parent.ClassHelper, Handler);
+                            property.OnDispose(() => trigger.Dispose());
 
-                            void handler(object s, ExtendedPropertyChangedEventArgs a)
+
+                            void Handler(object s, ExtendedPropertyChangedEventArgs a)
                             {
-                                if(wr.TryGetTarget(out var pp))
+                                if (wr.TryGetTarget(out var pp))
                                     action((TClass)pp.Parent, pp);
                                 else
                                 {

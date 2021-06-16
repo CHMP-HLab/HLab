@@ -29,7 +29,7 @@ namespace HLab.Notify.PropertyChanged
                 var handler = Handler;
 
                 _next.GetOrAdd(e.NewValue,
-                    o => _path.GetTriggerB(NotifyClassHelper.GetHelper(o),handler));
+                    o => _path.GetTrigger(NotifyClassHelper.GetHelper(o),handler));
             }
         }
 

@@ -86,10 +86,10 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
 
                 ExtendedPropertyChanged -= handler;
             }
-            
+
             private List<EventHandler<ExtendedPropertyChangedEventArgs>> _triggerEntries = new();
 
-            public ITriggerEntry GetTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler)
+            public ITriggerEntry BuildTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {
                 _triggerEntries.Add(handler);
                 var entry = new TriggerEntryNotifier(this, handler);
@@ -102,14 +102,14 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
             //    _triggerEntries.Add(entry);
             //    return entry;
             //}
-            public ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+            public ITriggerEntry BuildTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {
                 var entry = new TriggerEntryNotifierWithPath(this, path, handler);
                 //_triggerEntries.Add(entry);
                 return entry;
             }
 
-            public override string ToString() => _target.ToString() + " : " + Name ;
+            public override string ToString() => _target.ToString() + " : " + Name;
 
         }
 

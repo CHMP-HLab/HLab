@@ -42,9 +42,9 @@ namespace HLab.Compiler.Wpf
                     var err = new CompileError
                     {
                         Message = failure.GetMessage(),
-                            Line = span.Start.Line+1,
-                            Pos = span.Start.Character+1,
-                            Length = span.End.Character - span.Start.Character
+                        Line = span.Start.Line + 1,
+                        Pos = span.Start.Character + 1,
+                        Length = span.End.Character - span.Start.Character
                     };
                     errs.Add(err);
                 }

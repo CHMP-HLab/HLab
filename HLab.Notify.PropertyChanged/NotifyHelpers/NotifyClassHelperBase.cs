@@ -62,11 +62,11 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
 
         public ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
-            return GetPropertyEntry(path.PropertyName).GetTrigger(path.Next, handler);
+            return GetPropertyEntry(path.PropertyName).BuildTrigger(path.Next, handler);
         }
         public ITriggerEntry GetTriggerWithPath(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
-            return GetPropertyEntry(path.PropertyName).GetTrigger(path.Next, handler);
+            return GetPropertyEntry(path.PropertyName).BuildTrigger(path.Next, handler);
         }
 
         public void Initialize<T>() where T : class, INotifyPropertyChangedWithHelper

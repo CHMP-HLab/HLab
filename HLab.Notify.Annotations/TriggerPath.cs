@@ -12,8 +12,8 @@ namespace HLab.Notify.Annotations
         INotifyClassHelper ClassHelper { get; }
     }
 
-    
-    
+
+
     public interface INotifyClassHelper //: IDisposable
     {
         SuspenderToken GetSuspender();
@@ -35,10 +35,10 @@ namespace HLab.Notify.Annotations
             Next = next;
         }
 
-        
-        public override ITriggerEntry GetTriggerB(INotifyClassHelper helper, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+
+        public override ITriggerEntry GetTrigger(INotifyClassHelper helper, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
-            return helper.GetPropertyEntry(PropertyName).GetTrigger(Next, handler);
+            return helper.GetPropertyEntry(PropertyName).BuildTrigger(Next, handler);
         }
 
 
@@ -59,6 +59,13 @@ namespace HLab.Notify.Annotations
         }
     }
 
+    public class TriggerPathNull : TriggerPath
+    {
+        internal TriggerPathNull() : base(null)
+        {
+        }
+    }
+
     public class TriggerPath
     {
 
@@ -69,12 +76,10 @@ namespace HLab.Notify.Annotations
 
         public virtual TriggerPath Next => null;
 
-
-        public virtual ITriggerEntry GetTriggerB(INotifyClassHelper helper, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        public virtual ITriggerEntry GetTrigger(INotifyClassHelper helper, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
-            return helper.GetPropertyEntry(PropertyName).GetTrigger(handler);
+            return helper.GetPropertyEntry(PropertyName).BuildTrigger(handler);
         }
-
 
         public string PropertyName { get; }
 
@@ -82,12 +87,13 @@ namespace HLab.Notify.Annotations
         {
             return PropertyName;
         }
+
         private static TriggerPath Factory(TriggerPath next, string propertyName)
         {
-            return (next == null) ? new TriggerPath(propertyName) : new TriggerPathNext(next, propertyName);
+            return next == null ? new TriggerPath(propertyName) : new TriggerPathNext(next, propertyName);
         }
 
-        public static TriggerPath  Factory(params string[] path)
+        public static TriggerPath Factory(params string[] path)
         {
             var stack = new Stack<string>();
             foreach (var subPath in path)
@@ -101,15 +107,15 @@ namespace HLab.Notify.Annotations
 
             TriggerPath triggerPath = null;
 
-            while (stack.Count > 0)
-                triggerPath = Factory(triggerPath, stack.Pop());
+            while (stack.TryPop(out var propertyName))
+                triggerPath = Factory(triggerPath, propertyName);
 
-            return triggerPath ?? Factory(triggerPath, "");
+            return triggerPath ?? new TriggerPathNull();
         }
 
         public static TriggerPath Factory(Expression path)
         {
-            var body = (path as LambdaExpression)?.Body ;
+            var body = (path as LambdaExpression)?.Body;
 
             var e = body;
             TriggerPath triggerPath = null;
@@ -121,27 +127,29 @@ namespace HLab.Notify.Annotations
                 {
                     e = (e as UnaryExpression)?.Operand;
                 }
-                else if (e is MemberExpression m)
-                {
-                    name = m.Member.Name;
-                    e = m.Expression;
-                }
-                else if (e is MethodCallExpression mc)
-                {
-                    name = mc.Method.Name;
-                    e = mc.Arguments[0];
-                }
                 else
                 {
-                    throw new ArgumentException("Error parsing expression : " + path.ToString());
+                    switch (e)
+                    {
+                        case MemberExpression m:
+                            name = m.Member.Name;
+                            e = m.Expression;
+                            break;
+                        case MethodCallExpression mc:
+                            name = mc.Method.Name;
+                            e = mc.Arguments[0];
+                            break;
+                        default:
+                            throw new ArgumentException("Error parsing expression : " + path.ToString());
+                    }
                 }
 
-                if (e.NodeType == ExpressionType.Parameter)
+                if (e is { NodeType: ExpressionType.Parameter })
                 {
                     e = null;
                     triggerPath = Factory(triggerPath, name);
                 }
-                else if(!String.IsNullOrWhiteSpace(name))
+                else if (!string.IsNullOrWhiteSpace(name))
                 {
                     triggerPath = Factory(triggerPath, name);
                 }
@@ -149,8 +157,5 @@ namespace HLab.Notify.Annotations
 
             return triggerPath;
         }
-
-
     }
-
 }
