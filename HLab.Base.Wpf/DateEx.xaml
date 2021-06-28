@@ -5,14 +5,17 @@
     xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
     xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
     xmlns:base="clr-namespace:HLab.Base"
-    mc:Ignorable="d" Background="Transparent">
+    xmlns:wpf="clr-namespace:HLab.Base.Wpf"
+    mc:Ignorable="d" Background="Transparent"
+    x:Name ="UserControl"
+    >
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
-                <ResourceDictionary Source="Calendar.xaml"/>
+                <ResourceDictionary Source="Calendar.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
-            <Style TargetType="base:NumTextBox">
+            <Style TargetType="wpf:NumTextBox">
                 <Setter Property="HorizontalAlignment" Value="Stretch"/>
                 <Setter Property="VerticalContentAlignment" Value="Center"/>
                 <Setter Property="HorizontalContentAlignment" Value="Center"/>
@@ -27,21 +30,31 @@
         </ResourceDictionary>
 
     </UserControl.Resources>
-    <Grid>
+    <Grid KeyboardNavigation.TabNavigation="Local">
+
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="2*"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/><!--0 : Day-->
+            <ColumnDefinition Width="*"/>   <!--1 : Spacer-->
+            <ColumnDefinition Width="Auto"/><!--2 : Month-->
+            <ColumnDefinition Width="*"/>   <!--3 : Spacer-->
+            <ColumnDefinition Width="Auto"/><!--4 : Year-->
+            <ColumnDefinition Width="2*"/>  <!--5 : Spacer-->
+            <ColumnDefinition Width="Auto"/><!--6 : Spacer-->
+            <ColumnDefinition Width="Auto" x:Name="HourColumn"/><!--7 : Hour-->
+            <ColumnDefinition Width="Auto"/> <!--8 : Spacer-->
+            <ColumnDefinition Width="Auto" x:Name="MinColumn"/><!--9 : Minutes-->
+            <ColumnDefinition Width="Auto"/> <!--10 : ClockButton-->
+            <ColumnDefinition Width="Auto"/> <!--11 : NowButton-->
         </Grid.ColumnDefinitions>
+
         <Grid Grid.Column="1">
-            <base:NumTextBox 
+            <wpf:NumTextBox 
                 x:Name="TextDay"
                 MinValue="0"
                 MaxValue="31"
+                TabIndex="1"
+                Zeros="2"
+                HideZeroValue="True"
                 ValueChanged="OnValueChange"
             /><Popup 
                 Name="Popup" 
@@ -52,44 +65,114 @@
             </Popup>
         </Grid>
 
-        <Label Opacity="0.5" Grid.Column="2" Margin="-6,0">/</Label>
+        <Label Opacity="0.5" Grid.Column="2" Content="/" IsTabStop="False"/>
 
-        <base:NumTextBox 
+        <wpf:NumTextBox 
             Margin ="0"
             x:Name="TextMonth" 
             Grid.Column="3"
             MinValue="0"
             MaxValue="12"
+            TabIndex="2"
+            Zeros="2"
+            HideZeroValue="True"
             ValueChanged="OnValueChange"
             />
 
-        <Label Opacity="0.5" Grid.Column="4" Margin="-6,0">/</Label>
+        <Label Opacity="0.5" Grid.Column="4" Content="/" IsTabStop="False"/>
 
-        <base:NumTextBox 
+        <wpf:NumTextBox 
             Margin ="0"
             x:Name="TextYear" 
             Grid.Column="5"
             MinValue="0"
             MaxValue="9999"
+            HideZeroValue="True"
+            TabIndex="3"
             HorizontalContentAlignment="Center"
             ValueChanged="OnValueChange"
             />
 
         <Button 
-            Margin ="0"
+            Margin ="5,0"
             HorizontalAlignment="Left"
             Grid.Column="6"
             Name="Button" 
             Width="15"
+            TabIndex="6"
+            IsTabStop="False"
             Click="Button_OnClick">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Grid Background="Transparent">
-                        <ContentControl Content="{StaticResource Calendar}"/>
+                        <ContentControl IsTabStop="False" Content="{StaticResource Calendar}"/>
                     </Grid>
                </ControlTemplate>
             </Button.Template>
         </Button>
+
+        <TextBlock VerticalAlignment="Center" x:Name ="Spacer" Text=" - " Grid.Column="6" Visibility="Collapsed"/>
+
+        <Grid Grid.Column="7">
+            <wpf:NumTextBox 
+                Margin ="0"
+                x:Name="TextHour" 
+                MinValue="0"
+                MaxValue="24"
+                TabIndex="4"
+                Zeros="2"
+                HideZeroValue="false"
+                HorizontalContentAlignment="Center"
+                ValueChanged="OnValueChange"
+                Visibility="Collapsed"
+            />
+            <Popup 
+                  Name="TimePopup" 
+                  StaysOpen="False">
+                <wpf:TimePicker 
+                    Background="{DynamicResource MahApps.Brushes.ThemeBackground}"
+                     x:Name="TimePicker" 
+                     Time ="{Binding ElementName=UserControl, Path=Date}"
+                     Done="TimePicker_OnDone"
+                />
+            </Popup>
+        </Grid>
+        <Label x:Name="TimeDots" Opacity="0.5" Grid.Column="8" Content=":" Visibility="Collapsed"/>
+
+        <wpf:NumTextBox 
+            Margin ="0"
+            x:Name="TextMin" 
+            Grid.Column="9"
+            MinValue="0"
+            MaxValue="59"
+            TabIndex="5"
+            Zeros="2"
+            HideZeroValue="false"
+            HorizontalContentAlignment="Center"
+            ValueChanged="OnValueChange"
+            Visibility="Collapsed"
+        />
+
+        <Button 
+            Margin ="5,0"
+            HorizontalAlignment="Left"
+            Grid.Column="10"
+            Name="TimeButton" 
+            Width="15"
+            TabIndex="6"
+            IsTabStop="False"
+            Click="TimeButton_OnClick"
+            Visibility="Collapsed"
+            >
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid Background="Transparent">
+                        <ContentControl IsTabStop="False" Content="{StaticResource Clock}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+
 
         <Border  
             x:Name="Mandatory" 

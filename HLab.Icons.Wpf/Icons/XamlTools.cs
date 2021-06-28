@@ -12,7 +12,6 @@ using System.Windows.Media;
 using System.Windows.Shapes;
 using System.Xml;
 using System.Xml.Xsl;
-using HLab.ColorTools.Wpf;
 using HLab.Icons.Wpf.Icons.Providers;
 
 namespace HLab.Icons.Wpf.Icons
@@ -22,8 +21,8 @@ namespace HLab.Icons.Wpf.Icons
         private static readonly Color ForeColor = Colors.Black;
         private static readonly Color BackColor = Colors.Transparent;
 
-        private static readonly Brush DefaultForeColor = new SolidColorBrush(BackColor);
-        private static readonly Brush DefaultBackColor = new SolidColorBrush(ForeColor);
+        private static readonly Brush DefaultForeColor = new SolidColorBrush(ForeColor);
+        private static readonly Brush DefaultBackColor = new SolidColorBrush(BackColor);
 
         private static XslCompiledTransform _transformSvg;
         public static XslCompiledTransform TransformSvg
@@ -193,9 +192,11 @@ namespace HLab.Icons.Wpf.Icons
             try
             {
                 var tcs = new TaskCompletionSource<UIElement>();
-                XmlReaderSettings settings = new XmlReaderSettings();
-settings.DtdProcessing = DtdProcessing.Parse;
-settings.MaxCharactersFromEntities = 1024;
+                XmlReaderSettings settings = new XmlReaderSettings
+                {
+                    DtdProcessing = DtdProcessing.Parse, 
+                    MaxCharactersFromEntities = 1024
+                };
 
                 var xr = new XamlReader();
 
@@ -274,7 +275,7 @@ settings.MaxCharactersFromEntities = 1024;
                 Mode = BindingMode.OneWay,
                 FallbackValue = DefaultForeColor,
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
-                    typeof(Control), 1)
+                    typeof(IconView), 1)
             };
 
             var backBinding = new Binding("Background")
@@ -282,7 +283,7 @@ settings.MaxCharactersFromEntities = 1024;
                 IsAsync = true,
                 FallbackValue = DefaultBackColor,
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
-                    typeof(Control), 1)
+                    typeof(IconView), 1)
             };
 
             SetBinding(ui,foreColor, backColor, foreBinding, backBinding);
@@ -298,7 +299,8 @@ settings.MaxCharactersFromEntities = 1024;
                 {
                     if (fillBrush.Color == foreColor)
                     {
-                        shape.SetValue(Shape.FillProperty,Brushes.White);
+                        //shape.SetValue(Shape.FillProperty,Brushes.White);
+                        shape.SetResourceReference(Shape.FillProperty, "MahApps.Brushes.ThemeForeground");
                         //var b = shape.SetBinding(Shape.FillProperty, foreBinding);
                     }
                     else if (fillBrush.Color == backColor)
@@ -310,7 +312,8 @@ settings.MaxCharactersFromEntities = 1024;
                 {
                     if (strokeBrush.Color == foreColor)
                     {
-                        shape.SetValue(Shape.StrokeProperty,Brushes.White);
+                        //shape.SetValue(Shape.StrokeProperty,Brushes.White);
+                        shape.SetResourceReference(Shape.StrokeProperty, "MahApps.Brushes.ThemeForeground");
                         //var b = shape.SetBinding(Shape.StrokeProperty, foreBinding);
                     }
                     else if (strokeBrush.Color == backColor)

@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Data;
 
-namespace HLab.Base
+namespace HLab.Base.Wpf
 {
     public static class DependencyExtension
     {

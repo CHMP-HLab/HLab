@@ -7,7 +7,37 @@
         xmlns:wpf="clr-namespace:HLab.Base.Wpf;assembly=HLab.Base.Wpf"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
+    <StackPanel>
+        <TextBlock>TextBoxEx</TextBlock>
         <wpf:TextBoxEx Mode="Double"/>
-    </Grid>
+
+        <TextBlock>NumTextBox</TextBlock>
+        <wpf:NumTextBox x:Name="NumTextBox" MaxValue="100" Zeros="6"/>
+
+        <TextBlock>NumTextBox.Value</TextBlock>
+        <TextBox Text="{Binding  ElementName=NumTextBox, Path=Value}"/>
+
+        <TextBlock>DayValid</TextBlock>
+        <CheckBox IsChecked="{Binding ElementName=DateEx, Path=DayValid}"/>
+
+        <TextBlock>EmptyDayAllowed</TextBlock>
+        <CheckBox IsChecked="{Binding ElementName=DateEx, Path=EmptyDayAllowed}"/>
+
+        <TextBlock>MandatoryNotFilled</TextBlock>
+        <CheckBox IsChecked="{Binding ElementName=DateEx, Path=MandatoryNotFilled}"/>
+
+        <TextBlock>IsReadOnly</TextBlock>
+        <CheckBox IsChecked="{Binding ElementName=DateEx, Path=IsReadOnly}"/>
+
+        <TextBlock>ShowTime</TextBlock>
+        <CheckBox IsChecked="{Binding ElementName=DateEx, Path=ShowTime}"/>
+
+        <TextBlock>DateEx</TextBlock>
+        <wpf:DateEx x:Name="DateEx" Width="200" EmptyDayAllowed="True"/> 
+
+
+
+        <TextBlock>DateEx</TextBlock>
+        <TextBox Text="{Binding  ElementName=DateEx, Path=Date}"/>
+    </StackPanel>
 </Window>

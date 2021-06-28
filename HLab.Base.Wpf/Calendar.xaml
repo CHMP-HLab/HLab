@@ -25,7 +25,7 @@
   </Canvas>
 </Viewbox>
 
-    <Viewbox x:Key="Calendar" Stretch="Uniform">
+<Viewbox x:Key="Calendar" Stretch="Uniform">
   <Canvas Name="Capa_1" Width="612" Height="612" Canvas.Left="0" Canvas.Top="0">
     <Canvas.RenderTransform>
       <TranslateTransform X="0" Y="0"/>
@@ -64,4 +64,40 @@
 
   </Canvas>
 </Viewbox>
+
+
+    <Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform" x:Key="Clock">
+        <Canvas Name="svg5" Width="16" Height="16">
+            <Canvas.RenderTransform>
+                <TranslateTransform X="0" Y="0"/>
+            </Canvas.RenderTransform>
+            <Canvas.Resources/>
+            <!--Unknown tag: sodipodi:namedview-->
+            <Rectangle xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Width="16" Height="16" Name="iconbound"/>
+            <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
+                <Path.Data>
+                    <PathGeometry Figures="M9 4H7v4.416l3.294 3.291l1.413-1.416L9 7.584V4z M8 0C3.581 0 0 3.581 0 8s3.581 8 8 8s8-3.581 8-8S12.419 0 8 0z M8 14 c-3.312 0-6-2.688-6-6s2.688-6 6-6s6 2.688 6 6S11.312 14 8 14z" FillRule="NonZero"/>
+                </Path.Data>
+            </Path>
+        </Canvas>
+    </Viewbox>
+
+    <Viewbox xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" Stretch="Uniform" x:Key="Now">
+        <Canvas Name="svg8" Canvas.Left="0" Canvas.Top="0" Width="1000" Height="1000">
+            <Canvas.RenderTransform>
+                <TranslateTransform X="0" Y="0"/>
+            </Canvas.RenderTransform>
+            <Canvas.Resources/>
+            <!--Unknown tag: sodipodi:namedview-->
+            <!--Unknown tag: metadata-->
+            <Canvas Name="g6">
+                <Path xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Fill="{Binding Path=Foreground, RelativeSource={RelativeSource AncestorType={x:Type Control}},FallbackValue=black}">
+                    <Path.Data>
+                        <PathGeometry Figures="M500 10C298.6 10 133 175.6 133 381.4c0 67.1 17.9 134.2 49.2 187.9C244.9 676.8 500 990 500 990S755 681.2 817.7 569.4c31.3-53.7 49.2-120.8 49.2-187.9C871.4 175.6 705.8 10 500 10z M500 573.8c-107.4 0-192.4-85-192.4-192.4c0-107.4 85-196.9 192.4-196.9c107.4 0 192.4 85 192.4 192.4C692.4 484.3 611.8 573.8 500 573.8z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+            </Canvas>
+        </Canvas>
+    </Viewbox>
+
 </ResourceDictionary>

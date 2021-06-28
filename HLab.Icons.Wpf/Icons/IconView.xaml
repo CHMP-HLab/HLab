@@ -17,6 +17,7 @@
         <ContentControl x:Name="IconContent" 
                         MaxWidth="{Binding IconMaxWidth, ElementName=UserControl}" 
                         MaxHeight="{Binding IconMaxHeight, ElementName=UserControl}"
+                        IsTabStop="False"
                         />
         <ContentControl 
             x:Name="CaptionContent"
@@ -24,6 +25,7 @@
             VerticalAlignment="Center" 
             Grid.Column="2" 
             Content="{Binding Caption, ElementName=UserControl}"
+            IsTabStop="False"
             />
     </Grid>
 </UserControl>

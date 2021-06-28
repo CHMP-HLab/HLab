@@ -13,8 +13,11 @@
     icons:IconView.IconService="{Binding IconService}"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
     ShowTitleBar="False"
-    ShowSystemMenu="True"
+    ShowSystemMenu="False"
+    BorderThickness="0"
     d:DataContext="{d:DesignInstance Type=annotations:IMainViewModel}"
->
+    
+    Background="Transparent"
+    >    <!--AllowsTransparency="True"-->
 
 </mah:MetroWindow>

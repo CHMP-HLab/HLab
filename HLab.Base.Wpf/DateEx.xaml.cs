@@ -25,14 +25,14 @@ namespace HLab.Base.Wpf
         private static int DaysInMonth(int year, int month)
         {
             if (month < 1) return _daysToMonth366.Max();
-            int[] days = year<1 ? _daysToMonth366 : DateTime.IsLeapYear(year) ? _daysToMonth366 : _daysToMonth365;
+            int[] days = year < 1 ? _daysToMonth366 : DateTime.IsLeapYear(year) ? _daysToMonth366 : _daysToMonth365;
             return days[month] - days[month - 1];
         }
 
         public DateEx()
         {
             InitializeComponent();
-            Set(Date,DayValid);
+            Set(Date, DayValid);
         }
         public DependencyProperty MandatoryProperty => DateProperty;
 
@@ -42,10 +42,18 @@ namespace HLab.Base.Wpf
             .OnChange((e, a) =>
             {
                 e.Set(a.NewValue, e.DayValid);
-                e.Calendar.DisplayDate = a.NewValue??DateTime.Now;
+                e.Calendar.DisplayDate = a.NewValue ?? DateTime.Now;
             }).Register();
 
         public static readonly DependencyProperty DayValidProperty =
+            H.Property<bool>()
+            .BindsTwoWayByDefault
+            .OnChange((e, a) =>
+            {
+                e.Set(e.Date, a.NewValue);
+            }).Register();
+
+        public static readonly DependencyProperty HasTimeProperty =
             H.Property<bool>()
             .BindsTwoWayByDefault
             .OnChange((e, a) =>
@@ -65,12 +73,18 @@ namespace HLab.Base.Wpf
                 //e.Set(e.Date, a.NewValue);
             }).Register();
 
+        public static readonly DependencyProperty ShowTimeProperty =
+            H.Property<bool>().OnChange((e, a) =>
+            {
+                e.SetShowTime();
+            }).Default(false).Register();
+
         public static readonly DependencyProperty MandatoryNotFilledProperty = H.Property<bool>()
-            .OnChange( (s,a) => s.SetMandatoryNotFilled(a.NewValue) )
+            .OnChange((s, a) => s.SetMandatoryNotFilled(a.NewValue))
             .Register();
 
         public static readonly DependencyProperty ContentBackgroundProperty = H.Property<Brush>()
-            .OnChange( (s,a) => s.SetContentBackground(a.NewValue) )
+            .OnChange((s, a) => s.SetContentBackground(a.NewValue))
             .Default(new SolidColorBrush(Colors.Transparent))
             .Register();
 
@@ -79,6 +93,8 @@ namespace HLab.Base.Wpf
             TextDay.Background = brush;
             TextMonth.Background = brush;
             TextYear.Background = brush;
+            TextHour.Background = brush;
+            TextMin.Background = brush;
         }
 
         private void SetReadOnly()
@@ -86,22 +102,81 @@ namespace HLab.Base.Wpf
             TextDay.IsReadOnly = IsReadOnly;
             TextMonth.IsReadOnly = IsReadOnly;
             TextYear.IsReadOnly = IsReadOnly;
+            TextHour.IsReadOnly = IsReadOnly;
+            TextMin.IsReadOnly = IsReadOnly;
             Button.Visibility = IsReadOnly ? Visibility.Collapsed : Visibility.Visible;
+            if (ShowTime)
+            {
+                Spacer.Visibility = IsReadOnly ? Visibility.Visible : Visibility.Collapsed;
+            }
+            SetTimeButton();
         }
 
         private void Set(DateTime? date, bool dayValid)
         {
-            if (date != null)
+            if (date == null)
             {
-                TextDay.Value = dayValid?date.Value.Day:0;
+                TextDay.Text = "";
+                TextMonth.Text = "";
+                TextYear.Text = "";
+
+                TextHour.Value = 0;
+                TextMin.Value = 0;
+            }
+            else
+            {
+                TextDay.Value = dayValid ? date.Value.Day : 0;
                 TextMonth.Value = date.Value.Month;
                 TextYear.Value = date.Value.Year;
+
+                TextHour.Value = date.Value.Hour;
+                TextMin.Value = date.Value.Minute;
+
+                TimePicker.Time = date;
             }
         }
+
         private void SetMandatoryNotFilled(bool mnf)
         {
             Mandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
             IconMandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
+        }
+
+
+        private void SetShowTime()
+        {
+            SetTimeButton();
+            if (ShowTime)
+            {
+                SetShowTime(Visibility.Visible,new GridLength(1, GridUnitType.Star));
+            }
+            else
+            {
+                SetShowTime(Visibility.Collapsed,GridLength.Auto);
+            }
+        }
+
+
+        private void SetShowTime(Visibility visibility, GridLength width)
+        {
+            TextHour.Visibility = visibility;
+            TextMin.Visibility = visibility;
+            TimeDots.Visibility = visibility;
+            TimeDots.Visibility = visibility;
+            HourColumn.Width = width;
+            MinColumn.Width = width;
+        }
+
+        private void SetTimeButton()
+        {
+            if (ShowTime && !IsReadOnly)
+            {
+                TimeButton.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                TimeButton.Visibility = Visibility.Collapsed;
+            }
         }
 
         public DateTime? Date
@@ -129,6 +204,11 @@ namespace HLab.Base.Wpf
             get => (bool)GetValue(MandatoryNotFilledProperty);
             set => SetValue(MandatoryNotFilledProperty, value);
         }
+        public bool ShowTime
+        {
+            get => (bool)GetValue(ShowTimeProperty);
+            set => SetValue(ShowTimeProperty, value);
+        }
         public Brush ContentBackground
         {
             get => (Brush)GetValue(ContentBackgroundProperty);
@@ -140,12 +220,19 @@ namespace HLab.Base.Wpf
             var year = TextYear.Value;
             var month = TextMonth.Value;
             var day = TextDay.Value;
+            var hour = TextHour.Value;
+            var minute = TextMin.Value;
             var dayValid = true;
 
             if (month > 12) month = 12;
-            if (month < 1 && year>0) month = 1;
+            if (month < 1 && year > 0) month = 1;
             //if (year < 1) year = 1;
             if (year > 9999) year = 9999;
+
+            if (hour > 24) hour = 24;
+            if (minute > 59) minute = 59;
+            if (hour < 0) hour = 0;
+            if (minute < 0) minute = 0;
 
             if (EmptyDayAllowed)
             {
@@ -157,22 +244,28 @@ namespace HLab.Base.Wpf
             }
             else
             {
-                if (day < 1 && month>0) day = 1;
-                if (day > DaysInMonth(year, month))
+                if (day < 1)
                 {
-                    day = DaysInMonth(year, month);
+                    if (month > 0) day = 1;
+                }
+                else
+                {
+                    var daysInMonth = DaysInMonth(year, month);
+                    if (day > daysInMonth)
+                        day = daysInMonth;
                 }
             }
 
-
             TextYear.Value = year;
             TextMonth.Value = month;
-
             TextDay.Value = dayValid ? day : 0;
+            TextHour.Value = hour;
+            TextMin.Value = minute;
+
             if (year > 0)
             {
                 DayValid = dayValid;
-                Date = new DateTime(year,month,day);
+                Date = new DateTime(year, month, day, hour,minute,0);
             }
         }
 
@@ -181,12 +274,28 @@ namespace HLab.Base.Wpf
             Popup.IsOpen = true;
             Calendar.Focus();
         }
+        private void TimeButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            TimePopup.IsOpen = true;
+            TimePicker.Focus();
+        }
+
+        private void NowButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            DayValid = true;
+            Date = DateTime.Now;
+        }
 
         private void Calendar_OnSelectedDatesChanged(object sender, SelectionChangedEventArgs e)
         {
             DayValid = true;
             Date = Calendar.SelectedDate;
             Popup.IsOpen = false;
+        }
+
+        private void TimePicker_OnDone(object sender, RoutedEventArgs e)
+        {
+            TimePopup.IsOpen = false;
         }
     }
 }

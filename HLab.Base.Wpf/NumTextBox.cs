@@ -4,10 +4,12 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using HLab.Base.Wpf;
+using HLab.Base.Extensions;
 
-namespace HLab.Base
+namespace HLab.Base.Wpf
 {
+    using H = DependencyHelper<NumTextBox>;
+
     public class ValueChangedEventArg : EventArgs
     {
         public int NewValue { get; }
@@ -20,8 +22,6 @@ namespace HLab.Base
 
     public class NumTextBox : TextBox, IMandatoryNotFilled
     {
-        private class H : DependencyHelper<NumTextBox> { }
-
         public DependencyProperty MandatoryProperty => ValueProperty;
 
         public event EventHandler<ValueChangedEventArg> ValueChanged;
@@ -56,11 +56,15 @@ namespace HLab.Base
                 }).Register();
 
         public static readonly DependencyProperty MandatoryNotFilledProperty = H.Property<bool>()
-            .OnChange( (s,a) => s.SetMandatoryNotFilled(a.NewValue) )
+            .OnChange( (s,a) => s.SetMandatoryNotFilled() )
             .Register();
 
-        public static readonly DependencyProperty ShowZeroProperty = H.Property<bool>()
-            .OnChange( (s,a) => s.SetShowZero(a.NewValue) )
+        public static readonly DependencyProperty ZerosProperty = H.Property<int>()
+            .OnChange( (s,a) => s.UpdateText() )
+            .Register();
+
+        public static readonly DependencyProperty HideZeroValueProperty = H.Property<bool>()
+            .OnChange( (s,a) => s.UpdateText() )
             .Register();
 
         public int Value
@@ -83,36 +87,59 @@ namespace HLab.Base
             get => (bool)GetValue(MandatoryNotFilledProperty);
             set => SetValue(MandatoryNotFilledProperty, value);
         }
-        public bool ShowZero
+        public int Zeros
         {
-            get => (bool)GetValue(ShowZeroProperty);
-            set => SetValue(ShowZeroProperty, value);
+            get => (int)GetValue(ZerosProperty);
+            set => SetValue(ZerosProperty, value);
+        }
+        public bool HideZeroValue
+        {
+            get => (bool)GetValue(HideZeroValueProperty);
+            set => SetValue(HideZeroValueProperty, value);
+        }
+
+        private static string FormatZeros(int value, int zeros, bool hideZeroValue)
+        {
+            if (hideZeroValue && value == 0) return "";
+
+            var text = $"{value}";
+
+            if (text.Length < zeros)
+            {
+                text = $"{new string('0', zeros)}{text}".Right(zeros);
+            }
+
+            return text;
+        }
+
+        private static int ParseTextToValue(string text)
+        {
+            if(int.TryParse(text,out var value))
+            {
+                return value;
+            }
+
+            return 0;
         }
 
         protected virtual void OnValueChanged(ValueChangedEventArg arg)
         {
-
-            if(ShowZero)
-                Text = arg.NewValue.ToString();
-            else
-                Text = arg.NewValue == 0 ? "" : arg.NewValue.ToString();
-
+            UpdateText();
             ValueChanged?.Invoke(this,arg);
-
         }
 
         protected override void OnPreviewTextInput(TextCompositionEventArgs e)
         {
             base.OnPreviewTextInput(e);
 
-            if (e.Text.Contains('/') && !string.IsNullOrWhiteSpace(Text))
+            if ("/:".Contains(e.Text) && !string.IsNullOrWhiteSpace(Text))
             {
+                e.Handled = true;
                 MoveNext();
             }
 
             var regex = new Regex(@"^[-+]?\d*$");
             e.Handled = !regex.IsMatch(e.Text);
-
         }
 
         protected override void OnTextChanged(TextChangedEventArgs e)
@@ -120,64 +147,22 @@ namespace HLab.Base
             base.OnTextChanged(e);
 
             var text = Text;
-            var s = SelectionStart;
-            var removed = 0;
+            var i = SelectionStart;
+            var l = SelectionLength;
 
-            while (text.StartsWith('0') && text != "0")
-            {
-                text = text.Substring(1);
-                if(s>0) s--;
-                removed++;
-            }
+            var left = text[..i];
+            var right = text[(i + l)..];
 
-            while (true)
-            {
+            if (ParseTextToValue($"{left}0{right}") > MaxValue) 
+                e.Handled = MoveNext();
 
-                if (!int.TryParse(text, out var i))
-                {
-                    if(!string.IsNullOrWhiteSpace(text)) return;
-                    i = 0;
-                }
-
-                if (i > MaxValue) 
-                {
-                    if (s == text.Length)
-                    {
-                        Value = MaxValue;
-                        e.Handled = MoveNext();
-                        return;
-                    }
-
-                    text = text.Substring(0, s) + text.Substring(s + 1);
-                    SelectionStart = s;
-                    e.Handled = true;
-                    continue;
-                }
-
-                if (i*10 > MaxValue && s == text.Length)
-                {
-                    Value = i;
-                    e.Handled = MoveNext();
-                    return;
-                }
-
-                if (removed > 0 && Math.Pow(10 , Text.Length) > MaxValue)
-                {
-                    Value = i;
-                    e.Handled = MoveNext();
-                    return;
-                }
-
-                Value = i;
-                SelectionStart = s;
-                e.Handled = true;
-                return;
-            }
-
+            if (ParseTextToValue($"1{text}") > MaxValue) 
+                e.Handled = MoveNext();
         }
-        private void SetMandatoryNotFilled(bool mnf)
+
+        private void SetMandatoryNotFilled()
         {
-            if (mnf)
+            if (MandatoryNotFilled)
             {
                 BorderThickness = new Thickness(1);
                 BorderBrush = new SolidColorBrush(Colors.DarkRed);
@@ -187,19 +172,11 @@ namespace HLab.Base
                 BorderThickness = new Thickness(0);
                 BorderBrush = new SolidColorBrush(Colors.Transparent);
             }
-//            Mandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
         }
 
-        private void SetShowZero(bool value)
+        private void UpdateText()
         {
-            if (value)
-            {
-                if (Value == 0) Text = "0";
-            }
-            else
-            {
-                if (Value == 0) Text = "";
-            }
+            Text = FormatZeros(Value, Zeros, HideZeroValue);
         }
 
         protected override void OnMouseDoubleClick(MouseButtonEventArgs e)
@@ -238,23 +215,18 @@ namespace HLab.Base
                 textBox.SelectAll();
         }
 
+        private int ConstrainedValue(int value)
+        {
+            if (value > MaxValue) value = MaxValue;
+            if (value < MinValue) value = MinValue;
+            return value;
+        }
+
         protected override void OnLostFocus(RoutedEventArgs e)
         {
             base.OnLostFocus(e);
-            if (ShowZero)
-            {
-                if (string.IsNullOrWhiteSpace(Text))
-                {
-                    Value = 0;
-                }
-            }
-            else
-            {
-                if (int.TryParse(Text, out var i))
-                {
-                    if (i == 0) Text = "";
-                }
-            }
+            Value = ConstrainedValue(ParseTextToValue(Text));
+            UpdateText();
         }
 
         private static void SelectivelyIgnoreMouseButton( MouseButtonEventArgs e)

@@ -1,0 +1,88 @@
+﻿<UserControl x:Class="HLab.Base.Wpf.TimePicker"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HLab.Base.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800"
+             >
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Calendar.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Button Click="ButtonBase_OnClick" Height="15">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Grid Height="15">
+                        <Border Background="{DynamicResource MahApps.Brushes.ThemeBackground}"/>
+                        <ContentControl Height="15" IsTabStop="False" Content="{StaticResource Now}"/>
+                    </Grid>
+                </ControlTemplate>
+            </Button.Template>
+        </Button>
+    <Grid Grid.Row="1">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <ListBox Grid.Column="0" MaxHeight="260" x:Name="HourListBox" SelectionChanged="HourListBox_OnSelectionChanged">
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="0">00</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="1">01</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="2">02</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="3">03</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="4">04</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="5">05</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="6">06</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="7">07</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="8">08</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="9">09</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="10">10</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="11">11</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="12">12</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="13">13</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="14">14</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="15">15</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="16">16</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="17">17</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="18">18</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="19">19</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="20">20</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="21">21</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="22">22</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="23">23</ListBoxItem>
+        </ListBox>
+        <ListBox 
+            Grid.Column="1" MaxHeight="260" 
+            VerticalContentAlignment="Center" 
+            x:Name="MinuteListBox" 
+            SelectionChanged="MinuteListBox_OnSelectionChanged"
+            MouseLeftButtonUp="MinuteListBox_OnMouseLeftButtonUp"
+            >
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="0"><Bold>00</Bold></ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="5">05</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="10">10</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="15"><Bold>15</Bold></ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="20">20</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="25">25</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="30"><Bold>30</Bold></ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="35">35</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="40">40</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="45"><Bold>45</Bold></ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="50">50</ListBoxItem>
+            <ListBoxItem HorizontalContentAlignment="Center" Tag="55">55</ListBoxItem>
+
+        </ListBox>
+    </Grid>
+
+    </Grid>
+</UserControl>

@@ -73,7 +73,7 @@ namespace HLab.Base.Wpf
         {
             _propertyMetadata.PropertyChangedCallback += (d, e) =>
             {
-                if (!(d is TSender c)) return;
+                if (d is not TSender c) return;
 
                 action(c, new DependencyPropertyChangedEventArgs<TValue>(e));
             };
