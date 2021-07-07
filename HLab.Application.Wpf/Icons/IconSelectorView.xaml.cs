@@ -1,11 +1,8 @@
-﻿using System;
-using System.Windows;
+﻿using System.Windows;
 using System.Windows.Controls;
 using HLab.Base.Wpf;
 using HLab.Erp.Core;
 using HLab.Icons.Annotations.Icons;
-using HLab.Icons.Wpf;
-using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Application.Wpf.Icons
 {

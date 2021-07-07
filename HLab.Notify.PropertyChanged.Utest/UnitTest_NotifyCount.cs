@@ -1,4 +1,3 @@
-using System;
 using HLab.Notify.PropertyChanged.UTest.Classes;
 using Xunit;
 

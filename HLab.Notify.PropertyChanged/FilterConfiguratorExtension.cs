@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Specialized;
-using System.ComponentModel;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged

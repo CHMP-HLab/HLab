@@ -27,9 +27,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
-using System.Threading;
 using HLab.Base;
-using HLab.Notify.Annotations;
 using Nito.AsyncEx;
 
 namespace HLab.Notify.PropertyChanged

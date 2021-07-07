@@ -1,5 +1,3 @@
-﻿using System;
-
-namespace HLab.Mvvm.Flowchart.Models
+﻿namespace HLab.Mvvm.Flowchart.Models
 {
 }

@@ -1,5 +1,4 @@
-﻿using HLab.Core;
-using HLab.Core.Annotations;
+﻿using HLab.Core.Annotations;
 using HLab.Notify.PropertyChanged;
 
 

@@ -1,5 +1,4 @@
 ﻿using System.Collections.Concurrent;
-using System.Configuration;
 using System.Diagnostics;
 using System.Threading.Tasks;
 using System.Windows;

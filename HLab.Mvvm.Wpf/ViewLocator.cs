@@ -26,7 +26,6 @@ using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
-using HLab.Base;
 using HLab.Base.Wpf;
 using HLab.Mvvm.Annotations;
 namespace HLab.Mvvm

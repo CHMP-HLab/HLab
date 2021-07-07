@@ -2,7 +2,6 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
-using System.Runtime.ExceptionServices;
 using System.Threading;
 using System.Windows;
 using MantisBTRestAPIClient;

@@ -1,10 +1,8 @@
-﻿using System.Drawing;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
 using HLab.ColorTools.Wpf;
 using HLab.Icons.Annotations.Icons;
-using Svg;
 
 namespace HLab.Icons.Wpf.Icons.Providers
 {

@@ -24,7 +24,6 @@
 using System;
 using System.Windows;
 using System.Windows.Data;
-using System.Windows.Media;
 
 namespace HLab.Base.Converters
 {

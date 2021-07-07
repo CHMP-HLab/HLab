@@ -1,10 +1,7 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Data;
 using HLab.Localization.Wpf.Lang;
-using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {

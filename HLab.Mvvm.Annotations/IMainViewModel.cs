@@ -1,5 +1,4 @@
-﻿using HLab.Icons.Annotations;
-using HLab.Icons.Annotations.Icons;
+﻿using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Mvvm.Annotations
 {

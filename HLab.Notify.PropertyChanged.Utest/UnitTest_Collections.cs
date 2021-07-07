@@ -1,6 +1,5 @@
 ﻿using System.ComponentModel;
 using System.Linq;
-using System.Threading;
 using HLab.Notify.PropertyChanged.UTest.Classes;
 using Xunit;
 

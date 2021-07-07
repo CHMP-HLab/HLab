@@ -6,7 +6,6 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using AvalonDock.Layout.Serialization;
 using HLab.Erp.Acl.Annotations;
-using HLab.Erp.Core.DragDrops;
 using HLab.Mvvm.Annotations;
 using HLab.Options;
 

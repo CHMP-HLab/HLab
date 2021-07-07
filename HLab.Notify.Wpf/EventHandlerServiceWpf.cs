@@ -4,9 +4,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
-using HLab.Base;
 using HLab.Notify.Annotations;
-using HLab.Notify.PropertyChanged;
 
 namespace HLab.Notify.Wpf
 {

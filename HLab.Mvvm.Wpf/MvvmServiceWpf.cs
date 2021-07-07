@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
-using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Views;
 

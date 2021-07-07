@@ -1,19 +1,16 @@
 ﻿using System;
 using System.Drawing;
-using System.Collections;
-using System.ComponentModel;
-using System.Data;
 using System.Runtime.InteropServices;
 
 namespace HLab.Base.Wpf
 {
-	/// <summary>
-	/// Provides static methods to read system icons for both folders and files.
-	/// </summary>
-	/// <example>
-	/// <code>IconReader.GetFileIcon("c:\\general.xls");</code>
-	/// </example>
-	public class IconReader
+    /// <summary>
+    /// Provides static methods to read system icons for both folders and files.
+    /// </summary>
+    /// <example>
+    /// <code>IconReader.GetFileIcon("c:\\general.xls");</code>
+    /// </example>
+    public class IconReader
 	{
 		/// <summary>
 		/// Options to specify the size of icons to return.

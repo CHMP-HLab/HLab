@@ -1,6 +1,5 @@
 ﻿using System.Collections.ObjectModel;
 using System.Windows.Media;
-using HLab.Notify.Annotations;
 
 namespace HLab.Mvvm.Flowchart.Models
 {

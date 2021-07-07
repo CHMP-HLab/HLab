@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
-using HLab.Mvvm.Annotations;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 

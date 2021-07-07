@@ -4,8 +4,6 @@
 using HLab.Notify.Annotations;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Text;
 
 namespace HLab.Notify.PropertyChanged
 {

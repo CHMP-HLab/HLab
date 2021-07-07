@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows.Media;
-using HLab.Mvvm.Annotations;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 

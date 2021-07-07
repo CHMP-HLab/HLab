@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using HLab.Notify.PropertyChanged.Utest.Annotations;
-using Xunit;
+﻿using Xunit;
 namespace HLab.Notify.PropertyChanged.UTest
 {
     using H = H<NotifyObject>;

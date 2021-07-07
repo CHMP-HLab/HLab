@@ -1,9 +1,6 @@
 ﻿using System;
-using System.ComponentModel;
-using System.Net.Mime;
 using System.Threading.Tasks;
 using System.Windows.Input;
-using HLab.Base;
 using HLab.Notify.PropertyChanged.PropertyHelpers;
 
 namespace HLab.Notify.PropertyChanged

@@ -22,7 +22,6 @@
 */
 
 using System;
-using System.Data.SqlTypes;
 
 namespace HLab.Mvvm.Annotations
 {

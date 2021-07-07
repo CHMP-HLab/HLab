@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-using System.Windows.Input;
-using HLab.Notify.PropertyChanged.Utest.Annotations;
+﻿using System.Windows.Input;
 using Xunit;
 
 namespace HLab.Notify.PropertyChanged.UTest

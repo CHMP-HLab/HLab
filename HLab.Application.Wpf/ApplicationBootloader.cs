@@ -7,8 +7,8 @@ using System.Windows.Markup;
 using HLab.Core.Annotations;
 using HLab.Erp.Acl.LoginServices;
 using HLab.Erp.Core;
-using HLab.Erp.Core.Localization;
 using HLab.Erp.Core.Update;
+using HLab.Erp.Core.Wpf.Localization;
 using HLab.Mvvm.Annotations;
 
 

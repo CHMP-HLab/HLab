@@ -1,5 +1,4 @@
 ﻿using System;
-using HLab.Erp.Core;
 
 namespace HLab.Mvvm.Application
 {

@@ -1,23 +1,17 @@
 ﻿using System;
 using System.Collections;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Reflection;
 using System.Resources;
-using System.Runtime.InteropServices;
-using System.Security;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
 using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
 using HLab.Icons.Annotations.Icons;
 using HLab.Icons.Wpf.Icons.Providers;
-using Microsoft.CodeAnalysis;
 
 namespace HLab.Icon.Benchmark
 {

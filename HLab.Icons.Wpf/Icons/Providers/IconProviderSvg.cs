@@ -2,11 +2,9 @@
 using System.IO;
 using System.Resources;
 using System.Threading.Tasks;
-using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using HLab.ColorTools.Wpf;
 using HLab.Icons.Annotations.Icons;
 using Svg;
 using Image = System.Windows.Controls.Image;

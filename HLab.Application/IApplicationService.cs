@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using HLab.Core.Annotations;
+﻿using HLab.Core.Annotations;
 using HLab.Erp.Core;
 using HLab.Mvvm.Annotations;
 

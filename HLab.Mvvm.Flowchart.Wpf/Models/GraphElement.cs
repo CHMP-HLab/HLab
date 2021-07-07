@@ -10,7 +10,6 @@ using System.Xml;
 using System.Xml.Schema;
 using System.Xml.Serialization;
 using HLab.Mvvm.Annotations;
-using HLab.Notify;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
