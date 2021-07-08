@@ -48,8 +48,6 @@ namespace HLab.Mvvm.Application.Wpf
         }
 
         private readonly IOptionsService _options;
-        //[Import] TODO
-        //private IAclService _acl;
 
         private void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {

@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 using HLab.Erp.Base.Data;
 using HLab.Erp.Core.Wpf.EntityLists;
@@ -10,9 +11,13 @@ namespace HLab.Mvvm.Application.Wpf.Icons
 {
     public class IconListViewModel: EntityListViewModel<Icon>, IMvvmContextProvider
     {
+        protected override bool CanExecuteAdd(Action<string> errorAction) => true;
+        protected override bool CanExecuteDelete(Icon arg, Action<string> errorAction) => true;
+
+        protected override bool CanExecuteExport(Action<string> errorAction) => true;
+        protected override bool CanExecuteImport(Action<string> errorAction) => true;
+
         public IconListViewModel() : base(c => c
-// TODO                .AddAllowed()
-            // TODO                .DeleteAllowed()
             .Column()
             .Header("{Path}")
             .Width(210).Link(e => e.Path)
