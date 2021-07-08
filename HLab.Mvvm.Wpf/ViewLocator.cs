@@ -43,42 +43,42 @@ namespace HLab.Mvvm
             DependencyHelper.Property<ViewLocator, Type>()
                 .OnChange((s, a) =>
                 {
-                        s.Update(s.Model, a.OldValue, s.ViewClass);
+                    s.Update();
                 })
                 .Default(typeof(ViewModeDefault))
-                .Inherits.AffectsRender
+                .Inherits//.AffectsRender
                 .RegisterAttached();
 
         public static readonly DependencyProperty ViewClassProperty =
             DependencyHelper.Property<ViewLocator, Type>()
                 .OnChange((s, a) =>
                 {
-                        s.Update(s.Model, s.ViewMode, a.OldValue);
+                    s.Update();
                 })
                 .Default(typeof(IViewClassDefault))
-                .Inherits.AffectsRender
+                .Inherits//.AffectsRender
                 .RegisterAttached();
 
         public static readonly DependencyProperty MvvmContextProperty =
             H.Property<IMvvmContext>()
                 .OnChange((s, a) =>
                 {
-                        s.Update(s.Model, s.ViewMode, s.ViewClass);
+                    s.Update();
                 })
                 .Default(null)
-                .Inherits.AffectsRender
+                .Inherits//.AffectsRender
                 .RegisterAttached();
 
         public static readonly DependencyProperty ModelProperty = H.Property<object>()
             .OnChange((vl, a) =>
             {
-                vl.Update(a.OldValue, vl.ViewMode, vl.ViewClass);
+                vl.Update();
             })
             .Register();
 
-        public static object GetModel(DependencyObject obj) 
+        public static object GetModel(DependencyObject obj)
             => obj.GetValue(ModelProperty);
-        public static void SetModel(DependencyObject obj, object value) 
+        public static void SetModel(DependencyObject obj, object value)
             => obj.SetValue(ModelProperty, value);
 
         public static Type GetViewMode(DependencyObject obj)
@@ -88,17 +88,17 @@ namespace HLab.Mvvm
 
         public static Type GetViewClass(DependencyObject obj)
             => (Type)obj.GetValue(ViewClassProperty);
-        public static void SetViewClass(DependencyObject obj, Type value) 
+        public static void SetViewClass(DependencyObject obj, Type value)
             => obj.SetValue(ViewClassProperty, value);
-        
-        public static IMvvmContext GetMvvmContext(DependencyObject obj) 
+
+        public static IMvvmContext GetMvvmContext(DependencyObject obj)
             => (IMvvmContext)obj.GetValue(MvvmContextProperty);
         public static void SetMvvmContext(DependencyObject obj, IMvvmContext value)
             => obj.SetValue(MvvmContextProperty, value);
 
         public object Model
         {
-            get => (object)GetValue(ModelProperty);
+            get => GetValue(ModelProperty);
             set => SetValue(ModelProperty, value);
         }
 
@@ -124,13 +124,13 @@ namespace HLab.Mvvm
             {
                 Source = this,
                 Path = new PropertyPath("DataContext"),
-               Mode = BindingMode.OneWay
+                Mode = BindingMode.OneWay
             };
             BindingOperations.SetBinding(this, ModelProperty, b);
-            Update(Model, ViewMode, ViewClass);
+            Update();
         }
 
-        protected void Update(object oldModel, Type oldViewMode, Type oldViewClass)
+        protected void Update()
         {
             if (DesignerProperties.GetIsInDesignMode(this)) return;
 
@@ -144,15 +144,17 @@ namespace HLab.Mvvm
             Content = view;
             if (view != null)
             {
-                SetViewClass(view,typeof(IViewClassDefault));
-                SetViewMode(view,typeof(ViewModeDefault));
+                SetViewClass(view, typeof(IViewClassDefault));
+                SetViewMode(view, typeof(ViewModeDefault));
             }
         }
 
         private FrameworkElement GetView()
         {
-            if (MvvmContext==null) return null;
+            if (MvvmContext == null) return null;
+
             if (Model == null) return null;
+
             if (ViewMode == typeof(ViewModeCollapsed)) return null;
 
             if (ViewMode == null || ViewClass == null) return null;
