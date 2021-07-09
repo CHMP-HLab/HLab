@@ -32,40 +32,22 @@ namespace HLab.Base.Wpf
         public DateEx()
         {
             InitializeComponent();
-            Set(Date, DayValid);
         }
         public DependencyProperty MandatoryProperty => DateProperty;
 
         public static readonly DependencyProperty DateProperty =
             H.Property<DateTime?>()
             .BindsTwoWayByDefault
-            .OnChange((e, a) =>
-            {
-                e.Set(a.NewValue, e.DayValid);
-                e.Calendar.DisplayDate = a.NewValue ?? DateTime.Now;
-            }).Register();
+            .OnChange((e, a) => e.SetDate(a.NewValue, e.DayValid)).Register();
 
         public static readonly DependencyProperty DayValidProperty =
             H.Property<bool>()
             .BindsTwoWayByDefault
-            .OnChange((e, a) =>
-            {
-                e.Set(e.Date, a.NewValue);
-            }).Register();
+            .OnChange((e, a) => e.SetDate(e.Date, a.NewValue)).Register();
 
-        public static readonly DependencyProperty HasTimeProperty =
-            H.Property<bool>()
-            .BindsTwoWayByDefault
-            .OnChange((e, a) =>
-            {
-                e.Set(e.Date, a.NewValue);
-            }).Register();
 
         public static readonly DependencyProperty IsReadOnlyProperty =
-            H.Property<bool>().Default(false).OnChange((e, a) =>
-            {
-                e.SetReadOnly();
-            }).Register();
+            H.Property<bool>().Default(false).OnChange((e, a) => e.SetReadOnly(a.NewValue)).Register();
 
         public static readonly DependencyProperty EmptyDayAllowedProperty =
             H.Property<bool>().OnChange((e, a) =>
@@ -74,10 +56,7 @@ namespace HLab.Base.Wpf
             }).Register();
 
         public static readonly DependencyProperty ShowTimeProperty =
-            H.Property<bool>().OnChange((e, a) =>
-            {
-                e.SetShowTime();
-            }).Default(false).Register();
+            H.Property<bool>().OnChange((e, a) => e.SetShowTime(a.NewValue)).Default(false).Register();
 
         public static readonly DependencyProperty MandatoryNotFilledProperty = H.Property<bool>()
             .OnChange((s, a) => s.SetMandatoryNotFilled(a.NewValue))
@@ -97,7 +76,7 @@ namespace HLab.Base.Wpf
             TextMin.Background = brush;
         }
 
-        private void SetReadOnly()
+        private void SetReadOnly(bool readOnly)
         {
             TextDay.IsReadOnly = IsReadOnly;
             TextMonth.IsReadOnly = IsReadOnly;
@@ -109,21 +88,17 @@ namespace HLab.Base.Wpf
             {
                 Spacer.Visibility = IsReadOnly ? Visibility.Visible : Visibility.Collapsed;
             }
-            SetTimeButton();
+            SetTimeButton(readOnly);
         }
 
-        private void Set(DateTime? date, bool dayValid)
-        {
-            if (date == null)
-            {
-                TextDay.Text = "";
-                TextMonth.Text = "";
-                TextYear.Text = "";
 
-                TextHour.Value = 0;
-                TextMin.Value = 0;
-            }
-            else
+        private bool preventSetDate = false;
+        private void SetDate(DateTime? date, bool dayValid)
+        {
+            if(preventSetDate) return;
+            preventSetDate = true;
+
+            if (date.HasValue)
             {
                 TextDay.Value = dayValid ? date.Value.Day : 0;
                 TextMonth.Value = date.Value.Month;
@@ -132,9 +107,23 @@ namespace HLab.Base.Wpf
                 TextHour.Value = date.Value.Hour;
                 TextMin.Value = date.Value.Minute;
 
+                Calendar.DisplayDate = date ?? DateTime.Now;
                 TimePicker.Time = date;
             }
+            else
+            {
+                TextDay.Text = "";
+                TextMonth.Text = "";
+                TextYear.Text = "";
+
+                TextHour.Value = 0;
+                TextMin.Value = 0;
+            }
+            Date = date;
+            DayValid = dayValid;
+            preventSetDate = false;
         }
+
 
         private void SetMandatoryNotFilled(bool mnf)
         {
@@ -143,16 +132,16 @@ namespace HLab.Base.Wpf
         }
 
 
-        private void SetShowTime()
+        private void SetShowTime(bool showTime)
         {
-            SetTimeButton();
-            if (ShowTime)
+            SetTimeButton(showTime);
+            if (showTime)
             {
-                SetShowTime(Visibility.Visible,new GridLength(1, GridUnitType.Star));
+                SetShowTime(Visibility.Visible, new GridLength(1, GridUnitType.Star));
             }
             else
             {
-                SetShowTime(Visibility.Collapsed,GridLength.Auto);
+                SetShowTime(Visibility.Collapsed, GridLength.Auto);
             }
         }
 
@@ -167,9 +156,9 @@ namespace HLab.Base.Wpf
             MinColumn.Width = width;
         }
 
-        private void SetTimeButton()
+        private void SetTimeButton(bool showTime)
         {
-            if (ShowTime && !IsReadOnly)
+            if (showTime && !IsReadOnly)
             {
                 TimeButton.Visibility = Visibility.Visible;
             }
@@ -217,36 +206,28 @@ namespace HLab.Base.Wpf
 
         protected virtual void OnValueChange(object source, ValueChangedEventArg e)
         {
-            var year = TextYear.Value;
-            var month = TextMonth.Value;
-            var day = TextDay.Value;
-            var hour = TextHour.Value;
-            var minute = TextMin.Value;
-            var dayValid = true;
+            FromUi();
+        }
 
-            if (month > 12) month = 12;
-            if (month < 1 && year > 0) month = 1;
-            //if (year < 1) year = 1;
+        private void FromUi()
+        {
+            var year = TextYear.Value;
+            if (year < 1) return;
             if (year > 9999) year = 9999;
 
-            if (hour > 24) hour = 24;
-            if (minute > 59) minute = 59;
-            if (hour < 0) hour = 0;
-            if (minute < 0) minute = 0;
+            var month = TextMonth.Value;
+            if (month < 1) return;
+            if (month > 12) month = 12;
+            if (month < 1) month = 1;
 
+            var day = TextDay.Value;
+            var dayValid = true;
             if (EmptyDayAllowed)
-            {
-                if (day < 1 || day > DaysInMonth(year, month))
-                {
-                    dayValid = false;
-                    day = DaysInMonth(year, month);
-                }
-            }
-            else
             {
                 if (day < 1)
                 {
-                    if (month > 0) day = 1;
+                    dayValid = false;
+                    day = DaysInMonth(year, month);
                 }
                 else
                 {
@@ -255,6 +236,24 @@ namespace HLab.Base.Wpf
                         day = daysInMonth;
                 }
             }
+            else
+            {
+                if (day < 1) return;
+                else
+                {
+                    var daysInMonth = DaysInMonth(year, month);
+                    if (day > daysInMonth)
+                        day = daysInMonth;
+                }
+            }
+
+            var hour = TextHour.Value;
+            if (hour > 24) hour = 24;
+            if (hour < 0) hour = 0;
+
+            var minute = TextMin.Value;
+            if (minute > 59) minute = 59;
+            if (minute < 0) minute = 0;
 
             TextYear.Value = year;
             TextMonth.Value = month;
@@ -264,8 +263,7 @@ namespace HLab.Base.Wpf
 
             if (year > 0)
             {
-                DayValid = dayValid;
-                Date = new DateTime(year, month, day, hour,minute,0);
+                SetDate(new DateTime(year, month, day, hour, minute, 0),dayValid);
             }
         }
 
