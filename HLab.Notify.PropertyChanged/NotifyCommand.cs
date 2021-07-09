@@ -180,8 +180,11 @@ namespace HLab.Notify.PropertyChanged
         {
             if (_executing) return false;
 
-            if (_canExecuteFunc == null) return _canExecute;
-            return _canExecuteFunc(parameter);
+            if (_canExecuteFunc != null) 
+            {
+                _canExecute = _canExecuteFunc(parameter);
+            }
+            return _canExecute;
         }
 
         async void ICommand.Execute(object parameter)
