@@ -31,6 +31,8 @@
 
         <TextBlock>ShowTime</TextBlock>
         <CheckBox IsChecked="{Binding ElementName=DateEx, Path=ShowTime}"/>
+        
+        <Button Click="Button_Click">Test</Button>
 
         <TextBlock>DateEx</TextBlock>
         <wpf:DateEx x:Name="DateEx" Width="200" EmptyDayAllowed="True"/> 

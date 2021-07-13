@@ -38,7 +38,7 @@ namespace HLab.Base.Wpf
         public static readonly DependencyProperty DateProperty =
             H.Property<DateTime?>()
             .BindsTwoWayByDefault
-            .OnChange((e, a) => e.SetDate(a.NewValue, e.DayValid)).Register();
+            .OnChange((e, a) => e.SetDate(a.NewValue, !e.EmptyDayAllowed || e.DayValid)).Register();
 
         public static readonly DependencyProperty DayValidProperty =
             H.Property<bool>()
@@ -100,6 +100,10 @@ namespace HLab.Base.Wpf
 
             if (date.HasValue)
             {
+                var daysInMonth = DaysInMonth(date.Value.Year, date.Value.Month);
+
+                dayValid = dayValid || date.Value.Day < daysInMonth;
+
                 TextDay.Value = dayValid ? date.Value.Day : 0;
                 TextMonth.Value = date.Value.Month;
                 TextYear.Value = date.Value.Year;
