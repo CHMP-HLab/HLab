@@ -46,8 +46,11 @@ namespace HLab.Notify.PropertyChanged
                 return c.On().Do((target, property) => property.SetProperty(new PropertyValueLazy<T>(property, o =>
                 {
                     var t = setter((TClass) o);
-                    t.Wait(); // TODO : deadlock
-                    return t.Result;
+                    if (t.Wait(5000))
+                    {
+                        return t.Result;
+                    }
+                    return default(T);
                 })));
             }
 
