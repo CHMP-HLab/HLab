@@ -89,7 +89,7 @@ namespace HLab.Ioc
         public static void Set(Type iface, Type t)
         {
             var locator = typeof(Locator<>).MakeGenericType(iface);
-            var mSet = locator.GetMethod("Set");
+            var mSet = locator.GetMethod("Set",Array.Empty<Type>());
             var mSetG = mSet.MakeGenericMethod(t);
 
             mSetG.Invoke(null, null);
@@ -181,6 +181,11 @@ namespace HLab.Ioc
             catch (Exception)
             { }
         }
+
+        //public static void Set<T1>(T1 dummy) where T1 : T
+        //{
+        //    Set<T1>();
+        //}
 
         public static void SetFactoryExpression(Expression factoryExpression)
         {
