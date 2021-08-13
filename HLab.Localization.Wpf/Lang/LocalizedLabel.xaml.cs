@@ -10,7 +10,7 @@ namespace HLab.Localization.Wpf.Lang
     /// Logique d'interaction pour LocalizedLabel.xaml
     /// </summary>
     [ContentProperty(nameof(Text))]
-    public partial class LocalizedLabel : UserControl
+    public partial class LocalizedLabel : Label
     {
         public LocalizedLabel()
         {
@@ -23,7 +23,7 @@ namespace HLab.Localization.Wpf.Lang
         }
         public static readonly DependencyProperty TextProperty =
             H.Property<string>()
-                .AffectsRender
+            .OnChange((e,a)=> e.Localize.Id = a.NewValue)
                 .Register();
     }
 }

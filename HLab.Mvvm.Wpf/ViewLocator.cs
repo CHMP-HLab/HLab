@@ -23,9 +23,11 @@
 
 using System;
 using System.ComponentModel;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
+
 using HLab.Base.Wpf;
 using HLab.Mvvm.Annotations;
 namespace HLab.Mvvm
@@ -39,60 +41,91 @@ namespace HLab.Mvvm
     /// 
     public class ViewLocator : UserControl
     {
+        bool _loaded = false;
+
+        private Type _viewMode;
         public static readonly DependencyProperty ViewModeProperty =
-            DependencyHelper.Property<ViewLocator, Type>()
-                .OnChange((s, a) =>
+            H.Property<Type>()
+                .OnChange(async (e, a) =>
                 {
-                    s.Update();
+                    if(a.NewValue ==  null) return;
+                    if(e._viewMode != null && a.NewValue == e._viewMode) return;
+
+                    e._viewMode = a.NewValue;
+                    e._loaded = false;
+                    await e.UpdateAsync();
                 })
                 .Default(typeof(ViewModeDefault))
-                .Inherits//.AffectsRender
+                .Inherits
                 .RegisterAttached();
 
+        private Type _viewClass;
         public static readonly DependencyProperty ViewClassProperty =
-            DependencyHelper.Property<ViewLocator, Type>()
-                .OnChange((s, a) =>
+            H.Property<Type>()
+                .OnChange(async (e, a) =>
                 {
-                    s.Update();
+                    if(a.NewValue ==  null) return;
+                    if(e._viewClass != null && a.NewValue == e._viewClass) return;
+
+                    e._viewClass = a.NewValue;
+                    e._loaded = false;
+                    await e.UpdateAsync();
                 })
                 .Default(typeof(IViewClassDefault))
-                .Inherits//.AffectsRender
+                .Inherits
                 .RegisterAttached();
+
+        private WeakReference<IMvvmContext> _mvvmContextReference;
 
         public static readonly DependencyProperty MvvmContextProperty =
             H.Property<IMvvmContext>()
-                .OnChange((s, a) =>
+                .OnChange(async (e, a) =>
                 {
-                    s.Update();
+                    if(a.NewValue ==  null) return;
+                    if(e._mvvmContextReference!=null && e._mvvmContextReference.TryGetTarget(out var context) && ReferenceEquals(a.NewValue,context)) return;
+
+                    e._mvvmContextReference = new(a.NewValue);
+                    e._loaded = false;
+                    await e.UpdateAsync();
                 })
                 .Default(null)
-                .Inherits//.AffectsRender
+                .Inherits
                 .RegisterAttached();
 
+        private WeakReference<object> _modelReference;
         public static readonly DependencyProperty ModelProperty = H.Property<object>()
-            .OnChange((vl, a) =>
+            .OnChange(async (e, a) =>
             {
-                vl.Update();
+//                    if(a.NewValue ==  null) return;
+                    if(e._modelReference!=null && e._modelReference.TryGetTarget(out var model) && ReferenceEquals(a.NewValue,model)) return;
+
+                    e._modelReference = new(a.NewValue);
+                    e._loaded = false;
+                await e.UpdateAsync();
             })
             .Register();
 
         public static object GetModel(DependencyObject obj)
             => obj.GetValue(ModelProperty);
+
         public static void SetModel(DependencyObject obj, object value)
             => obj.SetValue(ModelProperty, value);
 
         public static Type GetViewMode(DependencyObject obj)
             => (Type)obj.GetValue(ViewModeProperty);
+
         public static void SetViewMode(DependencyObject obj, Type value)
             => obj.SetValue(ViewModeProperty, value);
 
         public static Type GetViewClass(DependencyObject obj)
             => (Type)obj.GetValue(ViewClassProperty);
+
         public static void SetViewClass(DependencyObject obj, Type value)
             => obj.SetValue(ViewClassProperty, value);
 
         public static IMvvmContext GetMvvmContext(DependencyObject obj)
             => (IMvvmContext)obj.GetValue(MvvmContextProperty);
+
         public static void SetMvvmContext(DependencyObject obj, IMvvmContext value)
             => obj.SetValue(MvvmContextProperty, value);
 
@@ -107,11 +140,13 @@ namespace HLab.Mvvm
             get => (Type)GetValue(ViewModeProperty);
             set => SetValue(ViewModeProperty, value);
         }
+
         public Type ViewClass
         {
             get => (Type)GetValue(ViewClassProperty);
             set => SetValue(ViewClassProperty, value);
         }
+
         public IMvvmContext MvvmContext
         {
             get => (IMvvmContext)GetValue(MvvmContextProperty);
@@ -127,26 +162,36 @@ namespace HLab.Mvvm
                 Mode = BindingMode.OneWay
             };
             BindingOperations.SetBinding(this, ModelProperty, b);
-            Update();
+            // Update();
         }
 
-        protected void Update()
-        {
-            if (DesignerProperties.GetIsInDesignMode(this)) return;
 
-            if (Content is FrameworkElement f)
-            {
-                f.DataContext = null;
-            }
+        int count = 0;
+        protected async Task UpdateAsync()
+        {
+
+            if (DesignerProperties.GetIsInDesignMode(this)) return;
 
             var view = GetView();
 
-            Content = view;
             if (view != null)
             {
                 SetViewClass(view, typeof(IViewClassDefault));
                 SetViewMode(view, typeof(ViewModeDefault));
             }
+
+            if (count++ > 0) { }
+
+            await Dispatcher.InvokeAsync(() =>
+            {
+
+                if (Content is FrameworkElement f)
+                {
+                    f.DataContext = null;
+                }
+
+                Content = view;
+            });
         }
 
         private FrameworkElement GetView()

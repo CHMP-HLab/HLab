@@ -11,7 +11,7 @@ using Image = System.Windows.Controls.Image;
 
 namespace HLab.Icons.Wpf.Icons.Providers
 {
-    public class IconProviderSvg : IIconProvider
+    public class IconProviderSvg : IconProvider, IIconProvider
     {
         private readonly ResourceManager _resourceManager;
         private readonly string _name;
@@ -28,7 +28,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
 
 
 
-        public async Task<object> GetAsync()
+        protected override async Task<object> GetAsync()
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
@@ -55,7 +55,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
             return icon;
         }
 
-        public object Get()
+        protected override object Get()
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 

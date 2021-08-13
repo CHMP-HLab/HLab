@@ -1,4 +1,5 @@
 ﻿using HLab.Base;
+
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -14,49 +15,46 @@ namespace HLab.Core
         public void AddAssembliesReferencing<T>()
         {
             var assemblies = AssemblyHelper.GetReferencingAssemblies(typeof(T).Assembly).ToArray();
-            if(_assemblies==null)
-                _assemblies = assemblies;
-            else
-                _assemblies = _assemblies.Union(assemblies).ToArray();
+            _assemblies = _assemblies == null ? assemblies : _assemblies.Union(assemblies).ToArray();
         }
 
-        struct Parser
+        private struct Parser
         {
-            public Func<Type,bool> Condition;
+            public Func<Type, bool> Condition;
             public Action<Type> Action;
         }
 
-        private List<Parser> _parsers = new();
+        private readonly List<Parser> _parsers = new();
 
-        public void AddParser(Func<Type,bool>condition, Action<Type>action) => _parsers.Add(new Parser{Condition=condition, Action=action });
+        public void AddParser(Func<Type, bool> condition, Action<Type> action) => _parsers.Add(new Parser { Condition = condition, Action = action });
 
         public void Add<T>(Action<Type> action)
         {
             AddAssembliesReferencing<T>();
-            AddParser(t => t.IsAssignableTo(typeof(T)),action);
+            AddParser(t => t.IsAssignableTo(typeof(T)), action);
         }
 
         public void Parse()
         {
-            foreach(var assembly in _assemblies) Parse(assembly);
+            foreach (var assembly in _assemblies) Parse(assembly);
         }
 
         private void Parse(Assembly assembly)
         {
             var types = assembly.ExportedTypes.Where(t => !t.IsAbstract);
             //var types = assembly.GetTypes().Where(t => !t.IsAbstract);
-            foreach(var type in types) Parse(type);
+            foreach (var type in types) Parse(type);
         }
 
         private void Parse(Type type)
         {
-            foreach(var parser in _parsers)
+            foreach (var parser in _parsers)
             {
-                if(parser.Condition(type)) parser.Action(type);
+                if (parser.Condition(type)) parser.Action(type);
             }
         }
 
-                public bool LoadDll(string name)
+        public bool LoadDll(string name)
         {
             return LoadAbsolutePath(name);
             //var path = AppDomain.CurrentDomain.BaseDirectory + name +".dll";

@@ -1,11 +1,14 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Markup;
-using System.Windows.Media;
+
 using HLab.Base.Wpf;
 using HLab.Icons.Annotations.Icons;
+
+using Color = System.Windows.Media.Color;
 
 namespace HLab.Icons.Wpf.Icons
 {
@@ -22,23 +25,48 @@ namespace HLab.Icons.Wpf.Icons
             Loaded += IconView_Loaded;
         }
 
-        private void IconView_Loaded(object sender, RoutedEventArgs e)
+        private WeakReference<IIconService> _iconServiceReference;
+        private bool _iconLoaded = false;
+
+        private async void IconView_Loaded(object sender, RoutedEventArgs e)
         {
+            if(!_iconLoaded)
+                await LoadIconAsync(Path).ConfigureAwait(true);
+            
             Update();
         }
 
+
         public static readonly DependencyProperty IconServiceProperty =
             H.Property<IIconService>()
-            .OnChange(async (s, e) =>
+            .OnChange(async (e, a) =>
             {
-                await s.UpdateIconServiceAsync(e.NewValue).ConfigureAwait(true);
+                if(a.NewValue ==  null) return;
+                if(e._iconServiceReference!=null && e._iconServiceReference.TryGetTarget(out var iconService) && ReferenceEquals(a.NewValue,iconService)) return;
+
+                e._iconServiceReference = new(a.NewValue);
+
+                if (e.Path == null) return;
+                e._iconLoaded = false;
+
+                if(e.IsLoaded == false) return;
+
+                await e.LoadIconAsync(e.Path).ConfigureAwait(false);
             })
             .Inherits
             .RegisterAttached();
 
         public static readonly DependencyProperty PathProperty =
             H.Property<string>()
-            .OnChange(async (s, e) => await s.UpdateIconAsync(e.NewValue).ConfigureAwait(true))
+            .OnChange(async (e, a) =>
+            {
+                if (a.NewValue == null) return;
+                e._iconLoaded = false;
+
+                if(e.IsLoaded == false) return;
+
+                await e.LoadIconAsync(a.NewValue).ConfigureAwait(false);
+            })
             .Register();
 
         public static readonly DependencyProperty CaptionProperty =
@@ -47,11 +75,19 @@ namespace HLab.Icons.Wpf.Icons
             .Register();
 
         public static readonly DependencyProperty IconMaxHeightProperty =
-            H.Property<double>().Default(30.0)
+            H.Property<double>().Default(30.0).OnChange((e, a) =>
+            {
+                if(double.IsNaN(a.NewValue)) return;
+                e.IconContent.MaxHeight = a.NewValue;
+            })
             .Register();
 
         public static readonly DependencyProperty IconMaxWidthProperty =
-            H.Property<double>().Default(50.0)
+            H.Property<double>().Default(50.0).OnChange((e, a) =>
+            {
+                if(double.IsNaN(a.NewValue)) return;
+                e.IconContent.MaxWidth = a.NewValue;
+            })
             .Register();
 
         public string Path
@@ -76,30 +112,6 @@ namespace HLab.Icons.Wpf.Icons
             set => SetValue(IconMaxWidthProperty, value);
         }
 
-        //public static readonly DependencyProperty ForegroundMatchColorProperty =
-        //    H.Property<Color>()
-        //        .Default(Colors.Black)
-        //        .OnChange((s, e) => s.Update())
-        //        .Inherits
-        //        .RegisterAttached();
-
-        //public Color ForegroundMatchColor
-        //{
-        //    get => (Color)GetValue(ForegroundMatchColorProperty);
-        //    set => SetValue(ForegroundMatchColorProperty, value);
-        //}
-
-        //public static readonly DependencyProperty BackgroundMatchColorProperty =
-        //    H.Property<Color>()
-        //        .Default(Colors.White)
-        //        .OnChange((s, e) => s.Update())
-        //        .Inherits
-        //        .RegisterAttached();
-        //public Color BackgroundMatchColor
-        //{
-        //    get => (Color)GetValue(BackgroundMatchColorProperty);
-        //    set => SetValue(BackgroundMatchColorProperty, value);
-        //}
 
         public IIconService IconService
         {
@@ -109,7 +121,9 @@ namespace HLab.Icons.Wpf.Icons
 
         private static IIconService _designTimeService = null;
 
-        public async Task UpdateIconAsync(string path)
+
+        int count = 0;
+        private async Task LoadIconAsync(string path)
         {
             if (IconService == null)
             {
@@ -129,15 +143,18 @@ namespace HLab.Icons.Wpf.Icons
                     return;
             }
 
-            IconContent.Content = (UIElement)await IconService.GetIconAsync(path).ConfigureAwait(true);
-            Update();
+            if(count++>0) return;
+
+            var icon = await IconService.GetIconAsync(path).ConfigureAwait(false);
+
+            await Dispatcher.BeginInvoke(() =>
+            {
+                IconContent.Content = icon;
+                Update();
+                _iconLoaded = true;
+            });
         }
 
-        public async Task UpdateIconServiceAsync(IIconService service)
-        {
-            if (Path == null) return;
-            await UpdateIconAsync(Path);
-        }
 
         public void Update()
         {
@@ -155,6 +172,7 @@ namespace HLab.Icons.Wpf.Icons
                         CaptionContent.Visibility = Visibility.Collapsed;
                         break;
                     default:
+                        CaptionContent.Content = Caption;
                         CaptionContent.Visibility = Visibility.Visible;
                         break;
                 }
@@ -170,6 +188,7 @@ namespace HLab.Icons.Wpf.Icons
                         Spacer.Width = new GridLength(0.0);
                         break;
                     default:
+                        CaptionContent.Content = Caption;
                         CaptionContent.Visibility = Visibility.Visible;
                         Spacer.Width = new GridLength(10.0);
                         break;
@@ -190,15 +209,6 @@ namespace HLab.Icons.Wpf.Icons
         {
             obj.SetValue(IconServiceProperty, value);
         }
-
-        //public static Color GetForegroundMatchColor(DependencyObject obj)
-        //{
-        //    return (Color)obj.GetValue(ForegroundMatchColorProperty);
-        //}
-        //public static void SetForegroundMatchColor(DependencyObject obj, Color value)
-        //{
-        //    obj.SetValue(ForegroundMatchColorProperty, value);
-        //}
 
     }
 }

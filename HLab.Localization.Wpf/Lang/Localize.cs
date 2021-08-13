@@ -17,10 +17,17 @@ namespace HLab.Localization.Wpf.Lang
         {
             System.ComponentModel.DependencyPropertyDescriptor pdIsAvailable = System.ComponentModel.DependencyPropertyDescriptor.FromProperty
                     (LanguageProperty, typeof(FrameworkElement));
-            pdIsAvailable.AddValueChanged(this, async (o,h) => await UpdateAsync(Language, LocalizationService, Id,StringFormat));
+
+            pdIsAvailable.AddValueChanged(this, async (o, a) =>
+            {
+                if(LocalizationService == null) return;
+                if(Id == null) return;
+                await UpdateAsync(Language, LocalizationService, Id, StringFormat);
+            });
 
         }
 
+        private WeakReference<ILocalizationService> _localizationServiceReference;
         
 
         public string Id
@@ -30,24 +37,41 @@ namespace HLab.Localization.Wpf.Lang
         }
         public static readonly DependencyProperty IdProperty =
             H.Property<string>()
-                .OnChange(async(s,  e) => await s.UpdateAsync(s.Language, s.LocalizationService, e.NewValue, s.StringFormat))
-                .AffectsRender
+                .OnChange(async (e, a) =>
+                {
+                    if(e.LocalizationService ==  null) return;
+                    if(e.Language ==  null) return;
+
+                    await e.UpdateAsync(e.Language, e.LocalizationService, a.NewValue, e.StringFormat);
+                })
                 .Register();
 
         public static readonly DependencyProperty StringFormatProperty =
             H.Property<string>()
 //                .Default("{}{0}")
-                .OnChange(async (s, e) => await s.UpdateAsync(s.Language, s.LocalizationService, s.Id, e.NewValue))
-                .AffectsRender
+                .OnChange(async (e, a) =>
+                {
+                    if(e.LocalizationService ==  null) return;
+                    if(e.Language ==  null) return;
+                    await e.UpdateAsync(e.Language, e.LocalizationService, e.Id, a.NewValue);
+                })
                 .Register();
 
         public static readonly DependencyProperty LocalizationServiceProperty =
             H.Property<ILocalizationService>()
-                .OnChange(async (s, e) =>
+                .OnChange(async (e, a) =>
                 {
-                        await s.UpdateAsync(s.Language, e.NewValue, s.Id, s.StringFormat);
+                        if(a.NewValue ==  null) return;
+                        if(e._localizationServiceReference!=null && e._localizationServiceReference.TryGetTarget(out var service) && ReferenceEquals(a.NewValue,service)) return;
+
+                        e._localizationServiceReference = new(a.NewValue);
+
+                        if(e.Language ==  null) return;
+                        if(e.Id == null) return;
+
+                        await e.UpdateAsync(e.Language, a.NewValue, e.Id, e.StringFormat);
                 })
-                .Inherits.AffectsRender
+                .Inherits
                 .RegisterAttached();
 
 
@@ -63,10 +87,9 @@ namespace HLab.Localization.Wpf.Lang
             set => SetValue(LocalizationServiceProperty, value);
         }
 
-
         public async Task UpdateAsync(XmlLanguage lang, ILocalizationService service, string source, string format)
         {
-            if(service==null) return;
+            if (service == null) return;
 
             if (string.IsNullOrWhiteSpace(source))
             {
@@ -77,26 +100,26 @@ namespace HLab.Localization.Wpf.Lang
             string localized = source;
             try
             {
-                localized = await service.LocalizeAsync(lang.IetfLanguageTag, source).ConfigureAwait(true);
+                localized = await service.LocalizeAsync(lang.IetfLanguageTag, source).ConfigureAwait(false);
 
             }
-            catch (Exception e)
+            catch (Exception)
             {
             }
 
-            if (string.IsNullOrEmpty(format))
-                Text = localized;
-            else
+            if (!string.IsNullOrEmpty(format))
             {
                 try
                 {
-                    Text = string.Format(format, localized);
+                    localized = string.Format(format, localized);
                 }
-                catch(FormatException e)
+                catch(FormatException)
                 {
-                    Text = "F(" + format + ")" + localized;
+                    localized = "F(" + format + ")" + localized;
                 }
             }
+
+            Dispatcher.Invoke(() => Text = localized);
         }
 
         public static ILocalizationService GetLocalizationService(DependencyObject obj)

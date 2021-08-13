@@ -6,7 +6,7 @@ using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Wpf.Icons.Providers
 {
-    public class IconProviderXamlFromUri : IIconProvider
+    public class IconProviderXamlFromUri : IconProvider, IIconProvider
     {
         private readonly Uri _uri;
         public IconProviderXamlFromUri(Uri uri)
@@ -15,7 +15,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
         }
 
         
-        public async Task<object> GetAsync()
+        protected override async Task<object> GetAsync()
         {
             AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
             var icon = Application.LoadComponent(_uri);
@@ -25,7 +25,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
             return icon;
         }
 
-        public object Get()
+        protected override object Get()
         {
             AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
             var icon = Application.LoadComponent(_uri);

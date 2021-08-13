@@ -6,11 +6,9 @@ namespace HLab.Icons.Annotations.Icons
 {
     public interface IIconService : IService
     {
-        Task<object> GetIconAsync(string path);
+        Task<object> GetIconAsync(string path, Size size = default);
+        object GetIcon(string path, Size size = default);
 
-        Task<object> GetIconBitmapAsync(string name, Size size);
-
-        //object FromXaml(string xaml);
         void AddIconProvider(string name, IIconProvider provider);
     }
 

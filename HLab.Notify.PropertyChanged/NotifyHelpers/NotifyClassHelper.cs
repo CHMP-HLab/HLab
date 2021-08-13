@@ -12,7 +12,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
         {
             using var s = GetSuspender();
             base.OnPropertyChanged(args);
-            if (Dict.TryGetValue(args.PropertyName, out var propertyEntry))
+            if (TryGetPropertyEntry(args.PropertyName, out var propertyEntry))
             {
                 s.EnqueueAction(()=> propertyEntry.TargetPropertyChanged(Target,args));
             }

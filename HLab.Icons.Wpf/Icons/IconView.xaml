@@ -15,17 +15,18 @@
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <ContentControl x:Name="IconContent" 
-                        MaxWidth="{Binding IconMaxWidth, ElementName=UserControl}" 
-                        MaxHeight="{Binding IconMaxHeight, ElementName=UserControl}"
                         IsTabStop="False"
-                        />
+                        MaxHeight="30"
+                        MaxWidth="50"
+                        >
+            </ContentControl>
         <ContentControl 
             x:Name="CaptionContent"
             Margin="0,0,0,0" 
             VerticalAlignment="Center" 
             Grid.Column="2" 
-            Content="{Binding Caption, ElementName=UserControl}"
             IsTabStop="False"
-            />
+            >
+        </ContentControl>
     </Grid>
 </UserControl>

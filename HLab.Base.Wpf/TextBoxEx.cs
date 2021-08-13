@@ -213,6 +213,8 @@ namespace HLab.Base.Wpf
             var valid = true;
 
             Text = Format(mode, decimals, displayZeros, value.ToString(CultureInfo.CurrentCulture), ref selectionStart, ref valueDouble, ref dateTimeValue, ref valid);
+
+            Double = valueDouble;
         }
 
         public static readonly RoutedEvent DoubleChangeEvent = EventManager.RegisterRoutedEvent("DoubleChange", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextBoxEx));
@@ -1118,8 +1120,8 @@ namespace HLab.Base.Wpf
             }
             catch { }
 
-            Double = double.NaN;
-            IsValid = false;
+            //Double = double.NaN;
+            //IsValid = false;
         }
 
         public void Compute(double value)
@@ -1133,7 +1135,7 @@ namespace HLab.Base.Wpf
             }
 
 //            Background = ValidBrush;
-            Text = Math.Round(value, Decimals).ToString(CultureInfo.CurrentCulture);
+            Double = Math.Round(value, Decimals);
             IsValid = true;
         }
 

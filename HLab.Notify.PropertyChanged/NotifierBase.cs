@@ -4,14 +4,13 @@ using HLab.Notify.PropertyChanged.NotifyHelpers;
 
 namespace HLab.Notify.PropertyChanged
 {
-    public abstract class NotifierBase : INotifyPropertyChangedWithHelper//, IDisposable
+    public abstract class NotifierBase : INotifyPropertyChangedWithHelper
     {
-        private INotifyClassHelper _classHelper;
-        public INotifyClassHelper ClassHelper => _classHelper ??= NotifyClassHelperBase.GetNewHelper(this);
+        public INotifyClassHelper ClassHelper { get; }// ??= NotifyClassHelperBase.GetNewHelper(this);
 
         protected NotifierBase()
         {
-            _classHelper = NotifyClassHelperBase.GetNewHelper(this);
+            ClassHelper = new NotifyClassHelper(this);
         }
             
         public event PropertyChangedEventHandler PropertyChanged

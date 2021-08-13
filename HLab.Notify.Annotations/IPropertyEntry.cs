@@ -15,9 +15,10 @@ namespace HLab.Notify.Annotations
         ITriggerEntry BuildTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler);
         ITriggerEntry BuildTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
 
-        bool Linked { get; }
-
+        bool IsLinked();
+        
         string Name { get; }
+        
         void InitialRegisterValue(Type type);
     }
 }

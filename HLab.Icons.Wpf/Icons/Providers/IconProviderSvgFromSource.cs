@@ -6,7 +6,7 @@ using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Wpf.Icons.Providers
 {
-    public class IconProviderSvgFromSource : IIconProvider
+    public class IconProviderSvgFromSource : IconProvider, IIconProvider
     {
         private readonly string _name;
         private string _source;
@@ -19,7 +19,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
             _source = source; 
             _name = name;
         }
-        public async Task<object> GetAsync()
+        protected override async Task<object> GetAsync()
         {
             if (string.IsNullOrWhiteSpace(_source)) return null;
 
@@ -37,7 +37,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
             return icon;
         }
 
-        public object Get()
+        protected override object Get()
         {
             if (string.IsNullOrWhiteSpace(_source)) return null;
 

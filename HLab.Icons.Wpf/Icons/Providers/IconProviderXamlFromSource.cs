@@ -6,7 +6,7 @@ using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Wpf.Icons.Providers
 {
-    public class IconProviderXamlFromSource : IIconProvider
+    public class IconProviderXamlFromSource : IconProvider, IIconProvider
     {
         private readonly string _name;
         private string _source;
@@ -20,7 +20,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
             _foreground = foreground;
         }
 
-        public async Task<object> GetAsync()
+        protected override async Task<object> GetAsync()
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
@@ -36,7 +36,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
             return icon;
         }
 
-        public object Get()
+        protected override object Get()
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 

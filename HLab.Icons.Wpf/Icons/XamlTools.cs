@@ -9,6 +9,7 @@ using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Xml;
 using System.Xml.Xsl;
@@ -421,5 +422,35 @@ namespace HLab.Icons.Wpf.Icons
             }/*);*/
             return textBlock;
         }
+
+        public static Image GetBitmap(UIElement source, System.Drawing.Size size)
+        {
+            var wSize = new Size(size.Height, size.Width);
+
+
+            var grid = new Grid { Width = size.Width, Height = size.Height };
+            var viewbox = new Viewbox
+            {
+                Width = size.Width,
+                Height = size.Height,
+                Child = source
+            };
+
+            grid.Children.Add(viewbox);
+
+            grid.Measure(wSize);
+            grid.Arrange(new Rect(wSize));
+
+            var renderBitmap =
+                new RenderTargetBitmap(
+                    size.Width,
+                    size.Height,
+                    96,
+                    96,
+                    PixelFormats.Pbgra32);
+            renderBitmap.Render(grid);
+            return new Image {Width = size.Width, Height = size.Height, Source = BitmapFrame.Create(renderBitmap)};
+        }
+
     }
 }

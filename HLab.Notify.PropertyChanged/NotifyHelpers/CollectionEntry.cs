@@ -110,7 +110,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
             return entry;
         }
 
-        public bool Linked => ExtendedPropertyChanged != null;
+        public bool IsLinked() => ExtendedPropertyChanged != null;
 
         public void Dispose()
         {

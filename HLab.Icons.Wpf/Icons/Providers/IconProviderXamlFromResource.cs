@@ -1,12 +1,14 @@
-﻿using System.Resources;
+﻿using System.Collections.Generic;
+using System.Resources;
 using System.Threading.Tasks;
 using System.Windows.Markup;
-using System.Windows.Media;
+using System.Windows.Media.Imaging;
 using HLab.Icons.Annotations.Icons;
+using Color = System.Windows.Media.Color;
 
 namespace HLab.Icons.Wpf.Icons.Providers
 {
-    public class IconProviderXamlFromResource : IIconProvider
+    public class IconProviderXamlFromResource : IconProvider, IIconProvider
     {
         private readonly ResourceManager _resourceManager;
         private readonly string _name;
@@ -20,7 +22,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
             _name = name;
             _foreColor = foreColor;
         }
-        public async Task<object> GetAsync()
+        protected override async Task<object> GetAsync()
         {
 
             if (string.IsNullOrWhiteSpace(_name)) return null;
@@ -48,13 +50,13 @@ namespace HLab.Icons.Wpf.Icons.Providers
             return icon;
         }
 
-        public object Get()
+        protected override object Get()
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
             if (_parsed)
             {
-                return XamlTools.FromXamlStringAsync(_source).ConfigureAwait(false);
+                return XamlTools.FromXamlString(_source);
             }
 
             using var xamlStream = _resourceManager.GetStream(_name);

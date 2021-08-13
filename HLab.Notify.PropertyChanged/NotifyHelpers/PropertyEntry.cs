@@ -16,7 +16,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
             private readonly object _target;
             public string Name { get; }
 
-            public bool Linked => ExtendedPropertyChanged != null;
+            public bool IsLinked() => ExtendedPropertyChanged != null;
 
             public PropertyEntry(object target, string name)
             {

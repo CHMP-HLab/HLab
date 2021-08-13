@@ -8,11 +8,11 @@ namespace HLab.Notify.Wpf
     public class UserControlNotifier : UserControl, INotifyPropertyChangedWithHelper
     {
 
-         public INotifyClassHelper ClassHelper { get; }
+        public INotifyClassHelper ClassHelper { get; }
 
         protected UserControlNotifier()
         {
-            ClassHelper = NotifyClassHelperBase.GetNewHelper(this);
+            ClassHelper = new NotifyClassHelper(this);
         }
 
         public event PropertyChangedEventHandler PropertyChanged
