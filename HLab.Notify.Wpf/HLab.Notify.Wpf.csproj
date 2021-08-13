@@ -1,11 +1,12 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
 	<PropertyGroup>
-		<TargetFramework>net5.0-windows</TargetFramework>
-		<UseWPF>true</UseWPF>
+    <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+    <UseWPF>true</UseWPF>
 		<RootNamespace>HLab.Notify.Wpf</RootNamespace>
 		<Platforms>AnyCPU;x64;x86</Platforms>
 		<Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
+    <LangVersion>latest</LangVersion>
 	</PropertyGroup>
 
 	<ItemGroup>

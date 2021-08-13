@@ -1,19 +1,13 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net5.0</TargetFramework>
+        <TargetFrameworks>net5.0;net6.0</TargetFrameworks>
     <Platforms>AnyCPU;x64;x86</Platforms>
     <Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HLab.Core.Annotations\HLab.Core.Annotations.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Reference Include="HLab.DependencyInjection.Annotations">
-      <HintPath>..\HLab.DependencyInjection.Annotations\bin\Debug\netstandard2.1\HLab.DependencyInjection.Annotations.dll</HintPath>
-    </Reference>
   </ItemGroup>
 
 </Project>

@@ -14,11 +14,10 @@ namespace HLab.Notify.Annotations
 
 
 
-    public interface INotifyClassHelper //: IDisposable
+    public interface INotifyClassHelper
     {
         SuspenderToken GetSuspender();
         IPropertyEntry GetPropertyEntry(string name);
-        //ITriggerEntry GetTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
         IEnumerable<IPropertyEntry> LinkedProperties();
         IEnumerable<IPropertyEntry> Properties();
         void Initialize<T>() where T : class, INotifyPropertyChangedWithHelper;
@@ -29,19 +28,15 @@ namespace HLab.Notify.Annotations
 
     public class TriggerPathNext : TriggerPath
     {
-
         internal TriggerPathNext(TriggerPath next, string propertyName) : base(propertyName)
         {
             Next = next;
         }
 
-
         public override ITriggerEntry GetTrigger(INotifyClassHelper helper, EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {
             return helper.GetPropertyEntry(PropertyName).BuildTrigger(Next, handler);
         }
-
-
 
         public override TriggerPath Next { get; }
 
