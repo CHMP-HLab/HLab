@@ -4,6 +4,7 @@
     <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
+    <LangVersion>default</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
