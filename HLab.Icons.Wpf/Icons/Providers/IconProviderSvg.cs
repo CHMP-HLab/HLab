@@ -55,6 +55,32 @@ namespace HLab.Icons.Wpf.Icons.Providers
             return icon;
         }
 
+        //protected override object Get()
+        //{
+        //    if (string.IsNullOrWhiteSpace(_name)) return null;
+
+        //    if (_parsed)
+        //    {
+        //        return XamlTools.FromXamlString(_sourceXaml);
+        //    }
+
+        //    AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
+        //    using var svg = _resourceManager.GetStream(_name);
+        //    var icon = XamlTools.FromSvgStream(svg);
+
+        //    if (icon != null)
+        //    {
+        //        if (_foreColor != null)
+        //        {
+        //            XamlTools.SetBinding(icon, _foreColor);
+        //        }
+
+        //        _sourceXaml = XamlWriter.Save(icon);
+        //    }
+        //    _parsed = true;
+
+        //    return icon;
+        //}
         protected override object Get()
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
@@ -80,6 +106,8 @@ namespace HLab.Icons.Wpf.Icons.Providers
             _parsed = true;
 
             return icon;
+
+
         }
 
         public async Task<object> GetBitmapAsync()

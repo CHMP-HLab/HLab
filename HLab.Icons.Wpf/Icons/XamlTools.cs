@@ -15,6 +15,9 @@ using System.Xml;
 using System.Xml.Xsl;
 using HLab.Icons.Wpf.Icons.Providers;
 
+using SharpVectors.Converters;
+using SharpVectors.Renderers.Wpf;
+
 namespace HLab.Icons.Wpf.Icons
 {
     public static class XamlTools
@@ -71,6 +74,7 @@ namespace HLab.Icons.Wpf.Icons
             await using var stream = new MemoryStream(byteArray);
             return await FromSvgStreamAsync(stream).ConfigureAwait(false);
         }
+
         public static object FromSvgString(string svg)
         {
             if (svg == null) return null;
@@ -87,6 +91,7 @@ namespace HLab.Icons.Wpf.Icons
 
             return await FromXamlStreamAsync(input).ConfigureAwait(false);
         }
+
         public static UIElement FromSvgStream(Stream svg)
         {
             if (svg == null) return null;
@@ -96,7 +101,7 @@ namespace HLab.Icons.Wpf.Icons
             return FromXamlStream(input);
         }
 
-        private static async Task<Stream> StreamFromSvgStreamAsync(Stream svgStream)
+        private static async Task<Stream> StreamFromSvgStreamOldAsync(Stream svgStream)
         {
             var settings = new XmlReaderSettings
             {
@@ -134,7 +139,60 @@ namespace HLab.Icons.Wpf.Icons
             }
 
         }
-        private static Stream StreamFromSvgStream(Stream svgStream)
+
+        private static async Task<Stream> StreamFromSvgStreamAsync(Stream svgStream)
+        {
+            var settings = new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Parse,
+                MaxCharactersFromEntities = 1024
+            };
+
+            var writerSettings = new XmlWriterSettings
+            {
+                Async = true,
+                Encoding = Encoding.UTF8,
+                Indent = true,
+                NewLineHandling = NewLineHandling.Entitize
+            };
+
+            using var svgReader = XmlReader.Create(svgStream, settings);
+            var setting = new WpfDrawingSettings();
+
+            var converter = new StreamSvgConverter(setting);
+            converter.SaveXaml = true;
+            try
+            {
+                var outputStream = new MemoryStream();
+                var tmpStream = new MemoryStream();
+                await using var xamlWriter = XmlWriter.Create(outputStream,writerSettings);
+
+                if (converter.Convert(svgReader,tmpStream))
+                {
+                    var img = new Image{Source = new DrawingImage(converter.Drawing)};
+                    XamlWriter.Save(img, xamlWriter);
+                }
+
+                outputStream.Seek(0, SeekOrigin.Begin);
+
+                var r = new StreamReader(outputStream);
+                var xaml =  await r.ReadToEndAsync();
+
+                outputStream.Seek(0, SeekOrigin.Begin);
+                return outputStream;
+            }
+            catch (XmlException)
+            {
+                return null;
+            }
+            catch (IOException)
+            {
+                return null;
+            }
+
+        }
+
+        private static Stream StreamFromSvgStreamOld(Stream svgStream)
         {
             var settings = new XmlReaderSettings
             {
@@ -173,6 +231,52 @@ namespace HLab.Icons.Wpf.Icons
 
         }
 
+        private static Stream StreamFromSvgStream(Stream svgStream)
+        {
+            var settings = new XmlReaderSettings
+            {
+                DtdProcessing = DtdProcessing.Parse,
+                MaxCharactersFromEntities = 1024
+            };
+
+            var writerSettings = new XmlWriterSettings
+            {
+                Async = true,
+                Encoding = Encoding.UTF8,
+                Indent = true,
+                NewLineHandling = NewLineHandling.Entitize
+            };
+
+            using var svgReader = XmlReader.Create(svgStream, settings);
+
+            var setting = new WpfDrawingSettings();
+            var converter = new StreamSvgConverter(setting);
+            try
+            {
+
+                var outputStream = new MemoryStream();
+                using var xamlWriter = XmlWriter.Create(outputStream,writerSettings);
+
+                converter.Convert(svgReader, outputStream);
+
+
+                //TransformSvg.Transform(svgReader, xamlWriter);
+
+                outputStream.Seek(0, SeekOrigin.Begin);
+
+                return outputStream;
+            }
+            catch (XmlException)
+            {
+                return null;
+            }
+            catch (IOException)
+            {
+                return null;
+            }
+
+        }
+
         public static async Task<object> FromXamlStringAsync(string xaml)
         {
             if (xaml == null) return null;
@@ -180,6 +284,7 @@ namespace HLab.Icons.Wpf.Icons
             await using var stream = new MemoryStream(byteArray);
             return await FromXamlStreamAsync(stream).ConfigureAwait(false);
         }
+
         public static object FromXamlString(string xaml)
         {
             if (xaml == null) return null;
@@ -324,14 +429,52 @@ namespace HLab.Icons.Wpf.Icons
                 }
             }
 
-            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(ui); i++)
+            if(ui is GeometryDrawing gd)
             {
-                var childVisual = (Visual)VisualTreeHelper.GetChild(ui, i);
-                SetBinding(childVisual, foreColor, backColor, foreBinding, backBinding);
+                if (gd.Brush is SolidColorBrush fillBrush)
+                {
+                    if (fillBrush.Color == foreColor)
+                    {
+                        BindingOperations.SetBinding(gd, GeometryDrawing.BrushProperty, foreBinding);
+                    }
+                    else if (fillBrush.Color == backColor)
+                    {
+                        BindingOperations.SetBinding(gd, GeometryDrawing.BrushProperty, foreBinding);
+                    }
+                }
+                if (gd.Pen?.Brush is SolidColorBrush penBrush)
+                {
+                    if (penBrush.Color == foreColor)
+                    {
+                        BindingOperations.SetBinding(gd.Pen, Pen.BrushProperty, foreBinding);
+                    }
+                    else if (penBrush.Color == backColor)
+                    {
+                        BindingOperations.SetBinding(gd.Pen, Pen.BrushProperty, backBinding);
+                    }
+                }
             }
 
+            if(ui is Image img && img.Source is DrawingImage di)
+            {
+                SetBinding(di.Drawing, foreColor, backColor, foreBinding, backBinding);
+            }
+            else if(ui is DrawingGroup dg)
+            {
+                foreach (var g in dg.Children)
+                {
+                    SetBinding(g, foreColor, backColor, foreBinding, backBinding);
+                }
+            }
+            else if(ui is Visual v)
+            {
+                for (var i = 0; i < VisualTreeHelper.GetChildrenCount(v); i++)
+                {
+                    var childVisual = (Visual)VisualTreeHelper.GetChild(ui, i);
+                    SetBinding(childVisual, foreColor, backColor, foreBinding, backBinding);
+                }
+            }
         }
-
 
 
         private static XslCompiledTransform _transformHtml;
