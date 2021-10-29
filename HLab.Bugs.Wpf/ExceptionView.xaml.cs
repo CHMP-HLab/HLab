@@ -3,8 +3,10 @@ using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows;
 using MantisBTRestAPIClient;
+
 
 namespace HLab.Bugs.Wpf
 {
@@ -77,8 +79,9 @@ namespace HLab.Bugs.Wpf
             DetailTextBlock.Visibility = Visibility.Collapsed;
         }
 
+        private Task Post() => PostGithub();
 
-        private void Post()
+        private void PostMantis()
         {
             if (ReportCheckBox.IsChecked != true) return;
             if (string.IsNullOrWhiteSpace(Token)) return;
@@ -128,16 +131,37 @@ namespace HLab.Bugs.Wpf
             client.IssueAdd(issue);
         }
 
-        private void OkButton_OnClick(object sender, RoutedEventArgs e)
+
+        private async Task PostGithub()
         {
-            Post();
+            if (ReportCheckBox.IsChecked != true) return;
+            if (string.IsNullOrWhiteSpace(Token)) return;
+
+            var client = new Octokit.GitHubClient(new Octokit.ProductHeaderValue("hlab.chmp.org"));
+
+            var tokenAuth = new Octokit.Credentials(Token); 
+            client.Credentials = tokenAuth;
+
+            var user = await client.User.Current();
+
+            var createIssue = new Octokit.NewIssue("[" + Exception.Source + "]" +Exception.Message)
+            {
+                Body = $"{CommentTextBox.Text}\n{Exception.StackTrace}", 
+            };
+
+            var issue = await client.Issue.Create("CHMP-HLab", "HLab.Erp.Lims.Analysis", createIssue);
+        }
+
+        private async void OkButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            await Post();
             Application.Current.Shutdown();
         }
 
-        private void ReopenButton_OnClick(object sender, RoutedEventArgs e)
+        private async void ReopenButton_OnClick(object sender, RoutedEventArgs e)
         {
-            Post();
-            System.Diagnostics.Process.Start(Application.ResourceAssembly.Location);
+            await Post();
+            Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }
 
