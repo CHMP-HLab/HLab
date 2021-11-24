@@ -35,10 +35,28 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
                         property = type.GetProperty(name,
                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
                     }
-                    else throw new Exception("Property not found : " + name + " in " + target.GetType());
+                    else 
+                    {
+                        property = GetInterfaceProperty(target.GetType(),name);
+                        
+                        if(property==null)
+                            throw new Exception("Property not found : " + name + " in " + target.GetType());
+                    }
                 }
 
                 _property = property;
+            }
+
+            private PropertyInfo GetInterfaceProperty(Type type, string name)
+            {
+                var ifaces = type.GetInterfaces();
+
+                foreach(var iface in ifaces)
+                {
+                    var prop = iface.GetProperty(name);
+                    if (prop != null) return prop;
+                }
+                return null;
             }
 
             public event EventHandler<ExtendedPropertyChangedEventArgs> ExtendedPropertyChanged;

@@ -2,8 +2,7 @@
 {
     public interface IListableModel
     {
-        string Caption { get; }
-
-        string IconPath { get; }
+        string Caption => $"{{{GetType()}}}";
+        string IconPath => $"icons/entities/{GetType()}";
     }
 }

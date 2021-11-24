@@ -4,6 +4,8 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+
 using HLab.Core.Annotations;
 using HLab.Erp.Acl;
 using HLab.Icons.Annotations.Icons;
@@ -106,7 +108,7 @@ namespace HLab.Mvvm.Application.Wpf
         //    )
         //);
 
-        public Menu Menu { get; } = new Menu {IsMainMenu = true}; 
+        public Menu Menu { get; } = new Menu {IsMainMenu = true, Background=Brushes.Transparent}; 
 
         public string Title => _title.Get();
         private readonly IProperty<string> _title = H.Property<string>(c => c.Set(e => e.ApplicationInfo.Name));

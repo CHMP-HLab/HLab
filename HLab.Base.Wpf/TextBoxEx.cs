@@ -69,7 +69,12 @@ namespace HLab.Base.Wpf
         Email = 7
     }
 
-    public class TextBoxEx : TextBox
+    public interface IDoubleProvider
+    {
+        double Double {get; set;}
+    }
+
+    public class TextBoxEx : TextBox, IDoubleProvider
     {
         //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         // Modes
@@ -212,9 +217,11 @@ namespace HLab.Base.Wpf
             var dateTimeValue = DateTime.MinValue;
             var valid = true;
 
-            Text = Format(mode, decimals, displayZeros, value.ToString(CultureInfo.CurrentCulture), ref selectionStart, ref valueDouble, ref dateTimeValue, ref valid);
+            var text = Format(mode, decimals, displayZeros, Math.Round(value,Decimals).ToString(CultureInfo.CurrentCulture), ref selectionStart, ref valueDouble, ref dateTimeValue, ref valid);
 
-            Double = valueDouble;
+            if(Text != text) Text = text; 
+
+            if(!IsReadOnly) Double = valueDouble;
         }
 
         public static readonly RoutedEvent DoubleChangeEvent = EventManager.RegisterRoutedEvent("DoubleChange", RoutingStrategy.Bubble, typeof(RoutedEventHandler), typeof(TextBoxEx));
@@ -675,8 +682,6 @@ namespace HLab.Base.Wpf
             else if (mode == TextBoxMode.Double)
             {
                 doubleValue = DoubleFormat(text, decimals, ref cursorPos, ref result);
-
-                // A FAIRE AffichageZero
             }
 
 

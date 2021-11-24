@@ -22,6 +22,16 @@ namespace HLab.Options.Wpf
             t.Start();
             return t;
         }
+        public Task<IEnumerable<string>> GetOptionsAsync(string path, string name, int? userid)
+        {
+            var t = new Task<IEnumerable<string>>( () =>
+                {
+                    using var rk = Registry.CurrentUser.OpenSubKey(@$"Software\{Options.OptionsPath}{getPath(path)}\{name}");
+                    return rk?.GetValueNames().ToList() ?? new List<string>();
+                });
+            t.Start();
+            return t;
+        }
 
         private string getPath(string path) => (string.IsNullOrEmpty(path))?"":$@"\{path}";
 

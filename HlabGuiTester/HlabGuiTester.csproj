@@ -9,6 +9,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Dirkster.NumericUpDownLib" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HLab.Base.Wpf\HLab.Base.Wpf.csproj" />
   </ItemGroup>
 

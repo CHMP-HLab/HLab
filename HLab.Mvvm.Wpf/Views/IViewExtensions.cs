@@ -20,9 +20,9 @@ namespace HLab.Mvvm.Views
             var w = new DefaultWindow
             {
                 DataContext = view?.DataContext,
-                Content = view,
+                View = view,
                 //SizeToContent = SizeToContent.WidthAndHeight,
-                WindowStartupLocation = WindowStartupLocation.CenterOwner,
+                //WindowStartupLocation = WindowStartupLocation.CenterOwner,
             };
 
             return w;
@@ -42,11 +42,11 @@ namespace HLab.Mvvm.Views
             var w = new DefaultWindow
             {
                 DataContext = view?.DataContext,
-                Content = view,
+                View = view,
 
                 SizeToContent = SizeToContent.WidthAndHeight,
                 WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                WindowStyle = WindowStyle.ToolWindow,
+                WindowStyle = WindowStyle.None,
                 ResizeMode = ResizeMode.NoResize,
             };
 

@@ -10,7 +10,7 @@ using HLab.Erp.Core;
 using HLab.Erp.Core.Update;
 using HLab.Erp.Core.Wpf.Localization;
 using HLab.Mvvm.Annotations;
-
+using HLab.Mvvm.Views;
 
 namespace HLab.Mvvm.Application.Wpf
 {
@@ -60,15 +60,6 @@ namespace HLab.Mvvm.Application.Wpf
             if (b.WaitDependency<LocalizeBootloader>()) return;
             if (b.WaitDependency<LoginBootloader>()) return;
 
-            MainWindow = new DefaultWindow()
-            {
-                //WindowStartupLocation = WindowStartupLocation.CenterScreen,
-                WindowState =  WindowState.Maximized
-            };
-
-            MainWindow.Closing += (sender, args) => System.Windows.Application.Current.Shutdown();
-            MainWindow.Show();
-
             _info.Version = Assembly.GetEntryAssembly()?.GetName().Version;
 
             InitializeCultures();
@@ -93,10 +84,10 @@ namespace HLab.Mvvm.Application.Wpf
                 }
             }
 
-
             ViewModel = _getVm();
-            var w = _mvvm.MainContext.GetView(ViewModel,MainViewMode);
 
+            MainWindow = _mvvm.MainContext.GetView(ViewModel,MainViewMode).AsWindow();
+            MainWindow.Closing += (sender, args) => System.Windows.Application.Current.Shutdown();
 
             _menu.RegisterMenu("file", "{File}", null, null);
             _menu.RegisterMenu("data", "{Data}", null, null);
@@ -107,7 +98,7 @@ namespace HLab.Mvvm.Application.Wpf
 
             _menu.RegisterMenu("file/exit","{Exit}", ViewModel.Exit,null);
 
-            MainWindow.Content = w;
+            MainWindow.Show();
 
             return;
         }

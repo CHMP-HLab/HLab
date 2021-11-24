@@ -2,6 +2,8 @@
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+
 using HLab.Erp.Core;
 using HLab.Icons.Wpf.Icons;
 using HLab.Localization.Wpf.Lang;
@@ -58,7 +60,17 @@ namespace HLab.Mvvm.Application.Wpf
                         header = new Localize {Id = s};
                     }
 
-                    var m = new MenuItem {Name = path.Name, Header = header, Command = command, Icon = new IconView {Height = 25, Path = iconPath}};
+                    var m = new MenuItem {
+                        Name = path.Name, 
+                        Header = header, 
+                        Command = command, 
+                        Background = Brushes.Transparent,
+                        Icon = new IconView 
+                        {
+                            Height = 25, 
+                            Path = iconPath
+                        }
+                    };
 
                     var old = items.Cast<MenuItem>().FirstOrDefault(menu => menu.Name == path.Name);
                     if (old != null)

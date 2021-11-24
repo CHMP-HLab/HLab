@@ -9,23 +9,18 @@
         xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=wpf:MainWpfViewModel, IsDesignTimeCreatable=True}"
+             
         icons:IconView.IconService="{Binding IconService}"
         lang:Localize.LocalizationService="{Binding LocalizationService}"
 >
-    <Grid>
-        <Border Background="{DynamicResource MahApps.Brushes.ThemeBackground}" CornerRadius="10"/>
-        <Grid>
+        <Grid  Margin="2">
             <Grid.RowDefinitions>
-                <RowDefinition Height="30" />
+                <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="*" />
             </Grid.RowDefinitions>
             <!-- Menu Bar-->
-            <Grid
-                       MouseDown="MainWindow_OnMouseDown"
-                       MouseMove="UIElement_OnMouseMove"
-                       MouseUp="UIElement_OnMouseUp"
-            >
+            <Grid Background="{DynamicResource MahApps.Brushes.Accent4}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="30"/>
                     <ColumnDefinition Width="Auto"/>
@@ -33,23 +28,25 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Viewbox  >
-                    <icons:IconView Path="icons/logo" IconMaxHeight="30"/>
+                <Viewbox>
+                    <icons:IconView Path="icons/logo" HorizontalAlignment="Stretch"/>
                 </Viewbox>
 
-                <ContentControl Grid.Column="1" FontSize="25" Content="{Binding Menu}"/>
+                <ContentControl Grid.Column="1" FontSize="25" Content="{Binding Menu}" Background="{DynamicResource MahApps.Brushes.Accent4}"/>
 
                 <Label Opacity="0.5" Grid.Column="2" 
                        HorizontalContentAlignment="Center" 
+                       VerticalAlignment="Center"
                        Content="{Binding Title}" 
                 />
 
-                <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,120,0">
-                    <Label Content="{Binding ApplicationInfo.DataSource}"/>
-                    <Label Content="{Binding ApplicationInfo.Name}"/>
-                    <Label Content="{Binding ApplicationInfo.Version}"/>
-                    <Button Command="{Binding OpenUserCommand}" Content ="{Binding Acl.Connection.User.Caption}"/>
-                    <icons:IconView Margin="7" Path="Icons/Entities/User" Height="20"/>
+                <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,120,0" VerticalAlignment="Center">
+                    <Label Content="{Binding ApplicationInfo.DataSource}" VerticalAlignment="Center"/>
+                    <Label Content="{Binding ApplicationInfo.Name}" VerticalAlignment="Center"/>
+                    <Label Content="{Binding ApplicationInfo.Version}" VerticalAlignment="Center"/>
+                    <Button Command="{Binding OpenUserCommand}" Content ="{Binding Acl.Connection.User.Caption}" VerticalAlignment="Center"/>
+                    <icons:IconView Margin="7" Path="Icons/Entities/User" Height="20" VerticalAlignment="Center"/>
+                    <Label Width="20"/>
                 </StackPanel>
             </Grid>
 
@@ -69,7 +66,12 @@
                            >
 
                 <xcad:DockingManager.Theme>
-                    <xcad:Vs2013DarkTheme />
+                    <!--<xcad:Vs2013LightTheme />-->
+                    <!--<xcad:Vs2013DarkTheme />-->
+                    <!--<xcad:ExpressionLightTheme />-->
+                    <xcad:ExpressionDarkTheme />
+                    <!--<xcad:MetroTheme />-->
+                    <!--<xcad:AeroTheme />-->
                 </xcad:DockingManager.Theme>
 
                 <xcad:DockingManager.LayoutUpdateStrategy>
@@ -127,7 +129,6 @@
             <Canvas Grid.Row="0" x:Name="DragCanvas"/>
 
         </Grid>
-    </Grid>
 </UserControl>
 
 

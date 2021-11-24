@@ -4,10 +4,22 @@
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:HlabGuiTester"
-        xmlns:wpf="clr-namespace:HLab.Base.Wpf;assembly=HLab.Base.Wpf"
+        xmlns:wpf="clr-namespace:HLab.Base.Wpf;assembly=HLab.Base.Wpf" xmlns:wpf1="clr-namespace:NumericUpDownLib;assembly=NumericUpDownLib"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <StackPanel>
+        <TextBlock>DoubleBox</TextBlock>
+        <StackPanel Orientation="Horizontal">
+            <wpf1:DoubleUpDown x:Name="DoubleUpDown" Width="100" />
+            <TextBlock Text="{Binding ElementName=DoubleUpDown, Path=Value}" >
+                
+            </TextBlock>
+        </StackPanel>
+        
+        
+        <TextBlock>DoubleBox</TextBlock>
+        <StackPanel Orientation="Horizontal"><wpf:DoubleBox x:Name="DoubleBox" Decimals="5" Width="100"/><TextBlock Text="{Binding ElementName=DoubleBox, Path=Double}"></TextBlock></StackPanel>
+        
         <TextBlock>TextBoxEx</TextBlock>
         <wpf:TextBoxEx Mode="Double"/>
 

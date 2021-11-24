@@ -39,6 +39,8 @@ namespace HLab.Options
         public IEnumerable<string> GetSubList(string path, string name, int? userid, string providerName = null)
             => GetSubListAsync(path, name, userid, providerName).Result;
 
+        public IEnumerable<string> GetOptions(string path, string name, int? userid, string providerName = null)
+            => GetOptionsAsync(path, name, userid, providerName).Result;
 
         public void SetValue<T>(string path, string name, T value, string provider = null, int? userid = null)
             => SetValueAsync(path, name, value, provider, userid);
@@ -53,6 +55,17 @@ namespace HLab.Options
             {
                 if (!string.IsNullOrWhiteSpace(providerName) && providerName != provider.Name) continue;
                 var result = await provider.GetSubListAsync(path,name, userid).ConfigureAwait(false);
+                return result;
+            }
+
+            return new List<string>();
+        }
+        public async Task<IEnumerable<string>> GetOptionsAsync(string path, string name, int? userid, string providerName = null)
+        {
+            foreach (var provider in _providers)
+            {
+                if (!string.IsNullOrWhiteSpace(providerName) && providerName != provider.Name) continue;
+                var result = await provider.GetOptionsAsync(path,name, userid).ConfigureAwait(false);
                 return result;
             }
 

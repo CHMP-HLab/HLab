@@ -4,6 +4,8 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 
+using HLab.Base.Extensions;
+
 namespace HLab.Base.Wpf
 {
     using H = DependencyHelper<DateEx>;
@@ -36,6 +38,11 @@ namespace HLab.Base.Wpf
         public DependencyProperty MandatoryProperty => DateProperty;
 
         public static readonly DependencyProperty DateProperty =
+            H.Property<DateTime?>()
+            .BindsTwoWayByDefault
+            .OnChange((e, a) => e.SetDate(a.NewValue, !e.EmptyDayAllowed || e.DayValid)).Register();
+
+        public static readonly DependencyProperty DateUtcProperty =
             H.Property<DateTime?>()
             .BindsTwoWayByDefault
             .OnChange((e, a) => e.SetDate(a.NewValue, !e.EmptyDayAllowed || e.DayValid)).Register();
@@ -100,19 +107,23 @@ namespace HLab.Base.Wpf
 
             if (date.HasValue)
             {
-                var daysInMonth = DaysInMonth(date.Value.Year, date.Value.Month);
+                var d = date.Value.ToLocalTime();
 
-                dayValid = dayValid || date.Value.Day < daysInMonth;
+                var daysInMonth = DaysInMonth(d.Year, d.Month);
 
-                TextDay.Value = dayValid ? date.Value.Day : 0;
-                TextMonth.Value = date.Value.Month;
-                TextYear.Value = date.Value.Year;
+                dayValid = dayValid || d.Day < daysInMonth;
 
-                TextHour.Value = date.Value.Hour;
-                TextMin.Value = date.Value.Minute;
+                TextDay.Value = dayValid ? d.Day : 0;
+                TextMonth.Value = d.Month;
+                TextYear.Value = d.Year;
 
-                Calendar.DisplayDate = date ?? DateTime.Now;
-                TimePicker.Time = date;
+                TextHour.Value = d.Hour;
+                TextMin.Value = d.Minute;
+
+                Calendar.DisplayDate = d;
+                TimePicker.Time = d;
+                Date = d;
+                DateUtc = d.ToUniversalTime();
             }
             else
             {
@@ -122,8 +133,8 @@ namespace HLab.Base.Wpf
 
                 TextHour.Value = 0;
                 TextMin.Value = 0;
+                Date = null;
             }
-            Date = date;
             DayValid = dayValid;
             preventSetDate = false;
         }
@@ -174,9 +185,16 @@ namespace HLab.Base.Wpf
 
         public DateTime? Date
         {
-            get => (DateTime?)GetValue(DateProperty);
-            set => SetValue(DateProperty, value);
+            get => ((DateTime?)GetValue(DateProperty)).ToLocalTime();
+            set => SetValue(DateProperty, value.ToLocalTime());
         }
+
+        public DateTime? DateUtc
+        {
+            get => ((DateTime?)GetValue(DateUtcProperty)).ToUniversalTime();
+            set => SetValue(DateUtcProperty, value.ToUniversalTime());
+        }
+
         public bool DayValid
         {
             get => (bool)GetValue(DayValidProperty);

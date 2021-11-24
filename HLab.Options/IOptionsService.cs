@@ -14,10 +14,16 @@ namespace HLab.Options
         StreamWriter GetOptionFileWriter(string name);
 
         IEnumerable<string> GetSubList(string path, string name, int? userid, string providerName = null);
+        IEnumerable<string> GetOptions(string path, string name, int? userid, string providerName = null);
+
+
         void SetValue<T>(string path, string name, T value, string providerName = null, int? userid = null);
         T GetValue<T>(string path, string name, int? userid = null, Func<T> defaultValue = null, string providerName = null);
 
         Task<IEnumerable<string>> GetSubListAsync(string path, string name, int? userid, string providerName = null);
+        Task<IEnumerable<string>> GetOptionsAsync(string path, string name, int? userid, string providerName = null);
+
+
         Task<T> GetValueAsync<T>(string path, string name, Func<T> defaultValue = null, string providerName = null,
             int? userid = null);
         Task SetValueAsync<T>(string path, string name, T value, string providerName = null, int? userid = null);
@@ -29,6 +35,8 @@ namespace HLab.Options
         string Name { get; }
         IOptionsService Options { get; set; }
         Task<IEnumerable<string>> GetSubListAsync(string path, string name, int? userid);
+        Task<IEnumerable<string>> GetOptionsAsync(string path, string name, int? userid);
+
         Task<T> GetValueAsync<T>(string path, string name,int? userid = null, Func<T> defaultValue = null);
         Task SetValueAsync<T>(string path, string name, T value, int? userid = null);
     }
