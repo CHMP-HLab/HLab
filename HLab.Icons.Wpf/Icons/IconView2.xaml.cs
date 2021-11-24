@@ -12,14 +12,14 @@ using Color = System.Windows.Media.Color;
 
 namespace HLab.Icons.Wpf.Icons
 {
-    using H = DependencyHelper<IconView>;
+    using H = DependencyHelper<IconView2>;
     /// <summary>
     /// Logique d'interaction pour Icon.xaml
     /// </summary>
     [ContentProperty("Caption")]
-    public partial class IconView : UserControl
+    public partial class IconView2 : UserControl
     {
-        public IconView()
+        public IconView2()
         {
             InitializeComponent();
             Loaded += IconView_Loaded;
@@ -156,7 +156,7 @@ namespace HLab.Icons.Wpf.Icons
         }
 
 
-        public void Update()
+        private void Update()
         {
             if(!IsLoaded) return;
 

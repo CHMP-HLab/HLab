@@ -10,7 +10,7 @@ namespace HLab.Icons.Wpf.Icons
     public class IconService : Service, IIconService
     {
         private readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
-        public object GetIcon(string path, Size size = default)
+        public object GetIcon(string path, object foreground = null, Size size = default)
         {
             if (path == null) return null;
             object result = null;
@@ -31,7 +31,7 @@ namespace HLab.Icons.Wpf.Icons
             return result;
         }
 
-        public async Task<object> GetIconAsync(string path, Size size = default)
+        public async Task<object> GetIconAsync(string path, object foreground = null, Size size = default)
         {
             if (path == null) return null;
             object result = null;
@@ -39,7 +39,7 @@ namespace HLab.Icons.Wpf.Icons
             
             foreach (var p in paths)
             {
-                var icon = await GetSingleIconAsync(p, size).ConfigureAwait(true);
+                var icon = await GetSingleIconAsync(p, foreground, size).ConfigureAwait(true);
                 if (result == null)
                 {
                     result = icon; 
@@ -51,7 +51,7 @@ namespace HLab.Icons.Wpf.Icons
             }
             return result;
         }
-        private object GetSingleIcon(string path, Size size = default)
+        private object GetSingleIcon(string path, object foreground = null, Size size = default)
         {
 
             if (string.IsNullOrWhiteSpace(path)) return null;
@@ -73,14 +73,14 @@ namespace HLab.Icons.Wpf.Icons
             return null;
         }
 
-        private async Task<object> GetSingleIconAsync(string path, Size size = default)
+        private async Task<object> GetSingleIconAsync(string path, object foreground = null, Size size = default)
         {
 
             if (string.IsNullOrWhiteSpace(path)) return null;
 
             if (_cache.TryGetValue(path.ToLower(), out var iconProvider))
             {
-                var icon = await iconProvider.GetAsync(size).ConfigureAwait(true);
+                var icon = await iconProvider.GetAsync(foreground,size).ConfigureAwait(true);
                 return icon;
             }
 
@@ -98,6 +98,11 @@ namespace HLab.Icons.Wpf.Icons
         public void AddIconProvider(string name, IIconProvider provider)
         {
             _cache.AddOrUpdate(name.ToLower(), n => provider, (n, p) => provider);
+        }
+
+        public IIconProvider GetIconProvider(string name)
+        {
+            throw new System.NotImplementedException();
         }
 
     }

@@ -2,6 +2,7 @@
 using System.IO;
 using System.Resources;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -28,56 +29,55 @@ namespace HLab.Icons.Wpf.Icons.Providers
 
 
 
-        protected override async Task<object> GetAsync()
+        protected override async Task<object> GetAsync(object foreground = null)
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
+            object icon;
             if (_parsed)
             {
-                return await XamlTools.FromXamlStringAsync(_sourceXaml).ConfigureAwait(false);
+                icon = await XamlTools.FromXamlStringAsync(_sourceXaml).ConfigureAwait(true);
+                //XamlTools.SetBinding((DependencyObject)icon1, _foreColor);
             }
-
-            AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
-            await using var svg = _resourceManager.GetStream(_name);
-            var icon = await XamlTools.FromSvgStreamAsync(svg).ConfigureAwait(true);
-
-            if (icon != null)
+            else
             {
-                if (_foreColor != null)
-                {
-                    XamlTools.SetBinding(icon, _foreColor);
-                }
+                AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
+                await using var svg = _resourceManager.GetStream(_name);
+                icon = await XamlTools.FromSvgStreamAsync(svg).ConfigureAwait(true);
 
-                _sourceXaml = XamlWriter.Save(icon);
+                if (icon != null)
+                {
+                    _sourceXaml = XamlWriter.Save(icon);
+                    _parsed = true;
+                 }
             }
-            _parsed = true;
+
+            if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
+                XamlTools.SetForeground(o, _foreColor.Value, brush);
 
             return icon;
         }
 
-        protected override object Get()
+        protected override object Get(object foreground = null)
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
+            object icon;
             if (_parsed)
             {
-                return XamlTools.FromXamlString(_sourceXaml);
+                icon = XamlTools.FromXamlString(_sourceXaml);
             }
-
-            AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
-            using var svg = _resourceManager.GetStream(_name);
-            var icon = XamlTools.FromSvgStream(svg);
-
-            if (icon != null)
+            else
             {
-                if (_foreColor != null)
-                {
-                    XamlTools.SetBinding(icon, _foreColor);
-                }
-
+                AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
+                using var svg = _resourceManager.GetStream(_name);
+                icon = XamlTools.FromSvgStream(svg);
                 _sourceXaml = XamlWriter.Save(icon);
+                _parsed = true;
             }
-            _parsed = true;
+
+            if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
+                XamlTools.SetForeground(o, _foreColor.Value, brush);
 
             return icon;
         }

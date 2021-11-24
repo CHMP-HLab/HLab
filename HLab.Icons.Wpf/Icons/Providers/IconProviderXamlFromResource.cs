@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Resources;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Markup;
+using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using HLab.Icons.Annotations.Icons;
 using Color = System.Windows.Media.Color;
@@ -22,57 +24,52 @@ namespace HLab.Icons.Wpf.Icons.Providers
             _name = name;
             _foreColor = foreColor;
         }
-        protected override async Task<object> GetAsync()
+        protected override async Task<object> GetAsync(object foreground = null)
         {
 
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
+            object icon;
             if (_parsed)
             {
-                return await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(false);
+                icon = await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(true);
+            }
+            else
+            {
+                await using var xamlStream = _resourceManager.GetStream(_name);
+                if (xamlStream == null) return null;
+                icon = await XamlTools.FromXamlStreamAsync(xamlStream).ConfigureAwait(true);
+                _source = XamlWriter.Save(icon);
+                _parsed = true;
             }
 
-            await using var xamlStream = _resourceManager.GetStream(_name);
-            if (xamlStream == null) return null;
-
-
-            var icon = await XamlTools.FromXamlStreamAsync(xamlStream).ConfigureAwait(true);
-            if (icon != null)
-            {
-                if (_foreColor != null)
-                {
-                    XamlTools.SetBinding(icon, _foreColor);
-                    _source = XamlWriter.Save(icon);
-                }
-            } 
-            _parsed = true;
+            if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
+                XamlTools.SetForeground(o, _foreColor.Value, brush);
 
             return icon;
         }
 
-        protected override object Get()
+        protected override object Get(object foreground = null)
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
+            object icon;
             if (_parsed)
             {
-                return XamlTools.FromXamlString(_source);
+                icon = XamlTools.FromXamlString(_source);
+            }
+            else
+            {
+                using var xamlStream = _resourceManager.GetStream(_name);
+                if (xamlStream == null) return null;
+                
+                icon = XamlTools.FromXamlStream(xamlStream);
+                _source = XamlWriter.Save(icon);
+                _parsed = true;
             }
 
-            using var xamlStream = _resourceManager.GetStream(_name);
-            if (xamlStream == null) return null;
-
-
-            var icon = XamlTools.FromXamlStream(xamlStream);
-            if (icon != null)
-            {
-                if (_foreColor != null)
-                {
-                    XamlTools.SetBinding(icon, _foreColor);
-                    _source = XamlWriter.Save(icon);
-                }
-            } 
-            _parsed = true;
+            if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
+                XamlTools.SetForeground(o, _foreColor.Value, brush);
 
             return icon;
         }

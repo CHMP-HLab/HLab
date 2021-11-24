@@ -18,11 +18,11 @@ namespace HLab.Mvvm.Application.Wpf.Icons
         protected override bool CanExecuteImport(Action<string> errorAction) => true;
 
         public IconListViewModel() : base(c => c
-            .Column()
+            .Column("Path")
             .Header("{Path}")
             .Width(210).Link(e => e.Path)
                     .Filter()
-                .Column()
+                .Column("Icon")
                     .Icon(s => s.Path)
                 .Width(70)
 //                .OrderBy(s => s.Path)            

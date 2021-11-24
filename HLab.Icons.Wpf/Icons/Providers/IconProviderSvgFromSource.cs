@@ -1,6 +1,8 @@
 ﻿using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Markup;
+using System.Windows.Media;
+
 using HLab.ColorTools.Wpf;
 using HLab.Icons.Annotations.Icons;
 
@@ -19,39 +21,47 @@ namespace HLab.Icons.Wpf.Icons.Providers
             _source = source; 
             _name = name;
         }
-        protected override async Task<object> GetAsync()
+        protected override async Task<object> GetAsync(object foreground = null)
         {
             if (string.IsNullOrWhiteSpace(_source)) return null;
 
+            object icon;
             if (_parsed)
-                return await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(true);
-
-            var icon = await XamlTools.FromSvgStringAsync(_source).ConfigureAwait(true);
-            if (icon is UIElement ui)
             {
-                if(_foreColor != null) XamlTools.SetBinding(ui, _foreColor.ToColor());
-                _source = XamlWriter.Save(ui);
+                icon = await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(true);
+            }
+            else
+            {
+                icon = await XamlTools.FromSvgStringAsync(_source).ConfigureAwait(true);
+                _source = XamlWriter.Save(icon);
                 _parsed = true;
             }
+
+            if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
+                XamlTools.SetForeground(o, _foreColor.ToColor(), brush);
 
             return icon;
         }
 
-        protected override object Get()
+        protected override object Get(object foreground = null)
         {
             if (string.IsNullOrWhiteSpace(_source)) return null;
 
+            object icon;
             if (_parsed)
-                return XamlTools.FromXamlString(_source);
-
-            var icon = XamlTools.FromSvgString(_source);
-            if (_foreColor != null && icon is UIElement ui)
             {
-                XamlTools.SetBinding(ui, _foreColor.ToColor());
-                _source = XamlWriter.Save(ui);
+                icon = XamlTools.FromXamlString(_source);
+            }
+            else
+            {
+                icon = XamlTools.FromSvgString(_source);
+                _source = XamlWriter.Save(icon);
+                _parsed = true;
             }
 
-            _parsed = true;
+            if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
+                XamlTools.SetForeground(o, _foreColor.ToColor(), brush);
+
             return icon;
         }
     }

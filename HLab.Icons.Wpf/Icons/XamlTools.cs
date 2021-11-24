@@ -13,13 +13,14 @@ using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using System.Xml;
 using System.Xml.Xsl;
+
 using HLab.Icons.Wpf.Icons.Providers;
 
 namespace HLab.Icons.Wpf.Icons
 {
     public static class XamlTools
     {
-        private static readonly Color ForeColor = Colors.Black;
+        private static readonly Color ForeColor = Colors.Yellow;
         private static readonly Color BackColor = Colors.Transparent;
 
         private static readonly Brush DefaultForeColor = new SolidColorBrush(ForeColor);
@@ -37,10 +38,10 @@ namespace HLab.Icons.Wpf.Icons
                 if (xslStream == null) throw new IOException("xsl file not found");
 
                 using var stylesheet = XmlReader.Create(xslStream);
-                var settings = new XsltSettings(true,true);
+                var settings = new XsltSettings(true, true);
 
                 _transformSvg = new XslCompiledTransform();
-                
+
                 XmlUrlResolver resolver = new();
 
                 _transformSvg.Load(stylesheet, settings, resolver);
@@ -59,7 +60,7 @@ namespace HLab.Icons.Wpf.Icons
 
             await using var s = await StreamFromSvgStreamAsync(stream);
             var r = new StreamReader(s);
-            var xaml =  await r.ReadToEndAsync();
+            var xaml = await r.ReadToEndAsync();
 
             return xaml;
         }
@@ -116,7 +117,7 @@ namespace HLab.Icons.Wpf.Icons
             try
             {
                 var outputStream = new MemoryStream();
-                await using var xamlWriter = XmlWriter.Create(outputStream,writerSettings);
+                await using var xamlWriter = XmlWriter.Create(outputStream, writerSettings);
 
                 TransformSvg.Transform(svgReader, xamlWriter);
 
@@ -154,7 +155,7 @@ namespace HLab.Icons.Wpf.Icons
             try
             {
                 var outputStream = new MemoryStream();
-                using var xamlWriter = XmlWriter.Create(outputStream,writerSettings);
+                using var xamlWriter = XmlWriter.Create(outputStream, writerSettings);
 
                 TransformSvg.Transform(svgReader, xamlWriter);
 
@@ -195,7 +196,7 @@ namespace HLab.Icons.Wpf.Icons
                 var tcs = new TaskCompletionSource<UIElement>();
                 XmlReaderSettings settings = new XmlReaderSettings
                 {
-                    DtdProcessing = DtdProcessing.Parse, 
+                    DtdProcessing = DtdProcessing.Parse,
                     MaxCharactersFromEntities = 1024
                 };
 
@@ -219,11 +220,16 @@ namespace HLab.Icons.Wpf.Icons
                 return new Viewbox
                 {
                     Stretch = Stretch.Uniform,
-                    Child = new Canvas {Height = 100, Width = 100, Children = {new Rectangle()
+                    Child = new Canvas
+                    {
+                        Height = 100,
+                        Width = 100,
+                        Children = {new Rectangle()
                     {
                         Height = 100, Width = 100,
                         Fill=new SolidColorBrush(Colors.Red)
-                    } }},
+                    } }
+                    },
                     ToolTip = e.Message
                 };
             }
@@ -232,7 +238,7 @@ namespace HLab.Icons.Wpf.Icons
                 return new Viewbox
                 {
                     Stretch = Stretch.Uniform,
-                    Child = new Canvas {Height = 100, Width = 100},
+                    Child = new Canvas { Height = 100, Width = 100 },
                     ToolTip = e.Message
                 };
             }
@@ -242,18 +248,23 @@ namespace HLab.Icons.Wpf.Icons
         {
             try
             {
-                 return (UIElement)XamlReader.Load(xamlStream);
+                return (UIElement)XamlReader.Load(xamlStream);
             }
             catch (XamlParseException e)
             {
                 return new Viewbox
                 {
                     Stretch = Stretch.Uniform,
-                    Child = new Canvas {Height = 100, Width = 100, Children = {new Rectangle()
+                    Child = new Canvas
+                    {
+                        Height = 100,
+                        Width = 100,
+                        Children = {new Rectangle()
                     {
                         Height = 100, Width = 100,
                         Fill=new SolidColorBrush(Colors.Red)
-                    } }},
+                    } }
+                    },
                     ToolTip = e.Message
                 };
             }
@@ -262,76 +273,124 @@ namespace HLab.Icons.Wpf.Icons
                 return new Viewbox
                 {
                     Stretch = Stretch.Uniform,
-                    Child = new Canvas {Height = 100, Width = 100},
+                    Child = new Canvas { Height = 100, Width = 100 },
                     ToolTip = e.Message
                 };
             }
         }
 
-        public static DependencyObject SetBinding(DependencyObject ui, Color? foreColor = null, Color? backColor = null)
-        {
-            var foreBinding = new Binding("Foreground")
+
+        private static BindingBase GetForeBinding() => new Binding("Foregound")
             {
-                IsAsync = true,
-                Mode = BindingMode.OneWay,
+//                IsAsync = true,
+//                Mode = BindingMode.OneWay,
                 FallbackValue = DefaultForeColor,
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
-                    typeof(IconView), 1)
+                    typeof(Control), 1)
             };
 
-            var backBinding = new Binding("Background")
+        private static BindingBase GetBackBinding() => new Binding("Background")
             {
-                IsAsync = true,
-                FallbackValue = DefaultBackColor,
+//                IsAsync = true,
+//                Mode = BindingMode.OneWay,
+                FallbackValue = DefaultForeColor,
                 RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor,
-                    typeof(IconView), 1)
+                    typeof(Control), 1)
             };
 
-            SetBinding(ui,foreColor, backColor, foreBinding, backBinding);
-
-            return ui;
-        }
-
-        private static void SetBinding(DependencyObject ui, Color? foreColor, Color? backColor, BindingBase foreBinding, BindingBase backBinding)
+        static public DependencyObject SetForeground(DependencyObject ui, Color foregroundColor, Brush foregroundBrush)
         {
             if (ui is Shape shape)
             {
-                if (shape.Fill is SolidColorBrush fillBrush)
-                {
-                    if (fillBrush.Color == foreColor)
-                    {
-                        //shape.SetValue(Shape.FillProperty,Brushes.White);
-                        shape.SetResourceReference(Shape.FillProperty, "MahApps.Brushes.ThemeForeground");
-                        //var b = shape.SetBinding(Shape.FillProperty, foreBinding);
-                    }
-                    else if (fillBrush.Color == backColor)
-                    {
-                        var b = shape.SetBinding(Shape.FillProperty, backBinding);
-                    }
-                }
-                if (shape.Stroke is SolidColorBrush strokeBrush)
-                {
-                    if (strokeBrush.Color == foreColor)
-                    {
-                        //shape.SetValue(Shape.StrokeProperty,Brushes.White);
-                        shape.SetResourceReference(Shape.StrokeProperty, "MahApps.Brushes.ThemeForeground");
-                        //var b = shape.SetBinding(Shape.StrokeProperty, foreBinding);
-                    }
-                    else if (strokeBrush.Color == backColor)
-                    {
-                        var b = shape.SetBinding(Shape.StrokeProperty, backBinding);
-                    }
-                }
+                SetForeground(shape, foregroundColor, foregroundBrush, Shape.FillProperty);
+                SetForeground(shape, foregroundColor, foregroundBrush, Shape.StrokeProperty);
             }
+            else if (ui is Panel canvas)
+            {
+                SetForeground(canvas,foregroundColor, foregroundBrush, Panel.BackgroundProperty);
+            }
+            else if (ui is Viewbox )
+            {
+            }
+            else if (ui is ContainerVisual )
+            {
+            }
+            else
+            { }
 
             for (var i = 0; i < VisualTreeHelper.GetChildrenCount(ui); i++)
             {
                 var childVisual = (Visual)VisualTreeHelper.GetChild(ui, i);
-                SetBinding(childVisual, foreColor, backColor, foreBinding, backBinding);
+                SetForeground(childVisual, foregroundColor, foregroundBrush);
             }
 
+            return ui;
+
+        }
+        static private DependencyObject SetForeground(DependencyObject element, Color foregroundColor, Brush foregroundBrush, DependencyProperty property)
+        {
+
+                var brush = element.GetValue(property);
+
+                if (brush is SolidColorBrush solidColorBrush)
+                {
+                    if (solidColorBrush.Color == foregroundColor)
+                    {
+                        element.SetValue(property,foregroundBrush);
+                    }
+                }
+
+                return element;
         }
 
+        static public DependencyObject SetBinding_old(DependencyObject ui, Color? foreColor=null, Color? backColor=null)
+        {
+            if (ui is Shape shape)
+            {
+                SetBinding(shape,foreColor,backColor, Shape.FillProperty);
+                SetBinding(shape,foreColor,backColor, Shape.StrokeProperty);
+            }
+            else if (ui is Panel canvas)
+            {
+                SetBinding(canvas,foreColor,backColor, Panel.BackgroundProperty);
+            }
+            else if (ui is Viewbox )
+            {
+            }
+            else if (ui is ContainerVisual )
+            {
+            }
+            else
+            { }
+
+            for (var i = 0; i < VisualTreeHelper.GetChildrenCount(ui); i++)
+            {
+                var childVisual = (Visual)VisualTreeHelper.GetChild(ui, i);
+                SetBinding_old(childVisual, foreColor, backColor);
+            }
+
+            return ui;
+        }
+
+        private static void SetBinding(FrameworkElement element, Color? foreColor, Color? backColor, DependencyProperty property)
+        {
+                var brush = element.GetValue(property);
+
+                if (brush is SolidColorBrush solidColorBrush)
+                {
+                    if (solidColorBrush.Color == foreColor)
+                    {
+                        //shape.SetValue(Shape.StrokeProperty,Brushes.White);
+                        //shape.SetResourceReference(Shape.StrokeProperty, "MahApps.Brushes.ThemeForeground");
+                        var b = element.SetBinding(property, GetForeBinding());
+                    }
+                    else if (solidColorBrush.Color == backColor)
+                    {
+                        var b = element.SetBinding(property, GetBackBinding());
+                    }
+                }
+
+        }
 
 
         private static XslCompiledTransform _transformHtml;
@@ -350,7 +409,7 @@ namespace HLab.Icons.Wpf.Icons
                         {
                             var settings = new XsltSettings
                             {
-                                
+
                                 EnableDocumentFunction = true
                             };
                             _transformHtml = new XslCompiledTransform();
@@ -449,7 +508,7 @@ namespace HLab.Icons.Wpf.Icons
                     96,
                     PixelFormats.Pbgra32);
             renderBitmap.Render(grid);
-            return new Image {Width = size.Width, Height = size.Height, Source = BitmapFrame.Create(renderBitmap)};
+            return new Image { Width = size.Width, Height = size.Height, Source = BitmapFrame.Create(renderBitmap) };
         }
 
     }
