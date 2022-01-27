@@ -29,7 +29,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 
 using HLab.Base;
-using HLab.DependencyInjection.Annotations;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 using Nito.AsyncEx;
@@ -40,9 +39,10 @@ namespace HLab.Notify.Collections
         IList<T>, IList, IReadOnlyList<T>, INotifyCollectionChanged, ILockable
         //where T : INotifyPropertyChanged
     {
-        public ObservableCollectionNotifier()
+        public ObservableCollectionNotifier(IEventHandlerService eventHandlerService)
         {
-            if (_eventHandlerService == null) _eventHandlerService = NotifyHelper.EventHandlerService;
+            _eventHandlerService = eventHandlerService??NotifyHelper.EventHandlerService;
+
             H.Initialize(this);
         }
 
@@ -50,7 +50,6 @@ namespace HLab.Notify.Collections
 
         #region Dependencies
 
-        [Import]
         private readonly IEventHandlerService _eventHandlerService;
 
         #endregion

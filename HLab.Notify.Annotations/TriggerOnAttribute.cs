@@ -1,6 +1,6 @@
 ﻿/*
   HLab.Notify.4
-  Copyright (c) 2017 Mathieu GRENET.  All right reserved.
+  Copyright (c) 2021 Mathieu GRENET.  All right reserved.
 
   This file is part of HLab.Notify.4.
 
@@ -22,6 +22,7 @@
 */
 
 using System;
+using System.Linq.Expressions;
 
 namespace HLab.Notify.Annotations
 {
@@ -36,6 +37,22 @@ namespace HLab.Notify.Annotations
         public TriggerOnAttribute(params string[] path)
         {
             Path = TriggerPath.Factory(path);
+        }
+
+        public TriggerPath Path { get; }
+    }
+
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
+    public class TriggerOnAttribute<T> : Attribute
+    {
+        public TriggerOnAttribute()
+        {
+            Path = null;
+        }
+
+        public TriggerOnAttribute(Expression<Func<T, object>> expr)
+        {
+            Path = TriggerPath.Factory(expr);
         }
 
         public TriggerPath Path { get; }
