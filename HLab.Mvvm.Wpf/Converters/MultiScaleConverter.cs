@@ -1,6 +1,6 @@
 ﻿/*
   HLab.Mvvm
-  Copyright (c) 2017 Mathieu GRENET.  All right reserved.
+  Copyright (c) 2021 Mathieu GRENET.  All right reserved.
 
   This file is part of HLab.Mvvm.
 
@@ -24,6 +24,8 @@
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
 using System.Windows.Data;
 
 namespace HLab.Mvvm.Converters
@@ -41,12 +43,17 @@ namespace HLab.Mvvm.Converters
             var scale = double.Parse((string)parameter, CultureInfo.InvariantCulture);
             var result = v * scale;
 
-            if (result < 0.1) return 0.1;
-            if (result > 35791) return 35791;
+            if (double.IsNaN(result) || double.IsInfinity(result)) result = 0.1;
+            else if (result < 0.1) result = 0.1;
+            else if (result > 35791) result = 35791;
 
-            if (double.IsNaN(result) || double.IsInfinity(result)) return 0.1;
+            if(targetType == typeof(CornerRadius))
+                return new CornerRadius(result);
 
-            return result;
+            if(targetType == typeof(double))
+                return result;
+
+            return null;
         }
 
         public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
