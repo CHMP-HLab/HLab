@@ -20,6 +20,7 @@ namespace HLab.Notify.PropertyChanged
     {
         bool Set(T value);
         void Update();
+        T GetNoCheck();
 
 #if DEBUG
         T Get([CallerMemberName]string name=null);

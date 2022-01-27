@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using System.Runtime.CompilerServices;
@@ -65,6 +66,8 @@ namespace HLab.Notify.PropertyChanged
         }
         public static IProperty<T> Property<T>([CallerMemberName] string name = null) => Property<T>(c => c, name);
 #endif
+        public static IProperty<T> BindProperty<T>(Expression<Func<TClass, T>> expr, [CallerMemberName] string name = null) =>  Property<T>(c => c.Bind(expr), name);
+
 
         /***********
          * COMMAND *
