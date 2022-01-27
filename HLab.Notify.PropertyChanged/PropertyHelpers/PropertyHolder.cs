@@ -92,6 +92,13 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
             return PropertyValue.Get();
         }
 
+        public T GetNoCheck()
+        {
+            // Todo : necessary for overloaded
+            if (PropertyValue == null) return default;
+            return PropertyValue.Get();
+        }
+
 #if DEBUG
         [DebuggerStepThrough]
         public T Get([CallerMemberName] string name = null)
