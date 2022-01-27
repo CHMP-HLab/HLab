@@ -297,7 +297,7 @@ namespace HLab.Ioc
             }
             catch (IocLocateException e)
             {
-                throw new IocLocateException($"{e.Message} in {info.Name}", e);
+                throw new IocLocateException($"{e.Message} in {info.DeclaringType}.{info.Name}", e);
             }
         }
 
