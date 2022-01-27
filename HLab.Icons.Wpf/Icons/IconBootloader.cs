@@ -41,18 +41,30 @@ namespace HLab.Icons.Wpf.Icons
 
                         if (resourcePath.EndsWith(".xaml"))
                         {
-                            var n = resourcePath.Remove(resourcePath.Length-5);
-                            _icons.AddIconProvider(n, new IconProviderXamlFromResource(resourceManager, resourcePath, Colors.Black));
+                            var resource = resourcePath.Split('/');
+                            var path = string.Join('/',resource.SkipLast(1));
+
+                            foreach(var n in resource.Last().Split('.').SkipLast(1))
+                               _icons.AddIconProvider(string.Join('/',path,n), new IconProviderXamlFromResource(resourceManager, resourcePath, Colors.Black));
                         }
                         else if (resourcePath.EndsWith(".svg"))
                         {
-                            var n = resourcePath.Remove(resourcePath.Length-4);
-                            _icons.AddIconProvider(n, new IconProviderSvg(resourceManager, resourcePath, Colors.Black));
+                            var resource = resourcePath.Split('/');
+                            var path = string.Join('/',resource.SkipLast(1));
+
+                            foreach(var n in resource.Last().Split('.').SkipLast(1))
+                                _icons.AddIconProvider(string.Join('/',path,n), new IconProviderSvg(resourceManager, resourcePath, Colors.Black));
                         }
                         else if (resourcePath.EndsWith(".baml"))
                         {
-                            var n = resourcePath.Remove(resourcePath.Length-5);
-                            _icons.AddIconProvider(n, new IconProviderXamlFromUri(new Uri("/" + assembly.FullName + ";component/" + n +".xaml",UriKind.Relative)));
+                            var resource = resourcePath.Split('/');
+                            var path = string.Join('/',resource.SkipLast(1));
+
+                            foreach(var n in resource.Last().Split('.').SkipLast(1))
+                                _icons.AddIconProvider(
+                                    string.Join('/',path,n), 
+                                    new IconProviderXamlFromUri(new Uri( $"/{assembly.FullName};component/{string.Join('.',resourcePath.Split('.').SkipLast(1))}.xaml",UriKind.Relative))
+                                    );
                         }
                     }
                 }
