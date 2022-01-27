@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    
+    <Color x:Key="HLab.Colors.Background">Black</Color>
+    <Color x:Key="HLab.Colors.Foreground">White</Color>
+    
+    <Color x:Key="HLab.Colors.Header.Active.Background">#FF0c0c16</Color>
+    <Color x:Key="HLab.Colors.Header.Active.Foreground">#FFcbccd0</Color>
+    
+    <Color x:Key="HLab.Colors.Header.Background">#FF3d3d44</Color>
+    <Color x:Key="HLab.Colors.Header.Foreground">#FF878274</Color>
+    
+    <Color x:Key="HLab.Colors.Selected.Background">#FF303340</Color>
+    <Color x:Key="HLab.Colors.Selected.Foreground">#FFd3f3f3</Color>
+    
+    <SolidColorBrush x:Key="HLab.Brushes.Background" Color="{StaticResource HLab.Colors.Background}"/>
+    <SolidColorBrush x:Key="HLab.Brushes.Foreground" Color="{StaticResource HLab.Colors.Foreground}"/>
+    
+    <SolidColorBrush x:Key="HLab.Brushes.Header.Active.Background" Color="{StaticResource HLab.Colors.Header.Active.Background}"/>
+    <SolidColorBrush x:Key="HLab.Brushes.Header.Active.Foreground" Color="{StaticResource HLab.Colors.Header.Active.Foreground}"/>
+
+    <SolidColorBrush x:Key="HLab.Brushes.Header.Background" Color="{StaticResource HLab.Colors.Header.Background}"/>
+    <SolidColorBrush x:Key="HLab.Brushes.Header.Foreground" Color="{StaticResource HLab.Colors.Header.Foreground}"/>
+    
+    <SolidColorBrush x:Key="HLab.Brushes.Selected.Background" Color="{StaticResource HLab.Colors.Selected.Background}"/>
+    <SolidColorBrush x:Key="HLab.Brushes.Selected.Foreground" Color="{StaticResource HLab.Colors.Selected.Foreground}"/>
+    
+</ResourceDictionary>

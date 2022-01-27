@@ -1,6 +1,6 @@
 ﻿/*
   LittleBigMouse.Screen.Config
-  Copyright (c) 2017 Mathieu GRENET.  All right reserved.
+  Copyright (c) 2021 Mathieu GRENET.  All right reserved.
 
   This file is part of LittleBigMouse.Screen.Config.
 
@@ -25,37 +25,50 @@ using System;
 using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
+using System.Windows.Media;
 
 namespace HLab.Base.Wpf
 {
     public static class WindowExtensions
     {
-        public static void EnableBlur(this Window window)
+        public static void EnableBlur(this Window window, bool enable = true)
         {
-            new BlurHelper(window);
+            // TODO : fix moving 
+            if(
+                Environment.OSVersion.Platform == PlatformID.Win32NT 
+                && Environment.OSVersion.Version.Major == 10 && Environment.OSVersion.Version.Build < 22000
+                )
+            {
+                    new BlurHelper(window, enable);
+            }
         }
     }
 
     internal class BlurHelper
     {
         private readonly Window _window;
+        private readonly bool _enable;
 
-        public BlurHelper(Window window)
+        public BlurHelper(Window window, bool enable)
         {
-            _window = window;
-            if(_window.IsLoaded)
-                _window_Loaded(null,null);
-            _window.Loaded += _window_Loaded;
+                _enable= enable;
+                _window = window;
+                if(_window.IsLoaded)
+                    Window_Loaded(null,null);
+                else
+                _window.Loaded += Window_Loaded;
         }
 
 
-        private void _window_Loaded(object sender, RoutedEventArgs e)
+        private void Window_Loaded(object sender, RoutedEventArgs e)
         {
+            _window.Loaded -= Window_Loaded;
+
             var windowHelper = new WindowInteropHelper(_window);
 
             var accent = new NativeMethods.AccentPolicy();
             var accentStructSize = Marshal.SizeOf(accent);
-            accent.AccentState = NativeMethods.AccentState.ACCENT_ENABLE_BLURBEHIND;
+            accent.AccentState = _enable?NativeMethods.AccentState.ACCENT_ENABLE_BLURBEHIND:NativeMethods.AccentState.ACCENT_DISABLED; //NativeMethods.AccentState.ACCENT_ENABLE_BLURBEHIND;
 
             var accentPtr = Marshal.AllocHGlobal(accentStructSize);
             Marshal.StructureToPtr(accent, accentPtr, false);
@@ -67,7 +80,7 @@ namespace HLab.Base.Wpf
                 Data = accentPtr
             };
 
-            NativeMethods.SetWindowCompositionAttribute(windowHelper.Handle, ref data);
+            _ = NativeMethods.SetWindowCompositionAttribute(windowHelper.Handle, ref data);
 
             Marshal.FreeHGlobal(accentPtr);
         }
@@ -81,7 +94,12 @@ namespace HLab.Base.Wpf
             ACCENT_ENABLE_GRADIENT = 1,
             ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
             ACCENT_ENABLE_BLURBEHIND = 3,
-            ACCENT_INVALID_STATE = 4
+            ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
+            ACCENT_5 = 5,
+            ACCENT_6 = 6,
+            ACCENT_7 = 7,
+            ACCENT_8 = 8,
+            ACCENT_9 = 9
         }
 
         [StructLayout(LayoutKind.Sequential)]

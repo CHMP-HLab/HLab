@@ -25,6 +25,14 @@
     <Page Update="DateEx.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Themes\HLab.Theme.Light.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Update="Themes\HLab.Theme.Dark.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="MandatoryAdorner.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
