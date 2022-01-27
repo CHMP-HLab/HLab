@@ -1,9 +1,10 @@
-﻿using System.Drawing;
-using Hardcodet.Wpf.TaskbarNotification;
+﻿using Hardcodet.Wpf.TaskbarNotification;
+
+using System.Drawing;
 
 namespace HLab.Notification.Wpf
 {
-    public class NotificationProvider
+    public class NotificationServiceWpf : NotificationService
     {
         public string ToolTipText
         {

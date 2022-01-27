@@ -8,11 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf" Version="1.1.0" />
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Lib\NotifyIconWpf\NotifyIconWpf\NotifyIconWpf.csproj" />
+    <ProjectReference Include="..\..\HLab.Notification\HLab.Notification.csproj" />
   </ItemGroup>
 
 </Project>
