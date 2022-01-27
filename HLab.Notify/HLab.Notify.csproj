@@ -11,7 +11,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\HLab.DependencyInjection\HLab.DependencyInjection.csproj" />
     <ProjectReference Include="..\HLab.Notify.Annotations\HLab.Notify.Annotations.csproj" />
     <ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
   </ItemGroup>
