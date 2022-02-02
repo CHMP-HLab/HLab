@@ -10,6 +10,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Icon\Close.svg" />
+    <None Remove="Icon\Maximize.svg" />
+    <None Remove="Icon\Minimize.svg" />
+    <None Remove="Icon\Pinned.svg" />
+    <None Remove="Icon\Restore.svg" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="MahApps.Metro" Version="2.4.9" />
   </ItemGroup>
 
@@ -28,6 +36,14 @@
     <Reference Include="MahApps.Metro">
       <HintPath>..\..\..\..\..\.nuget\packages\mahapps.metro\2.3.4\lib\netcoreapp3.1\MahApps.Metro.dll</HintPath>
     </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Icon\Close.svg" />
+    <Resource Include="Icon\Maximize.svg" />
+    <Resource Include="Icon\Minimize.svg" />
+    <Resource Include="Icon\Pinned.svg" />
+    <Resource Include="Icon\Restore.svg" />
   </ItemGroup>
 
   <ItemGroup>

@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:HLab.Mvvm.Flowchart.Views"
              xmlns:viewModel="clr-namespace:HLab.Mvvm.Flowchart.ViewModel"
              xmlns:mvvm="clr-namespace:HLab.Mvvm;assembly=HLab.Mvvm.Wpf"
-             xmlns:wpf="clr-namespace:HLab.Icons.Wpf;assembly=HLab.Icons.Wpf"
-             xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
+              xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="325.5" d:DesignWidth="328.5"
              
