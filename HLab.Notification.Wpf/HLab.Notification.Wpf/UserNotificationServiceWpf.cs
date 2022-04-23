@@ -1,10 +1,11 @@
-﻿using Hardcodet.Wpf.TaskbarNotification;
-
+﻿
+using H.NotifyIcon;
+using H.NotifyIcon.Core;
 using System.Drawing;
 
 namespace HLab.Notification.Wpf
 {
-    public class NotificationServiceWpf : NotificationService
+    public class UserNotificationServiceWpf : NotificationService
     {
         public string ToolTipText
         {
@@ -45,19 +46,19 @@ namespace HLab.Notification.Wpf
 
         public void Notify(string title, string message)
         {
-            _taskbarIcon.ShowBalloonTip(title, message, BalloonIcon.None);
+            _taskbarIcon.ShowNotification(title, message, NotificationIcon.None);
         }
         public void NotifyInfo(string title, string message)
         {
-            _taskbarIcon.ShowBalloonTip(title, message, BalloonIcon.Info);
+            _taskbarIcon.ShowNotification(title, message, NotificationIcon.Info);
         }
         public void NotifyWarning(string title, string message)
         {
-            _taskbarIcon.ShowBalloonTip(title, message, BalloonIcon.Warning);
+            _taskbarIcon.ShowNotification(title, message, NotificationIcon.Warning);
         }
         public void NotifyError(string title, string message)
         {
-            _taskbarIcon.ShowBalloonTip(title, message, BalloonIcon.Error);
+            _taskbarIcon.ShowNotification(title, message, NotificationIcon.Error);
         }
 
     }

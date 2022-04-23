@@ -36,7 +36,8 @@ namespace HLab.Base.Wpf
             // TODO : fix moving 
             if(
                 Environment.OSVersion.Platform == PlatformID.Win32NT 
-                && Environment.OSVersion.Version.Major == 10 && Environment.OSVersion.Version.Build < 22000
+                && Environment.OSVersion.Version.Major == 10 
+                && Environment.OSVersion.Version.Build is < 22000 or >= 22563
                 )
             {
                     new BlurHelper(window, enable);
@@ -46,25 +47,29 @@ namespace HLab.Base.Wpf
 
     internal class BlurHelper
     {
-        private readonly Window _window;
+        private readonly WeakReference<Window> _window;
         private readonly bool _enable;
 
         public BlurHelper(Window window, bool enable)
         {
                 _enable= enable;
-                _window = window;
-                if(_window.IsLoaded)
+                _window = new WeakReference<Window>(window);
+
+                if(window.IsLoaded)
                     Window_Loaded(null,null);
                 else
-                _window.Loaded += Window_Loaded;
+                    window.Loaded += Window_Loaded;
+
         }
 
 
         private void Window_Loaded(object sender, RoutedEventArgs e)
         {
-            _window.Loaded -= Window_Loaded;
+            if (_window == null || !_window.TryGetTarget(out var window)) return;
 
-            var windowHelper = new WindowInteropHelper(_window);
+            window.Loaded -= Window_Loaded;
+
+            var windowHelper = new WindowInteropHelper(window);
 
             var accent = new NativeMethods.AccentPolicy();
             var accentStructSize = Marshal.SizeOf(accent);
@@ -83,6 +88,7 @@ namespace HLab.Base.Wpf
             _ = NativeMethods.SetWindowCompositionAttribute(windowHelper.Handle, ref data);
 
             Marshal.FreeHGlobal(accentPtr);
+            _window.SetTarget(null);
         }
     }
 

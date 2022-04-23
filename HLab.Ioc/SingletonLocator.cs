@@ -7,7 +7,7 @@ namespace HLab.Ioc
     public static class SingletonLocator<T>
     {
         private static bool _singletonInitialized = false;
-        private static object _lock = new object();
+        private static readonly object _lock = new();
 
         public static void SetInstance(T instance)
         {
