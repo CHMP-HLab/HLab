@@ -1,11 +1,12 @@
 ﻿
 using H.NotifyIcon;
 using H.NotifyIcon.Core;
+using HLab.UserNotification;
 using System.Drawing;
 
 namespace HLab.Notification.Wpf
 {
-    public class UserNotificationServiceWpf : NotificationService
+    public class UserNotificationServiceWpf : UserNotificationService
     {
         public string ToolTipText
         {

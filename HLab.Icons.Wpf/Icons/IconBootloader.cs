@@ -68,7 +68,7 @@ namespace HLab.Icons.Wpf.Icons
                         }
                     }
                 }
-                catch (MissingManifestResourceException)
+                catch (MissingManifestResourceException ex)
                 {
                 }
 

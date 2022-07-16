@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Threading;
+using System.Xml.Linq;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.NotifyHelpers
@@ -11,47 +12,54 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
     {
         internal class PropertyEntry : IPropertyEntry
         {
+            public event EventHandler<ExtendedPropertyChangedEventArgs> ExtendedPropertyChanged;
+            public bool IsLinked() => ExtendedPropertyChanged != null;
+            public string Name { get; }
+
             private readonly PropertyInfo _property;
             private object _value;
             private readonly object _target;
-            public string Name { get; }
-
-            public bool IsLinked() => ExtendedPropertyChanged != null;
 
             public PropertyEntry(object target, string name)
             {
                 _target = target;
                 Name = name;
-                var type = target.GetType();
 
+                _property = GetProperty(target.GetType(),name);
+            }
+
+            private static PropertyInfo GetProperty(Type type, string name)
+            {
                 var property = type.GetProperty(name,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
 
+                Type subType = type;
+
                 while (property == null)
                 {
-                    type = type.BaseType;
-                    if (type != null)
+                    subType = subType.BaseType;
+                    if (subType != null)
                     {
                         property = type.GetProperty(name,
                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
                     }
-                    else 
+                    else
                     {
-                        property = GetInterfaceProperty(target.GetType(),name);
-                        
-                        if(property==null)
-                            throw new Exception("Property not found : " + name + " in " + target.GetType());
+                        property = GetInterfaceProperty(type, name);
+
+                        if (property == null)
+                            throw new Exception("Property not found : " + name + " in " + type);
                     }
                 }
 
-                _property = property;
+                return property;
             }
 
-            private PropertyInfo GetInterfaceProperty(Type type, string name)
+            private static PropertyInfo GetInterfaceProperty(Type type, string name)
             {
                 var ifaces = type.GetInterfaces();
 
-                foreach(var iface in ifaces)
+                foreach (var iface in ifaces)
                 {
                     var prop = iface.GetProperty(name);
                     if (prop != null) return prop;
@@ -59,7 +67,6 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
                 return null;
             }
 
-            public event EventHandler<ExtendedPropertyChangedEventArgs> ExtendedPropertyChanged;
 
             public void TargetPropertyChanged(object sender, PropertyChangedEventArgs args)
             {
@@ -114,12 +121,6 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
                 return entry;
             }
 
-            //public ITriggerEntry GetTrigger(Action<object, ExtendedPropertyChangedEventArgs> handler)
-            //{
-            //    var entry = new TriggerEntryNotifier(this, handler);
-            //    _triggerEntries.Add(entry);
-            //    return entry;
-            //}
             public ITriggerEntry BuildTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {
                 var entry = new TriggerEntryNotifierWithPath(this, path, handler);

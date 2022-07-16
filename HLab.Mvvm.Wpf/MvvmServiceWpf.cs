@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Views;
 
@@ -9,17 +10,17 @@ namespace HLab.Mvvm
     public class MvvmServiceWpf : MvvmService
     {
         private readonly ResourceDictionary _dictionary = new();
-        public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
-        //
-        //public IApplicationInfoService InfoService { get; set; }
-        //public MvvmServiceWpf(IExportLocatorScope scope, Func<Type,object> locate, IMessageBus msg) : base(scope,locate,msg)
-        //{
-        //}
-        public void Inject( Func<ProgressLoadingViewModel> getProgressLoadingViewModel) 
+
+        public MvvmServiceWpf(
+            IMessageBus messageBus, 
+            Func<Type, object> locateFunc,
+            Func<ProgressLoadingViewModel> getProgressLoadingViewModel
+            ) : base(messageBus, locateFunc)
         {
             GetProgressLoadingViewModel = getProgressLoadingViewModel;
         }
 
+        public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
 
         public  void RegisterWithProgress()
         {
@@ -42,6 +43,7 @@ namespace HLab.Mvvm
 
             ViewHelperFactory.Register<IView>(v=>new ViewHelperWpf((FrameworkElement)v));
         }
+        
         public override void Register()
         {
                 base.Register();

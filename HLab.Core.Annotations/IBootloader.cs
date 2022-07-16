@@ -32,5 +32,19 @@
     {
         void Load(IBootContext bootstrapper);
     }
+    /*
 
+    public class MyBootloader : IBootloader
+    {
+        public MyBootloader() // <- Inject here
+        {
+        }
+
+        public void Load(IBootContext b)
+        {
+        }
+    
+    }
+
+    */
 }

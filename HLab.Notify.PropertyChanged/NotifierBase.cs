@@ -6,7 +6,7 @@ namespace HLab.Notify.PropertyChanged
 {
     public abstract class NotifierBase : INotifyPropertyChangedWithHelper
     {
-        public INotifyClassHelper ClassHelper { get; }// ??= NotifyClassHelperBase.GetNewHelper(this);
+        public INotifyClassHelper ClassHelper { get; }
 
         protected NotifierBase()
         {

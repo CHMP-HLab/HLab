@@ -20,7 +20,7 @@ namespace HLab.Mvvm
 
         public IMvvmContext GetNewContext(IMvvmContext parent, string name) => new MvvmContext(parent, name, this); 
 
-        public void Inject(IMessageBus messageBus, Func<Type,object> locateFunc)
+        public MvvmService(IMessageBus messageBus, Func<Type,object> locateFunc)
         {
             LocateFunc = locateFunc;
             _messageBus = messageBus;

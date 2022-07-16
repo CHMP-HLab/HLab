@@ -13,8 +13,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Hlab.Icons.Annotations\HLab.Icons.Annotations.csproj" />
     <ProjectReference Include="..\..\HLab.Icons.Wpf\HLab.Icons.Wpf.csproj" />
     <ProjectReference Include="..\..\HLab.Notification\HLab.UserNotification.csproj" />
   </ItemGroup>
+
 
 </Project>

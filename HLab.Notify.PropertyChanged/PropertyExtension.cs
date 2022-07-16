@@ -35,25 +35,29 @@ namespace HLab.Notify.PropertyChanged
             return false;
         }
         public static bool SetOneToMany<T, TClass>(this IProperty<T> property, T value, Func<T, IList<TClass>> getCollection)
-//            where T : class
             where TClass : class
         {
-            if (property is PropertyHolder<T> p)
+            if (property is not PropertyHolder<T> p) return false;
+            
+            if (p.Parent is not TClass target) return false;
+            
+            var oldValue = property.Get();
+
+            if (!property.Set(value)) return false;
+                    
+            if (oldValue != null)
             {
-                 if (p.Parent is TClass target)
-                 {
-                    var oldValue = property.Get();
-
-                    if (property.Set(value))
-                    {
-                        if (oldValue != null) getCollection(oldValue).Remove(target);
-                        if (value != null) getCollection(value).Add(target);
-                        return true;
-                    }
-                 }
+                var collection = getCollection(oldValue);
+                collection?.Remove(target);
             }
-
-            return false;
+                    
+            if (value != null)
+            {
+                var collection = getCollection(value);
+                collection?.Add(target);
+            }
+                    
+            return true;
         }
     }
 }

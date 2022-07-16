@@ -87,13 +87,11 @@ namespace HLab.Icons.Wpf.Icons
         {
             return (IIconService)obj.GetValue(IconServiceProperty);
         }
+        
         public static void SetIconService(DependencyObject obj, IIconService value)
         {
             obj.SetValue(IconServiceProperty, value);
         }
-
-
-
 
         public static readonly DependencyProperty PathProperty =
             H.Property<string>()

@@ -229,21 +229,28 @@ namespace HLab.Ioc
 
             var constructors = typeof(T).GetConstructors();
 
+            // TODO : Here we get the first constructor that works, maybe we should use the one that consume most parameters
             foreach (var constructor in constructors)
             {
-                var instance = Expression.Variable(typeof(T), "instance");
-                List<Expression> list = new()
+                try
                 {
-                    Expression.Assign(instance, FactoryExpression(constructor, parameters))
-                };
+                    var instance = Expression.Variable(typeof(T), "instance");
+                    List<Expression> list = new()
+                    {
+                        Expression.Assign(instance, FactoryExpression(constructor, parameters))
+                    };
 
-                while (methodsStack.TryPop(out var method))
-                {
-                    list.Add(MethodInjectionExpression(instance, method, parameters));
+                    while (methodsStack.TryPop(out var method))
+                    {
+                        list.Add(MethodInjectionExpression(instance, method, parameters));
+                    }
+                    list.Add(instance);
+                    var expression = Expression.Block(new[] { instance }, list);
+                    return expression;
                 }
-                list.Add(instance);
-                var expression = Expression.Block(new[] { instance }, list);
-                return expression;
+                catch (IocLocateException)
+                { }
+
             }
             throw new Exception($"No constructor found on class {typeof(T)}");
             // Injection have to be done from base class to top level to ensure base class to be populated first
@@ -273,7 +280,7 @@ namespace HLab.Ioc
             return Expression.Lambda<Action<T>>(Expression.Block(list), new ParameterExpression[] { instance });
         }
 
-        private static Expression[] ArgumentsExpression(MethodBase info, ParameterExpression[] availableParameters)
+        private static Expression[] ArgumentsExpression(MethodBase info, List<ParameterExpression> availableParameters)
         {
             var parameters = info.GetParameters();
             var size = parameters.Length;
@@ -296,10 +303,16 @@ namespace HLab.Ioc
             }
         }
 
-        private static Expression ArgumentExpression(ParameterInfo info, ParameterExpression[] availableParameters)
+        private static Expression ArgumentExpression(ParameterInfo info, List<ParameterExpression> availableParameters)
         {
             var available = availableParameters?.FirstOrDefault(e => e.Type.IsAssignableTo(info.ParameterType));
-            return available ?? ArgumentExpression(info);
+            if (available != null)
+            {
+                availableParameters.Remove(available);
+                return available;
+            }
+            
+            return ArgumentExpression(info);
         }
 
         private static Expression ArgumentExpression(ParameterInfo info)
@@ -314,13 +327,13 @@ namespace HLab.Ioc
 
         private static Expression FactoryExpression(ConstructorInfo info, ParameterExpression[] parameters)
         {
-            var arguments = ArgumentsExpression(info, parameters);
+            var arguments = ArgumentsExpression(info, parameters?.ToList());
             return Expression.New(info, arguments);
         }
 
         private static Expression MethodInjectionExpression(Expression instance, MethodInfo info, ParameterExpression[] parameters)
         {
-            var arguments = ArgumentsExpression(info, parameters);
+            var arguments = ArgumentsExpression(info, parameters?.ToList());
             return Expression.Call(instance, info, arguments);
         }
 

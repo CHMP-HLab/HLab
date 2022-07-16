@@ -28,7 +28,7 @@ using H.NotifyIcon;
 using HLab.Icons.Annotations.Icons;
 using HLab.Icons.Wpf.Icons;
 
-namespace HLab.Notification.Wpf
+namespace HLab.UserNotification.Wpf
 {
     public class UserNotify //: IDisposable
     {

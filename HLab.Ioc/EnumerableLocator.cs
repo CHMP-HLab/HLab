@@ -31,6 +31,7 @@ namespace HLab.Ioc
             Locator<T1>.SetFactoryExpression(factory);
             Add<T1>();
         }
+
         public static void AddAutoFactory<T1>() where T1 : T
         {
             Locator<T1>.SetAutoFactoryExpression();
