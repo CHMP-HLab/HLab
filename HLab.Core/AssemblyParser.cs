@@ -36,6 +36,7 @@ namespace HLab.Core
 
         public void Parse()
         {
+            if (_assemblies == null) return;
             foreach (var assembly in _assemblies) Parse(assembly);
         }
 
