@@ -113,25 +113,26 @@ namespace HLab.Mvvm
         public IView GetView(object baseObject,Type viewMode, Type viewClass)
         {
 
-            if (viewClass == null) viewClass = typeof(IViewClassDefault);
-            if (viewMode == null) viewMode = typeof(ViewModeDefault);
+            viewClass ??= typeof(IViewClassDefault);
+            viewMode ??= typeof(ViewModeDefault);
 
             while (true)
             {
                 var linked = GetLinked(baseObject,viewMode,viewClass);
 
-                if (linked == null)
+                switch (linked)
                 {
-                    return _mvvm.GetNotFoundView(baseObject?.GetType(),viewMode,viewClass);
-                }
+                    case null:
+                        return _mvvm.GetNotFoundView(baseObject?.GetType(),viewMode,viewClass);
 
-                if (linked is IView fe)
-                {
-                    _mvvm.PrepareView(fe);
-                    return fe;
+                    case IView fe:
+                        _mvvm.PrepareView(fe);
+                        return fe;
+                    
+                    default:
+                        baseObject = linked;
+                        break;
                 }
-
-                baseObject = linked;
             }
         }
 

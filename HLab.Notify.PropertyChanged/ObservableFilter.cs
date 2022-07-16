@@ -44,7 +44,11 @@ namespace HLab.Notify.PropertyChanged
 
     public interface IObservableFilter<T> : IList<T>, IObservableFilter
     {
-        void AddFilter(Func<T, bool> expr, int order = 0, string name = null);
+        void AddFilter(Func<T, bool> expr) => AddFilter(expr,0,null);
+        void AddFilter(Func<T, bool> expr, int order) => AddFilter(expr,order,null);
+        void AddFilter(Func<T, bool> expr, string name) => AddFilter(expr,0,name);
+        void AddFilter(Func<T, bool> expr, int order, string name);
+        void RemoveFilter(string name);
     }
 
 
@@ -101,7 +105,7 @@ namespace HLab.Notify.PropertyChanged
         public class CreateHelper : IDisposable
         {
             public ObservableFilterPropertyHolder<T> List = null;
-            public T ViewModel = default(T);
+            public T ViewModel = default;
 
             public TVm GetViewModel<TVm>() where TVm : class => ViewModel as TVm;
 
@@ -255,6 +259,10 @@ namespace HLab.Notify.PropertyChanged
         private void Notify()
         {
             var changed = false;
+
+            if(_notify.Count > 1)
+            { }
+
             while(!_notify.IsEmpty)
             {
                 if(_notify.TryPop(out var args))
@@ -440,7 +448,6 @@ namespace HLab.Notify.PropertyChanged
         {
         }
     }
-
 
     //public class ObservableFilter<TCLass,T> : N<ObservableFilter<TCLass,T>>, ILockable,
     //    IReadOnlyList<T>,

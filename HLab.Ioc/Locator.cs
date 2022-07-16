@@ -205,12 +205,7 @@ namespace HLab.Ioc
             Interlocked.Exchange(ref _factory, factory);
         }
 
-        private static bool IsInjectMethod(MethodInfo info)
-        {
-            if (info.Name == "Inject") return true;
-            return false;
-        }
-
+        private static bool IsInjectMethod(MemberInfo info) => info.Name == "Inject";
 
         public static void SetAutoFactoryExpression()
         {
@@ -225,9 +220,9 @@ namespace HLab.Ioc
             while (type != typeof(object) && type != null)
             {
                 var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-                foreach (var method in methods)
+                foreach (var method in methods.Where(IsInjectMethod))
                 {
-                    if (IsInjectMethod(method)) methodsStack.Push(method);
+                    methodsStack.Push(method);
                 }
                 type = type.BaseType;
             }
@@ -262,9 +257,9 @@ namespace HLab.Ioc
             while (type != typeof(object) && type != null)
             {
                 var methods = type.GetMethods(BindingFlags.Public | BindingFlags.Instance | BindingFlags.DeclaredOnly);
-                foreach (var method in methods)
+                foreach (var method in methods.Where(IsInjectMethod))
                 {
-                    if (IsInjectMethod(method)) methodsStack.Push(method);
+                    methodsStack.Push(method);
                 }
                 type = type.BaseType;
             }

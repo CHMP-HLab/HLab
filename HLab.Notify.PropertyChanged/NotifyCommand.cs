@@ -124,7 +124,7 @@ namespace HLab.Notify.PropertyChanged
     {
         private Action<object> _execute = null;
         private Func<object,Task> _executeAsync = null;
-        private Func<object,bool> _canExecuteFunc = null;
+        private Func<object,bool> _canExecuteFunc = (o) => true;
         private bool _canExecute = true;
         public string IconPath { get; set; }
         public string ToolTipText { get; set; }
