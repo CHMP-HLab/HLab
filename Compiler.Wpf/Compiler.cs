@@ -105,7 +105,7 @@ namespace HLab.Compiler.Wpf
         private static WeakReference LoadAndExecute(byte[] compiledAssembly, string[] args)
         {
             using var asm = new MemoryStream(compiledAssembly);
-            var assemblyLoadContext = new AssemblyLoadContext("HLab.RuntimeCompiled",true);
+            var assemblyLoadContext = new AssemblyLoadContext("HLab.RuntimeCompiled", true);
 
             var assembly = assemblyLoadContext.LoadFromStream(asm);
 
