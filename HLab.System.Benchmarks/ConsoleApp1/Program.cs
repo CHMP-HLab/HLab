@@ -1,8 +1,8 @@
-﻿using BenchmarkDotNet.Attributes;
+﻿using System.Text;
+using BenchmarkDotNet.Attributes;
 using BenchmarkDotNet.Running;
-using System.Text;
 
-namespace ConsoleApp1
+namespace HLab.System.Benchmark
 {
     public class StringBenchmark
     {
