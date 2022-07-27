@@ -28,7 +28,7 @@ using System.Windows.Media;
 
 //using System.Drawing;
 
-namespace HLab.Base.Wpf
+namespace HLab.Base.Wpf.Themes
 {
     // TODO: Add a listener for WM_SETTINGCHANGE to detect changes of the active color scheme automatically.
     //   Add a listener for WM_SETTINGCHANGE and trigger an event, like ActiveSetChanged.
@@ -40,10 +40,10 @@ namespace HLab.Base.Wpf
             {
                 if (_allSets == null)
                 {
-                    UInt32 colorSetCount = UXTheme.GetImmersiveColorSetCount();
+                    uint colorSetCount = UXTheme.GetImmersiveColorSetCount();
 
                     List<AccentColorSet> colorSets = new List<AccentColorSet>();
-                    for (UInt32 i = 0; i < colorSetCount; i++)
+                    for (uint i = 0; i < colorSetCount; i++)
                         colorSets.Add(new AccentColorSet(i, false));
 
                     AllSets = colorSets.ToArray();
@@ -58,7 +58,7 @@ namespace HLab.Base.Wpf
         {
             get
             {
-                UInt32 activeSet = UXTheme.GetImmersiveUserColorSetPreference(false, false);
+                uint activeSet = UXTheme.GetImmersiveUserColorSetPreference(false, false);
                 //ActiveSet = AllSets[activeSet];
                 ActiveSet = AllSets[activeSet % AllSets.Length];
                 return _activeSet;
@@ -72,14 +72,14 @@ namespace HLab.Base.Wpf
             }
         }
 
-        public Boolean Active { get; private set; }
+        public bool Active { get; private set; }
 
-        public Color this[String colorName]
+        public Color this[string colorName]
         {
             get
             {
                 IntPtr name = IntPtr.Zero;
-                UInt32 colorType;
+                uint colorType;
                 try
                 {
                     name = Marshal.StringToHGlobalUni("Immersive" + colorName);
@@ -99,23 +99,23 @@ namespace HLab.Base.Wpf
             }
         }
 
-        public Color this[UInt32 colorType]
+        public Color this[uint colorType]
         {
             get
             {
-                UInt32 nativeColor = UXTheme.GetImmersiveColorFromColorSetEx(_colorSet, colorType, false, 0);
+                uint nativeColor = UXTheme.GetImmersiveColorFromColorSetEx(_colorSet, colorType, false, 0);
                 //if (nativeColor == 0)
                 //    throw new InvalidOperationException();
                 return Color.FromArgb(
-                    (Byte)((0xFF000000 & nativeColor) >> 24),
-                    (Byte)((0x000000FF & nativeColor) >> 0),
-                    (Byte)((0x0000FF00 & nativeColor) >> 8),
-                    (Byte)((0x00FF0000 & nativeColor) >> 16)
+                    (byte)((0xFF000000 & nativeColor) >> 24),
+                    (byte)((0x000000FF & nativeColor) >> 0),
+                    (byte)((0x0000FF00 & nativeColor) >> 8),
+                    (byte)((0x00FF0000 & nativeColor) >> 16)
                     );
             }
         }
 
-        AccentColorSet(UInt32 colorSet, Boolean active)
+        AccentColorSet(uint colorSet, bool active)
         {
             _colorSet = colorSet;
             Active = active;
@@ -124,15 +124,15 @@ namespace HLab.Base.Wpf
         static AccentColorSet[] _allSets;
         static AccentColorSet _activeSet;
 
-        UInt32 _colorSet;
+        uint _colorSet;
 
         // HACK: GetAllColorNames collects the available color names by brute forcing the OS function.
         //   Since there is currently no known way to retrieve all possible color names,
         //   the method below just tries all indices from 0 to 0xFFF ignoring errors.
-        public List<String> GetAllColorNames()
+        public List<string> GetAllColorNames()
         {
-            List<String> allColorNames = new List<String>();
-            for (UInt32 i = 0; i < 0xFFF; i++)
+            List<string> allColorNames = new List<string>();
+            for (uint i = 0; i < 0xFFF; i++)
             {
                 IntPtr typeNamePtr = UXTheme.GetImmersiveColorNamedTypeByIndex(i);
                 if (typeNamePtr != IntPtr.Zero)
@@ -147,20 +147,20 @@ namespace HLab.Base.Wpf
         static class UXTheme
         {
             [DllImport("uxtheme.dll", EntryPoint = "#98", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
-            public static extern UInt32 GetImmersiveUserColorSetPreference(Boolean forceCheckRegistry, Boolean skipCheckOnFail);
+            public static extern uint GetImmersiveUserColorSetPreference(bool forceCheckRegistry, bool skipCheckOnFail);
 
             [DllImport("uxtheme.dll", EntryPoint = "#94", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
-            public static extern UInt32 GetImmersiveColorSetCount();
+            public static extern uint GetImmersiveColorSetCount();
 
             [DllImport("uxtheme.dll", EntryPoint = "#95", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
-            public static extern UInt32 GetImmersiveColorFromColorSetEx(UInt32 immersiveColorSet, UInt32 immersiveColorType,
-                Boolean ignoreHighContrast, UInt32 highContrastCacheMode);
+            public static extern uint GetImmersiveColorFromColorSetEx(uint immersiveColorSet, uint immersiveColorType,
+                bool ignoreHighContrast, uint highContrastCacheMode);
 
             [DllImport("uxtheme.dll", EntryPoint = "#96", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
-            public static extern UInt32 GetImmersiveColorTypeFromName(IntPtr name);
+            public static extern uint GetImmersiveColorTypeFromName(IntPtr name);
 
             [DllImport("uxtheme.dll", EntryPoint = "#100", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
-            public static extern IntPtr GetImmersiveColorNamedTypeByIndex(UInt32 index);
+            public static extern IntPtr GetImmersiveColorNamedTypeByIndex(uint index);
         }
     }
 }
