@@ -15,12 +15,12 @@ namespace HLab.Erp.Core.Update
             DataContextChanged += ApplicationUpdateView_DataContextChanged;
         }
 
-        private void ApplicationUpdateView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void ApplicationUpdateView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if(DataContext is ApplicationUpdateViewModel viewModel) viewModel.PropertyChanged += ViewModel_PropertyChanged;
         }
 
-        private void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        void ViewModel_PropertyChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
             if (e.PropertyName == "Updated" && ((DataContext as ApplicationUpdateViewModel)?.Model.Updated??false))
             {
@@ -28,7 +28,7 @@ namespace HLab.Erp.Core.Update
             }
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
            //TODO : Close();
         }

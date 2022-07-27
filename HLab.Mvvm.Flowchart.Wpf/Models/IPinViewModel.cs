@@ -1,6 +1,6 @@
 ﻿namespace HLab.Mvvm.Flowchart.Models
 {
-    interface IPinViewModel
+    internal interface IPinViewModel
     {
     }
 }

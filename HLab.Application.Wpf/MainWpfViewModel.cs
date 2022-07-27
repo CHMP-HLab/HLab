@@ -16,17 +16,27 @@ namespace HLab.Mvvm.Application.Wpf
 {
     using H = H<MainWpfViewModel>;
 
+
+    public class MainWpfViewModelDesign : MainWpfViewModel
+    {
+        public MainWpfViewModelDesign() 
+            : base(null, null, null, null, null, null, null)
+        {
+            
+        }
+    }
+
     public class MainWpfViewModel : NotifierBase
     {
-        public IAclService Acl {get; private set;}
-        private IMessageBus _message;
-        private IDocumentService _doc;
-        public IApplicationInfoService ApplicationInfo { get; private set; }
-        private Func<object, ISelectedMessage> _getSelectedMessage;
-        public ILocalizationService LocalizationService { get; private set; }
-        public IIconService IconService { get; private set; }
+        public IAclService Acl {get; }
+        readonly IMessageBus _message;
+        readonly IDocumentService _doc;
+        public IApplicationInfoService ApplicationInfo { get; }
+        readonly Func<object, ISelectedMessage> _getSelectedMessage;
+        public ILocalizationService LocalizationService { get; }
+        public IIconService IconService { get; }
 
-        public void Inject(
+        public MainWpfViewModel(
             IAclService acl, 
             IMessageBus message, 
             IDocumentService doc, 
@@ -51,35 +61,31 @@ namespace HLab.Mvvm.Application.Wpf
         public ObservableCollection<object> Anchorables { get; } = new();
         public ObservableCollection<object> Documents { get; } = new();
 
-
-
         public bool IsActive
         {
             get => _isActive.Get();
             set => _isActive.Set(value);
         }
-        private readonly IProperty<bool> _isActive = H.Property<bool>(c => c.Default(true));
+
+        readonly IProperty<bool> _isActive = H.Property<bool>(c => c.Default(true));
 
 
         public bool RemoveDocument(FrameworkElement document)
         {
-            if (Documents.Contains(document))
-            {
-                if (_documentHistory.Count > 0 && ReferenceEquals(_documentHistory[0], document))
-                {
-                    _documentHistory.Remove(document);
-                    if (_documentHistory.Count > 0)
-                    {
-                        ActiveDocument = _documentHistory[0];
-                    }
-                    Documents.Remove(document);
-                }
-            }
+            if (!Documents.Contains(document)) return false;
+            if (_documentHistory.Count <= 0 || !ReferenceEquals(_documentHistory[0], document)) return false;
 
-            return false;
+            _documentHistory.Remove(document);
+            if (_documentHistory.Count > 0)
+            {
+                ActiveDocument = _documentHistory[0];
+            }
+            Documents.Remove(document);
+
+            return true;
         }
 
-        private readonly List<FrameworkElement> _documentHistory = new List<FrameworkElement>();
+        readonly List<FrameworkElement> _documentHistory = new();
         public FrameworkElement ActiveDocument
         {
             get => _activeDocument.Get();
@@ -88,14 +94,13 @@ namespace HLab.Mvvm.Application.Wpf
                 _documentHistory.Remove(value);
                 _documentHistory.Insert(0,value);
 
-                if (_activeDocument.Set(value))
-                {
-                    var message = _getSelectedMessage(value);
-                    _message.Publish(message);
-                }
+                if (!_activeDocument.Set(value)) return;
+
+                _message.Publish(_getSelectedMessage(value));
             }
         }
-        private readonly IProperty<FrameworkElement> _activeDocument = H.Property<FrameworkElement>();
+
+        readonly IProperty<FrameworkElement> _activeDocument = H.Property<FrameworkElement>();
 
         // TODO
         //public Canvas DragCanvas => _dragCanvas.Get();
@@ -111,7 +116,7 @@ namespace HLab.Mvvm.Application.Wpf
         public Menu Menu { get; } = new Menu {IsMainMenu = true, Background=Brushes.Transparent}; 
 
         public string Title => _title.Get();
-        private readonly IProperty<string> _title = H.Property<string>(c => c.Set(e => e.ApplicationInfo.Name));
+        readonly IProperty<string> _title = H.Property<string>(c => c.Set(e => e.ApplicationInfo.Name));
 
         public ICommand Exit  { get; } = H.Command(c => c
             .Action(e => System.Windows.Application.Current.Shutdown())

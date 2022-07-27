@@ -56,7 +56,7 @@ namespace HLab.Notify.PropertyChanged
     
     public class ObservableFilterPropertyHolder<T> : ChildObjectN<ObservableFilterPropertyHolder<T>>, ILockable, IReadOnlyList<T>, IList, IObservableFilter<T> 
     {
-        private class Filter
+        class Filter
         {
             public string Name { get; }
             public Func<T, bool> Expression { get; } = null;
@@ -69,12 +69,13 @@ namespace HLab.Notify.PropertyChanged
                 Order = order;
             }
         }
-        private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
-        private readonly AsyncReaderWriterLock _lockFilters = new AsyncReaderWriterLock();
 
-        private readonly List<Filter> _filters = new List<Filter>();
+        readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
+        readonly AsyncReaderWriterLock _lockFilters = new AsyncReaderWriterLock();
 
-        private readonly List<T> _list = new List<T>();
+        readonly List<Filter> _filters = new List<Filter>();
+
+        readonly List<T> _list = new List<T>();
 
         public void AddFilter(Func<T, bool> expr, int order = 0, string name = null)
         {
@@ -85,7 +86,7 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        private void _removeFilter(string name)
+        void _removeFilter(string name)
         {
             foreach (Filter f in _filters.Where(f => f.Name == name).ToList())
             {
@@ -117,13 +118,14 @@ namespace HLab.Notify.PropertyChanged
         }
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
-        private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
+
+        void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
         {
             NotifyHelper.EventHandlerService.Invoke(CollectionChanged, this, arg);
         }
 
-        private Func<INotifyCollectionChanged> _listGetter = null;
-        private INotifyCollectionChanged _currentList = null;
+        Func<INotifyCollectionChanged> _listGetter = null;
+        INotifyCollectionChanged _currentList = null;
 
         public AsyncReaderWriterLock Lock => _lock;
 
@@ -134,7 +136,7 @@ namespace HLab.Notify.PropertyChanged
         public object SyncRoot => throw new NotImplementedException();
         public bool IsFixedSize => false;
 
-        private INotifyCollectionChanged GetList()
+        INotifyCollectionChanged GetList()
         {
             try
             {
@@ -163,7 +165,7 @@ namespace HLab.Notify.PropertyChanged
         }
 
 
-        private void _list_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void _list_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {
@@ -210,7 +212,7 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        private bool Match(T item)
+        bool Match(T item)
         {
             using(_lockFilters.ReaderLock())
             {
@@ -220,7 +222,7 @@ namespace HLab.Notify.PropertyChanged
         }
 
 
-        private int _trigging = 0;
+        int _trigging = 0;
         public void OnTriggered()
         {
             var c = Interlocked.Add(ref _trigging,1);
@@ -254,9 +256,9 @@ namespace HLab.Notify.PropertyChanged
             if (c1>1) OnTriggered();
         }
 
-        private readonly ConcurrentStack<NotifyCollectionChangedEventArgs> _notify = new ConcurrentStack<NotifyCollectionChangedEventArgs>();
+        readonly ConcurrentStack<NotifyCollectionChangedEventArgs> _notify = new ConcurrentStack<NotifyCollectionChangedEventArgs>();
 
-        private void Notify()
+        void Notify()
         {
             var changed = false;
 
@@ -280,7 +282,7 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        private void _add(T item)
+        void _add(T item)
         {
             //Todo : try remove this condition
             if (_list.Contains(item)) return;
@@ -288,14 +290,14 @@ namespace HLab.Notify.PropertyChanged
             _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Add, new T[] {item}));
         }
 
-        private void _remove(T item)
+        void _remove(T item)
         {
             if (!_list.Contains(item)) return;
             _list.Remove(item);
             _notify.Push(new NotifyCollectionChangedEventArgs(NotifyCollectionChangedAction.Remove, new T[] { item }));
         }
 
-        private void DoWriteLocked(Action action)
+        void DoWriteLocked(Action action)
         {
             try
             {
@@ -344,9 +346,9 @@ namespace HLab.Notify.PropertyChanged
 
         class FilterEnumerator : IEnumerator<T>, IDisposable
         {
-            private int _currentIdx;
-            private readonly ObservableFilterPropertyHolder<T> _filter;
-            private IDisposable _locker;
+            int _currentIdx;
+            readonly ObservableFilterPropertyHolder<T> _filter;
+            IDisposable _locker;
             internal FilterEnumerator(ObservableFilterPropertyHolder<T> filter)
             {
                 _locker = filter.Lock.ReaderLock();

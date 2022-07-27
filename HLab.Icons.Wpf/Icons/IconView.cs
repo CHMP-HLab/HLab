@@ -17,13 +17,13 @@ namespace HLab.Icons.Wpf.Icons
     [ContentProperty("Caption")]
     public class IconView : ContentControl
     {
-        private WeakReference<IIconService> _iconServiceReference;
-        private static IIconService _designTimeService = null;
+        WeakReference<IIconService> _iconServiceReference;
+        static IIconService _designTimeService = null;
 
-        private readonly ContentControl _iconElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
-        private readonly ContentControl _captionElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
+        readonly ContentControl _iconElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
+        readonly ContentControl _captionElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
 
-        private readonly ColumnDefinition _spacer = new() { Width = new GridLength(0.0) };
+        readonly ColumnDefinition _spacer = new() { Width = new GridLength(0.0) };
 
 
 
@@ -52,13 +52,13 @@ namespace HLab.Icons.Wpf.Icons
 
         }
 
-        private async void OnForegroundChanged(DependencyPropertyChangedEventArgs eventArgs)
+        async void OnForegroundChanged(DependencyPropertyChangedEventArgs eventArgs)
         {
             if(eventArgs.NewValue != eventArgs.OldValue)
                 await LoadIconAsync().ConfigureAwait(true);
         }
 
-        private async void IconView_Loaded(object sender, RoutedEventArgs e)
+        async void IconView_Loaded(object sender, RoutedEventArgs e)
         {
             await LoadIconAsync().ConfigureAwait(true);
         }
@@ -162,7 +162,7 @@ namespace HLab.Icons.Wpf.Icons
 
         int _count = 0;
 
-        private async Task LoadIconAsync()
+        async Task LoadIconAsync()
         {
             if(!IsLoaded) return;
 
@@ -195,7 +195,7 @@ namespace HLab.Icons.Wpf.Icons
             });
         }
 
-        private void Update()
+        void Update()
         {
             if (!IsLoaded) return;
 

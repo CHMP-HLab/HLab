@@ -12,11 +12,11 @@ namespace HLab.Icons.Wpf.Icons.Providers
 {
     public class IconProviderXamlFromResource : IconProvider, IIconProvider
     {
-        private readonly ResourceManager _resourceManager;
-        private readonly string _name;
-        private readonly Color? _foreColor;
-        private bool _parsed = false;
-        private string _source;
+        readonly ResourceManager _resourceManager;
+        readonly string _name;
+        readonly Color? _foreColor;
+        bool _parsed = false;
+        string _source;
  
         public IconProviderXamlFromResource(ResourceManager resourceManager, string name, Color? foreColor)
         { 

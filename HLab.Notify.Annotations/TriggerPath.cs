@@ -83,7 +83,7 @@ namespace HLab.Notify.Annotations
             return PropertyName;
         }
 
-        private static TriggerPath Factory(TriggerPath next, string propertyName)
+        static TriggerPath Factory(TriggerPath next, string propertyName)
         {
             return next == null ? new TriggerPath(propertyName) : new TriggerPathNext(next, propertyName);
         }

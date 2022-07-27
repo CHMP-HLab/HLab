@@ -15,7 +15,7 @@ namespace HLab.Mvvm.Application.Wpf.Update
 
     public class UpdaterWpf : NotifierBase, IUpdater
     {
-        private readonly IApplicationInfoService _info;
+        readonly IApplicationInfoService _info;
         public UpdaterWpf(IApplicationInfoService info)
         {
             _info = info;
@@ -29,14 +29,15 @@ namespace HLab.Mvvm.Application.Wpf.Update
             set => _message.Set(value);
         }
 
-        private readonly IProperty<string> _message = H.Property<string>();
+        readonly IProperty<string> _message = H.Property<string>();
 
         public String FileName
         {
             get => _fileName.Get();
             set => _fileName.Set(value);
         }
-        private readonly IProperty<string> _fileName = H.Property<string>();
+
+        readonly IProperty<string> _fileName = H.Property<string>();
 
 
         // http://www.chmp.org/sites/default/files/apps/sampling/
@@ -45,28 +46,32 @@ namespace HLab.Mvvm.Application.Wpf.Update
             get => _url.Get();
             set => _url.Set(value);
         }
-        private readonly IProperty<string> _url = H.Property<string>();
+
+        readonly IProperty<string> _url = H.Property<string>();
 
         public Version NewVersion
         {
             get => _newVersion.Get();
             set => _newVersion.Set(value);
         }
-        private readonly IProperty<Version> _newVersion = H.Property<Version>();
+
+        readonly IProperty<Version> _newVersion = H.Property<Version>();
 
         public double Progress
         {
             get => _progress.Get();
             set => _progress.Set(value);
         }
-        private readonly IProperty<double> _progress = H.Property<double>();
+
+        readonly IProperty<double> _progress = H.Property<double>();
 
         public bool Updated
         {
             get => _updated.Get();
             set => _updated.Set(value);
         }
-        private readonly IProperty<bool> _updated = H.Property<bool>(c => c.Default(false));
+
+        readonly IProperty<bool> _updated = H.Property<bool>(c => c.Default(false));
 
         public void Update()
         {
@@ -81,7 +86,8 @@ namespace HLab.Mvvm.Application.Wpf.Update
             });
             thread.Start();
         }
-        private void RunUpdate()
+
+        void RunUpdate()
         {
             var filename = FileName.Replace("{version}", NewVersion.ToString());
             var path = Path.GetTempPath() + filename;
@@ -149,7 +155,7 @@ namespace HLab.Mvvm.Application.Wpf.Update
 
         public bool NewVersionFound => _newVersionFound.Get();
 
-        private readonly IProperty<bool> _newVersionFound = H.Property<bool>(c => c
+        readonly IProperty<bool> _newVersionFound = H.Property<bool>(c => c
             .On(e => e.NewVersion)
             .On(e => e.CurrentVersion)
             .Set(e => e.NewVersion > e.CurrentVersion)
@@ -157,7 +163,8 @@ namespace HLab.Mvvm.Application.Wpf.Update
 
 
         public Version CurrentVersion => _currentVersion.Get();
-        private readonly IProperty<Version> _currentVersion = H.Property<Version>(c => c
+
+        readonly IProperty<Version> _currentVersion = H.Property<Version>(c => c
             .Set(e => e._info.Version)
         );
 

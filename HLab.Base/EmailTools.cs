@@ -20,7 +20,7 @@ namespace HLab.Base
             return Regex.IsMatch(email, @"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$", RegexOptions.IgnoreCase);
         }
 
-        private static string DomainMapper(Match match)
+        static string DomainMapper(Match match)
         {
             // IdnMapping class with default property values.
             IdnMapping idn = new IdnMapping();

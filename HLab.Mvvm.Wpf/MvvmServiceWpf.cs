@@ -5,11 +5,11 @@ using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Views;
 
-namespace HLab.Mvvm
+namespace HLab.Mvvm.Wpf
 {
     public class MvvmServiceWpf : MvvmService
     {
-        private readonly ResourceDictionary _dictionary = new();
+        readonly ResourceDictionary _dictionary = new();
 
         public MvvmServiceWpf(
             IMessageBus messageBus, 

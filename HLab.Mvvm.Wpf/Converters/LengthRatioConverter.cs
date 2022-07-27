@@ -26,7 +26,7 @@ namespace HLab.Mvvm.Converters
             set => SetValue(FrameworkElementProperty, value);
         }
 
-        private double Ratio => Math.Min(
+        double Ratio => Math.Min(
             FrameworkElement.ActualWidth / PhysicalRect.Width,
             FrameworkElement.ActualHeight / PhysicalRect.Height
         );

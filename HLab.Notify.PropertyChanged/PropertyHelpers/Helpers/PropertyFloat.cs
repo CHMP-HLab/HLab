@@ -5,7 +5,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyFloat : IPropertyValue<float>
     {
-        private float _value;
+        float _value;
         public float Get() => _value;
 
         public bool Set(float value)
@@ -26,7 +26,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             return Set(setter(_holder.Parent));
         }
 
-        private readonly PropertyHolder<float> _holder;
+        readonly PropertyHolder<float> _holder;
 
         public PropertyFloat(PropertyHolder<float> holder)
         {

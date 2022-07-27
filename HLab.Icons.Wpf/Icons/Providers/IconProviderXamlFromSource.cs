@@ -10,10 +10,10 @@ namespace HLab.Icons.Wpf.Icons.Providers
 {
     public class IconProviderXamlFromSource : IconProvider, IIconProvider
     {
-        private readonly string _name;
-        private string _source;
-        private readonly int? _foreColor;
-        private bool _parsed = false;
+        readonly string _name;
+        string _source;
+        readonly int? _foreColor;
+        bool _parsed = false;
  
         public IconProviderXamlFromSource(string source, string name, int? foreground)
         { 

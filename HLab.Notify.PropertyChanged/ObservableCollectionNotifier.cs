@@ -45,11 +45,11 @@ namespace HLab.Notify.PropertyChanged
 
         #endregion
 
-        private readonly List<T> _list = new();
+        readonly List<T> _list = new();
 
         protected AsyncReaderWriterLock Lock { get; } = new();
 
-        private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _changedQueue = new();
+        readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _changedQueue = new();
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -59,7 +59,8 @@ namespace HLab.Notify.PropertyChanged
             get => DoReadLocked(() => _selected.Get());
             set => DoWriteLocked(()=>_selected.Set(value));
         }
-        private readonly IProperty<T> _selected = H<ObservableCollectionNotifier<T>>.Property<T>();
+
+        readonly IProperty<T> _selected = H<ObservableCollectionNotifier<T>>.Property<T>();
 
 
 
@@ -68,13 +69,15 @@ namespace HLab.Notify.PropertyChanged
         IEnumerator IEnumerable.GetEnumerator() => _list.GetEnumerator();
 
         public int Count => _count.Get();
-        private readonly IProperty<int> _count = H<ObservableCollectionNotifier<T>>.Property<int>(c => c
+
+        readonly IProperty<int> _count = H<ObservableCollectionNotifier<T>>.Property<int>(c => c
             .Set(e => e._list.Count)
         );
 
         int IList.Add(object item) => _add((T)item);
         public virtual void Add(T item) => _add(item);
-        private int _add(T item)
+
+        int _add(T item)
         {
             try
             {
@@ -203,27 +206,31 @@ namespace HLab.Notify.PropertyChanged
                 while (_changedQueue.TryDequeue(out var a))
                     OnCollectionChanged(a);
         }
-        private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
+
+        void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
         {
             CollectionChanged?.Invoke(this,arg);
         }
 
         AsyncReaderWriterLock ILockable.Lock => Lock;
-        private TR DoReadLocked<TR>(Func<TR> action)
+
+        TR DoReadLocked<TR>(Func<TR> action)
         {
             using (Lock.ReaderLock())
             {
                 return action();
             }
         }
-        private void DoReadLocked(Action action)
+
+        void DoReadLocked(Action action)
         {
             using (Lock.ReaderLock())
             {
                 action();
             }
         }
-        private TR DoWriteLocked<TR>(Func<TR> action)
+
+        TR DoWriteLocked<TR>(Func<TR> action)
         {
             try
             {
@@ -238,7 +245,8 @@ namespace HLab.Notify.PropertyChanged
                 OnCollectionChanged();
             }
         }
-        private void DoWriteLocked(Action action)
+
+        void DoWriteLocked(Action action)
         {
             try
             {

@@ -30,12 +30,12 @@ namespace HLab.Mvvm
 {
     public class MvvmContext : IMvvmContext//, IInitializer
     {
-        private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
+        readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
 
-        private readonly Lazy<ViewModelCache> _cache;
+        readonly Lazy<ViewModelCache> _cache;
 
         public IMvvmService Mvvm => _mvvm;
-        private MvvmService _mvvm;
+        MvvmService _mvvm;
 
         public string Name { get; }
         public IMvvmContext Parent { get; }

@@ -31,11 +31,11 @@ namespace HLab.Core
 {
     public class MessageBus : IMessageBus
     {
-        private readonly object _lockDict = new object();
-        private readonly Dictionary<Type, IList> _dict = new Dictionary<Type, IList>();
+        readonly object _lockDict = new object();
+        readonly Dictionary<Type, IList> _dict = new Dictionary<Type, IList>();
 
-        private readonly object _lockPayload = new object();
-        private readonly Dictionary<Type, object> _payload = new Dictionary<Type, object>();
+        readonly object _lockPayload = new object();
+        readonly Dictionary<Type, object> _payload = new Dictionary<Type, object>();
 
         public void Publish<T>(T payload)
         {

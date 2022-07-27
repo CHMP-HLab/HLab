@@ -8,14 +8,13 @@ namespace HLab.Icons.Wpf.Icons.Providers
 {
     public class IconProviderXamlFromUri : IconProvider, IIconProvider
     {
-        private readonly Uri _uri;
-        Color _foreColor = Colors.Black;
+        readonly Uri _uri;
+        readonly Color _foreColor = Colors.Black;
 
         public IconProviderXamlFromUri(Uri uri)
         {
             _uri = uri;
         }
-
         
         protected override async Task<object> GetAsync(object foreground = null)
         {

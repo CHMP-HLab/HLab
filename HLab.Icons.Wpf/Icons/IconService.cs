@@ -9,7 +9,7 @@ namespace HLab.Icons.Wpf.Icons
 {
     public class IconService : Service, IIconService
     {
-        private readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
+        readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
         public object GetIcon(string path, object foreground = null, Size size = default)
         {
             if (path == null) return null;
@@ -51,8 +51,11 @@ namespace HLab.Icons.Wpf.Icons
             }
             return result;
         }
-        private object GetSingleIcon(string path, object foreground = null, Size size = default)
+
+        object GetSingleIcon(string path, object foreground = null, Size size = default)
         {
+            if(path=="icons/entities/units/mole")
+            {}
 
             if (string.IsNullOrWhiteSpace(path)) return null;
 
@@ -73,12 +76,11 @@ namespace HLab.Icons.Wpf.Icons
             return null;
         }
 
-        private async Task<object> GetSingleIconAsync(string path, object foreground = null, Size size = default)
+        async Task<object> GetSingleIconAsync(string path, object foreground = null, Size size = default)
         {
-
             if (string.IsNullOrWhiteSpace(path)) return null;
 
-            if (_cache.TryGetValue(path.ToLower(), out var iconProvider))
+            if (_cache.TryGetValue(path.Trim().ToLower(), out var iconProvider))
             {
                 var icon = await iconProvider.GetAsync(foreground,size).ConfigureAwait(true);
                 return icon;

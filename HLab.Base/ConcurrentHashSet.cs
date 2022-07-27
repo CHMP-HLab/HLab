@@ -6,8 +6,8 @@ namespace HLab.Base
 {
     public class ConcurrentHashSet<T> : IDisposable
     {
-        private readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
-        private readonly HashSet<T> _hashSet = new HashSet<T>();
+        readonly ReaderWriterLockSlim _lock = new ReaderWriterLockSlim(LockRecursionPolicy.SupportsRecursion);
+        readonly HashSet<T> _hashSet = new HashSet<T>();
 
         public List<T> ToList()
         {

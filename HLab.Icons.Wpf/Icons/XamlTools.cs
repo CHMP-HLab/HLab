@@ -20,13 +20,13 @@ namespace HLab.Icons.Wpf.Icons
 {
     public static class XamlTools
     {
-        private static readonly Color ForeColor = Colors.Yellow;
-        private static readonly Color BackColor = Colors.Transparent;
+        static readonly Color ForeColor = Colors.Yellow;
+        static readonly Color BackColor = Colors.Transparent;
 
-        private static readonly Brush DefaultForeColor = new SolidColorBrush(ForeColor);
-        private static readonly Brush DefaultBackColor = new SolidColorBrush(BackColor);
+        static readonly Brush DefaultForeColor = new SolidColorBrush(ForeColor);
+        static readonly Brush DefaultBackColor = new SolidColorBrush(BackColor);
 
-        private static XslCompiledTransform _transformSvg;
+        static XslCompiledTransform _transformSvg;
         public static XslCompiledTransform TransformSvg
         {
             get
@@ -97,7 +97,7 @@ namespace HLab.Icons.Wpf.Icons
             return FromXamlStream(input);
         }
 
-        private static async Task<Stream> StreamFromSvgStreamAsync(Stream svgStream)
+        static async Task<Stream> StreamFromSvgStreamAsync(Stream svgStream)
         {
             var settings = new XmlReaderSettings
             {
@@ -135,7 +135,8 @@ namespace HLab.Icons.Wpf.Icons
             }
 
         }
-        private static Stream StreamFromSvgStream(Stream svgStream)
+
+        static Stream StreamFromSvgStream(Stream svgStream)
         {
             var settings = new XmlReaderSettings
             {
@@ -280,7 +281,7 @@ namespace HLab.Icons.Wpf.Icons
         }
 
 
-        private static BindingBase GetForeBinding() => new Binding("Foregound")
+        static BindingBase GetForeBinding() => new Binding("Foregound")
             {
 //                IsAsync = true,
 //                Mode = BindingMode.OneWay,
@@ -289,7 +290,7 @@ namespace HLab.Icons.Wpf.Icons
                     typeof(Control), 1)
             };
 
-        private static BindingBase GetBackBinding() => new Binding("Background")
+        static BindingBase GetBackBinding() => new Binding("Background")
             {
 //                IsAsync = true,
 //                Mode = BindingMode.OneWay,
@@ -327,7 +328,7 @@ namespace HLab.Icons.Wpf.Icons
             return ui;
 
         }
-        static private DependencyObject SetForeground(DependencyObject element, Color foregroundColor, Brush foregroundBrush, DependencyProperty property)
+        static DependencyObject SetForeground(DependencyObject element, Color foregroundColor, Brush foregroundBrush, DependencyProperty property)
         {
 
                 var brush = element.GetValue(property);
@@ -372,7 +373,7 @@ namespace HLab.Icons.Wpf.Icons
             return ui;
         }
 
-        private static void SetBinding(FrameworkElement element, Color? foreColor, Color? backColor, DependencyProperty property)
+        static void SetBinding(FrameworkElement element, Color? foreColor, Color? backColor, DependencyProperty property)
         {
                 var brush = element.GetValue(property);
 
@@ -393,9 +394,9 @@ namespace HLab.Icons.Wpf.Icons
         }
 
 
-        private static XslCompiledTransform _transformHtml;
+        static XslCompiledTransform _transformHtml;
 
-        private static XslCompiledTransform TransformHtml
+        static XslCompiledTransform TransformHtml
         {
             get
             {

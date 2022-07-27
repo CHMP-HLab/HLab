@@ -2,15 +2,15 @@
 
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    enum TestEnum
+    internal enum TestEnum
     {
         foo,
         bar,
     }
 
-    class TestEnumClass : NotifierTest<TestEnumClass>
+    internal class TestEnumClass : NotifierTest<TestEnumClass>
     {
-        private readonly IProperty<TestEnum> _enumValue = H.Property<TestEnum>();
+        readonly IProperty<TestEnum> _enumValue = H.Property<TestEnum>();
 
         public TestEnum EnumValue
         {

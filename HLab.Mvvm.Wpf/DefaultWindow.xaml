@@ -20,6 +20,8 @@
     d:DataContext="{d:DesignInstance Type=annotations:IMainViewModel}"
     
     Background="Transparent"
+    Foreground="{DynamicResource HLab.Brushes.Foreground}"
+
     AllowsTransparency="True"
                   
     MouseDown="OnMouseDown"

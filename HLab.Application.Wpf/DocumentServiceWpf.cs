@@ -10,10 +10,15 @@ namespace HLab.Mvvm.Application.Wpf
 {
     public class DocumentServiceWpf : DocumentService
     {
-        public IMessageBus MessageBus { get; private set; }
-        private Func<object, ISelectedMessage> GetMessage { get; set; }
+        public IMessageBus MessageBus { get; }
+        Func<object, ISelectedMessage> GetMessage { get; }
 
-        public void Inject(IMessageBus messageBus,Func<object, ISelectedMessage> getMessage)
+        public DocumentServiceWpf(
+                IMvvmService mvvm,
+                Func<Type, object> getter,
+                IMessageBus messageBus,
+                Func<object, ISelectedMessage> getMessage
+            ) : base(mvvm,getter)
         {
             MessageBus = messageBus;
             GetMessage = getMessage;

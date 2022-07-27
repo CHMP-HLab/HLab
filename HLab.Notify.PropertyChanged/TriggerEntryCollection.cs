@@ -15,7 +15,7 @@ namespace HLab.Notify.PropertyChanged
         }
     }
 
-    class TriggerEntryCollection : ITriggerEntry
+    internal class TriggerEntryCollection : ITriggerEntry
     {
         protected IPropertyEntry PropertyEntry;
         protected string Debug;
@@ -32,7 +32,8 @@ namespace HLab.Notify.PropertyChanged
         {
             PropertyEntry.ExtendedPropertyChanged -= OnPropertyChanged;
         }
-        private void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
+
+        void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
         {
             Handler?.Invoke(sender,e);
         }

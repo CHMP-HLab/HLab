@@ -5,7 +5,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyLong : IPropertyValue<long>
     {
-        private long _value;
+        long _value;
         public long Get() => _value;
 
         public bool Set(long value)
@@ -26,7 +26,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             return Set(setter(_holder.Parent));
         }
 
-        private readonly PropertyHolder<long> _holder;
+        readonly PropertyHolder<long> _holder;
         public PropertyLong(PropertyHolder<long> holder)
         {
             _holder = holder;

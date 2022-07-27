@@ -25,7 +25,7 @@ namespace HLab.Bugs.Wpf
             InitializeComponent();
         }
 
-        private void PasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
+        void PasswordBox_OnPasswordChanged(object sender, RoutedEventArgs e)
         {
 
         }

@@ -15,7 +15,7 @@ namespace HLab.Notify.PropertyChanged.UTest.Bugs
 
         public int Property {get => _property.Get(); set => _property.Set(value);}
 
-        private IProperty<int> _property = H<Item>.Property<int>();
+        IProperty<int> _property = H<Item>.Property<int>();
     }
 
     public class TestClass :NotifierBase
@@ -26,7 +26,7 @@ namespace HLab.Notify.PropertyChanged.UTest.Bugs
 
         public ObservableCollection<Item> Items {get; } = new ();
 
-        private ITrigger _ = H<TestClass>.Trigger(c => c
+        ITrigger _ = H<TestClass>.Trigger(c => c
             .On(e => e.Items.Item().Property)
             .Do(e => e.Triggered++)
         );

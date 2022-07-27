@@ -37,7 +37,7 @@ namespace HLab.Base
         }
 
 
-        private static ConcurrentDictionary<Assembly, Type[]> _cache = new ConcurrentDictionary<Assembly, Type[]>();
+        static ConcurrentDictionary<Assembly, Type[]> _cache = new ConcurrentDictionary<Assembly, Type[]>();
         public static Type[] GetTypesSafe(this Assembly assembly)
         {
 

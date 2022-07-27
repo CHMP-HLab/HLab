@@ -14,11 +14,11 @@ namespace HLab.Icons.Wpf.Icons.Providers
 {
     public class IconProviderSvg : IconProvider, IIconProvider
     {
-        private readonly ResourceManager _resourceManager;
-        private readonly string _name;
-        private readonly Color? _foreColor;
-        private bool _parsed = false;
-        private string _sourceXaml;
+        readonly ResourceManager _resourceManager;
+        readonly string _name;
+        readonly Color? _foreColor;
+        bool _parsed = false;
+        string _sourceXaml;
 
         public IconProviderSvg(ResourceManager resourceManager, string name, Color? foreColor)
         {
@@ -95,7 +95,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
             return new Image {Source = Convert(b)};
         }
 
-        private BitmapImage Convert(System.Drawing.Bitmap src)
+        BitmapImage Convert(System.Drawing.Bitmap src)
         {
             MemoryStream ms = new MemoryStream();
             ((System.Drawing.Bitmap)src).Save(ms, System.Drawing.Imaging.ImageFormat.Bmp);

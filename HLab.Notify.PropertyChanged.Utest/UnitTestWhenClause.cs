@@ -1,7 +1,7 @@
 ﻿using Xunit;
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    class NotifyObjectWhen : NotifierBase
+    internal class NotifyObjectWhen : NotifierBase
     {
         public NotifyObjectWhen()
         {
@@ -13,11 +13,12 @@ namespace HLab.Notify.PropertyChanged.UTest
             get => _test.Get();
             set => _test.Set(value);
         }
-        private readonly IProperty<object> _test = H<NotifyObjectWhen>.Property<object>();
+
+        readonly IProperty<object> _test = H<NotifyObjectWhen>.Property<object>();
 
         public int Test1 => _test1.Get();
 
-        private readonly IProperty<int> _test1 = H<NotifyObjectWhen>.Property<int>(c => c
+        readonly IProperty<int> _test1 = H<NotifyObjectWhen>.Property<int>(c => c
             .Default(0)
             .On(e => e.Test)
             .NotNull(e => e.Test)
@@ -25,7 +26,8 @@ namespace HLab.Notify.PropertyChanged.UTest
         );
 
     }
-    class NotifyObjectWhenB : NotifierBase
+
+    internal class NotifyObjectWhenB : NotifierBase
     {
         public NotifyObjectWhenB()
         {
@@ -37,17 +39,19 @@ namespace HLab.Notify.PropertyChanged.UTest
             get => _testA.Get();
             set => _testA.Set(value);
         }
-        private readonly IProperty<object> _testA = H<NotifyObjectWhenB>.Property<object>();
+
+        readonly IProperty<object> _testA = H<NotifyObjectWhenB>.Property<object>();
         public object TestB
         {
             get => _testB.Get();
             set => _testB.Set(value);
         }
-        private readonly IProperty<object> _testB = H<NotifyObjectWhenB>.Property<object>();
+
+        readonly IProperty<object> _testB = H<NotifyObjectWhenB>.Property<object>();
 
         public int Test => _test.Get();
 
-        private readonly IProperty<int> _test = H<NotifyObjectWhenB>.Property<int>(c => c
+        readonly IProperty<int> _test = H<NotifyObjectWhenB>.Property<int>(c => c
             .Default(0)
             .On(e => e.TestA)
             .On(e => e.TestB)

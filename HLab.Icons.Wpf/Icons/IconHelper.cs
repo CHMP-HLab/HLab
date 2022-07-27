@@ -6,7 +6,7 @@ namespace HLab.Icons.Wpf.Icons
 {
     public class IconHelper : DynamicObject, INotifyPropertyChanged
     {
-        private readonly IIconService _service;
+        readonly IIconService _service;
         public IconHelper(IIconService service)
         {
             _service = service;

@@ -26,7 +26,7 @@ namespace HLab.Mvvm.Application.Wpf.Icons
             set => SetValue(PathProperty, value);
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             var icon = ViewLocator.GetMvvmContext(this).Locate<IIconService>().GetIconAsync(Path);
             ViewLocator.GetMvvmContext(this).Locate<IDocumentService>().OpenDocumentAsync(icon);
@@ -34,7 +34,7 @@ namespace HLab.Mvvm.Application.Wpf.Icons
 
         //[Import] private Func<IconListViewModel> _getIconListViewModel;
 
-        private void ButtonDropDown_OnClick(object sender, RoutedEventArgs e)
+        void ButtonDropDown_OnClick(object sender, RoutedEventArgs e)
         {
             if (Popup.IsOpen) return;
 

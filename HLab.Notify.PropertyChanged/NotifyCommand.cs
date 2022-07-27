@@ -23,10 +23,10 @@ namespace HLab.Notify.PropertyChanged
     }
     public class NCommand : INotifyCommand
     {
-        private readonly Action _execute = null;
-        private readonly Func<Task> _executeAsync = null;
-        private readonly Func<object,bool> _canExecuteFunc = null;
-        private bool _canExecute = true;
+        readonly Action _execute = null;
+        readonly Func<Task> _executeAsync = null;
+        readonly Func<object,bool> _canExecuteFunc = null;
+        bool _canExecute = true;
 
         public NCommand(Action execute, Func<object,bool> canExecuteFunc = null)
         {
@@ -69,10 +69,10 @@ namespace HLab.Notify.PropertyChanged
 
     public class NCommand<T> : INotifyCommand
     {
-        private readonly Action<T> _execute = null;
-        private readonly Func<T,Task> _executeAsync = null;
-        private readonly Func<object,bool> _canExecuteFunc = null;
-        private bool _canExecute = true;
+        readonly Action<T> _execute = null;
+        readonly Func<T,Task> _executeAsync = null;
+        readonly Func<object,bool> _canExecuteFunc = null;
+        bool _canExecute = true;
 
         public NCommand(Action<T> execute, Func<object,bool> canExecuteFunc = null)
         {
@@ -122,10 +122,10 @@ namespace HLab.Notify.PropertyChanged
 
     public class CommandPropertyHolder : ChildObject, ICommand
     {
-        private Action<object> _execute = null;
-        private Func<object,Task> _executeAsync = null;
-        private Func<object,bool> _canExecuteFunc = (o) => true;
-        private bool _canExecute = true;
+        Action<object> _execute = null;
+        Func<object,Task> _executeAsync = null;
+        Func<object,bool> _canExecuteFunc = (o) => true;
+        bool _canExecute = true;
         public string IconPath { get; set; }
         public string ToolTipText { get; set; }
 
@@ -141,7 +141,7 @@ namespace HLab.Notify.PropertyChanged
                 CanExecuteChanged?.Invoke(this,new EventArgs());
         };
 
-        private volatile bool _executing = false;
+        volatile bool _executing = false;
 
         public CommandPropertyHolder(PropertyActivator configurator):base(configurator) {  }
 

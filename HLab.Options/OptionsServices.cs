@@ -8,7 +8,7 @@ namespace HLab.Options
 {
     public class OptionsServices : IOptionsService
     {
-        private List<IOptionsProvider> _providers = new();
+        readonly List<IOptionsProvider> _providers = new();
 
         public void AddProvider(IOptionsProvider provider)
         {

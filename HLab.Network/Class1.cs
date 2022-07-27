@@ -12,12 +12,11 @@ namespace HLab.Network
 {
     public class IpScanner
     {
-        
-        private readonly IEventHandlerService _eventHandlerService;
+        readonly IEventHandlerService _eventHandlerService;
 
         public ReadOnlyObservableCollection<string> FoundServers { get; }
 
-        private readonly ObservableCollection<string> _foundServers = new ObservableCollection<string>();
+        readonly ObservableCollection<string> _foundServers = new ObservableCollection<string>();
 
         public IpScanner(IEventHandlerService eventHandlerService)
         {
@@ -72,7 +71,7 @@ namespace HLab.Network
         }
 
 
-        private Task<bool> ConnectAsync (IPAddress ip, int port)
+        Task<bool> ConnectAsync (IPAddress ip, int port)
         {
             var task = new Task<bool>(() =>
             {
@@ -121,7 +120,7 @@ namespace HLab.Network
             return false;
         }
 
-        private static IEnumerable<Tuple<IPAddress,IPAddress>> GetIpAddresses()
+        static IEnumerable<Tuple<IPAddress,IPAddress>> GetIpAddresses()
         {
             foreach (var adapter in NetworkInterface.GetAllNetworkInterfaces())
             {
@@ -134,7 +133,8 @@ namespace HLab.Network
                 }
             }
         }
-        private static IEnumerable<IPAddress> GetAllIpFromIpMask(IPAddress ipAddress, IPAddress maskAddress)
+
+        static IEnumerable<IPAddress> GetAllIpFromIpMask(IPAddress ipAddress, IPAddress maskAddress)
         {
             var ip = ToUInt32(ipAddress);
             var mask = ToUInt32(maskAddress);
@@ -152,7 +152,7 @@ namespace HLab.Network
 
         }
 
-        private static IPAddress GetNetworkAddress(IPAddress address, IPAddress subnetMask)
+        static IPAddress GetNetworkAddress(IPAddress address, IPAddress subnetMask)
         {
             byte[] ipAdressBytes = address.GetAddressBytes();
             byte[] subnetMaskBytes = subnetMask.GetAddressBytes();
@@ -167,7 +167,8 @@ namespace HLab.Network
             }
             return new IPAddress(broadcastAddress);
         }
-        private static UInt32 ToUInt32(IPAddress addr)
+
+        static UInt32 ToUInt32(IPAddress addr)
         {
             var ipBytes = addr.GetAddressBytes();
             var ip = (uint)ipBytes [0] << 24;
@@ -176,7 +177,8 @@ namespace HLab.Network
             ip += (uint)ipBytes [3];
             return ip;
         }
-        private static IPAddress FromUInt32(UInt32 addr)
+
+        static IPAddress FromUInt32(UInt32 addr)
         {
             return new IPAddress(new byte[]{(byte)(addr>>24),(byte)(addr>>16),(byte)(addr>>8),(byte)(addr)});
         }

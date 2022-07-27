@@ -6,8 +6,8 @@ namespace HLab.Notify.PropertyChanged
 {
     public class WeakTriggerEntryNotifierWithPath : WeakTriggerEntryNotifier
     {
-        private readonly TriggerPath _path;
-        private ITriggerEntry _next;
+        readonly TriggerPath _path;
+        ITriggerEntry _next;
 
         public WeakTriggerEntryNotifierWithPath(IPropertyEntry propertyEntry, TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler) 
             :base(propertyEntry,handler)
@@ -16,7 +16,7 @@ namespace HLab.Notify.PropertyChanged
             propertyEntry.Link(OnPropertyChangedWithPath);
         }
 
-        private void OnPropertyChangedWithPath(object sender, ExtendedPropertyChangedEventArgs e)
+        void OnPropertyChangedWithPath(object sender, ExtendedPropertyChangedEventArgs e)
         {
             _next?.Dispose();
 
@@ -50,8 +50,8 @@ namespace HLab.Notify.PropertyChanged
     }
     public class TriggerEntryNotifierWithPath : TriggerEntryNotifier
     {
-        private readonly TriggerPath _path;
-        private ITriggerEntry _next;
+        readonly TriggerPath _path;
+        ITriggerEntry _next;
 
         public TriggerEntryNotifierWithPath(IPropertyEntry propertyEntry, TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler) 
             :base(propertyEntry,handler)
@@ -60,7 +60,7 @@ namespace HLab.Notify.PropertyChanged
             propertyEntry.Link(OnPropertyChangedWithPath);
         }
 
-        private void OnPropertyChangedWithPath(object sender, ExtendedPropertyChangedEventArgs e)
+        void OnPropertyChangedWithPath(object sender, ExtendedPropertyChangedEventArgs e)
         {
             _next?.Dispose();
 

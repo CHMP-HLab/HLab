@@ -9,8 +9,8 @@ namespace HLab.Notify.Annotations
 {
     internal class TriggerOnEntryCollection : TriggerOnEntry
     {
-        private readonly ConditionalWeakTable<object,TriggerOnEntry> _next = new ConditionalWeakTable<object, TriggerOnEntry>();
-        private readonly INotifyCollectionChanged _collection;
+        readonly ConditionalWeakTable<object,TriggerOnEntry> _next = new ConditionalWeakTable<object, TriggerOnEntry>();
+        readonly INotifyCollectionChanged _collection;
         public TriggerOnEntryCollection(PropertyChangedEventHandler handler, INotifyCollectionChanged collection, TriggerPath path)
             :base(path,handler)
         {
@@ -24,12 +24,12 @@ namespace HLab.Notify.Annotations
             _collection.CollectionChanged += OnCollectionChanged_Handler;
         }
 
-        private void OnCollectionChanged_Handler(object sender, NotifyCollectionChangedEventArgs args)
+        void OnCollectionChanged_Handler(object sender, NotifyCollectionChangedEventArgs args)
         {
             Handler.Invoke(_collection, new NotifierPropertyChangedEventArgs("Item", args.OldItems, args.NewItems));
         }
 
-        private void OnCollectionChanged_Subscribe(object sender, NotifyCollectionChangedEventArgs args)
+        void OnCollectionChanged_Subscribe(object sender, NotifyCollectionChangedEventArgs args)
         {
             switch(args.Action)
                 {

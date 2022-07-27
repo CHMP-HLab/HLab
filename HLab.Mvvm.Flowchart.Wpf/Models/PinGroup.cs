@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
+using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
@@ -22,7 +23,7 @@ namespace HLab.Mvvm.Flowchart.Models
     [DataContract]
     public class PinGroup : GraphElement, IPinGroup
     {
-        public void Inject(IGraphBlock block, string id, PinLocation location, string caption)
+        public PinGroup(IGraphBlock block, string id, PinLocation location, string caption)
         {
             H<PinGroup>.Initialize(this);
 
@@ -70,7 +71,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _block.Set(value);
         }
 
-        private readonly IProperty<IGraphBlock> _block = H<PinGroup>.Property<IGraphBlock>(c => c.Default((IGraphBlock)default));
+        readonly IProperty<IGraphBlock> _block = H<PinGroup>.Property<IGraphBlock>(c => c.Default((IGraphBlock)default));
 
 
 
@@ -81,13 +82,13 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _location.Set(value);
         }
 
-        private readonly IProperty<PinLocation> _location = H<PinGroup>.Property<PinLocation>(c => c.Default(PinLocation.Left));
+        readonly IProperty<PinLocation> _location = H<PinGroup>.Property<PinLocation>(c => c.Default(PinLocation.Left));
 
 
 
         [DataMember]
         public ObservableCollection<IPin> Pins { get; } =
-            new ObservableCollection<IPin>(); 
+            new ObservableCollection<IPin>();
 
     }
 }

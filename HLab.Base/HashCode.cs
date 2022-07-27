@@ -5,9 +5,10 @@ namespace HLab.Base
 {
     public class HashCode
     {
-        private int _hash;
+        int _hash;
         public int Value => _hash;
-        private HashCode(int hash)
+
+        HashCode(int hash)
         {
             _hash = hash;
 

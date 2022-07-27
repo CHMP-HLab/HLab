@@ -38,14 +38,16 @@ namespace HLab.Mvvm
             get => _progress.Get();
             set => _progress.Set(value);
         }
-        private readonly IProperty<double> _progress = H.Property<double>();
+
+        readonly IProperty<double> _progress = H.Property<double>();
 
         public string ProgressText
         {
             get => _progressText.Get();
             set => _progressText.Set(value);
         }
-        private readonly IProperty<string> _progressText
+
+        readonly IProperty<string> _progressText
             = H.Property<string>( c => c.Set(e => ""));
 
         public string Title
@@ -53,7 +55,8 @@ namespace HLab.Mvvm
             get => _title.Get();
             set => _title.Set(value);
         }
-        private readonly IProperty<string> _title
+
+        readonly IProperty<string> _title
             = H.Property<string>( c => c.Set(e => ""));
     }
 }

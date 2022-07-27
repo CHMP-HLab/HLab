@@ -5,7 +5,7 @@ namespace HLab.Mvvm
 {
     public class MvvmBootloader : IBootloader
     {
-        private readonly IMvvmService _mvvm;
+        readonly IMvvmService _mvvm;
 
         public MvvmBootloader(IMvvmService mvvm)
         {

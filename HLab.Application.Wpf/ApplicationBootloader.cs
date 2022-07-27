@@ -16,14 +16,14 @@ namespace HLab.Mvvm.Application.Wpf
 {
     public class ApplicationBootloader : IBootloader
     {
-        private readonly IMenuService _menu;
+        readonly IMenuService _menu;
 
-        private readonly IMvvmService _mvvm;
+        readonly IMvvmService _mvvm;
 
-        private readonly IApplicationInfoService _info;
+        readonly IApplicationInfoService _info;
 
         public IUpdater Updater { get; set; }
-        private readonly Func<MainWpfViewModel> _getVm;
+        readonly Func<MainWpfViewModel> _getVm;
 
         public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
 
@@ -43,8 +43,8 @@ namespace HLab.Mvvm.Application.Wpf
 
         public MainWpfViewModel ViewModel { get; set; } 
         public Window MainWindow { get; protected set; }
- 
-        private static void InitializeCultures()
+
+        static void InitializeCultures()
         {
             FrameworkElement.LanguageProperty.OverrideMetadata(
                 typeof(FrameworkElement),

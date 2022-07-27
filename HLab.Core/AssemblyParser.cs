@@ -10,7 +10,7 @@ namespace HLab.Core
 {
     public class AssemblyParser
     {
-        private Assembly[] _assemblies;
+        Assembly[] _assemblies;
 
         public void AddAssembliesReferencing<T>()
         {
@@ -18,13 +18,13 @@ namespace HLab.Core
             _assemblies = _assemblies == null ? assemblies : _assemblies.Union(assemblies).ToArray();
         }
 
-        private struct Parser
+        struct Parser
         {
             public Func<Type, bool> Condition;
             public Action<Type> Action;
         }
 
-        private readonly List<Parser> _parsers = new();
+        readonly List<Parser> _parsers = new();
 
         public void AddParser(Func<Type, bool> condition, Action<Type> action) => _parsers.Add(new Parser { Condition = condition, Action = action });
 
@@ -40,14 +40,14 @@ namespace HLab.Core
             foreach (var assembly in _assemblies) Parse(assembly);
         }
 
-        private void Parse(Assembly assembly)
+        void Parse(Assembly assembly)
         {
             var types = assembly.ExportedTypes.Where(t => !t.IsAbstract);
             //var types = assembly.GetTypes().Where(t => !t.IsAbstract);
             foreach (var type in types) Parse(type);
         }
 
-        private void Parse(Type type)
+        void Parse(Type type)
         {
             foreach (var parser in _parsers)
             {
@@ -62,7 +62,7 @@ namespace HLab.Core
             //return LoadAbsolutePath(path);
         }
 
-        private bool LoadAbsolutePath(string path)
+        bool LoadAbsolutePath(string path)
         {
             //if (!File.Exists(path)) return false;
 

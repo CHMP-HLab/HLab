@@ -12,11 +12,10 @@ namespace HLab.Core
     /// </summary>
     public class Bootstrapper
     {
-
-        private class Context : IBootContext
+        class Context : IBootContext
         {
-            private readonly Bootstrapper _bootstrapper;
-            private readonly Action<IBootContext> _action;
+            readonly Bootstrapper _bootstrapper;
+            readonly Action<IBootContext> _action;
             public string Name { get; }
 
             public Context(Bootstrapper bootstrapper, string name, Action<IBootContext> action)
@@ -42,7 +41,7 @@ namespace HLab.Core
             public override string ToString() => Name;
         }
 
-        private readonly Func<IEnumerable<IBootloader>> _getBootloaders;
+        readonly Func<IEnumerable<IBootloader>> _getBootloaders;
 
         public Bootstrapper(Func<IEnumerable<IBootloader>> getBootloaders)
         {
@@ -50,8 +49,7 @@ namespace HLab.Core
         }
 
 
-
-        private readonly ConcurrentQueue<Context> _queue = new();
+        readonly ConcurrentQueue<Context> _queue = new();
         public void Boot()
         {
             var bootLoaders = Sort(_getBootloaders());
@@ -72,7 +70,7 @@ namespace HLab.Core
             }
         }
 
-        private static IEnumerable<T> Sort<T>(IEnumerable<T> src)
+        static IEnumerable<T> Sort<T>(IEnumerable<T> src)
         {
             var result = new List<T>();
             foreach (var boot in src)
@@ -100,8 +98,7 @@ namespace HLab.Core
         //private readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
 
 
-
-        private void Enqueue(Context context)
+        void Enqueue(Context context)
         {
             _queue.Enqueue(context);
         }

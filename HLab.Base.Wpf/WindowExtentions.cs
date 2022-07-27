@@ -47,8 +47,8 @@ namespace HLab.Base.Wpf
 
     internal class BlurHelper
     {
-        private readonly WeakReference<Window> _window;
-        private readonly bool _enable;
+        readonly WeakReference<Window> _window;
+        readonly bool _enable;
 
         public BlurHelper(Window window, bool enable)
         {
@@ -63,7 +63,7 @@ namespace HLab.Base.Wpf
         }
 
 
-        private void Window_Loaded(object sender, RoutedEventArgs e)
+        void Window_Loaded(object sender, RoutedEventArgs e)
         {
             if (_window == null || !_window.TryGetTarget(out var window)) return;
 
@@ -92,7 +92,7 @@ namespace HLab.Base.Wpf
         }
     }
 
-    static partial class NativeMethods
+    internal static partial class NativeMethods
     {
         public enum AccentState
         {

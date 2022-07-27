@@ -19,7 +19,7 @@ namespace HLab.Mvvm.Application.Wpf
         , IView<MainWpfViewModel>
         , IView<ViewModeKiosk, MainWpfViewModel>
     {
-        private const string LayoutFileName = "layout.xml";
+        const string LayoutFileName = "layout.xml";
 
         public MainWindow(IOptionsService options/*, IDragDropService drag*/)
         {
@@ -34,7 +34,7 @@ namespace HLab.Mvvm.Application.Wpf
             //drag.RegisterDragCanvas(DragCanvas);
         }
 
-        private void MainWindow_Loaded(object sender, RoutedEventArgs e)
+        void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
             var w = Window.GetWindow(this);
             if (w != null)
@@ -51,7 +51,7 @@ namespace HLab.Mvvm.Application.Wpf
             }
         }
 
-        private void W_Closing(object sender, System.ComponentModel.CancelEventArgs e)
+        void W_Closing(object sender, System.ComponentModel.CancelEventArgs e)
         {
             var w = Window.GetWindow(this);
             _options.SetValue("Display","Top",w.Top,"registry");
@@ -64,16 +64,16 @@ namespace HLab.Mvvm.Application.Wpf
             SaveLayout();
         }
 
-        private readonly IOptionsService _options;
+        readonly IOptionsService _options;
 
-        private void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void MainWindow_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             var ctx = this.GetValue(ViewLocator.MvvmContextProperty);
         }
 
-        private int? UserId => null; // TODO _acl.Connection.UserId
+        int? UserId => null; // TODO _acl.Connection.UserId
 
-        private void SaveLayout()
+        void SaveLayout()
         {
             var layoutSerializer = new XmlLayoutSerializer(DockingManager);
             var sb = new StringBuilder();
@@ -82,7 +82,7 @@ namespace HLab.Mvvm.Application.Wpf
             _options.SetValue<string>("","Layout", sb.ToString(),"", UserId);
         }
 
-        private async void LoadLayout()
+        async void LoadLayout()
         {
             var layoutSerializer = new XmlLayoutSerializer(DockingManager);
 

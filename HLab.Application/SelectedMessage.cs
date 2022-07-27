@@ -9,9 +9,9 @@ namespace HLab.Mvvm.Application
 
     public class SelectedMessage : ISelectedMessage
     {
-        private IView _view;
-        private IViewModel _viewModel;
-        private readonly IMvvmService _mvvm;
+        IView _view;
+        IViewModel _viewModel;
+        readonly IMvvmService _mvvm;
 
         public SelectedMessage(object item, IMvvmService mvvm)
         {

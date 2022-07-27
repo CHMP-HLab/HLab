@@ -3,7 +3,7 @@ using HashCode = HLab.Base.HashCode;
 
 namespace HLab.Mvvm.Factory
 {
-    class LinkKey
+    internal class LinkKey
     {
         public LinkKey(Type viewClass, Type viewMode)
         {

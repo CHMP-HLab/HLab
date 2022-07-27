@@ -10,8 +10,8 @@ namespace HLab.Base
 {
     public class AsyncDictionary<TKey,T> : IDisposable
     {
-        private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
-        private readonly ConcurrentDictionary<TKey,T> _cache = new ConcurrentDictionary<TKey,T>();
+        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
+        readonly ConcurrentDictionary<TKey,T> _cache = new ConcurrentDictionary<TKey,T>();
 
         public async Task<T> GetOrAddAsync(TKey key, Func<object, Task<T>> factory)
         {

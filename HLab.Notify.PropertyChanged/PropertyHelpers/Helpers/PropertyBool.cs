@@ -5,7 +5,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
         public class PropertyBool : IPropertyValue<bool>
         {
-            private volatile int _value;
+            volatile int _value;
             public bool Get() => _value != 0;
 
             public bool Set(bool value)
@@ -22,7 +22,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 
             public bool Set(Func<object, bool> setter) => Set(setter(_holder.Parent));
 
-            private readonly PropertyHolder<bool> _holder;
+            readonly PropertyHolder<bool> _holder;
 
             public PropertyBool(PropertyHolder<bool> holder)
             {

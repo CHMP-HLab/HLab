@@ -5,12 +5,14 @@ using HLab.Notify.PropertyChanged;
 namespace HLab.Mvvm.Flowchart.ViewModel
 {
     using H = H<PinGroupViewModel>;
-    class PinGroupViewModel : ViewModel<IPinGroup>
+
+    internal class PinGroupViewModel : ViewModel<IPinGroup>
     {
         public PinGroupViewModel() => H.Initialize(this);
 
         public Visibility OuterVisibility => _outerVisibility.Get();
-        private readonly IProperty<Visibility> _outerVisibility = H.Property<Visibility>(c => c
+
+        readonly IProperty<Visibility> _outerVisibility = H.Property<Visibility>(c => c
             .Set(e => !string.IsNullOrEmpty(e.Model?.Caption) ? Visibility.Visible : Visibility.Collapsed)
             .On(e => e.Model.Caption)
             .Update()

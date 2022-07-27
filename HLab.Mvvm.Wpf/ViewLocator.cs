@@ -43,7 +43,7 @@ namespace HLab.Mvvm
     {
         bool _loaded = false;
 
-        private Type _viewMode;
+        Type _viewMode;
         public static readonly DependencyProperty ViewModeProperty =
             H.Property<Type>()
                 .OnChange(async (e, a) =>
@@ -59,7 +59,7 @@ namespace HLab.Mvvm
                 .Inherits
                 .RegisterAttached();
 
-        private Type _viewClass;
+        Type _viewClass;
         public static readonly DependencyProperty ViewClassProperty =
             H.Property<Type>()
                 .OnChange(async (e, a) =>
@@ -75,7 +75,7 @@ namespace HLab.Mvvm
                 .Inherits
                 .RegisterAttached();
 
-        private WeakReference<IMvvmContext> _mvvmContextReference;
+        WeakReference<IMvvmContext> _mvvmContextReference;
 
         public static readonly DependencyProperty MvvmContextProperty =
             H.Property<IMvvmContext>()
@@ -92,7 +92,7 @@ namespace HLab.Mvvm
                 .Inherits
                 .RegisterAttached();
 
-        private WeakReference<object> _modelReference;
+        WeakReference<object> _modelReference;
         public static readonly DependencyProperty ModelProperty = H.Property<object>()
             .OnChange(async (e, a) =>
             {
@@ -194,7 +194,7 @@ namespace HLab.Mvvm
             });
         }
 
-        private FrameworkElement GetView()
+        FrameworkElement GetView()
         {
             if (MvvmContext == null) return null;
 

@@ -10,9 +10,9 @@
         /// </summary>
         public static readonly YUV Empty = new YUV();
 
-        private double _y;
-        private double _u;
-        private double _v;
+        double _y;
+        double _u;
+        double _v;
 
         public static bool operator ==(YUV item1, YUV item2)
         {

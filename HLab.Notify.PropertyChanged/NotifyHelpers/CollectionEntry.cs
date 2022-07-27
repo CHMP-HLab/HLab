@@ -7,9 +7,9 @@ using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.NotifyHelpers
 {
-    class CollectionPropertyEntry : IPropertyEntry
+    internal class CollectionPropertyEntry : IPropertyEntry
     {
-        private readonly INotifyCollectionChanged _target;
+        readonly INotifyCollectionChanged _target;
         public string Name => "Item";
 
         public CollectionPropertyEntry(INotifyCollectionChanged target)
@@ -18,17 +18,17 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
             target.CollectionChanged += TargetOnCollectionChanged;
         }
 
-        private void AddItem(object sender, object item)
+        void AddItem(object sender, object item)
         {
             ExtendedPropertyChanged?.Invoke(sender, new ExtendedPropertyChangedEventArgs("Item", null, item));
         }
 
-        private void RemoveItem(object sender, object item)
+        void RemoveItem(object sender, object item)
         {
             ExtendedPropertyChanged?.Invoke(sender, new ExtendedPropertyChangedEventArgs("Item", item, null));
         }
 
-        private void TargetOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
+        void TargetOnCollectionChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
             switch (args.Action)
             {
@@ -88,7 +88,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
             ExtendedPropertyChanged?.Invoke(sender, (args as ExtendedPropertyChangedEventArgs) ?? new ExtendedPropertyChangedEventArgs(args, default, default));
         }
 
-        private List<ITriggerEntry> _triggerEntries = new List<ITriggerEntry>();
+        List<ITriggerEntry> _triggerEntries = new List<ITriggerEntry>();
 
         public ITriggerEntry BuildTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler)
         {

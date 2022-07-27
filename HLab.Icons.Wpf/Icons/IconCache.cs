@@ -5,10 +5,10 @@ using System.Windows;
 
 namespace HLab.Icons.Wpf.Icons
 {
-    class IconCache
+    internal class IconCache
     {
-        private readonly ConcurrentDictionary<string, UIElement> _cache = new();
-        private readonly Assembly _assembly;
+        readonly ConcurrentDictionary<string, UIElement> _cache = new();
+        readonly Assembly _assembly;
 
         public IconCache(Assembly assembly)
         {

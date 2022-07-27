@@ -13,10 +13,10 @@ namespace HLab.ColorTools.Wpf
         /// </summary>
         public static readonly HSL Empty = new HSL();
 
-        private double hue;
-        private double saturation;
-        private double luminance;
-        private double alpha;
+        double hue;
+        double saturation;
+        double luminance;
+        double alpha;
 
         public HSL Saturate(double ratio)
         {

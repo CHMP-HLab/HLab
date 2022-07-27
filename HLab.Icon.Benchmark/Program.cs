@@ -25,12 +25,12 @@ namespace HLab.Icon.Benchmark
         //readonly IIconProvider _providerUri = new IconProviderXamlFromUri(new Uri(
         //        "/" + Assembly.GetExecutingAssembly().FullName + ";component/location.xaml", UriKind.Relative));
 
-        private IIconProvider _providerResourceXaml;
-        private IIconProvider _providerSourceXaml;
-        private IIconProvider _providerUriXaml;
-        private IIconProvider _providerResourceSvg;
-        private IIconProvider _providerSourceSvg;
-        private readonly Window _window = new Window();
+        IIconProvider _providerResourceXaml;
+        IIconProvider _providerSourceXaml;
+        IIconProvider _providerUriXaml;
+        IIconProvider _providerResourceSvg;
+        IIconProvider _providerSourceSvg;
+        readonly Window _window = new Window();
 
         public IconBenchmark()
         {
@@ -108,7 +108,7 @@ namespace HLab.Icon.Benchmark
     }
 
 
-    class Program
+    internal class Program
     {
         static readonly  ResourceManager ResourceManager = new(Assembly.GetExecutingAssembly().GetName().Name +".g", Assembly.GetExecutingAssembly());
         
@@ -166,7 +166,7 @@ namespace HLab.Icon.Benchmark
     }
     public class TextBlockWriter : TextWriter
     {
-        private MainWindow _window;
+        MainWindow _window;
         public string Text = "";
         public TextBlockWriter(MainWindow w)
         {

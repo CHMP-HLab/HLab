@@ -8,7 +8,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
     public class PropertyEnum<T> : IPropertyValue<T>
         where T : struct, Enum, IComparable
     {
-        private T _value;
+        T _value;
         public T Get() => _value;
 
         public bool Set(T value)
@@ -25,16 +25,16 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             else return false;
         }
 
-        private readonly PropertyHolder<T> _holder;
+        readonly PropertyHolder<T> _holder;
 
         public PropertyEnum(PropertyHolder<T> holder)
         {
             _holder = holder;
         }
 
-        private delegate T dImpl(ref T location, T value);
+        delegate T dImpl(ref T location, T value);
 
-        private static readonly dImpl Exchange = CreateCompareExchangeImpl();
+        static readonly dImpl Exchange = CreateCompareExchangeImpl();
 
         static dImpl CreateCompareExchangeImpl()
         {

@@ -184,8 +184,8 @@ namespace HLab.Notify.Wpf
 
     public class GuiTimer : IGuiTimer
     {
-        private readonly DispatcherTimer _timer;
-        private readonly Dispatcher _dispatcher;
+        readonly DispatcherTimer _timer;
+        readonly Dispatcher _dispatcher;
 
         public GuiTimer()
         {
@@ -194,7 +194,7 @@ namespace HLab.Notify.Wpf
             _timer.Tick += _timer_Tick;
         }
 
-        private void _timer_Tick(object sender, EventArgs e)
+        void _timer_Tick(object sender, EventArgs e)
         {
             Tick?.Invoke(sender, e);
         }

@@ -44,8 +44,9 @@ namespace HLab.Base.Wpf
             get => (double)GetValue(DoubleProperty);
         }
 
-        private bool _preventFormat = false;
-        private void OnDoubleChanged(double oldValue, double value)
+        bool _preventFormat = false;
+
+        void OnDoubleChanged(double oldValue, double value)
         {
             if (!_preventFormat)
             {
@@ -78,7 +79,7 @@ namespace HLab.Base.Wpf
             get => (int)GetValue(DecimalsProperty);
         }
 
-        private void OnDecimalsChanged(int value)
+        void OnDecimalsChanged(int value)
         {
             if (double.IsFinite(Double))
             {
@@ -115,7 +116,7 @@ namespace HLab.Base.Wpf
         }
 
         //Privates
-        private void FormatDouble()
+        void FormatDouble()
         {
             if (double.IsNaN(Double))
             {
@@ -128,18 +129,18 @@ namespace HLab.Base.Wpf
             }
         }
 
-        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (TextBox.SelectionLength == 0)
                 TextBox.SelectAll();
         }
 
-        private void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             TextBox.LostMouseCapture += TextBox_LostMouseCapture;
         }
 
-        private void TextBox_LostMouseCapture(object sender, MouseEventArgs e)
+        void TextBox_LostMouseCapture(object sender, MouseEventArgs e)
         {
             // If user highlights some text, don't override it
             if (TextBox.SelectionLength == 0)
@@ -149,7 +150,7 @@ namespace HLab.Base.Wpf
             TextBox.LostMouseCapture -= TextBox_LostMouseCapture;
         }
 
-        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
             foreach (char c in e.Text)
             {
@@ -208,7 +209,8 @@ namespace HLab.Base.Wpf
 
 
         string oldText = "";
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+
+        void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (IsReadOnly) return;
 
@@ -365,7 +367,7 @@ namespace HLab.Base.Wpf
         }
 
 
-        private double DeltaWithModifierKey(double delta)
+        double DeltaWithModifierKey(double delta)
         {
             if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) return delta / 10;
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) return delta * 10;
@@ -373,10 +375,11 @@ namespace HLab.Base.Wpf
         }
 
         [DllImport("User32.dll")]
-        private static extern bool SetCursorPos(int X, int Y);
-        private static void SetCursorPos(Point p) => SetCursorPos((int)Math.Round(p.X,0), (int)Math.Round(p.Y,0));
+        static extern bool SetCursorPos(int X, int Y);
 
-        private void Shift(double delta, object sender,  MouseEventArgs args)
+        static void SetCursorPos(Point p) => SetCursorPos((int)Math.Round(p.X,0), (int)Math.Round(p.Y,0));
+
+        void Shift(double delta, object sender,  MouseEventArgs args)
         {
             Double += delta;
 
@@ -402,37 +405,37 @@ namespace HLab.Base.Wpf
             
         }
 
-        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
+        void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
             Shift(DeltaWithModifierKey((e.Delta > 0) ? 1.0 : -1.0),sender,e);
         }
 
-        private void Click_Up(object sender, RoutedEventArgs e)
+        void Click_Up(object sender, RoutedEventArgs e)
         {
             Shift(DeltaWithModifierKey(1.0),sender,null);
         }
 
-        private void Click_Down(object sender, RoutedEventArgs e)
+        void Click_Down(object sender, RoutedEventArgs e)
         {
             Shift(DeltaWithModifierKey(-1.0),sender,null);
 
         }
 
-        private void UpdateDoubleFromText()
+        void UpdateDoubleFromText()
         {
             if (double.TryParse(TextBox.Text, out var value)) Double = value;
             else Double = Double.NaN;
 
         }
 
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if(IsReadOnly) return;
 
             UpdateDoubleFromText();
         }
 
-        private void OnKeyEnterUpdate(object sender, KeyEventArgs e)
+        void OnKeyEnterUpdate(object sender, KeyEventArgs e)
         {
             if(e.Key == Key.Enter)
             {

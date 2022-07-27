@@ -115,16 +115,16 @@ namespace HLab.Base.Wpf
             }
         }
 
-        private AccentColorSet(UInt32 colorSet, Boolean active)
+        AccentColorSet(UInt32 colorSet, Boolean active)
         {
             _colorSet = colorSet;
             Active = active;
         }
 
-        private static AccentColorSet[] _allSets;
-        private static AccentColorSet _activeSet;
+        static AccentColorSet[] _allSets;
+        static AccentColorSet _activeSet;
 
-        private UInt32 _colorSet;
+        UInt32 _colorSet;
 
         // HACK: GetAllColorNames collects the available color names by brute forcing the OS function.
         //   Since there is currently no known way to retrieve all possible color names,
@@ -144,7 +144,7 @@ namespace HLab.Base.Wpf
             return allColorNames;
         }
 
-        private static class UXTheme
+        static class UXTheme
         {
             [DllImport("uxtheme.dll", EntryPoint = "#98", CallingConvention = CallingConvention.StdCall, CharSet = CharSet.Auto)]
             public static extern UInt32 GetImmersiveUserColorSetPreference(Boolean forceCheckRegistry, Boolean skipCheckOnFail);

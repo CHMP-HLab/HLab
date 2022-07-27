@@ -30,13 +30,15 @@ namespace HLab.Mvvm.Flowchart.Models
         public override double GetValue(int n) => LinkedPins.Sum(p => p.GetValue(n));
 
         public override bool IsLinked => _isLinked.Get();
-        private readonly IProperty<bool> _isLinked = H.Property<bool>(c => c
+
+        readonly IProperty<bool> _isLinked = H.Property<bool>(c => c
             .On(e => e.LinkedPins.Item())
             .Set(e => e.LinkedPins.Count > 0));
 
 
         public override Color Color => _color.Get();
-        private readonly IProperty<Color> _color = H.Property<Color>(c => c
+
+        readonly IProperty<Color> _color = H.Property<Color>(c => c
             .On(e => e.ValueType.Color)
             .Set(e => e.ValueType.Color));
 

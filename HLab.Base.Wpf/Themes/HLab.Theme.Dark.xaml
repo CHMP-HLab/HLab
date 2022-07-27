@@ -1,8 +1,13 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-
+    <ResourceDictionary.MergedDictionaries>
+            <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+            <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+            <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/dark.steel.xaml" />
+            <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/light.blue.xaml" />-->
+    </ResourceDictionary.MergedDictionaries>
     
-    <Color x:Key="HLab.Colors.Background">Black</Color>
+    <DynamicResource x:Key="HLab.Colors.Background" ResourceKey="MahApps.Colors.ThemeBackground"/>
     <Color x:Key="HLab.Colors.Foreground">White</Color>
     
     <Color x:Key="HLab.Colors.Header.Active.Background">#FF0c0c16</Color>

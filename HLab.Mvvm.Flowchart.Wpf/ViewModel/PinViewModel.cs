@@ -25,14 +25,15 @@ namespace HLab.Mvvm.Flowchart.ViewModel
         //public IPin GetDesignModel => new InputPin(null,"0");
 #endif
         public Brush Brush => _brush.Get();
-        private readonly IProperty<Brush> _brush = H.Property<Brush>(c => c
+
+        readonly IProperty<Brush> _brush = H.Property<Brush>(c => c
             .On(e => e.Model.Color)
             .Set(e => (Brush)new SolidColorBrush(e.Model.Color)));
 
 
         public Brush BackgroundBrush => _backgroundBrush.Get();
 
-        private readonly IProperty<Brush> _backgroundBrush = H.Property<Brush>(c => c
+        readonly IProperty<Brush> _backgroundBrush = H.Property<Brush>(c => c
             .On(e => e.Brush)
             .On(e => e.Model.IsLinked)
             .Set(e => e.Model.IsLinked ? e.Brush : new SolidColorBrush(Colors.Transparent)));
@@ -44,24 +45,27 @@ namespace HLab.Mvvm.Flowchart.ViewModel
             set => _linkPoint.Set(value);
         }
 
-        private readonly IProperty<Point> _linkPoint = H.Property<Point>(c => c.Default(new Point()));
+         readonly IProperty<Point> _linkPoint = H.Property<Point>(c => c.Default(new Point()));
 
 
         public IInputPin InputPin => _inputPin.Get();
-        private readonly IProperty<IInputPin> _inputPin = H.Property<IInputPin>(c => c
+
+        readonly IProperty<IInputPin> _inputPin = H.Property<IInputPin>(c => c
             .On(e => e.Model)
             .Set(e => e.Model as IInputPin)
             );
 
 
         public PinViewModel LinkedOutputViewModel => _linkedOutputViewModel.Get();
-        private readonly IProperty<PinViewModel> _linkedOutputViewModel = H.Property<PinViewModel>(c => c
+
+        readonly IProperty<PinViewModel> _linkedOutputViewModel = H.Property<PinViewModel>(c => c
             .On(e => e.InputPin.LinkedOutput)
             .Set(e => e.InputPin?.LinkedOutput == null?null:(PinViewModel) e.MvvmContext.GetLinked<ViewModeDefault>(e.InputPin.LinkedOutput))
             );
 
         public Path Path => _path.Get();
-        private readonly IProperty<Path> _path = H.Property<Path>(c => c
+
+        readonly IProperty<Path> _path = H.Property<Path>(c => c
             .Set(
                 e => new Path
         {
@@ -134,7 +138,8 @@ namespace HLab.Mvvm.Flowchart.ViewModel
             Model.Direction == PinDirection.Output ? Visibility.Visible : Visibility.Collapsed;
 
         public double Opacity => _opacity.Get();
-        private readonly IProperty<double> _opacity = H.Property<double>(c => c
+
+        readonly IProperty<double> _opacity = H.Property<double>(c => c
             .On(e => e.Enabled)
             .Set(e => e.Enabled?1.0:0.3));
 
@@ -171,7 +176,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
             set => _enabled.Set(value);
         }
 
-        private readonly IProperty<bool> _enabled = H.Property<bool>(c => c.Default((bool)default));
+        readonly IProperty<bool> _enabled = H.Property<bool>(c => c.Default((bool)default));
 
 
         public IMessageBus MessageBus { get; }

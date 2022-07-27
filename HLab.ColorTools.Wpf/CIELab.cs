@@ -12,9 +12,9 @@ namespace HLab.ColorTools.Wpf
         /// </summary>
         public static readonly CIELab Empty = new CIELab();
 
-        private double l;
-        private double a;
-        private double b;
+        double l;
+        double a;
+        double b;
 
 
         public static bool operator ==(CIELab item1, CIELab item2)

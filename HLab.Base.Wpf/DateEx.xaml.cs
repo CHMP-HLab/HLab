@@ -20,11 +20,13 @@ namespace HLab.Base.Wpf
 
     public partial class DateEx : UserControl, IMandatoryNotFilled
     {
-        private static readonly int[] _daysToMonth365 = {
+        static readonly int[] _daysToMonth365 = {
             0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334, 365};
-        private static readonly int[] _daysToMonth366 = {
+
+        static readonly int[] _daysToMonth366 = {
             0, 31, 60, 91, 121, 152, 182, 213, 244, 274, 305, 335, 366};
-        private static int DaysInMonth(int year, int month)
+
+        static int DaysInMonth(int year, int month)
         {
             if (month < 1) return _daysToMonth366.Max();
             int[] days = year < 1 ? _daysToMonth366 : DateTime.IsLeapYear(year) ? _daysToMonth366 : _daysToMonth365;
@@ -74,7 +76,7 @@ namespace HLab.Base.Wpf
             .Default(new SolidColorBrush(Colors.Transparent))
             .Register();
 
-        private void SetContentBackground(Brush brush)
+        void SetContentBackground(Brush brush)
         {
             TextDay.Background = brush;
             TextMonth.Background = brush;
@@ -83,7 +85,7 @@ namespace HLab.Base.Wpf
             TextMin.Background = brush;
         }
 
-        private void SetReadOnly(bool readOnly)
+        void SetReadOnly(bool readOnly)
         {
             TextDay.IsReadOnly = IsReadOnly;
             TextMonth.IsReadOnly = IsReadOnly;
@@ -99,8 +101,9 @@ namespace HLab.Base.Wpf
         }
 
 
-        private bool preventSetDate = false;
-        private void SetDate(DateTime? date, bool dayValid)
+        bool preventSetDate = false;
+
+        void SetDate(DateTime? date, bool dayValid)
         {
             if(preventSetDate) return;
             preventSetDate = true;
@@ -140,14 +143,14 @@ namespace HLab.Base.Wpf
         }
 
 
-        private void SetMandatoryNotFilled(bool mnf)
+        void SetMandatoryNotFilled(bool mnf)
         {
             Mandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
             IconMandatory.Visibility = mnf ? Visibility.Visible : Visibility.Collapsed;
         }
 
 
-        private void SetShowTime(bool showTime)
+        void SetShowTime(bool showTime)
         {
             SetTimeButton(showTime);
             if (showTime)
@@ -161,7 +164,7 @@ namespace HLab.Base.Wpf
         }
 
 
-        private void SetShowTime(Visibility visibility, GridLength width)
+        void SetShowTime(Visibility visibility, GridLength width)
         {
             TextHour.Visibility = visibility;
             TextMin.Visibility = visibility;
@@ -171,7 +174,7 @@ namespace HLab.Base.Wpf
             MinColumn.Width = width;
         }
 
-        private void SetTimeButton(bool showTime)
+        void SetTimeButton(bool showTime)
         {
             if (showTime && !IsReadOnly)
             {
@@ -231,7 +234,7 @@ namespace HLab.Base.Wpf
             FromUi();
         }
 
-        private void FromUi()
+        void FromUi()
         {
             var year = TextYear.Value;
             if (year < 1) return;
@@ -289,31 +292,32 @@ namespace HLab.Base.Wpf
             }
         }
 
-        private void Button_OnClick(object sender, RoutedEventArgs e)
+        void Button_OnClick(object sender, RoutedEventArgs e)
         {
             Popup.IsOpen = true;
             Calendar.Focus();
         }
-        private void TimeButton_OnClick(object sender, RoutedEventArgs e)
+
+        void TimeButton_OnClick(object sender, RoutedEventArgs e)
         {
             TimePopup.IsOpen = true;
             TimePicker.Focus();
         }
 
-        private void NowButton_OnClick(object sender, RoutedEventArgs e)
+        void NowButton_OnClick(object sender, RoutedEventArgs e)
         {
             DayValid = true;
             Date = DateTime.Now;
         }
 
-        private void Calendar_OnSelectedDatesChanged(object sender, SelectionChangedEventArgs e)
+        void Calendar_OnSelectedDatesChanged(object sender, SelectionChangedEventArgs e)
         {
             DayValid = true;
             Date = Calendar.SelectedDate;
             Popup.IsOpen = false;
         }
 
-        private void TimePicker_OnDone(object sender, RoutedEventArgs e)
+        void TimePicker_OnDone(object sender, RoutedEventArgs e)
         {
             TimePopup.IsOpen = false;
         }

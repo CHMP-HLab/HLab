@@ -18,10 +18,10 @@ namespace HLab.Mvvm.Flowchart.Models
 
     public abstract class GraphElement : NotifierBase, IGraphElement
     {
-        public IMvvmService MvvmService { get; private set; }
-        public void Inject(IMvvmService mvvmService)
+        public IMvvmService MvvmService { get; set; }
+
+        protected GraphElement()
         {
-            MvvmService = mvvmService;
             H.Initialize(this);
         }
 
@@ -49,17 +49,23 @@ namespace HLab.Mvvm.Flowchart.Models
                 {
                     var v = p.GetValue(this);
 
-                    if (v is IList l)
+                    switch (v)
                     {
-                        lists.Add(new Tuple<string, IList>(p.Name, l));
-                        continue;
-                    }
+                        case IList l:
+                            lists.Add(new Tuple<string, IList>(p.Name, l));
+                            continue;
 
-                    if (v == null) continue;
-                    if (v is IFormattable f)
-                        w.WriteAttributeString(p.Name, f.ToString(null, CultureInfo.InvariantCulture));
-                    else
-                        w.WriteAttributeString(p.Name, v.ToString());
+                        case null:
+                            continue;
+
+                        case IFormattable f:
+                            w.WriteAttributeString(p.Name, f.ToString(null, CultureInfo.InvariantCulture));
+                            break;
+
+                        default:
+                            w.WriteAttributeString(p.Name, v.ToString());
+                            break;
+                    }
                 }
             }
 
@@ -88,7 +94,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _id.Set(value);
         }
 
-        private readonly IProperty<string> _id = H.Property<string>(c => c.Default(""));
+        readonly IProperty<string> _id = H.Property<string>(c => c.Default(""));
 
         public IGraphElement Parent
         {
@@ -96,7 +102,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _parent.Set(value);
         }
 
-        private readonly IProperty<IGraphElement> _parent = H.Property<IGraphElement>(c => c.Default((IGraphElement)default));
+        readonly IProperty<IGraphElement> _parent = H.Property<IGraphElement>(c => c.Default((IGraphElement)default));
 
 
         [DataMember]
@@ -106,7 +112,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _caption.Set(value);
         }
 
-        private readonly IProperty<string> _caption = H.Property<string>(c => c.Default(""));
+        readonly IProperty<string> _caption = H.Property<string>(c => c.Default(""));
 
         [DataMember]
         public virtual string IconPath
@@ -115,7 +121,8 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _iconPath.Set(value);
         }
 
-        private readonly IProperty<string> _iconPath = H.Property<string>(c => c.Default(""));
+        readonly IProperty<string> _iconPath = H.Property<string>(c => c.Default(""));
+
 
 
         public virtual Color Color => Colors.White;

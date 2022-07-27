@@ -32,7 +32,7 @@ namespace HLab.Base
         internal readonly ConcurrentQueue<Action> Actions = new();
         public void EnqueueAction(Action action) => Actions.Enqueue(action);
 
-        private readonly Suspender _suspender;
+        readonly Suspender _suspender;
 #if DEBUG_SUSPENDER
         public readonly StackTrace StackTrace;
 #endif
@@ -51,11 +51,11 @@ namespace HLab.Base
     }
     public class Suspender
     {
-        private readonly ReaderWriterLockSlim _wLock = new();
-        private readonly HashSet<SuspenderToken> _list = new();
-        private readonly Action _suspendedAction;
-        private readonly Action _resumeAction;
-        private readonly ConcurrentQueue<Action> _resumeActions = new();
+        readonly ReaderWriterLockSlim _wLock = new();
+        readonly HashSet<SuspenderToken> _list = new();
+        readonly Action _suspendedAction;
+        readonly Action _resumeAction;
+        readonly ConcurrentQueue<Action> _resumeActions = new();
 
         public Suspender(Action suspendedAction=null, Action resumeAction=null)
         {

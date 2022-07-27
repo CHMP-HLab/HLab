@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.ObjectModel;
 using System.Runtime.Serialization;
+using HLab.Mvvm.Annotations;
 using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged;
 
@@ -20,7 +21,7 @@ namespace HLab.Mvvm.Flowchart.Models
         public ObservableCollection<IPin> LinkedPins { get; } = new ObservableCollection<IPin>(); // => N<>.Get(() => );
 
         public virtual double Value => _value.Get();
-        private readonly IProperty<double> _value = H<Pin>.Property<double>(c => c.Set(e => e.GetValue(1)));
+        readonly IProperty<double> _value = H<Pin>.Property<double>(c => c.Set(e => e.GetValue(1)));
 
 
         public virtual double GetValue(int n)

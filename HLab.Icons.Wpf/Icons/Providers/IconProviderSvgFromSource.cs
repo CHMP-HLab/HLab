@@ -10,10 +10,10 @@ namespace HLab.Icons.Wpf.Icons.Providers
 {
     public class IconProviderSvgFromSource : IconProvider, IIconProvider
     {
-        private readonly string _name;
-        private string _source;
-        private readonly int? _foreColor;
-        private bool _parsed = false;
+        readonly string _name;
+        string _source;
+        readonly int? _foreColor;
+        bool _parsed = false;
 
         public IconProviderSvgFromSource(string source, string name, int? foreColor)
         {

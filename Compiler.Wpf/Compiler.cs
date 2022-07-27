@@ -63,7 +63,7 @@ namespace HLab.Compiler.Wpf
             return assemblyLoadContext.LoadFromStream(asm);
         }
 
-        private static CSharpCompilation GenerateCode(string[] sources)
+        static CSharpCompilation GenerateCode(string[] sources)
         {
             List<SyntaxTree> parsedSyntaxTrees = new();
             foreach (var source in sources)
@@ -102,7 +102,7 @@ namespace HLab.Compiler.Wpf
         }
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static WeakReference LoadAndExecute(byte[] compiledAssembly, string[] args)
+        static WeakReference LoadAndExecute(byte[] compiledAssembly, string[] args)
         {
             using var asm = new MemoryStream(compiledAssembly);
             var assemblyLoadContext = new AssemblyLoadContext("HLab.RuntimeCompiled", true);

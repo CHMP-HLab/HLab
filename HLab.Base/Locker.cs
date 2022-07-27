@@ -10,7 +10,7 @@ namespace HLab.Base
 
     public class Locker
     {
-        private readonly ReaderWriterLockSlim _lock;
+        readonly ReaderWriterLockSlim _lock;
         public Locker(bool recursion = false)
         {
             _lock = new ReaderWriterLockSlim(recursion?LockRecursionPolicy.SupportsRecursion:LockRecursionPolicy.NoRecursion);
@@ -21,9 +21,9 @@ namespace HLab.Base
         
 //        public object SyncRoot => _lock.
 
-        private sealed class ReadLockToken : IDisposable
+sealed class ReadLockToken : IDisposable
         {
-            private ReaderWriterLockSlim _sync;
+            ReaderWriterLockSlim _sync;
             public ReadLockToken(ReaderWriterLockSlim sync)
             {
                 _sync = sync;
@@ -36,9 +36,10 @@ namespace HLab.Base
                 _sync = null;
             }
         }
-        private sealed class WriteLockToken : IDisposable
+
+sealed class WriteLockToken : IDisposable
         {
-            private ReaderWriterLockSlim _sync;
+            ReaderWriterLockSlim _sync;
             public WriteLockToken(ReaderWriterLockSlim sync)
             {
                 _sync = sync;
@@ -51,9 +52,10 @@ namespace HLab.Base
                 _sync = null;
             }
         }
-        private sealed class UpgradableLockToken : IDisposable, IUpgradableLockToken
+
+sealed class UpgradableLockToken : IDisposable, IUpgradableLockToken
         {
-            private ReaderWriterLockSlim _sync;
+            ReaderWriterLockSlim _sync;
             public UpgradableLockToken(ReaderWriterLockSlim sync)
             {
                 _sync = sync;

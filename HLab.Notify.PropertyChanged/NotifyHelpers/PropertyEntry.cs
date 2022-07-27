@@ -16,9 +16,9 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
             public bool IsLinked() => ExtendedPropertyChanged != null;
             public string Name { get; }
 
-            private readonly PropertyInfo _property;
-            private object _value;
-            private readonly object _target;
+            readonly PropertyInfo _property;
+            object _value;
+            readonly object _target;
 
             public PropertyEntry(object target, string name)
             {
@@ -28,19 +28,19 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
                 _property = GetProperty(target.GetType(),name);
             }
 
-            private static PropertyInfo GetProperty(Type type, string name)
+            static PropertyInfo GetProperty(Type type, string name)
             {
                 var property = type.GetProperty(name,
                     BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
 
-                Type subType = type;
+                var subType = type;
 
                 while (property == null)
                 {
                     subType = subType.BaseType;
                     if (subType != null)
                     {
-                        property = type.GetProperty(name,
+                        property = subType.GetProperty(name,
                             BindingFlags.Instance | BindingFlags.Public | BindingFlags.DeclaredOnly);
                     }
                     else
@@ -55,11 +55,11 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
                 return property;
             }
 
-            private static PropertyInfo GetInterfaceProperty(Type type, string name)
+            static PropertyInfo GetInterfaceProperty(Type type, string name)
             {
-                var ifaces = type.GetInterfaces();
+                var interfaces = type.GetInterfaces();
 
-                foreach (var iface in ifaces)
+                foreach (var iface in interfaces)
                 {
                     var prop = iface.GetProperty(name);
                     if (prop != null) return prop;
@@ -112,7 +112,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
                 ExtendedPropertyChanged -= handler;
             }
 
-            private List<EventHandler<ExtendedPropertyChangedEventArgs>> _triggerEntries = new();
+            List<EventHandler<ExtendedPropertyChangedEventArgs>> _triggerEntries = new();
 
             public ITriggerEntry BuildTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler)
             {

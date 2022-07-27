@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Windows;
+using HLab.Mvvm.Annotations;
 using HLab.Notify.PropertyChanged;
 
 namespace HLab.Mvvm.Flowchart.Models
@@ -11,16 +12,25 @@ namespace HLab.Mvvm.Flowchart.Models
 
     public abstract class GraphBlock : GraphElement, IGraphBlock
     {
-        public void Inject(Func<IGraphBlock, string, PinLocation, string, PinGroup> getPinGroup)
+        public class Injector
         {
-            _getPinGroup = getPinGroup;
+            public Func<IGraphBlock, string, PinLocation, string, PinGroup> GetPinGroup;
+            public Injector(Func<IGraphBlock, string, PinLocation, string, PinGroup> getPinGroup)
+            {
+                GetPinGroup = getPinGroup;
+            }
+        }
+
+        readonly Func<IGraphBlock,string, PinLocation, string, PinGroup> _getPinGroup;
+        protected GraphBlock(Injector injector)
+        {
+            _getPinGroup = injector.GetPinGroup;
             MainLeftGroup = GetOrAddGroup("Left", PinLocation.Left);
             MainRightGroup = GetOrAddGroup("Right", PinLocation.Right);
 
             H.Initialize(this);
         }
 
-        private Func<IGraphBlock,string, PinLocation, string, PinGroup> _getPinGroup;
 
         public IPinGroup GetOrAddGroup(string id, PinLocation location, string caption="")
         {
@@ -45,7 +55,8 @@ namespace HLab.Mvvm.Flowchart.Models
             get => _left.Get();
             set => _left.Set(value);
         }
-        private readonly IProperty<double> _left = H.Property<double>(c => c.Default(0.0));
+
+        readonly IProperty<double> _left = H.Property<double>(c => c.Default(0.0));
 
 
         [DataMember]
@@ -54,7 +65,8 @@ namespace HLab.Mvvm.Flowchart.Models
             get => _top.Get();
             set => _top.Set(value);
         }
-        private readonly IProperty<double> _top = H.Property<double>(c => c.Default(0.0));
+
+        readonly IProperty<double> _top = H.Property<double>(c => c.Default(0.0));
 
 
 
@@ -65,7 +77,7 @@ namespace HLab.Mvvm.Flowchart.Models
             set => _name.Set(value);
         }
 
-        private readonly IProperty<string> _name = H.Property<string>(c => c
+        readonly IProperty<string> _name = H.Property<string>(c => c
             .On(e => e.Caption)
             .Set(e => e.Caption)
         );

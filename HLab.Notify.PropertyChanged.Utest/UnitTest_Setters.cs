@@ -3,7 +3,7 @@ namespace HLab.Notify.PropertyChanged.UTest
 {
     using H = H<NotifyObject>;
 
-    class NotifyObject : NotifierBase
+    internal class NotifyObject : NotifierBase
     {
         public NotifyObject()
         {
@@ -15,14 +15,16 @@ namespace HLab.Notify.PropertyChanged.UTest
             get => _test.Get();
             set => _test.Set(value);
         }
-        private readonly IProperty<int> _test = H.Property<int>();
+
+        readonly IProperty<int> _test = H.Property<int>();
 
         public int Test1
         {
             get => _test1.Get();
             set => _test1.Set(value);
         }
-        private readonly IProperty<int> _test1 = H.Property<int>(c => c.Default(1));
+
+        readonly IProperty<int> _test1 = H.Property<int>(c => c.Default(1));
 
     }
     public class UnitTest_Setters

@@ -5,7 +5,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
     public class PropertyObject<T> : IPropertyValue<T>
         where T : class
     {
-        private T _value;
+        T _value;
         public T Get() => _value;
 
         public bool Set(T value)
@@ -23,7 +23,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 
         public bool Set(System.Func<object, T> setter) => Set(setter(_holder.Parent));
 
-        private readonly PropertyHolder<T> _holder;
+        readonly PropertyHolder<T> _holder;
         public PropertyObject(PropertyHolder<T> holder)
         {
             _holder = holder;

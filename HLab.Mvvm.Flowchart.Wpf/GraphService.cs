@@ -15,7 +15,8 @@ namespace HLab.Mvvm.Flowchart
 {
     public class GraphService : IGraphService
     {
-        public void Inject(Func<IEnumerable<IToolGraphBlock>> getBlocks)
+        readonly Func<IEnumerable<IToolGraphBlock>> _getBlocks;
+        public GraphService(Func<IEnumerable<IToolGraphBlock>> getBlocks)
         {
             _getBlocks = getBlocks;
             // TODO :
@@ -37,7 +38,6 @@ namespace HLab.Mvvm.Flowchart
         public ConcurrentDictionary<string,Type> Types = new ConcurrentDictionary<string, Type>();
         public ConcurrentDictionary<string,GraphValueType> ValueTypes = new ConcurrentDictionary<string, GraphValueType>();
 
-        private Func<IEnumerable<IToolGraphBlock>> _getBlocks;
 
         public void Register(Assembly assembly)
         {

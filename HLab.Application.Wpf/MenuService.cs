@@ -14,7 +14,8 @@ namespace HLab.Mvvm.Application.Wpf
     {
         public string Name { get; }
         public MenuPath Next {get; private set; } = null;
-        private MenuPath(string name)
+
+        MenuPath(string name)
         {
             Name = name;
         }
@@ -39,9 +40,9 @@ namespace HLab.Mvvm.Application.Wpf
 
     public class MenuService : IMenuService
     {
-        private MainWpfViewModel _viewModel;
+        readonly MainWpfViewModel _viewModel;
 
-        public void Inject(MainWpfViewModel viewModel)
+        public MenuService(MainWpfViewModel viewModel)
         {
             _viewModel = viewModel;
         }
@@ -49,7 +50,7 @@ namespace HLab.Mvvm.Application.Wpf
         public bool RegisterMenu(string path, object header, ICommand command, string iconPath) 
             => RegisterMenu( MenuPath.Get(path),_viewModel.Menu.Items, header, command, iconPath);
 
-        private static bool RegisterMenu(MenuPath path, ItemCollection items, object header, ICommand command, string iconPath)
+        static bool RegisterMenu(MenuPath path, ItemCollection items, object header, ICommand command, string iconPath)
         {
             while (true)
             {

@@ -25,10 +25,10 @@ namespace HLab.Icons.Wpf.Icons
             Loaded += IconView_Loaded;
         }
 
-        private WeakReference<IIconService> _iconServiceReference;
-        private bool _iconLoaded = false;
+        WeakReference<IIconService> _iconServiceReference;
+        bool _iconLoaded = false;
 
-        private async void IconView_Loaded(object sender, RoutedEventArgs e)
+        async void IconView_Loaded(object sender, RoutedEventArgs e)
         {
             if(!_iconLoaded)
                 await LoadIconAsync(Path).ConfigureAwait(true);
@@ -119,11 +119,12 @@ namespace HLab.Icons.Wpf.Icons
             set => SetValue(IconServiceProperty, value);
         }
 
-        private static IIconService _designTimeService = null;
+        static IIconService _designTimeService = null;
 
 
         int count = 0;
-        private async Task LoadIconAsync(string path)
+
+        async Task LoadIconAsync(string path)
         {
             if (IconService == null)
             {
@@ -156,7 +157,7 @@ namespace HLab.Icons.Wpf.Icons
         }
 
 
-        private void Update()
+        void Update()
         {
             if(!IsLoaded) return;
 
@@ -196,7 +197,7 @@ namespace HLab.Icons.Wpf.Icons
             }
         }
 
-        private string StringColor(Color color)
+        string StringColor(Color color)
         {
             return $"#{color.A:X2}{color.R:X2}{color.G:X2}{color.B:X2}";
         }

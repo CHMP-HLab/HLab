@@ -8,10 +8,10 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
     public class PropertyValueLazy<T> : IPropertyValue<T>
     {
-        private Func<object, T> _getter;
-        private readonly PropertyHolder<T> _holder;
+        Func<object, T> _getter;
+        readonly PropertyHolder<T> _holder;
 
-        private static readonly Func<PropertyHolder<T>, IPropertyValue<T>> _getPropertyValue;
+        static readonly Func<PropertyHolder<T>, IPropertyValue<T>> _getPropertyValue;
 
         static PropertyValueLazy()
         {
@@ -96,7 +96,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
             _getPropertyValue = func;
         }
 
-        private IPropertyValue<T> GetProperty() => _getPropertyValue(_holder);
+        IPropertyValue<T> GetProperty() => _getPropertyValue(_holder);
 
         public T Get()
         {

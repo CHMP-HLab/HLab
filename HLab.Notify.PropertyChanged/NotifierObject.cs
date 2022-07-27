@@ -13,7 +13,7 @@ namespace HLab.Notify.PropertyChanged
     {
         protected class H : H<T> { }
 
-        private static readonly IEventHandlerService _eventHandlerService = new EventHandlerService();
+        static readonly IEventHandlerService _eventHandlerService = new EventHandlerService();
         protected NotifierTest()
         {
             H<NotifierTest<T>>.Initialize(this);

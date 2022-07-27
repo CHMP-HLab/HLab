@@ -6,10 +6,10 @@ namespace HLab.Mvvm.Application
 {
     public abstract class DocumentService : IDocumentService
     {
-        private IMvvmService _mvvm;
-        private Func<Type, object> _getter;
+        readonly IMvvmService _mvvm;
+        readonly Func<Type, object> _getter;
 
-        public void  Inject(IMvvmService mvvm, Func<Type, object> getter)
+        protected DocumentService(IMvvmService mvvm, Func<Type, object> getter)
         {
             _mvvm = mvvm;
             _getter = getter;

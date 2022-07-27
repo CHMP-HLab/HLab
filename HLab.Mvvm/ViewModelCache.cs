@@ -31,10 +31,9 @@ namespace HLab.Mvvm
 
     public class ViewModelCache
     {
-
-        private class LinkedViewModels
+        class LinkedViewModels
         {
-            private readonly ConcurrentDictionary<Type, object> _linked = new ConcurrentDictionary<Type, object>();
+            readonly ConcurrentDictionary<Type, object> _linked = new ConcurrentDictionary<Type, object>();
 
             public object GetOrAdd(Type type, Func<Type,object> factory)
             {
@@ -47,11 +46,11 @@ namespace HLab.Mvvm
         //private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<object>>> _creators;
 
 
-        private readonly ConditionalWeakTable<object, LinkedViewModels> _linked = new ConditionalWeakTable<object, LinkedViewModels>();
+        readonly ConditionalWeakTable<object, LinkedViewModels> _linked = new ConditionalWeakTable<object, LinkedViewModels>();
 
         //private readonly Type _viewMode;
-        private readonly IMvvmContext _context;
-        private readonly IMvvmService _mvvm;
+        readonly IMvvmContext _context;
+        readonly IMvvmService _mvvm;
 
         public ViewModelCache(IMvvmContext context, IMvvmService mvvm)
         {

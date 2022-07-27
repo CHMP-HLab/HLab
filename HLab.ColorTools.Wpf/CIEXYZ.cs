@@ -17,9 +17,9 @@ namespace HLab.ColorTools.Wpf
         public static readonly CIEXYZ D65 = new CIEXYZ(0.9505, 1.0, 1.0890);
 
 
-        private double x;
-        private double y;
-        private double z;
+        double x;
+        double y;
+        double z;
 
         public static bool operator ==(CIEXYZ item1, CIEXYZ item2)
         {

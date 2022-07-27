@@ -15,7 +15,8 @@ namespace HLab.Notify.PropertyChanged
             get => _isDirty.Get();
             protected set => _isDirty.Set(value);
         }
-        private readonly IProperty<bool> _isDirty = H<Persister>.Property<bool>();
+
+        readonly IProperty<bool> _isDirty = H<Persister>.Property<bool>();
 
         public void Reset()
         {
@@ -60,7 +61,7 @@ namespace HLab.Notify.PropertyChanged
             return Persistency.None;
         }
 
-        private void Obj_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        void Obj_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if(e.PropertyName.Contains("Country"))
             { }

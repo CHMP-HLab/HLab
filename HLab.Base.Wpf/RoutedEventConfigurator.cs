@@ -6,8 +6,8 @@ namespace HLab.Base.Wpf
     public class RoutedEventConfigurator<TClass,TValue>
         where TClass : DependencyObject
     {
-        private readonly string _name;
-        private RoutingStrategy _routingStrategy = RoutingStrategy.Tunnel;
+        readonly string _name;
+        RoutingStrategy _routingStrategy = RoutingStrategy.Tunnel;
         public RoutedEventConfigurator(string name)
         {
             _name = name;
@@ -20,7 +20,7 @@ namespace HLab.Base.Wpf
             typeof(TClass)
         );
 
-        private RoutedEventConfigurator<TClass,TValue> Do(Action action)
+        RoutedEventConfigurator<TClass,TValue> Do(Action action)
         {
             action();
             return this;

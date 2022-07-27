@@ -14,8 +14,8 @@ using H = DependencyHelper<DefaultWindow>;
 /// </summary>
 public partial class DefaultWindow
 {
-    private readonly Border _insideBorder;
-    private readonly ContentControl _content;
+    readonly Border _insideBorder;
+    readonly ContentControl _content;
 
     public DefaultWindow()
     {
@@ -45,9 +45,9 @@ public partial class DefaultWindow
             .Register();
 
 
-    private bool _clicked = false;
+    bool _clicked = false;
 
-    private void OnMouseDown(object sender, MouseButtonEventArgs e)
+    void OnMouseDown(object sender, MouseButtonEventArgs e)
     {
         var pos = e.GetPosition(this);
 
@@ -66,7 +66,7 @@ public partial class DefaultWindow
 
     }
 
-    private void OnMouseMove(object sender, MouseEventArgs e)
+    void OnMouseMove(object sender, MouseEventArgs e)
     {
         if (!_clicked) return;
 
@@ -109,7 +109,7 @@ public partial class DefaultWindow
         }
     }
 
-    private void OnMouseUp(object sender, MouseButtonEventArgs e)
+    void OnMouseUp(object sender, MouseButtonEventArgs e)
     {
         _clicked = false;
     }

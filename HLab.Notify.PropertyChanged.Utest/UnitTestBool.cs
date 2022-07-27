@@ -2,9 +2,9 @@
 
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    class TestBoolClass : NotifierTest<TestBoolClass>
+    internal class TestBoolClass : NotifierTest<TestBoolClass>
     {
-        private readonly IProperty<bool> _boolValue = H.Property<bool>();
+        readonly IProperty<bool> _boolValue = H.Property<bool>();
 
         public bool BoolValue
         {

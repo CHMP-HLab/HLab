@@ -13,7 +13,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
 {
     public class NotifyClassHelperBase : INotifyClassHelper
     {
-        private static readonly ConditionalWeakTable<object, INotifyClassHelper> Cache = new();
+        static readonly ConditionalWeakTable<object, INotifyClassHelper> Cache = new();
         public static INotifyClassHelper GetExistingHelper(object target) => Cache.TryGetValue(target, out var p) ? p : null;
         
         public static INotifyClassHelper GetHelper(object target)
@@ -25,11 +25,11 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
         public static INotifyClassHelper GetHelper(INotifyPropertyChangedWithHelper target) => target.ClassHelper;
 
 
-        private event PropertyChangedEventHandler Handler;
-        private readonly Suspender _suspender = new();
+        event PropertyChangedEventHandler Handler;
+        readonly Suspender _suspender = new();
 
         protected object Target { get; }
-        private readonly ConcurrentDictionary<string, IPropertyEntry> _propertiesDictionary = new();
+        readonly ConcurrentDictionary<string, IPropertyEntry> _propertiesDictionary = new();
 
         public SuspenderToken GetSuspender() => _suspender.Get();
 

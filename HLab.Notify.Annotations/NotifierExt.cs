@@ -110,13 +110,13 @@ namespace HLab.Notify.Annotations
                     oldValue.UnSubscribeNotifier(action, targets);
         }
 
-        private static readonly
+        static readonly
             ConcurrentDictionary<Tuple<PropertyChangedEventHandler, IList<string>>, PropertyChangedEventHandler>
             PropertiesHandlers =
                 new ConcurrentDictionary<Tuple<PropertyChangedEventHandler, IList<string>>,
                     PropertyChangedEventHandler>();
 
-        private static readonly
+        static readonly
             ConcurrentDictionary<Tuple<PropertyChangedEventHandler, IList<string>>, NotifyCollectionChangedEventHandler>
             CollectionHandlers =
                 new ConcurrentDictionary<Tuple<PropertyChangedEventHandler, IList<string>>,
@@ -141,7 +141,7 @@ namespace HLab.Notify.Annotations
         //}
 
 
-        private static void Subscribe(this object value, IList<string> path, PropertyChangedEventHandler handler)
+        static void Subscribe(this object value, IList<string> path, PropertyChangedEventHandler handler)
         {
             switch (value)
             {

@@ -3,13 +3,13 @@ using System.Collections.Concurrent;
 
 namespace HLab.Mvvm.Factory
 {
-    static class MvvmClasses
+    internal static class MvvmClasses
     {
         public const int Default = 0;
         public const int Content = Default + 1;
     }
 
-    class MvvmClass : Attribute
+    internal class MvvmClass : Attribute
     {
         public object Value { get; }
         public MvvmClass(object value)
@@ -18,9 +18,9 @@ namespace HLab.Mvvm.Factory
         }
     }
 
-    class MvvmModelClass
+    internal class MvvmModelClass
     {
-        private ConcurrentDictionary<LinkKey, MvvmLink> _viewClasses = new ConcurrentDictionary<LinkKey, MvvmLink>();
+        ConcurrentDictionary<LinkKey, MvvmLink> _viewClasses = new ConcurrentDictionary<LinkKey, MvvmLink>();
 
         public MvvmLink GetLink(Type viewClass, Type viewMode) => GetLink(new LinkKey(viewClass, viewMode));
         public MvvmLink GetLink(LinkKey key)
@@ -28,7 +28,7 @@ namespace HLab.Mvvm.Factory
             return _viewClasses.GetOrAdd(key, GetNearestLink);
         }
 
-        private MvvmLink GetNearestLink(LinkKey key)
+        MvvmLink GetNearestLink(LinkKey key)
         {
             MvvmLink result = null;
             LinkKey bestKey = null;

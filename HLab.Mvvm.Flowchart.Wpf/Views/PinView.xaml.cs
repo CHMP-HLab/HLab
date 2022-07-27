@@ -32,16 +32,16 @@ namespace HLab.Mvvm.Flowchart.Views
             Unloaded += PinView_Unloaded;
         }
 
-        private void PinView_Unloaded(object sender, RoutedEventArgs e)
+        void PinView_Unloaded(object sender, RoutedEventArgs e)
         {
             LayoutUpdated -= PinView_LayoutUpdated;
             //DragCanvas.Children.Remove(_path);
             ViewModel.MessageBus.Unsubscribe<PinViewModel>(SetDraggedPin);
         }
 
-        private Path _path;
+        Path _path;
 
-        private void PinView_Loaded(object sender, RoutedEventArgs e)
+        void PinView_Loaded(object sender, RoutedEventArgs e)
         {
             if (ViewModel == null) return;
             SetLinkedPoint();
@@ -60,18 +60,18 @@ namespace HLab.Mvvm.Flowchart.Views
             ViewModel.MessageBus.Subscribe<PinViewModel>(SetDraggedPin);
         }
 
-        private void SetDraggedPin(PinViewModel pvm)
+        void SetDraggedPin(PinViewModel pvm)
         {
                 ViewModel?.SetDraggedPin(pvm);            
         }
 
 
-        private void PinView_LayoutUpdated(object sender, System.EventArgs e)
+        void PinView_LayoutUpdated(object sender, System.EventArgs e)
         {
             SetLinkedPoint();
         }
 
-        private void SetLinkedPoint()
+        void SetLinkedPoint()
         {
             if (ViewModel == null) return;
             var icon = LeftIcon.Visibility == Visibility.Visible ? LeftIcon : RightIcon;
@@ -79,10 +79,10 @@ namespace HLab.Mvvm.Flowchart.Views
         }
 
 
+        PinViewModel ViewModel => DataContext as PinViewModel;
+        PinViewModel StartViewModel => ViewModel?.LinkedOutputViewModel??ViewModel;
 
-        private PinViewModel ViewModel => DataContext as PinViewModel;
-        private PinViewModel StartViewModel => ViewModel?.LinkedOutputViewModel??ViewModel;
-        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is UIElement el)
             {
@@ -97,10 +97,10 @@ namespace HLab.Mvvm.Flowchart.Views
             }
         }
 
-        private Grid DragCanvas => this.FindVisualParent<FlowchartEditorView>()?.LinkArea;
-        private Grid WorkCanvas => this.FindVisualParent<FlowchartEditorView>()?.WorkArea;
+        Grid DragCanvas => this.FindVisualParent<FlowchartEditorView>()?.LinkArea;
+        Grid WorkCanvas => this.FindVisualParent<FlowchartEditorView>()?.WorkArea;
 
-        private void UIElement_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        void UIElement_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (sender is UIElement el)
             {
@@ -142,7 +142,7 @@ namespace HLab.Mvvm.Flowchart.Views
             }
         }
 
-        private void AddBlock(IGraph graph, IToolGraphBlock block)
+        void AddBlock(IGraph graph, IToolGraphBlock block)
         {
             this.FindVisualParent<FlowchartEditorView>().HideToolbox();
             var toolblocks = ViewModel.GraphService.Blocks;
@@ -159,13 +159,14 @@ namespace HLab.Mvvm.Flowchart.Views
 
         }
 
-        private bool IsConnectable(PinView dest)
+        bool IsConnectable(PinView dest)
         {
             return StartViewModel.IsConnectable(dest.ViewModel);
         }
 
-        private PinView _dest = null;
-        private void UIElement_OnMouseMove(object sender, MouseEventArgs e)
+        PinView _dest = null;
+
+        void UIElement_OnMouseMove(object sender, MouseEventArgs e)
         {
             if (sender is UIElement el && el.IsMouseCaptured)
             {
@@ -186,10 +187,11 @@ namespace HLab.Mvvm.Flowchart.Views
             }
         }
 
-        private Path _dragPath = null;
+        Path _dragPath = null;
 
-        private Point _endPoint;
-        private void SetPath()
+        Point _endPoint;
+
+        void SetPath()
         {
 
             var startPoint = StartViewModel.Model.Direction == Models.PinDirection.Output ? StartViewModel.LinkPoint : _endPoint;
@@ -232,12 +234,12 @@ namespace HLab.Mvvm.Flowchart.Views
             ((QuadraticBezierSegment)pf.Segments[1]).Point2 = endPoint;
         }
 
-        private void UIElement_OnMouseEnter(object sender, MouseEventArgs e)
+        void UIElement_OnMouseEnter(object sender, MouseEventArgs e)
         {
             BorderMouseMove.Background = ViewModel.Brush;
         }
 
-        private void UIElement_OnMouseLeave(object sender, MouseEventArgs e)
+        void UIElement_OnMouseLeave(object sender, MouseEventArgs e)
         {
             BorderMouseMove.Background = null;
         }

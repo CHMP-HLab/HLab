@@ -2,12 +2,12 @@
 
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    class DummyObject
+    internal class DummyObject
     { }
 
-    class TestObjectClass : NotifierTest<TestObjectClass>
+    internal class TestObjectClass : NotifierTest<TestObjectClass>
     {
-        private readonly IProperty<DummyObject> _objectValue = H.Property<DummyObject>();
+        readonly IProperty<DummyObject> _objectValue = H.Property<DummyObject>();
         public DummyObject ObjectValue
         {
             get => _objectValue.Get();

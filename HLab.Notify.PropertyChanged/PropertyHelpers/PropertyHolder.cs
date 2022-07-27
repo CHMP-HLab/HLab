@@ -14,7 +14,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         //bool Mandatory { get; set; }
     }
 
-    enum PropertyState
+    internal enum PropertyState
     {
         Enabled,
         Locked,
@@ -33,14 +33,13 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
             ClassHelper = new NotifyClassHelper(this);
         }
 
-
-
         public T Value
         {
             get => _value.Get();
             set => _value.Set(value);
         }
-        private readonly IProperty<T> _value = H.Property<T>();
+
+        readonly IProperty<T> _value = H.Property<T>();
 
         public bool Enabled
         {
@@ -49,32 +48,19 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         }
         object IPropertyHolderN.Value { get => Value; set => Value = (T)value; }
 
-        private readonly IProperty<bool> _enabled = H.Property<bool>();
+        readonly IProperty<bool> _enabled = H.Property<bool>();
         public event PropertyChangedEventHandler PropertyChanged;
 
 
         public INotifyClassHelper ClassHelper { get; }
     }
-    //public class PropertyHolder<TClass, T> : PropertyHolder<T>
-    //    where TClass : class
-    //{
 
-
-    //    public PropertyHolder(string name, NotifyConfigurator configurator):base(configurator)
-    //    {
-    //    }
-
-
-    //    public new TClass Parent => base.Parent as TClass;
-
-    //}
     public abstract class PropertyHolder : ChildObject
     {
         protected PropertyHolder(PropertyActivator activator) : base(activator)
         {
         }
     }
-
 
     public class PropertyHolder<T> : ChildObject, IProperty<T>
     {
@@ -85,19 +71,9 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public T Get()
-        {
-            // Todo : necessary for overloaded
-            if (PropertyValue == null) return default;
-            return PropertyValue.Get();
-        }
+        public T Get() => PropertyValue == null ? default : PropertyValue.Get();
 
-        public T GetNoCheck()
-        {
-            // Todo : necessary for overloaded
-            if (PropertyValue == null) return default;
-            return PropertyValue.Get();
-        }
+        public T GetNoCheck() => PropertyValue == null ? default : PropertyValue.Get();
 
 #if DEBUG
         [DebuggerStepThrough]
@@ -106,10 +82,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
             if (name != null && name != "SetOneToMany" && name != "Set")
                 Debug.Assert(name == this.Name);
 
-            if (PropertyValue == null) return default;
-            //throw new Exception("Triggers not registered");
-
-            return PropertyValue.Get();
+            return PropertyValue == null ? default : PropertyValue.Get();
         }
 #endif
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -11,7 +11,7 @@ namespace HLab.Mvvm
 {
     public class LocalizationService : ILocalizationService, IService
     {
-        private CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
+        CultureInfo Culture { get; set; } = CultureInfo.CurrentCulture;
 
         public string Localize(string value) => Localize(Culture.IetfLanguageTag.ToLowerInvariant(), value);
         public Task<string> LocalizeAsync(string value) => LocalizeAsync(Culture.IetfLanguageTag.ToLowerInvariant(), value);
@@ -54,8 +54,7 @@ namespace HLab.Mvvm
         }
 
 
-
-        private string SelfLocalized(string tag, string code, out bool quality)
+        string SelfLocalized(string tag, string code, out bool quality)
         {
             quality = false;
 
@@ -84,7 +83,7 @@ namespace HLab.Mvvm
             return result;
         }
 
-        private void Register(string tag, string code, string result, bool quality)
+        void Register(string tag, string code, string result, bool quality)
         {
             foreach (var service in _services)
             {
@@ -122,7 +121,7 @@ namespace HLab.Mvvm
             return result;
         }
 
-        private readonly List<ILocalizationProvider> _services = new List<ILocalizationProvider>();
+        readonly List<ILocalizationProvider> _services = new List<ILocalizationProvider>();
 
         public void Set(CultureInfo info)
         {
@@ -134,7 +133,7 @@ namespace HLab.Mvvm
             _services.Add(service);
         }
 
-        private string SelfLocalize(string text, string replaceValue, string tag, string value, out bool done)
+        string SelfLocalize(string text, string replaceValue, string tag, string value, out bool done)
         {
                 var parts = value.Split("=");
                 if (parts.Length > 1)

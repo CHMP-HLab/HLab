@@ -16,11 +16,11 @@ namespace HLab.Notify.PropertyChanged
     IList<T>, IList, IReadOnlyList<T>, INotifyCollectionChanged, ILockable
     where T : class
     {
-        private readonly List<T> _list = new List<T>();
+        readonly List<T> _list = new List<T>();
 
-        private readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
-        private readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _collectionChangedQueue = new ConcurrentQueue<NotifyCollectionChangedEventArgs>();
-        private readonly ConcurrentQueue<PropertyChangedEventArgs> _propertyChangedQueue = new ConcurrentQueue<PropertyChangedEventArgs>();
+        readonly AsyncReaderWriterLock _lock = new AsyncReaderWriterLock();
+        readonly ConcurrentQueue<NotifyCollectionChangedEventArgs> _collectionChangedQueue = new ConcurrentQueue<NotifyCollectionChangedEventArgs>();
+        readonly ConcurrentQueue<PropertyChangedEventArgs> _propertyChangedQueue = new ConcurrentQueue<PropertyChangedEventArgs>();
 
         public event NotifyCollectionChangedEventHandler CollectionChanged;
 
@@ -31,7 +31,7 @@ namespace HLab.Notify.PropertyChanged
         //}
         //private readonly IProperty<T> _selected = H.Property<T>();
 
-        private void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
+        void OnCollectionChanged(NotifyCollectionChangedEventArgs arg)
         {
             NotifyHelper.EventHandlerService.Invoke(CollectionChanged, this, arg);
         }
@@ -44,7 +44,7 @@ namespace HLab.Notify.PropertyChanged
         public int Count => _list.Count;
 
 
-        private void _enqueue(NotifyCollectionChangedEventArgs args) => _collectionChangedQueue.Enqueue(args);
+        void _enqueue(NotifyCollectionChangedEventArgs args) => _collectionChangedQueue.Enqueue(args);
 
 
         int IList.Add(object value) => DoWriteLocked(() =>
@@ -58,7 +58,7 @@ namespace HLab.Notify.PropertyChanged
 
         public virtual void Add(T item) => DoWriteLocked(() => _add(item));
 
-        private void _add(T item)
+        void _add(T item)
         {
                 var idx = _list.Count;
                 _list.Add(item);
@@ -201,21 +201,23 @@ namespace HLab.Notify.PropertyChanged
             return value;
         });
 
-        private TReturn DoReadLocked<TReturn>(Func<TReturn> action)
+        TReturn DoReadLocked<TReturn>(Func<TReturn> action)
         {
             using (_lock.ReaderLock())
             {
                 return action();
             }
         }
-        private void DoReadLocked(Action action)
+
+        void DoReadLocked(Action action)
         {
             using (_lock.ReaderLock())
             {
                 action();
             }
         }
-        private TReturn DoWriteLocked<TReturn>(Func<TReturn> action)
+
+        TReturn DoWriteLocked<TReturn>(Func<TReturn> action)
         {
             try
             {
@@ -229,7 +231,8 @@ namespace HLab.Notify.PropertyChanged
                 OnCollectionChanged();
             }
         }
-        private void DoWriteLocked(Action action)
+
+        void DoWriteLocked(Action action)
         {
             try
             {
@@ -247,7 +250,7 @@ namespace HLab.Notify.PropertyChanged
 
 
         //private int _oldCount = 0;
-        private void OnCollectionChanged()
+        void OnCollectionChanged()
         {
             while (_collectionChangedQueue.TryDequeue(out var a))
                 OnCollectionChanged(a);

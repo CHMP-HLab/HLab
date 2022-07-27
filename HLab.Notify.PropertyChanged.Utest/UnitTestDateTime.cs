@@ -3,7 +3,7 @@ using Xunit;
 
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    class TestDateTimeClass : NotifierTest<TestDateTimeClass>
+    internal class TestDateTimeClass : NotifierTest<TestDateTimeClass>
     {
 
         public DateTime DateTimeValue
@@ -11,7 +11,8 @@ namespace HLab.Notify.PropertyChanged.UTest
             get => _dateTimeValue.Get();
             set => _dateTimeValue.Set(value);
         }
-        private readonly IProperty<DateTime> _dateTimeValue = H.Property<DateTime>();
+
+        readonly IProperty<DateTime> _dateTimeValue = H.Property<DateTime>();
     }
     public class UnitTestDateTime
     {

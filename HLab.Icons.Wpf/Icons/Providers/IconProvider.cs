@@ -9,7 +9,7 @@ namespace HLab.Icons.Wpf.Icons.Providers
 {
     public abstract class IconProvider
     {
-        private readonly ConcurrentDictionary<Size, object> _cache = new();
+        readonly ConcurrentDictionary<Size, object> _cache = new();
         public object Get(object background, Size size = default)
         {
             if (size == default) return Get(background);

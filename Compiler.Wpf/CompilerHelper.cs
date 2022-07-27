@@ -11,8 +11,8 @@ namespace HLab.Compiler.Wpf
             Code = code;
         }
 
-        private const string Alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
-        private const string Space = " \t\n\r";
+        const string Alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+        const string Space = " \t\n\r";
 
         public string Code { get; private set; }
 

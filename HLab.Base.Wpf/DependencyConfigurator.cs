@@ -1,15 +1,18 @@
 ﻿using System;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
+using System.Windows.Threading;
 
 namespace HLab.Base.Wpf
 {
     public class DependencyPropertyConfigurator<TClass,TValue>
         where TClass : DependencyObject
     {
-        private readonly string _name;
-        private readonly FrameworkPropertyMetadata _propertyMetadata = new();
-        private ValidateValueCallback _validateValueCallback = null;
+        readonly string _name;
+        readonly FrameworkPropertyMetadata _propertyMetadata = new();
+
+        ValidateValueCallback _validateValueCallback = null;
         //private readonly TValue _default = default;
         public DependencyPropertyConfigurator(string name)
         {
@@ -76,7 +79,7 @@ namespace HLab.Base.Wpf
             _validateValueCallback
         );
 
-        private DependencyPropertyConfigurator<TClass,TValue> Do(Action action)
+        DependencyPropertyConfigurator<TClass,TValue> Do(Action action)
         {
             action();
             return this;
@@ -177,9 +180,31 @@ namespace HLab.Base.Wpf
                         action(null, new DependencyPropertyChangedEventArgs<TValue>(args));
                     }
                 }
-
             };
+            return this;
+        }
 
+        public DependencyPropertyConfigurator<TClass,TValue> OnChange<TSender>(Func<TSender, DependencyPropertyChangedEventArgs<TValue>, Task> action)
+            where TSender : DependencyObject
+        {
+
+            _propertyMetadata.PropertyChangedCallback += async (sender, args) =>
+            {
+                switch (sender)
+                {
+                    case TSender typedSender:
+                        //await typedSender.Dispatcher.InvokeAsync(async () =>
+                            await action(typedSender, new DependencyPropertyChangedEventArgs<TValue>(args))
+                            //)
+                            ;
+
+                        break;
+                    
+                    case null:
+                        await action(null, new DependencyPropertyChangedEventArgs<TValue>(args));
+                        break;
+                }
+            };
             return this;
         }
 
@@ -213,6 +238,8 @@ namespace HLab.Base.Wpf
         /// <param name="action"></param>
         /// <returns></returns>
         public DependencyPropertyConfigurator<TClass, TValue> OnChange(Action<TClass, DependencyPropertyChangedEventArgs<TValue>> action)
+            => OnChange<TClass>(action);
+        public DependencyPropertyConfigurator<TClass, TValue> OnChange(Func<TClass, DependencyPropertyChangedEventArgs<TValue>, Task> action)
             => OnChange<TClass>(action);
 
         /// <summary>
