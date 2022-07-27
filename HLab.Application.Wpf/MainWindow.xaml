@@ -13,7 +13,7 @@
         icons:IconView.IconService="{Binding IconService}"
         lang:Localize.LocalizationService="{Binding LocalizationService}"
 
-        Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}"
+        Foreground="{DynamicResource HLab.Brushes.Foreground}"
 >
     <UserControl.Resources>
         <Style TargetType="{x:Type ContextMenu}">

@@ -7,7 +7,8 @@
         mc:Ignorable="d"
         Background="DarkBlue"
         Title="Bug report" Height="450" Width="800"
-        Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}">
+        Foreground="{DynamicResource HLab.Brushes.Foreground}">
+    <!-- TODO : Theme Dark blue -->
     <StackPanel Margin="16">
         <Viewbox Height="40"  Stretch="Uniform">
             <Canvas Name="Capa_1" Canvas.Left="0" Canvas.Top="0" Width="324.274" Height="324.274">
@@ -44,10 +45,10 @@
                 </Canvas>
             </Canvas>
         </Viewbox>
-        <TextBlock VerticalAlignment="Bottom" x:Name="tbMessage" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"> Your application quit unexpectedly.</TextBlock>
-        <TextBlock x:Name="tbSubMessage" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" FontStyle="Italic">Click Reopen to open the application again.</TextBlock>
+        <TextBlock VerticalAlignment="Bottom" x:Name="tbMessage" Foreground="{DynamicResource HLab.Brushes.Foreground}" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"> Your application quit unexpectedly.</TextBlock>
+        <TextBlock x:Name="tbSubMessage" Foreground="{DynamicResource HLab.Brushes.Foreground}" FontStyle="Italic">Click Reopen to open the application again.</TextBlock>
 
-        <TextBlock x:Name="tbComment" Margin="0,10,0,0" Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}">Comments :</TextBlock>
+        <TextBlock x:Name="tbComment" Margin="0,10,0,0" Foreground="{DynamicResource HLab.Brushes.Foreground}">Comments :</TextBlock>
         <TextBox x:Name="txtComment" MinHeight="100" Margin="0,20">No comment</TextBox>
         <DockPanel>
             <ToggleButton 
@@ -61,7 +62,7 @@
 
             <StackPanel HorizontalAlignment="Right" DockPanel.Dock="Right" Orientation="Horizontal">
                 <Button x:Name="ButtonOk" FontWeight="Bold" Click="ButtonOk_OnClick" Margin="0,0,20,0"  Width="100" IsDefault="True">Ok</Button>
-                <Button Foreground="{DynamicResource MahApps.Brushes.ThemeForeground}" Background="Green" x:Name="ButtonReopen" Click="ButtonReopen_OnClick" Width="100" IsDefault="True">Reopen</Button>
+                <Button Foreground="{DynamicResource HLab.Brushes.Foreground}" Background="Green" x:Name="ButtonReopen" Click="ButtonReopen_OnClick" Width="100" IsDefault="True">Reopen</Button>
             </StackPanel>
         </DockPanel>
         <controlsEx:ScrollViewerEx
@@ -72,7 +73,7 @@
         >
             <TextBlock 
 
-            Foreground="White"
+            Foreground="{DynamicResource HLab.Brushes.Foreground}"
             x:Name="txtDetail" 
             Visibility="Collapsed"/>
         </controlsEx:ScrollViewerEx>

@@ -26,6 +26,6 @@
             </Grid.Background>
         </Grid>
         <Grid x:Name="WorkArea" />
-        <TextBlock TextAlignment="Left" Width="100" Height="100" Foreground="White" Text="{Binding Id,FallbackValue=1}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
+        <TextBlock TextAlignment="Left" Width="100" Height="100" Foreground="{DynamicResource HLab.Brushes.Foreground}" Text="{Binding Id,FallbackValue=1}" HorizontalAlignment="Left" VerticalAlignment="Bottom"/>
     </Grid>
 </UserControl>

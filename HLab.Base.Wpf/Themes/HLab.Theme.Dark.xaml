@@ -4,10 +4,9 @@
             <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
             <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
             <ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/dark.steel.xaml" />
-            <!--<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Themes/light.blue.xaml" />-->
     </ResourceDictionary.MergedDictionaries>
     
-    <DynamicResource x:Key="HLab.Colors.Background" ResourceKey="MahApps.Colors.ThemeBackground"/>
+    <Color x:Key="HLab.Colors.Background">Black</Color>
     <Color x:Key="HLab.Colors.Foreground">White</Color>
     
     <Color x:Key="HLab.Colors.Header.Active.Background">#FF0c0c16</Color>

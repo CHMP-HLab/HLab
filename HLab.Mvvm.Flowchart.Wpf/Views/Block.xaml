@@ -47,7 +47,7 @@
                     IsHitTestVisible="False"
                     Margin="3"
                     Opacity="0.7"
-                    Foreground="White"
+                    Foreground="{DynamicResource HLab.Brushes.Foreground}"
                     Path="{Binding Model.IconPath}" Height="20"/>
                 <TextBox 
                     Background="Transparent"
@@ -57,7 +57,7 @@
                     Text ="{Binding Model.Name, FallbackValue=Test}"
                     FontWeight="Bold" 
                     Margin="5" 
-                    Foreground="White"/>
+                    Foreground="{DynamicResource HLab.Brushes.Foreground}"/>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1">

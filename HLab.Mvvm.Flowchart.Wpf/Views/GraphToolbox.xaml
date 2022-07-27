@@ -14,7 +14,7 @@
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Border Grid.RowSpan="2" BorderThickness="3" BorderBrush="Black" CornerRadius="10" Background="Black"/>
-        <TextBlock TextAlignment="Center" Grid.Row="0" Text="Blocks" Foreground="White" />
+        <TextBlock TextAlignment="Center" Grid.Row="0" Text="Blocks" Foreground="{DynamicResource HLab.Brushes.Foreground}" />
         <ItemsControl  Grid.Row="1"
                        VerticalAlignment="Center"
                        Background="Transparent" 

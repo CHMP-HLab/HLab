@@ -6,7 +6,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel Orientation="Vertical">
-        <TextBlock Visibility="{Binding OuterVisibility}" Foreground="White" Text="{Binding Model.Caption,FallbackValue=caption}" />
+        <TextBlock Visibility="{Binding OuterVisibility}" Foreground="{DynamicResource HLab.Brushes.Foreground}" Text="{Binding Model.Caption,FallbackValue=caption}" />
         <ItemsControl                     
             HorizontalAlignment="Left"
             VerticalAlignment="Center"

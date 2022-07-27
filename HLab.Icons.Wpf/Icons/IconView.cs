@@ -25,8 +25,6 @@ namespace HLab.Icons.Wpf.Icons
 
         readonly ColumnDefinition _spacer = new() { Width = new GridLength(0.0) };
 
-
-
         public IconView()
         {
             _captionElement.SetValue(Grid.ColumnProperty, 2);
