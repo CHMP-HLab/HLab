@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Input;
 using HLab.Erp.Core;
 using HLab.Erp.Core.Update;
@@ -78,13 +79,12 @@ namespace HLab.Mvvm.Application.Wpf.Update
             var filename = FileName.Replace("{version}", NewVersion.ToString());
             var path = Path.GetTempPath() + filename;
 
-            Thread thread = new Thread(() => {
+            var task = Task.Run(() => {
                 WebClient client = new WebClient();
                 client.DownloadProgressChanged += new DownloadProgressChangedEventHandler(client_DownloadProgressChanged);
                 client.DownloadFileCompleted += new AsyncCompletedEventHandler(client_DownloadFileCompleted);
                 client.DownloadFileAsync(new Uri(Url + filename), path);
             });
-            thread.Start();
         }
 
         void RunUpdate()
@@ -108,8 +108,8 @@ namespace HLab.Mvvm.Application.Wpf.Update
         }
         void client_DownloadProgressChanged(object sender, DownloadProgressChangedEventArgs e)
         {
-            double bytesIn = double.Parse(e.BytesReceived.ToString());
-            double totalBytes = double.Parse(e.TotalBytesToReceive.ToString());
+            var bytesIn = double.Parse(e.BytesReceived.ToString());
+            var totalBytes = double.Parse(e.TotalBytesToReceive.ToString());
             Progress = bytesIn / totalBytes * 100;
         }
         void client_DownloadFileCompleted(object sender, AsyncCompletedEventArgs e)

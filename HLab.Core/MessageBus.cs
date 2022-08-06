@@ -29,7 +29,7 @@ using HLab.Core.Annotations;
 
 namespace HLab.Core
 {
-    public class MessageBus : IMessageBus
+    public class MessageBus : IMessagesService
     {
         readonly object _lockDict = new object();
         readonly Dictionary<Type, IList> _dict = new Dictionary<Type, IList>();

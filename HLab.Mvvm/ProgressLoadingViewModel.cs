@@ -20,7 +20,7 @@ namespace HLab.Mvvm
 
     public class ProgressLoadingViewModel : ViewModel
     {
-        public ProgressLoadingViewModel(IMessageBus msg)
+        public ProgressLoadingViewModel(IMessagesService msg)
         {
             H.Initialize(this);
             msg.Subscribe<ProgressMessage>(OnProgress);

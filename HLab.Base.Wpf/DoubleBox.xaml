@@ -20,9 +20,6 @@
             <ColumnDefinition Width="*"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
         <TextBox 
             x:Name="TextBox" 
             TextAlignment="Right" 
@@ -33,7 +30,6 @@
             Background="{Binding Background, ElementName=TopLevel}"
             Foreground="{Binding Foreground, ElementName=TopLevel}"
             BorderBrush="{Binding BorderBrush, ElementName=TopLevel}"
-            FontSize="{Binding FontSize, ElementName=TopLevel}"
             TextChanged="TextBox_TextChanged"
             PreviewTextInput="TextBox_PreviewTextInput"
             LostMouseCapture="TextBox_LostMouseCapture"
@@ -45,17 +41,26 @@
             Cursor="ScrollNS" 
             Margin="0"
             />
+<Grid Grid.Column="0" Height="{Binding Height, ElementName=TextBox}">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="4*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="4*"/>
+            </Grid.RowDefinitions>
+    <Grid Grid.Row="0" x:Name="TopZone"/>
+    <Grid Grid.Row="2" x:Name="BottomZone"/>
+</Grid>
+
         <Grid Grid.Column="1" Visibility="{Binding IsReadOnly, ElementName=TopLevel, Converter={StaticResource ReadOnlyToVisibilityConverter}}">
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
-                <RowDefinition Height="5"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.Resources>
         <Style TargetType="{x:Type RepeatButton}">
             <Setter Property="Background" Value="Transparent" />
-            <Setter Property="Foreground" Value="White" />
-            <Setter Property="FontSize" Value="15" />
+            <Setter Property="Foreground" Value="{DynamicResource HLab.Brushes.Foreground}" />
             <Setter Property="SnapsToDevicePixels" Value="True" />
             <Setter Property="Cursor" Value="Hand" />
 
@@ -64,8 +69,7 @@
                     <ControlTemplate TargetType="{x:Type RepeatButton}">
                         <Border CornerRadius="1" Background="{TemplateBinding Background}">
                             <Grid>
-                                <!--<Path x:Name="PathIcon" Width="15" Height="25" Stretch="Fill" Fill="#4C87B3" HorizontalAlignment="Left" Margin="17,0,0,0" Data="F1 M 30.0833,22.1667L 50.6665,37.6043L 50.6665,38.7918L 30.0833,53.8333L 30.0833,22.1667 Z "/>-->
-                                <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" />
+                                <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0" />
                                 <Grid x:Name="GridDisabled"/>
                             </Grid>
                         </Border>
@@ -73,13 +77,12 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background" Value="DimGray" />
-                                <Setter Property="Foreground" Value="White" />
-                                <!--<Setter TargetName="PathIcon" Property="Fill" Value="Black" />-->
+                                <Setter Property="Foreground" Value="{DynamicResource HLab.Brushes.Foreground}" />
                             </Trigger>
 
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter Property="Background" Value="#373737" />
-                                <Setter Property="Foreground" Value="White" />
+                                <Setter Property="Foreground" Value="{DynamicResource HLab.Brushes.Foreground}" />
                             </Trigger>
 
                             <Trigger Property="IsEnabled" Value="False">
@@ -97,19 +100,21 @@
             <RepeatButton 
                 Grid.Row="0" 
                 IsTabStop="False" 
-                Width="10" 
                 Click="Click_Up"
                 MouseWheel="OnMouseWheel" 
+                Height="{Binding Height, ElementName=TopZone}"
                 >
-                <Path Fill="{Binding Foreground, ElementName=TopLevel}" StrokeThickness="0" Data="M 0 5 L 5 5 L 2.5 0" />
+                <Viewbox Height="{Binding ActualHeight, ElementName=TopZone}">
+                    <Path Fill="{Binding Foreground, ElementName=TopLevel}" StrokeThickness="0" Data="M 0 5 L 5 5 L 2.5 0" />
+                </Viewbox>
             </RepeatButton>
 
             <Grid Grid.Row="1">
                 <Border 
-                    CornerRadius="2"
+                    CornerRadius="0"
                     Background="Transparent" 
                     Opacity="0.5" 
-                    BorderThickness="1" 
+                    BorderThickness="0" 
                     BorderBrush="{Binding Foreground, ElementName=TopLevel}"
                     />
             </Grid>
@@ -117,11 +122,13 @@
             <RepeatButton  
                 Grid.Row="2" 
                 IsTabStop="False" 
-                Width="10" 
                 Click="Click_Down"
                 MouseWheel="OnMouseWheel"
+                Height="{Binding Height, ElementName=TopZone}"
                 >
-                <Path Fill="{Binding Foreground, ElementName=TopLevel}" StrokeThickness="0" Data="M 0 0 L 5 0 L 2.5 5" />
+                <Viewbox Height="{Binding ActualHeight, ElementName=BottomZone}">
+                    <Path Fill="{Binding Foreground, ElementName=TopLevel}" StrokeThickness="0" Data="M 0 0 L 5 0 L 2.5 5" />
+                </Viewbox>
             </RepeatButton>
 
         </Grid>

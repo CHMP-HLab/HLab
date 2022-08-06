@@ -1,4 +1,5 @@
-﻿using System;
+﻿#nullable enable
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
@@ -14,7 +15,7 @@ using Microsoft.Win32;
 
 namespace HLab.Base.Wpf.Themes
 {
-    public class ThemeWatcher
+    public class ThemeService
     {
         const string RegistryKeyPath = @"Software\Microsoft\Windows\CurrentVersion\Themes\Personalize";
         const string RegistryValueName = "AppsUseLightTheme";
@@ -22,17 +23,24 @@ namespace HLab.Base.Wpf.Themes
         readonly ResourceDictionary _themeDark = new() { Source = new Uri("/HLab.Base.Wpf;component/Themes/HLab.Theme.Dark.xaml", UriKind.RelativeOrAbsolute) };
         readonly ResourceDictionary _themeLight = new() { Source = new Uri("/HLab.Base.Wpf;component/Themes/HLab.Theme.Light.xaml", UriKind.RelativeOrAbsolute) };
 
-        enum WindowsTheme
+        public enum WindowsTheme
         {
             Light,
-            Dark
+            Dark,
+            Auto
         }
 
 
         readonly ResourceDictionary _dictionary;
-        public ThemeWatcher(ResourceDictionary dictionary)
+        public ThemeService(ResourceDictionary dictionary)
         {
             _dictionary = dictionary;
+        }
+
+        ManagementEventWatcher? _watcher = null;
+        void SetAuto()
+        {
+            UnsetAuto();
 
             var currentUser = WindowsIdentity.GetCurrent();
             if (currentUser.User == null) return;
@@ -41,14 +49,11 @@ namespace HLab.Base.Wpf.Themes
 
             try
             {
-                var watcher = new ManagementEventWatcher(query);
-                watcher.EventArrived += (sender, args) =>
-                {
-                    SetTheme(GetWindowsTheme());
-                };
+                _watcher = new ManagementEventWatcher(query);
+                _watcher.EventArrived += _watcher_EventArrived;
 
                 // Start listening for events
-                watcher.Start();
+                _watcher.Start();
             }
             catch (Exception)
             {
@@ -58,14 +63,29 @@ namespace HLab.Base.Wpf.Themes
             SetTheme(GetWindowsTheme());
         }
 
-        void SetTheme(WindowsTheme theme)
+        void _watcher_EventArrived(object sender, EventArrivedEventArgs e)
         {
-            ThemeManager.Current.SyncTheme(ThemeSyncMode.SyncAll);
+                SetTheme(GetWindowsTheme());
+        }
+
+        void UnsetAuto()
+        {
+            if(_watcher==null) return;
+            _watcher.Stop();
+            _watcher.EventArrived -= _watcher_EventArrived;
+            _watcher.Dispose();
+            _watcher = null;
+        }
+
+        public void SetTheme(WindowsTheme theme)
+        {
+            //ThemeManager.Current.SyncTheme(ThemeSyncMode.SyncAll);
 
             switch (theme)
             {
                 case WindowsTheme.Light:
                     //ThemeManager.Current.ChangeTheme(this, "Light.Blue");
+                    UnsetAuto();
                     if (_dictionary.MergedDictionaries.Contains(_themeDark)) _dictionary.MergedDictionaries.Remove(_themeDark);
                     if (!_dictionary.MergedDictionaries.Contains(_themeLight))
                         _dictionary.MergedDictionaries.Add(_themeLight);
@@ -73,10 +93,13 @@ namespace HLab.Base.Wpf.Themes
 
                 case WindowsTheme.Dark:
                     //ThemeManager.Current.ChangeTheme(this, "Dark.Blue");
-
+                    UnsetAuto();
                     if (_dictionary.MergedDictionaries.Contains(_themeLight)) _dictionary.MergedDictionaries.Remove(_themeLight);
                     if (!_dictionary.MergedDictionaries.Contains(_themeDark))
                         _dictionary.MergedDictionaries.Add(_themeDark);
+                    break;
+                case WindowsTheme.Auto:
+                    SetAuto();
                     break;
                 default:
                     throw new ArgumentOutOfRangeException(nameof(theme), theme, null);

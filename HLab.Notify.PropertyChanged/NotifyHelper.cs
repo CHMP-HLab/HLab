@@ -19,12 +19,17 @@ namespace HLab.Notify.PropertyChanged
 
     }
 
-
+    public interface INotifyHelper<TClass> where TClass : class, INotifyPropertyChangedWithHelper
+    {
+        public H<TClass> Helper => H<TClass>.Helper;
+    }
 
     public class H<TClass> : NotifyHelper
         where TClass : class, INotifyPropertyChangedWithHelper
     {
-        internal static Lazy<Action<TClass>> InitializeAction { get; } = new Lazy<Action<TClass>>(() => CreateActivatorA() + CreateActivatorExt());
+        public static H<TClass> Helper { get; } = new();
+
+        internal static Lazy<Action<TClass>> InitializeAction { get; } = new (() => CreateActivatorA() + CreateActivatorExt());
 
         internal static bool HasActivator => InitializeAction.IsValueCreated;
 

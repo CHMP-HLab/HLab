@@ -130,22 +130,31 @@ namespace HLab.Notify.PropertyChanged
         public string ToolTipText { get; set; }
 
 
+        public void SetAction(Action<object> execute) => _execute = execute;
         public void SetAction(Action execute) => _execute = o => execute();
+
+        public void SetAction(Func<object, Task> execute) => _executeAsync = async o =>
+        {
+            _executing = true;
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+            await execute(o).ConfigureAwait(true);
+            _executing = false;
+            CanExecuteChanged?.Invoke(this, EventArgs.Empty);
+        };
 
         public void SetAction(Func<Task> execute) => _executeAsync = async  o =>
         {
                 _executing = true;
-                CanExecuteChanged?.Invoke(this,new EventArgs());
+                CanExecuteChanged?.Invoke(this,EventArgs.Empty);
                 await execute().ConfigureAwait(true);
                 _executing = false;
-                CanExecuteChanged?.Invoke(this,new EventArgs());
+                CanExecuteChanged?.Invoke(this,EventArgs.Empty);
         };
 
         volatile bool _executing = false;
 
         public CommandPropertyHolder(PropertyActivator configurator):base(configurator) {  }
 
-        public void SetAction(Action<object> execute) => _execute = execute;
         public void SetCanExecute(Func<bool> func)
         {
             _canExecuteFunc = o => func();

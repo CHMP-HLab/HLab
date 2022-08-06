@@ -9,7 +9,7 @@ namespace HLab.Mvvm.Application
         IApplicationInfoService Info { get; }
         IMvvmService Mvvm { get; }
         IDocumentService Docs { get; }
-        IMessageBus Message { get;  }
+        IMessagesService Message { get;  }
         IMenuService Menu { get; }
 //        INotifyCollectionChanged Countries{ get; }
         ILocalizationService Localization {get;}

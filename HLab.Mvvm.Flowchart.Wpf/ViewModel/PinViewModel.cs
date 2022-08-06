@@ -14,7 +14,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
     public class PinViewModel : ViewModel<IPin>, IPinViewModel
     {
 
-        public PinViewModel(IMessageBus messageBus, IGraphService graphService)
+        public PinViewModel(IMessagesService messageBus, IGraphService graphService)
         {
             MessageBus = messageBus;
             GraphService = graphService;
@@ -179,7 +179,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
         readonly IProperty<bool> _enabled = H.Property<bool>(c => c.Default((bool)default));
 
 
-        public IMessageBus MessageBus { get; }
+        public IMessagesService MessageBus { get; }
         public IGraphService GraphService { get; }
 
         public void SetDraggedPin(PinViewModel pvm)

@@ -7,6 +7,7 @@
         mc:Ignorable="d"
         SizeToContent ="WidthAndHeight"
         Title="Problem report" Height="450" Width="800"
+        Foreground="White"
         Background="Black"
         MinWidth="500"
         >

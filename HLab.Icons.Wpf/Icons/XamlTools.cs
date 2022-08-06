@@ -54,15 +54,22 @@ namespace HLab.Icons.Wpf.Icons
 
         public static async Task<string> SvgToXamlAsync(string svg)
         {
-            if (svg == null) return null;
-            var byteArray = Encoding.ASCII.GetBytes(svg);
-            await using var stream = new MemoryStream(byteArray);
+            if (string.IsNullOrEmpty(svg)) return null;
+            try
+            {
+                var byteArray = Encoding.ASCII.GetBytes(svg);
+                await using var stream = new MemoryStream(byteArray);
 
-            await using var s = await StreamFromSvgStreamAsync(stream);
-            var r = new StreamReader(s);
-            var xaml = await r.ReadToEndAsync();
+                await using var s = await StreamFromSvgStreamAsync(stream);
+                var r = new StreamReader(s);
+                var xaml = await r.ReadToEndAsync();
 
-            return xaml;
+                return xaml;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static async Task<object> FromSvgStringAsync(string svg)

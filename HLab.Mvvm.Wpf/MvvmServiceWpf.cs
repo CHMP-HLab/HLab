@@ -12,7 +12,7 @@ namespace HLab.Mvvm.Wpf
         readonly ResourceDictionary _dictionary = new();
 
         public MvvmServiceWpf(
-            IMessageBus messageBus, 
+            IMessagesService messageBus, 
             Func<Type, object> locateFunc,
             Func<ProgressLoadingViewModel> getProgressLoadingViewModel
             ) : base(messageBus, locateFunc)

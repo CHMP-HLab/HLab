@@ -49,6 +49,13 @@
                 />
 
                 <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,120,0" VerticalAlignment="Center">
+                    <ComboBox 
+                        SelectedItem="{Binding ApplicationInfo.Theme}" 
+                        Visibility="{Binding AllowThemeSelection,Converter={StaticResource ToVisibilityConverter},FallbackValue=Visible}"      
+                        Grid.Row="1" 
+                        Grid.Column="1" 
+                        ItemsSource="{Binding ApplicationInfo.Themes}"
+                    />
                     <Label Content="{Binding ApplicationInfo.DataSource}" VerticalAlignment="Center"/>
                     <Label Content="{Binding ApplicationInfo.Name}" VerticalAlignment="Center"/>
                     <Label Content="{Binding ApplicationInfo.Version}" VerticalAlignment="Center"/>

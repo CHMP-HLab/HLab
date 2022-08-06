@@ -10,13 +10,13 @@ namespace HLab.Mvvm.Application.Wpf
 {
     public class DocumentServiceWpf : DocumentService
     {
-        public IMessageBus MessageBus { get; }
+        public IMessagesService MessageBus { get; }
         Func<object, ISelectedMessage> GetMessage { get; }
 
         public DocumentServiceWpf(
                 IMvvmService mvvm,
                 Func<Type, object> getter,
-                IMessageBus messageBus,
+                IMessagesService messageBus,
                 Func<object, ISelectedMessage> getMessage
             ) : base(mvvm,getter)
         {

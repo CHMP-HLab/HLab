@@ -29,7 +29,7 @@ namespace HLab.Mvvm.Application.Wpf
     public class MainWpfViewModel : NotifierBase
     {
         public IAclService Acl {get; }
-        readonly IMessageBus _message;
+        readonly IMessagesService _message;
         readonly IDocumentService _doc;
         public IApplicationInfoService ApplicationInfo { get; }
         readonly Func<object, ISelectedMessage> _getSelectedMessage;
@@ -38,7 +38,7 @@ namespace HLab.Mvvm.Application.Wpf
 
         public MainWpfViewModel(
             IAclService acl, 
-            IMessageBus message, 
+            IMessagesService message, 
             IDocumentService doc, 
             IApplicationInfoService applicationInfo, 
             ILocalizationService localizationService, 

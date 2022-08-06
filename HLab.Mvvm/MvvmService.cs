@@ -14,13 +14,13 @@ namespace HLab.Mvvm
 {
     public abstract class MvvmService : IMvvmService
     {
-        IMessageBus _messageBus;
+        IMessagesService _messageBus;
 
         string _assemblyName;
 
         public IMvvmContext GetNewContext(IMvvmContext parent, string name) => new MvvmContext(parent, name, this); 
 
-        public MvvmService(IMessageBus messageBus, Func<Type,object> locateFunc)
+        public MvvmService(IMessagesService messageBus, Func<Type,object> locateFunc)
         {
             LocateFunc = locateFunc;
             _messageBus = messageBus;

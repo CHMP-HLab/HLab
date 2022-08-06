@@ -17,9 +17,9 @@ namespace HLab.Mvvm.Flowchart.Views
         IView<ViewModeDefault,IBlockViewModel>,
         IView<ViewModeEdit,IBlockViewModel>
     {
-        readonly IMessageBus _msg;
+        readonly IMessagesService _msg;
 
-        public BlockView(IMessageBus msg)
+        public BlockView(IMessagesService msg)
         {
             _msg = msg;
             InitializeComponent();

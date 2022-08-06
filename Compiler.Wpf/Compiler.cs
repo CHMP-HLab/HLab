@@ -5,8 +5,10 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.CodeAnalysis.Emit;
 using Microsoft.CodeAnalysis.Text;
 
 namespace HLab.Compiler.Wpf
@@ -21,42 +23,45 @@ namespace HLab.Compiler.Wpf
 
     public static class Compiler
     {
-
-        public static Assembly Compile(out IEnumerable<CompileError> errors, params string[] sources)
+        public static async Task<byte[]> CompileAsync(IList<CompileError> errors, params string[] sources)
         {
-            using var peStream = new MemoryStream();
+            byte[] binary = null;
+            EmitResult result = null;
 
-            var result = GenerateCode(sources).Emit(peStream);
-
-            errors = null;
-
-            if (!result.Success)
+            await Task.Run(() =>
             {
-                var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
+                using var peStream = new MemoryStream();
 
-                var errs = new List<CompileError>();
-                foreach (var failure in failures)
+                result = Compiler.GenerateCode(sources).Emit(peStream);
+                if (!result.Success) return;
+
+                peStream.Seek(0, SeekOrigin.Begin);
+
+                binary = peStream.ToArray();
+            });
+
+            var failures = result.Diagnostics.Where(diagnostic => diagnostic.IsWarningAsError || diagnostic.Severity == DiagnosticSeverity.Error);
+
+            foreach (var failure in failures)
+            {
+                var span = failure.Location.GetLineSpan().Span;
+
+                var err = new CompileError
                 {
-                    var span = failure.Location.GetLineSpan().Span;
-
-                    var err = new CompileError
-                    {
-                        Message = failure.GetMessage(),
-                        Line = span.Start.Line + 1,
-                        Pos = span.Start.Character + 1,
-                        Length = span.End.Character - span.Start.Character
-                    };
-                    errs.Add(err);
-                }
-
-                errors = errs;
-
-                return null;
+                    Message = failure.GetMessage(),
+                    Line = span.Start.Line + 1,
+                    Pos = span.Start.Character + 1,
+                    Length = span.End.Character - span.Start.Character
+                };
+                errors.Add(err);
             }
 
-            peStream.Seek(0, SeekOrigin.Begin);
+            return binary;
 
-            var compiled = peStream.ToArray();
+        }
+
+        public static Assembly Load(byte[] compiled)
+        {
             var assemblyLoadContext = new AssemblyLoadContext("HLab.RuntimeCompiled", true);
 
             using var asm = new MemoryStream(compiled);

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -72,6 +73,13 @@ namespace HLab.Compiler.Wpf
         {
             Code = Code.Insert(Index, value);
             Index += value.Length;
+        }
+
+        public void Insert(Action<StringBuilder> build)
+        {
+            StringBuilder sb = new();
+            build(sb);
+            Insert(sb.ToString());
         }
 
         public string NextWord()
