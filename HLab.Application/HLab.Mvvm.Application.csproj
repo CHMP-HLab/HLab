@@ -10,6 +10,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
     <ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
+    <ProjectReference Include="..\HLab.Options\HLab.Options.csproj" />
   </ItemGroup>
 
 </Project>

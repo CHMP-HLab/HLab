@@ -1,9 +1,13 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Markup;
+using HLab.Base;
+using HLab.Base.Wpf;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Views;
+using HLab.Mvvm.Wpf.Views;
 
 namespace HLab.Mvvm.Wpf
 {
@@ -53,27 +57,24 @@ namespace HLab.Mvvm.Wpf
 
         public override void PrepareView(object view)
         {
-            if (view is DependencyObject obj)
-            {
-                ViewLocator.SetViewClass(obj,typeof(IViewClassDefault));
-                ViewLocator.SetViewMode(obj,typeof(ViewModeDefault));
-            }
+            if (view is not DependencyObject obj) return;
+
+            ViewLocator.SetViewClass(obj,typeof(IViewClassDefault));
+            ViewLocator.SetViewMode(obj,typeof(ViewModeDefault));
         }
+
+        static readonly object Template = XamlReader.Parse(@$"
+                <DataTemplate 
+                        xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+                        xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml"">
+                        <{XamlTool.Type<ViewLocator>(out var ns1)} Model=""{{Binding}}""/>
+                </DataTemplate>");
 
         protected override void Register(Type t)
         {
             if (t.IsInterface) return;
 
-            var viewLocatorFactory = new FrameworkElementFactory(typeof(ViewLocator));
-            var template = new DataTemplate(t)
-            {
-                VisualTree = viewLocatorFactory
-            };
-
-//            Application.Current.Dispatcher.InvokeAsync(()=>
-            _dictionary.Add(new DataTemplateKey(t), template)
-//                )
-                ;
+            _dictionary.Add(new DataTemplateKey(t), Template);
 
         }
 

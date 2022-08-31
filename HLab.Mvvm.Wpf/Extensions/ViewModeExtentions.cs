@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Windows;
+using HLab.Mvvm.Wpf;
 
 namespace HLab.Mvvm.Extensions
 {

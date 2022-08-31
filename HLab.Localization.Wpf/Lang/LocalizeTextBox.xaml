@@ -20,7 +20,7 @@
 
             <TextBox 
                 x:Name="TextBoxEnabled" 
-                Text="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type local:LocalizeTextBox}}, Mode=TwoWay}"
+                Text="{Binding Text, RelativeSource={RelativeSource AncestorType={x:Type local:LocalizeTextBox}}, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
                 Visibility="Collapsed"
                 />
 
@@ -42,5 +42,6 @@
                 ItemsSource="{Binding Translations, RelativeSource={RelativeSource AncestorType={x:Type local:LocalizeTextBox}}}"
                 Visibility="Collapsed"
                 />
+
     </Grid>
 </UserControl>

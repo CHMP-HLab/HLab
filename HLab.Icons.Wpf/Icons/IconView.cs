@@ -1,14 +1,13 @@
 ﻿using HLab.Base.Wpf;
 using HLab.Icons.Annotations.Icons;
-
-using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Markup;
 using System.Windows.Media;
+using Brush = System.Windows.Media.Brush;
+using SystemColors = System.Windows.SystemColors;
 
 namespace HLab.Icons.Wpf.Icons
 {
@@ -17,66 +16,57 @@ namespace HLab.Icons.Wpf.Icons
     [ContentProperty("Caption")]
     public class IconView : ContentControl
     {
-        WeakReference<IIconService> _iconServiceReference;
+#if DEBUG
         static IIconService _designTimeService = null;
-
-        readonly ContentControl _iconElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
-        readonly ContentControl _captionElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
-
-        readonly ColumnDefinition _spacer = new() { Width = new GridLength(0.0) };
+#endif
+        readonly ContentPresenter _iconElement = new() { /*IsTabStop = false, */VerticalAlignment = VerticalAlignment.Center };
+        readonly ContentPresenter _captionElement = new() { /*IsTabStop = false, */VerticalAlignment = VerticalAlignment.Center };
+        readonly ColumnDefinition _column0 = new() { Width = GridLength.Auto };
+        static readonly GridLength GridLength0 = new(0.0);
+        static readonly GridLength GridLength10 = new(10.0);
+        readonly ColumnDefinition _column1 = new() { Width = GridLength0 };
+        static readonly GridLength GridLengthStar = new(1.0, GridUnitType.Star);
+        readonly ColumnDefinition _column2 = new() { Width = GridLengthStar };
 
         public IconView()
         {
             _captionElement.SetValue(Grid.ColumnProperty, 2);
+            //Canvas iconCanvas = new()
+            //{
+            //    Children = {_iconElement}
+            //};
 
             Content = new Grid
             {
                 ColumnDefinitions = {
-                    new ColumnDefinition{ Width = GridLength.Auto},
-                    _spacer,
-                    new ColumnDefinition{ Width = new GridLength(1.0,GridUnitType.Star) },
+                    _column0,
+                    _column1,
+                    _column2,
                     },
 
-                Children = { _iconElement, _captionElement }
+                Children =
+                {
+                    _iconElement,
+                    _captionElement
+                }
             };
 
-            Loaded += IconView_Loaded;
+            //Loaded += IconView_Loaded;
         }
 
-        static IconView()
-        {
-            ForegroundProperty.OverrideMetadata(typeof(IconView),new FrameworkPropertyMetadata(SystemColors.ControlTextBrush,
-                            FrameworkPropertyMetadataOptions.Inherits,(s,e) => ((IconView)s).OnForegroundChanged(e)));
-
-        }
-
-        async void OnForegroundChanged(DependencyPropertyChangedEventArgs eventArgs)
-        {
-            if(eventArgs.NewValue != eventArgs.OldValue)
-                await LoadIconAsync().ConfigureAwait(true);
-        }
-
-        async void IconView_Loaded(object sender, RoutedEventArgs e)
-        {
-            await LoadIconAsync().ConfigureAwait(true);
-        }
-
+        //void IconView_Loaded(object sender, RoutedEventArgs e)
+        //{
+        //    Update();
+        //}
 
         /// <summary>
         /// IconService
         /// </summary>
         public static readonly DependencyProperty IconServiceProperty =
             H.Property<IIconService>()
-            .OnChange(async (e, a) =>
+            .OnChange((e, a) =>
             {
-                if (a.NewValue == null) return;
-                if (e._iconServiceReference != null && e._iconServiceReference.TryGetTarget(out var iconService) && ReferenceEquals(a.NewValue, iconService)) return;
-
-                e._iconServiceReference = new(a.NewValue);
-
-                if (e.Path == null) return;
-
-                await e.LoadIconAsync().ConfigureAwait(false);
+                e.LoadIcon(e.Path);
             })
             .Inherits
             .RegisterAttached();
@@ -85,7 +75,7 @@ namespace HLab.Icons.Wpf.Icons
         {
             return (IIconService)obj.GetValue(IconServiceProperty);
         }
-        
+
         public static void SetIconService(DependencyObject obj, IIconService value)
         {
             obj.SetValue(IconServiceProperty, value);
@@ -93,18 +83,19 @@ namespace HLab.Icons.Wpf.Icons
 
         public static readonly DependencyProperty PathProperty =
             H.Property<string>()
-            .OnChange(async (e, a) =>
+            .OnChange((e, a) =>
             {
-                if (a.NewValue == null) return;
-                if (e.IsLoaded == false) return;
-
-                await e.LoadIconAsync().ConfigureAwait(false);
+                e.LoadIcon(a.NewValue);
             })
             .Register();
 
         public static readonly DependencyProperty CaptionProperty =
             H.Property<object>()
-            .OnChange((s, e) => s.Update())
+            .OnChange((s, e) =>
+            {
+                s._captionElement.Content = e.NewValue;
+                s.Update();
+            })
             .Register();
 
         public static readonly DependencyProperty IconMaxHeightProperty =
@@ -119,16 +110,11 @@ namespace HLab.Icons.Wpf.Icons
             H.Property<double>().Default(50.0).OnChange((e, a) =>
             {
                 if (double.IsNaN(a.NewValue)) return;
+                e._column0.Width = new GridLength(a.NewValue);
                 e._iconElement.MaxWidth = a.NewValue;
             })
             .Register();
 
-
-        public double MainBrush
-        {
-            get => (double)GetValue(IconMaxWidthProperty);
-            set => SetValue(IconMaxWidthProperty, value);
-        }
 
         public string Path
         {
@@ -157,13 +143,20 @@ namespace HLab.Icons.Wpf.Icons
             get => (IIconService)GetValue(IconServiceProperty);
             set => SetValue(IconServiceProperty, value);
         }
-
-        int _count = 0;
-
-        async Task LoadIconAsync()
+        class Canceler
         {
-            if(!IsLoaded) return;
+            public bool State { get; private set; }
 
+            public void Cancel()
+            {
+                State = true;
+            }
+        }
+        readonly ConcurrentStack<Canceler> _cancel = new();
+
+        void LoadIcon(string path)
+        {
+            if(path==null) return;
             if (IconService == null)
             {
 #if DEBUG
@@ -179,28 +172,41 @@ namespace HLab.Icons.Wpf.Icons
                 }
                 else
 #endif
-                    return;
+                return;
             }
 
-            if (_count++>0) {}
+            var iconService = IconService;
 
-            var icon = await IconService.GetIconAsync(Path,Foreground).ConfigureAwait(false);
-
-            await Dispatcher.BeginInvoke(() =>
+            while (_cancel.TryPop(out var c))
             {
-                _iconElement.Content = icon;
-                Update();
-            });
+                c.Cancel();
+            }
+            var cancel = new Canceler();
+            _cancel.Push(cancel);
+
+            var t2 = Dispatcher.BeginInvoke(
+            async () =>
+            {
+
+                if (cancel.State) return;
+                var icon = await iconService.GetIconTemplateAsync(path);
+                if (cancel.State) return;
+                if (icon is DataTemplate template)
+                {
+                    _iconElement.ContentTemplate = template;
+                    Update();
+                }
+            }
+            , XamlTools.Priority);
+
         }
 
         void Update()
         {
-            if (!IsLoaded) return;
-
-            if (_iconElement.Content == null)
+            if (_iconElement.ContentTemplate==null)
             {
                 _iconElement.Visibility = Visibility.Collapsed;
-                _spacer.Width = new GridLength(0.0);
+                _column1.Width = GridLength0;
 
                 switch (Caption)
                 {
@@ -217,17 +223,18 @@ namespace HLab.Icons.Wpf.Icons
             else
             {
                 _iconElement.Visibility = Visibility.Visible;
-                switch (Caption)
+                _column1.Width = GridLength.Auto;
+
+                switch (_captionElement.Content)
                 {
                     case null:
                     case string c when string.IsNullOrWhiteSpace(c):
                         _captionElement.Visibility = Visibility.Collapsed;
-                        _spacer.Width = new GridLength(0.0);
+                        _column1.Width = GridLength0;
                         break;
                     default:
-                        _captionElement.Content = Caption;
                         _captionElement.Visibility = Visibility.Visible;
-                        _spacer.Width = new GridLength(10.0);
+                        _column1.Width = GridLength10;
                         break;
                 }
             }

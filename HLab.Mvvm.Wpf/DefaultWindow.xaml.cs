@@ -1,11 +1,10 @@
-﻿using HLab.Base.Wpf;
-
-using System;
+﻿using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using HLab.Base.Wpf;
 
-namespace HLab.Mvvm;
+namespace HLab.Mvvm.Wpf;
 
 using H = DependencyHelper<DefaultWindow>;
 
@@ -21,12 +20,18 @@ public partial class DefaultWindow
     {
         InitializeComponent();
 
-        if (ResizeGrid.NestedContent is Grid grid)
+        if (ResizeGrid.NestedContent is not Grid grid) return;
+
+        foreach (UIElement child in grid.Children)
         {
-            foreach (UIElement child in grid.Children)
+            switch (child)
             {
-                if (child is Border border) _insideBorder = border;
-                if (child is ContentControl content) _content = content;
+                case Border border:
+                    _insideBorder = border;
+                    break;
+                case ContentControl content:
+                    _content = content;
+                    break;
             }
         }
     }
@@ -55,15 +60,10 @@ public partial class DefaultWindow
         if (pos.Y > 30) return;
         if(e.ClickCount>1)
         {
-            if(WindowState == WindowState.Normal) 
-                WindowState = WindowState.Maximized; 
-            else WindowState = WindowState.Normal;
-
+            WindowState = WindowState == WindowState.Normal ? WindowState.Maximized : WindowState.Normal;
             return;
         }
-
         _clicked = true;
-
     }
 
     void OnMouseMove(object sender, MouseEventArgs e)
@@ -72,41 +72,40 @@ public partial class DefaultWindow
 
         var pos = e.GetPosition(this);
 
-        if (e.LeftButton == MouseButtonState.Pressed)
+        if (e.LeftButton != MouseButtonState.Pressed) return;
+
+        if (WindowState == WindowState.Maximized)
         {
-            if (WindowState == WindowState.Maximized)
+            var width = ActualWidth;
+            var height = ActualHeight;
+
+
+            var xRatio = pos.X / width;
+
+            var absPos = PointToScreen(pos);
+
+            var ct = PresentationSource.FromVisual(this)?.CompositionTarget;
+
+            if (ct != null)
             {
-                var width = ActualWidth;
-                var height = ActualHeight;
+                var m = ct.TransformToDevice;
 
 
-                var xRatio = pos.X / width;
+                Top = (absPos.Y / m.M22) - pos.Y * (Height / height);
 
-                var absPos = PointToScreen(pos);
+                Left = (absPos.X / m.M11) - pos.X * (Width / width);
 
-                var ct = PresentationSource.FromVisual(this)?.CompositionTarget;
-
-                if (ct != null)
-                {
-                    var m = ct.TransformToDevice;
-
-
-                    Top = (absPos.Y / m.M22) - pos.Y * (Height / height);
-
-                    Left = (absPos.X / m.M11) - pos.X * (Width / width);
-
-                    WindowState = WindowState.Normal;
-                }
-
+                WindowState = WindowState.Normal;
             }
 
-            _clicked = false;
-            try
-            {
-                DragMove();
-            }
-            catch (InvalidOperationException) { }
         }
+
+        _clicked = false;
+        try
+        {
+            DragMove();
+        }
+        catch (InvalidOperationException) { }
     }
 
     void OnMouseUp(object sender, MouseButtonEventArgs e)
@@ -116,7 +115,7 @@ public partial class DefaultWindow
 
 
     CornerRadius _cornerRadius = new(0.0);
-    CornerRadius _cornerRadiusZero = new(0.0);
+    readonly CornerRadius _cornerRadiusZero = new(0.0);
 
     bool _maximize = false;
 

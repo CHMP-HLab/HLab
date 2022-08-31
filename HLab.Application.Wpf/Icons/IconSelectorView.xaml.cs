@@ -3,6 +3,7 @@ using System.Windows.Controls;
 using HLab.Base.Wpf;
 using HLab.Erp.Core;
 using HLab.Icons.Annotations.Icons;
+using HLab.Mvvm.Wpf;
 
 namespace HLab.Mvvm.Application.Wpf.Icons
 {
@@ -28,8 +29,8 @@ namespace HLab.Mvvm.Application.Wpf.Icons
 
         void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
-            var icon = ViewLocator.GetMvvmContext(this).Locate<IIconService>().GetIconAsync(Path);
-            ViewLocator.GetMvvmContext(this).Locate<IDocumentService>().OpenDocumentAsync(icon);
+            //var icon = ViewLocator.GetMvvmContext(this).Locate<IIconService>().GetIconAsync(Path);
+            //ViewLocator.GetMvvmContext(this).Locate<IDocumentService>().OpenDocumentAsync(icon);
         }
 
         //[Import] private Func<IconListViewModel> _getIconListViewModel;
@@ -48,7 +49,8 @@ namespace HLab.Mvvm.Application.Wpf.Icons
                 lvm.SetSelectAction(t =>
                 {
                     Popup.IsOpen = false;
-                    Path = vm.Selected.Path;
+                    if(vm.Selected!=null)
+                        Path = vm.Selected.Path;
                 });
             }
 

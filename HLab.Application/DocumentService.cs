@@ -16,13 +16,14 @@ namespace HLab.Mvvm.Application
         }
 
         public abstract Task OpenDocumentAsync(IView content);
-        public virtual Task OpenDocumentAsync<T>() => OpenDocumentAsync(typeof(T));
+
+        public Task OpenDocumentAsync<T>() => OpenDocumentAsync(typeof(T));
 
         public abstract Task CloseDocumentAsync(object content);
 
         public object MainViewModel {get;set;}
 
-        public virtual async Task OpenDocumentAsync(object obj)
+        public async Task OpenDocumentAsync(object obj)
         {
             if (obj is Type t)
             {

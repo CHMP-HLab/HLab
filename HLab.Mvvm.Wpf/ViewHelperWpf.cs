@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using HLab.Mvvm.Annotations;
+using HLab.Mvvm.Wpf;
 
 namespace HLab.Mvvm
 {

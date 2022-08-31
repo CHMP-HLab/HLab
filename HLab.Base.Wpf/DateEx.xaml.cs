@@ -101,12 +101,12 @@ namespace HLab.Base.Wpf
         }
 
 
-        bool preventSetDate = false;
+        bool _preventSetDate = false;
 
         void SetDate(DateTime? date, bool dayValid)
         {
-            if(preventSetDate) return;
-            preventSetDate = true;
+            if(_preventSetDate) return;
+            _preventSetDate = true;
 
             if (date.HasValue)
             {
@@ -139,7 +139,7 @@ namespace HLab.Base.Wpf
                 Date = null;
             }
             DayValid = dayValid;
-            preventSetDate = false;
+            _preventSetDate = false;
         }
 
 

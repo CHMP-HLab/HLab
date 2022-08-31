@@ -9,7 +9,6 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
-using ControlzEx.Theming;
 using HLab.ColorTools.Wpf;
 using Microsoft.Win32;
 
@@ -76,6 +75,17 @@ namespace HLab.Base.Wpf.Themes
             _watcher.Dispose();
             _watcher = null;
         }
+
+        public void SetTheme(string name)
+        {
+            SetTheme(name switch
+            {
+                "{Dark}" => ThemeService.WindowsTheme.Dark,
+                "{Light}" => ThemeService.WindowsTheme.Light,
+                _ => ThemeService.WindowsTheme.Auto
+            });
+        }
+
 
         public void SetTheme(WindowsTheme theme)
         {

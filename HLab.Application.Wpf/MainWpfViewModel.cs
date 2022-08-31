@@ -70,7 +70,7 @@ namespace HLab.Mvvm.Application.Wpf
         readonly IProperty<bool> _isActive = H.Property<bool>(c => c.Default(true));
 
 
-        public bool RemoveDocument(FrameworkElement document)
+        public bool RemoveDocument(object document)
         {
             if (!Documents.Contains(document)) return false;
             if (_documentHistory.Count <= 0 || !ReferenceEquals(_documentHistory[0], document)) return false;
@@ -85,8 +85,8 @@ namespace HLab.Mvvm.Application.Wpf
             return true;
         }
 
-        readonly List<FrameworkElement> _documentHistory = new();
-        public FrameworkElement ActiveDocument
+        readonly List<object> _documentHistory = new();
+        public object ActiveDocument
         {
             get => _activeDocument.Get();
             set
@@ -100,7 +100,7 @@ namespace HLab.Mvvm.Application.Wpf
             }
         }
 
-        readonly IProperty<FrameworkElement> _activeDocument = H.Property<FrameworkElement>();
+        readonly IProperty<object> _activeDocument = H.Property<object>();
 
         // TODO
         //public Canvas DragCanvas => _dragCanvas.Get();

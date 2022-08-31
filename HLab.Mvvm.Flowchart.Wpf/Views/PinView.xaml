@@ -8,6 +8,7 @@
              xmlns:mvvm="clr-namespace:HLab.Mvvm;assembly=HLab.Mvvm.Wpf"
              xmlns:wpf="clr-namespace:HLab.Icons.Wpf;assembly=HLab.Icons.Wpf"
              xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
+             xmlns:wpf1="clr-namespace:HLab.Mvvm.Wpf;assembly=HLab.Mvvm.Wpf"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800"
              Opacity="{Binding Opacity}"
@@ -46,10 +47,10 @@
                 <!--<Label Foreground="Yellow" Content ="{Binding Model.Value.IconName}"/>-->
                 <TextBlock  Foreground="{DynamicResource HLab.Brushes.Foreground}" Text="{Binding Model.Caption,FallbackValue=Caption}"/>
                 <ContentControl 
-                    mvvm:ViewLocator.ViewClass="{x:Type local:IViewClassPinContent}"  
+                    wpf1:ViewLocator.ViewClass="{x:Type local:IViewClassPinContent}"  
                     Content="{Binding Model}"/>
                 <ContentControl 
-                    mvvm:ViewLocator.ViewClass="{x:Type local:IViewClassPinValue}"  
+                    wpf1:ViewLocator.ViewClass="{x:Type local:IViewClassPinValue}"  
                     Content="{Binding Model}"/>
             </StackPanel>
             

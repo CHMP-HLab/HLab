@@ -10,12 +10,13 @@ namespace HLab.Base
 {
     public class AsyncDictionary<TKey,T> : IDisposable
     {
-        readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1);
-        readonly ConcurrentDictionary<TKey,T> _cache = new ConcurrentDictionary<TKey,T>();
+        readonly SemaphoreSlim _semaphore = new(1);
+        readonly ConcurrentDictionary<TKey,T> _cache = new();
 
-        public async Task<T> GetOrAddAsync(TKey key, Func<object, Task<T>> factory)
+        public async Task<T> GetOrAddAsync(TKey key, Func<TKey, Task<T>> factory)
         {
             if(factory==null) throw new ArgumentNullException(nameof(factory));
+            if(key==null) return default(T);
 
             if (_cache.TryGetValue(key, out var result)) return result;
             await _semaphore.WaitAsync().ConfigureAwait(false);    
@@ -29,7 +30,7 @@ namespace HLab.Base
                 _semaphore.Release();
             }
         }
-        public T GetOrAdd(TKey key, Func<object, T> factory)
+        public T GetOrAdd(TKey key, Func<TKey, T> factory)
         {
             if(factory==null) throw new ArgumentNullException(nameof(factory));
 

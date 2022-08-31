@@ -42,9 +42,9 @@ namespace HLab.Notify.PropertyChanged
 
         public class Activator : PropertyActivator
         {
-            static readonly Action<TClass, T> _defaultAction = (parent, child) => { };
-            internal Action<TClass, T> Action { get; set; } = _defaultAction;
-            internal Action<TClass, T> UpdateAction { get; set; } = _defaultAction;
+            static readonly Action<TClass, T> DefaultAction = (parent, child) => { };
+            internal Action<TClass, T> Action { get; set; } = DefaultAction;
+            internal Action<TClass, T> UpdateAction { get; set; } = DefaultAction;
 
             internal List<object> Triggers = new();
 

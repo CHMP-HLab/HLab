@@ -25,15 +25,13 @@ namespace HLab.Mvvm.Flowchart.Models
             doc.LoadXml(s);
             foreach (var node in doc.ChildNodes)
             {
-                if (node is XmlElement e)
+                if (node is not XmlElement e) continue;
+                if (e.Name == GetType().Name)
                 {
-                    if (e.Name == GetType().Name)
-                    {
-                        _graphService.LoadXmlAttributes(this,e);
-                    }
+                    _graphService.LoadXmlAttributes(this,e);
                 }
             }
-            BlocksLoaded?.Invoke(this, new EventArgs());
+            BlocksLoaded?.Invoke(this, EventArgs.Empty);
         }
 
 

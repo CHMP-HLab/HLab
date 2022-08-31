@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net6.0-windows;net7.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
     <LangVersion>default</LangVersion>
@@ -45,18 +45,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Update="Icons\IconView2.xaml.cs">
-      <DependentUpon>IconView2.xaml</DependentUpon>
-    </Compile>
-  </ItemGroup>
-
-  <ItemGroup>
     <Page Update="Icons\IconGrid.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-    </Page>
-    <Page Update="Icons\IconView2.xaml">
-      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
-      <SubType>Designer</SubType>
     </Page>
   </ItemGroup>
 

@@ -56,7 +56,7 @@ namespace HLab.Notify.PropertyChanged
             return c
                 .Do((target,cmd)=>cmd.SetAction(o => action(target,o)));
         }
-        public static NotifyConfigurator<TClass, T> ActionAsync<TClass, T>(this NotifyConfigurator<TClass, T> c,
+        public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Func<TClass,object,Task> actionAsync)
             where TClass : class, INotifyPropertyChangedWithHelper
             where T : CommandPropertyHolder

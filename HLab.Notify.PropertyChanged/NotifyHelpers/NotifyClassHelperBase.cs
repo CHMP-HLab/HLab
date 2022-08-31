@@ -66,7 +66,17 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
         public virtual void OnPropertyChanged(PropertyChangedEventArgs args)
         {
             using var s = _suspender.Get();
-            s.EnqueueAction(() => Handler?.Invoke(Target, args));
+            s.EnqueueAction(() =>
+            {
+                try
+                {
+                    Handler?.Invoke(Target, args);
+                }
+                catch (Exception e)
+                {
+
+                }
+            });
         }
 
     }

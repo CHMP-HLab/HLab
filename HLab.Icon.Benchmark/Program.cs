@@ -43,11 +43,11 @@ namespace HLab.Icon.Benchmark
         {
             _providerResourceXaml = new IconProviderXamlFromResource(_resourceManager,"Icons/location.rsc.xaml",Colors.Black);
             _providerSourceXaml = new IconProviderXamlFromResource(_resourceManager, "Icons/location.rsc.xaml", Colors.Black);
-            var e = _providerSourceXaml.Get(null);
+            var e = _providerSourceXaml.Get();
 
             _providerResourceSvg = new IconProviderXamlFromResource(_resourceManager, "Icons/location.rsc.svg", Colors.Black);
             _providerSourceSvg = new IconProviderXamlFromResource(_resourceManager, "Icons/location.rsc.svg", Colors.Black);
-            var f = _providerSourceXaml.Get(null);
+            var f = _providerSourceXaml.Get();
 
             _providerUriXaml = new IconProviderXamlFromUri(
                 new Uri("/" + Assembly.GetExecutingAssembly().FullName + ";component/Icons/location.xaml", UriKind.Relative));
@@ -73,35 +73,35 @@ namespace HLab.Icon.Benchmark
         [Benchmark(Baseline = true), STAThread]
         public object ResourceXaml()
         {
-            var xaml = _providerResourceXaml.Get(null);
+            var xaml = _providerResourceXaml.Get();
             _window.Content = xaml;GlobalCleanup();
             return xaml;
         }
         [Benchmark, STAThread]
         public object SourceXaml()
         {
-            var xaml = _providerSourceXaml.Get(null);
+            var xaml = _providerSourceXaml.Get();
             _window.Content = xaml;GlobalCleanup();
             return xaml;
         }
         [Benchmark, STAThread]
         public object Uri()
         {
-            var xaml = _providerUriXaml.Get(null);
+            var xaml = _providerUriXaml.Get();
             _window.Content = xaml;GlobalCleanup();
             return xaml;
         }
         [Benchmark, STAThread]
         public object ResourceSvg()
         {
-            var xaml = _providerResourceSvg.Get(null);
+            var xaml = _providerResourceSvg.Get();
             _window.Content = xaml;GlobalCleanup();
             return xaml;
         }
         [Benchmark, STAThread]
         public object SourceSvg()
         {
-            var xaml = _providerSourceSvg.Get(null);
+            var xaml = _providerSourceSvg.Get();
             _window.Content = xaml;GlobalCleanup();
             return xaml;
         }
@@ -166,7 +166,7 @@ namespace HLab.Icon.Benchmark
     }
     public class TextBlockWriter : TextWriter
     {
-        MainWindow _window;
+        readonly MainWindow _window;
         public string Text = "";
         public TextBlockWriter(MainWindow w)
         {

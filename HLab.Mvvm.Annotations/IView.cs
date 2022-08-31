@@ -45,17 +45,12 @@ namespace HLab.Mvvm.Annotations
     public interface IViewModelDesign { }
 
 
-    public interface IMvvmLinked<TBase>
-    {
-
-    }
-
     [MvvmCacheability(MvvmCacheability.NotCacheable)]
     public interface IView
     {
     }
 
-    public interface IView<TViewMode,TViewModel> : IView, IMvvmLinked<TViewModel>
+    public interface IView<TViewMode,TViewModel> : IView
         where TViewMode : ViewMode
     {
     }
