@@ -25,6 +25,10 @@
     <Page Update="DateEx.xaml">
       <SubType>Designer</SubType>
     </Page>
+    <Page Update="Themes\HLab.Theme.Base.xaml">
+      <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Update="Themes\HLab.Theme.Light.xaml">
       <XamlRuntime>$(DefaultXamlRuntime)</XamlRuntime>
       <SubType>Designer</SubType>
@@ -50,6 +54,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
+    <ProjectReference Include="..\HLab.ColorTools.Wpf\HLab.ColorTools.Wpf.csproj" />
   </ItemGroup>
 
 </Project>
