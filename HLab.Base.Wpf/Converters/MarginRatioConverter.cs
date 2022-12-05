@@ -32,7 +32,7 @@ namespace HLab.Base.Converters
         public Rect PhysicalRect { get; set; }
         public FrameworkElement FrameworkElement { get; set; }
 
-        private double Ratio => Math.Min(
+        double Ratio => Math.Min(
             FrameworkElement.ActualWidth / PhysicalRect.Width,
             FrameworkElement.ActualHeight / PhysicalRect.Height
         );

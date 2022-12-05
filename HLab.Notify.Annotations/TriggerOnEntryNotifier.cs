@@ -36,8 +36,8 @@ namespace HLab.Notify.Annotations
 
         }
 
-        private TriggerOnEntry _next;
-        private readonly Action _onDispose;
+        TriggerOnEntry _next;
+        readonly Action _onDispose;
 
         protected override void Dispose(bool disposing)
         {

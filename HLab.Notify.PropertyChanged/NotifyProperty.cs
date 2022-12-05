@@ -17,7 +17,7 @@ namespace HLab.Notify.PropertyChanged
     {
         public new class NotifyPropertyValue : NotifyPropertyA.NotifyPropertyValue
         {
-            private TValue _value;
+            TValue _value;
             public TValue Get() => _value;
             public bool Set(TValue value)
             {
@@ -27,7 +27,7 @@ namespace HLab.Notify.PropertyChanged
             }
         }
 
-        private NotifyPropertyA(string name)
+        NotifyPropertyA(string name)
         {
             Name = name;
         }
@@ -48,7 +48,7 @@ namespace HLab.Notify.PropertyChanged
     public class NotifyPropertyB<TClass, TValue> 
         where  TValue : IEquatable<TValue>
     {
-        private NotifyPropertyB(Expression<Func<TClass, TValue>> getter, Action<TClass, TValue> setter, Expression<Action<TClass>> change)
+        NotifyPropertyB(Expression<Func<TClass, TValue>> getter, Action<TClass, TValue> setter, Expression<Action<TClass>> change)
         {
             _getter = getter.Compile();
             _setter = setter;
@@ -57,9 +57,9 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyPropertyB<TClass, TValue> Register(Expression<Func<TClass, TValue>> getter, Action<TClass, TValue> setter, Expression<Action<TClass>> change)
             => new NotifyPropertyB<TClass, TValue>(getter, setter, change);
 
-        private readonly Func<TClass, TValue> _getter;
-        private readonly Action<TClass, TValue> _setter;
-        private readonly Action<TClass> _onPropertyChanged;
+        readonly Func<TClass, TValue> _getter;
+        readonly Action<TClass, TValue> _setter;
+        readonly Action<TClass> _onPropertyChanged;
 
 
         public TValue Get(TClass c) => _getter(c);

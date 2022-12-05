@@ -13,7 +13,7 @@ namespace HLab.Icons.Wpf.Icons
 {
     public class IconBootloader : IBootloader
     {
-        private readonly IIconService _icons;
+        readonly IIconService _icons;
         public IconBootloader(IIconService icons)
         {
             _icons = icons;
@@ -23,6 +23,9 @@ namespace HLab.Icons.Wpf.Icons
         {
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(e => !e.IsDynamic))
             {
+                if(assembly.FullName.Contains("Erp.Base.Wpf"))
+                {}
+
                 try
                 {
                     var v = assembly.GetCustomAttribute<AssemblyCompanyAttribute>();
@@ -38,33 +41,31 @@ namespace HLab.Icons.Wpf.Icons
 
                         resourcePath = Uri.UnescapeDataString(resourcePath);
 
-
-                        if (resourcePath.EndsWith(".xaml"))
+                        bool HasSuffix(string path, string suffix, out string result)
                         {
-                            var resource = resourcePath.Split('/');
-                            var path = string.Join('/',resource.SkipLast(1));
+                            if (!path.EndsWith(suffix))
+                            {
+                                result = null;
+                                return false;
+                            }
 
-                            foreach(var n in resource.Last().Split('.').SkipLast(1))
-                               _icons.AddIconProvider(string.Join('/',path,n), new IconProviderXamlFromResource(resourceManager, resourcePath, Colors.Black));
+                            result = path[..^suffix.Length];
+                            return true;
                         }
-                        else if (resourcePath.EndsWith(".svg"))
+                        if (HasSuffix(resourcePath,".xaml",out var xamlPath))
                         {
-                            var resource = resourcePath.Split('/');
-                            var path = string.Join('/',resource.SkipLast(1));
-
-                            foreach(var n in resource.Last().Split('.').SkipLast(1))
-                                _icons.AddIconProvider(string.Join('/',path,n), new IconProviderSvg(resourceManager, resourcePath, Colors.Black));
+                            _icons.AddIconProvider(xamlPath, new IconProviderXamlFromResource(resourceManager, resourcePath, Colors.Black));
                         }
-                        else if (resourcePath.EndsWith(".baml"))
+                        else if (HasSuffix(resourcePath,".svg",out var svgPath))
                         {
-                            var resource = resourcePath.Split('/');
-                            var path = string.Join('/',resource.SkipLast(1));
-
-                            foreach(var n in resource.Last().Split('.').SkipLast(1))
-                                _icons.AddIconProvider(
-                                    string.Join('/',path,n), 
-                                    new IconProviderXamlFromUri(new Uri( $"/{assembly.FullName};component/{string.Join('.',resourcePath.Split('.').SkipLast(1))}.xaml",UriKind.Relative))
-                                    );
+                            _icons.AddIconProvider(svgPath, new IconProviderSvg(resourceManager, resourcePath, Colors.Black));
+                        }
+                        else if (HasSuffix(resourcePath,".baml",out var bamlPath))
+                        {
+                            _icons.AddIconProvider(
+                                bamlPath, 
+                                new IconProviderXamlFromUri(new Uri( $"/{assembly.FullName};component/{bamlPath}.xaml",UriKind.Relative))
+                                );
                         }
                     }
                 }

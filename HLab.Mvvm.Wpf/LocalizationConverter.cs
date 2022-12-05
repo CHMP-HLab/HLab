@@ -7,7 +7,7 @@ namespace HLab.Mvvm
 {
     public class LocalizationConverter : IValueConverter
     {
-        private static object LocalizeObject(object obj)
+        static object LocalizeObject(object obj)
         {
             if (obj is string s)
             {

@@ -7,7 +7,8 @@
              xmlns:viewModel="clr-namespace:HLab.Mvvm.Flowchart.ViewModel"
              xmlns:mvvm="clr-namespace:HLab.Mvvm;assembly=HLab.Mvvm.Wpf"
               xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
-             mc:Ignorable="d" 
+              xmlns:wpf="clr-namespace:HLab.Mvvm.Wpf;assembly=HLab.Mvvm.Wpf"
+              mc:Ignorable="d" 
              d:DesignHeight="325.5" d:DesignWidth="328.5"
              
              VerticalAlignment="Top"
@@ -47,7 +48,7 @@
                     IsHitTestVisible="False"
                     Margin="3"
                     Opacity="0.7"
-                    Foreground="White"
+                    Foreground="{DynamicResource HLab.Brushes.Foreground}"
                     Path="{Binding Model.IconPath}" Height="20"/>
                 <TextBox 
                     Background="Transparent"
@@ -57,12 +58,12 @@
                     Text ="{Binding Model.Name, FallbackValue=Test}"
                     FontWeight="Bold" 
                     Margin="5" 
-                    Foreground="White"/>
+                    Foreground="{DynamicResource HLab.Brushes.Foreground}"/>
             </StackPanel>
         </Grid>
         <Grid Grid.Row="1">
                 <Border Background="Black" Opacity="0.5"/>
-            <Grid mvvm:ViewLocator.ViewMode ="{Binding ViewMode}"
+            <Grid wpf:ViewLocator.ViewMode ="{Binding ViewMode}"
             >
                 
                 <Grid.ColumnDefinitions>
@@ -91,7 +92,7 @@
                 <ContentControl 
                     HorizontalAlignment="Center"
                     Grid.Column="1"
-                    mvvm:ViewLocator.ViewClass ="{x:Type local:IViewClassBlockContent}"
+                    wpf:ViewLocator.ViewClass ="{x:Type local:IViewClassBlockContent}"
                     Content="{Binding Model}"/>
 
                 <ItemsControl  

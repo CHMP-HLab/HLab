@@ -5,7 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    class NotifyProperty
+    internal class NotifyProperty
     {
         internal class NotifyPropertyValue
         {
@@ -14,11 +14,11 @@ namespace HLab.Notify.PropertyChanged.UTest
 
     }
 
-    class NotifyProperty<TClass,TValue> : NotifyProperty
+    internal class NotifyProperty<TClass,TValue> : NotifyProperty
     {
         internal new class NotifyPropertyValue : NotifyProperty.NotifyPropertyValue
         {
-            private TValue _value;
+            TValue _value;
             public TValue Get() => _value;
             public bool Set(TValue value)
             {
@@ -28,11 +28,12 @@ namespace HLab.Notify.PropertyChanged.UTest
             }
         }
 
-        private NotifyProperty(string name)
+        NotifyProperty(string name)
         {
             Name = name;
         }
-        private NotifyProperty(Func<TClass, TValue> getter, Action<TClass, TValue> setter, Action<TClass> change)
+
+        NotifyProperty(Func<TClass, TValue> getter, Action<TClass, TValue> setter, Action<TClass> change)
         {
             _getter = getter;
             _setter = setter;
@@ -40,9 +41,9 @@ namespace HLab.Notify.PropertyChanged.UTest
         }
 
         public string Name { get; }
-        private readonly Func<TClass, TValue> _getter;
-        private readonly Action<TClass, TValue> _setter;
-        private readonly Action<TClass> _onPropertyChanged;
+        readonly Func<TClass, TValue> _getter;
+        readonly Action<TClass, TValue> _setter;
+        readonly Action<TClass> _onPropertyChanged;
 
         public static NotifyProperty<TClass, TValue> Register(string name) => new NotifyProperty<TClass, TValue>(name);
         public static NotifyProperty<TClass, TValue> Register(Func<TClass,TValue> getter, Action<TClass,TValue> setter, Action<TClass> change) 
@@ -67,11 +68,11 @@ namespace HLab.Notify.PropertyChanged.UTest
         }
     }
 
-    class NotifyClass<TClass>
+    internal class NotifyClass<TClass>
     {
         internal class Notifier : INotifyPropertyChanged
         {
-            private ConcurrentDictionary<NotifyProperty, NotifyProperty.NotifyPropertyValue> _dict = new ConcurrentDictionary<NotifyProperty, NotifyProperty.NotifyPropertyValue>();
+            ConcurrentDictionary<NotifyProperty, NotifyProperty.NotifyPropertyValue> _dict = new ConcurrentDictionary<NotifyProperty, NotifyProperty.NotifyPropertyValue>();
 
             public Notifier()
             {
@@ -99,14 +100,14 @@ namespace HLab.Notify.PropertyChanged.UTest
     }
 
 
-    class NotifyTestClassB : INotifyPropertyChanged
+    internal class NotifyTestClassB : INotifyPropertyChanged
     {
         public static NotifyProperty<NotifyTestClassB, string> ValueProperty = NotifyProperty<NotifyTestClassB, string>
                 .Register(c => c._value, (c, v) => c._value = v, c => c.OnPropertyChanged(nameof(Value)))
             //.TriggerOn(()=>ValueProperty)
             ;
 
-        private string _value;
+        string _value;
         public string Value
         {
             get => ValueProperty.Get(this);

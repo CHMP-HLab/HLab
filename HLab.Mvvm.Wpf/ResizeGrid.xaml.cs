@@ -776,9 +776,9 @@ public partial class ResizeGrid : UserControl
         this.Loaded += ResizeGrid_Loaded;
     }
 
-    private Window Window => Window.GetWindow(this);
+    Window Window => Window.GetWindow(this);
 
-    private void ResizeGrid_Loaded(object sender, RoutedEventArgs e)
+    void ResizeGrid_Loaded(object sender, RoutedEventArgs e)
     {
         if(Window.IsInitialized) InitializeWindowSource(sender,e);
         Window.SourceInitialized += InitializeWindowSource;
@@ -792,22 +792,23 @@ public partial class ResizeGrid : UserControl
     public static readonly DependencyProperty NestedContentProperty = H.Property<object>().Register();
 
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    private static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
+    static extern IntPtr SendMessage(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam);
 
-    private const int WmSyscommand = 0x112;
-    private HwndSource _hwndSource;
+    const int WmSyscommand = 0x112;
+    HwndSource _hwndSource;
 
-    private void ResizeWindow(ResizeDirection direction)
+    void ResizeWindow(ResizeDirection direction)
     {
         SendMessage(_hwndSource.Handle, WmSyscommand, (IntPtr)(61440 + direction), IntPtr.Zero);
     }
 
-    private void InitializeWindowSource(object sender, EventArgs e)
+    void InitializeWindowSource(object sender, EventArgs e)
     {
         _hwndSource = PresentationSource.FromVisual((Visual)sender) as HwndSource;
         _hwndSource?.AddHook(WndProc);
     }
-        private IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
+
+    IntPtr WndProc(IntPtr hwnd, int msg, IntPtr wParam, IntPtr lParam, ref bool handled)
         {
             switch (msg)
             {
@@ -839,7 +840,7 @@ public partial class ResizeGrid : UserControl
             return IntPtr.Zero;
         }
 
-    private void Border_MouseDown(object sender, MouseButtonEventArgs e)
+    void Border_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (sender is not FrameworkElement { Tag: ResizeDirection dir }) return;
 
@@ -852,38 +853,33 @@ public partial class ResizeGrid : UserControl
         Window.DragMove();
     }
 
-    private void UserControl_MouseDown(object sender, MouseButtonEventArgs e)
+    void UserControl_MouseDown(object sender, MouseButtonEventArgs e)
     {
         if (e.ClickCount == 2) ToggleMaximize();
         else
         {
-//                this.EnableBlur(false);
             DragWindow(sender,e);
         }
     }
 
-    private void ButtonMaximize_OnClick(object sender, RoutedEventArgs e)
+    void ButtonMaximize_OnClick(object sender, RoutedEventArgs e)
     {
         ToggleMaximize();
     }
 
-    private void ToggleMaximize()
+    void ToggleMaximize()
     {
            Window.WindowState = Window.WindowState==WindowState.Maximized?WindowState.Normal : WindowState.Maximized;
     }
 
-    private void ButtonMinimize_OnClick(object sender, RoutedEventArgs e)
+    void ButtonMinimize_OnClick(object sender, RoutedEventArgs e)
     {
         Window.WindowState = WindowState.Minimized;
     }
 
-    private void ButtonClose_Click(object sender, RoutedEventArgs e)
+    void ButtonClose_Click(object sender, RoutedEventArgs e)
     {
         Window.Close();
     }
 
-    private void Border_MouseUp(object sender, MouseButtonEventArgs e)
-    {
-        throw new NotImplementedException();
-    }
 }

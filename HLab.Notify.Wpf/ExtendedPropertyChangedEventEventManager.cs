@@ -4,10 +4,9 @@ using HLab.Notify.Annotations;
 
 namespace HLab.Notify.Wpf
 {
-    class ExtendedPropertyChangedEventEventManager : WeakEventManager
+    internal class ExtendedPropertyChangedEventEventManager : WeakEventManager
     {
-
-        private ExtendedPropertyChangedEventEventManager()
+        ExtendedPropertyChangedEventEventManager()
         {
         }
 
@@ -42,7 +41,7 @@ namespace HLab.Notify.Wpf
         /// <summary>
         /// Get the event manager for the current thread.
         /// </summary>
-        private static ExtendedPropertyChangedEventEventManager CurrentManager
+        static ExtendedPropertyChangedEventEventManager CurrentManager
         {
             get
             {
@@ -90,7 +89,7 @@ namespace HLab.Notify.Wpf
         /// <summary>
         /// Event handler for the SomeEvent event.
         /// </summary>
-        private void OnSomeEvent(object sender, ExtendedPropertyChangedEventArgs e)
+        void OnSomeEvent(object sender, ExtendedPropertyChangedEventArgs e)
         {
             DeliverEvent(sender, e);
         }

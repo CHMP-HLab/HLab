@@ -4,7 +4,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyString : IPropertyValue<string>
     {
-        private string _value;
+        string _value;
         public string Get() => _value;
 
         public bool Set(string value)
@@ -24,7 +24,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             return Set(setter(_holder.Parent));
         }
 
-        private readonly PropertyHolder<string> _holder;
+        readonly PropertyHolder<string> _holder;
         public PropertyString(PropertyHolder<string> holder)
         {
             _holder = holder;

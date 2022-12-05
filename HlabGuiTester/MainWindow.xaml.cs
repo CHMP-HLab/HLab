@@ -12,7 +12,7 @@ namespace HlabGuiTester
             InitializeComponent();
         }
 
-        private void Button_Click(object sender, RoutedEventArgs e)
+        void Button_Click(object sender, RoutedEventArgs e)
         {
             DateEx.Date = System.DateTime.Now;
         }

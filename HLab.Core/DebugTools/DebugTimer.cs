@@ -29,10 +29,10 @@ namespace HLab.Core.DebugTools
 {
     public class DebugTimer : IDisposable
     {
-        private IDebugLogger _log;
+        IDebugLogger _log;
 #if TIMER
-        private readonly Stopwatch _sw;
-        private readonly string _name;
+        readonly Stopwatch _sw;
+        readonly string _name;
 #endif
 
         public DebugTimer(string name, IDebugLogger log)

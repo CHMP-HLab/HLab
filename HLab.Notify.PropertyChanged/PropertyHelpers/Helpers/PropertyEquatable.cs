@@ -6,7 +6,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
     public class PropertyStructuralEquatable<T> : IPropertyValue<T>
         where T : IStructuralEquatable
     {
-        private T _value;
+        T _value;
         public T Get() => _value;
         public bool Set(Func<object, T> setter)
             => Set(setter(_holder.Parent));
@@ -31,7 +31,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             else return false;
         }
 
-        private readonly PropertyHolder<T> _holder;
+        readonly PropertyHolder<T> _holder;
         public PropertyStructuralEquatable(PropertyHolder<T> holder)
         {
             _holder = holder;
@@ -39,7 +39,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
     }
     public class PropertyEquatable<T> : IPropertyValue<IEquatable<T>>
     {
-        private IEquatable<T> _value;
+        IEquatable<T> _value;
         public IEquatable<T> Get() => _value;
         public bool Set(Func<object, IEquatable<T>> setter)
             => Set(setter(_holder.Parent));
@@ -56,7 +56,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             else return false;
         }
 
-        private readonly PropertyHolder<T> _holder;
+        readonly PropertyHolder<T> _holder;
         public PropertyEquatable(PropertyHolder<T> holder)
         {
             _holder = holder;

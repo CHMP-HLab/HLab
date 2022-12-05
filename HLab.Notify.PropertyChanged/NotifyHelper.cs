@@ -19,12 +19,17 @@ namespace HLab.Notify.PropertyChanged
 
     }
 
-
+    public interface INotifyHelper<TClass> where TClass : class, INotifyPropertyChangedWithHelper
+    {
+        public H<TClass> Helper => H<TClass>.Helper;
+    }
 
     public class H<TClass> : NotifyHelper
         where TClass : class, INotifyPropertyChangedWithHelper
     {
-        internal static Lazy<Action<TClass>> InitializeAction { get; } = new Lazy<Action<TClass>>(() => CreateActivatorA() + CreateActivatorExt());
+        public static H<TClass> Helper { get; } = new();
+
+        internal static Lazy<Action<TClass>> InitializeAction { get; } = new (() => CreateActivatorA() + CreateActivatorExt());
 
         internal static bool HasActivator => InitializeAction.IsValueCreated;
 
@@ -102,7 +107,7 @@ namespace HLab.Notify.PropertyChanged
             public override string ToString() => Name;
         }
 
-        private static bool CheckDependencies(Todo todo, ICollection<string> done, Queue<Todo> todoQueue)
+        static bool CheckDependencies(Todo todo, ICollection<string> done, Queue<Todo> todoQueue)
         {
             var name = todo.MemberInfo.Name;
             var a = PropertyCache<TClass>.GetByHolder(name);
@@ -124,7 +129,7 @@ namespace HLab.Notify.PropertyChanged
             return true;
         }
 
-        private static Action<TClass> CreateActivatorA()
+        static Action<TClass> CreateActivatorA()
         {
             var todoList = new Queue<Todo>();
             var done = new List<string>();
@@ -240,7 +245,7 @@ namespace HLab.Notify.PropertyChanged
             return activator;
         }
 
-        private static Action<TClass> CreateActivator()
+        static Action<TClass> CreateActivator()
         {
             DynamicMethod dm =
                 new DynamicMethod(
@@ -314,7 +319,7 @@ namespace HLab.Notify.PropertyChanged
             return (Action<TClass>)d;
         }
 
-        private static Action<TClass> CreateActivatorExt()
+        static Action<TClass> CreateActivatorExt()
         {
 
             Action<TClass> activator = null;

@@ -46,7 +46,7 @@ namespace HLab.Notify.PropertyChanged
             where T : CommandPropertyHolder
         {
             return c
-                .On().Do((target,cmd)=>cmd.SetAction(() => action(target)));
+                .On().Do((target,cmd)=>cmd.SetAction( () => action(target)));
         }
         public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
             Action<TClass,object> action)
@@ -55,6 +55,14 @@ namespace HLab.Notify.PropertyChanged
         {
             return c
                 .Do((target,cmd)=>cmd.SetAction(o => action(target,o)));
+        }
+        public static NotifyConfigurator<TClass, T> Action<TClass, T>(this NotifyConfigurator<TClass, T> c,
+            Func<TClass,object,Task> actionAsync)
+            where TClass : class, INotifyPropertyChangedWithHelper
+            where T : CommandPropertyHolder
+        {
+            return c
+                .Do((target,cmd)=>cmd.SetAction( o => actionAsync(target,o)));
         }
 
         public static NotifyConfigurator<TClass, TMember> 

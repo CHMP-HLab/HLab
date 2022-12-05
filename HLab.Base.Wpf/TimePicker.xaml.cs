@@ -39,7 +39,7 @@ namespace HLab.Base.Wpf
                     e.Set(a.NewValue);
                 }).Register();
 
-        private void Set(DateTime? time)
+        void Set(DateTime? time)
         {
             if (time.HasValue)
             {
@@ -59,7 +59,7 @@ namespace HLab.Base.Wpf
             set => SetValue(TimeProperty, value);
         }
 
-        private void HourListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        void HourListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is not ListBox list) return;
             if (list.SelectedItem is not ListBoxItem item) return;
@@ -77,7 +77,7 @@ namespace HLab.Base.Wpf
             }
         }
 
-        private void MinuteListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        void MinuteListBox_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (sender is not ListBox list) return;
             if (list.SelectedItem is not ListBoxItem item) return;
@@ -92,12 +92,12 @@ namespace HLab.Base.Wpf
             RaiseEvent(new RoutedEventArgs(DoneEvent,this));
         }
 
-        private void MinuteListBox_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        void MinuteListBox_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             RaiseEvent(new RoutedEventArgs(DoneEvent,this));
         }
 
-        private void ButtonBase_OnClick(object sender, RoutedEventArgs e)
+        void ButtonBase_OnClick(object sender, RoutedEventArgs e)
         {
             Time = DateTime.Now;
             RaiseEvent(new RoutedEventArgs(DoneEvent,this));

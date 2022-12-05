@@ -78,7 +78,7 @@ namespace HLab.Core.DebugTools
             }
         }
 
-        private void Write(string s, ConsoleColor? c=null)
+        void Write(string s, ConsoleColor? c=null)
         {
             if(!c.HasValue) c = ConsoleColor.Black;
             var old = Console.ForegroundColor;

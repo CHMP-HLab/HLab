@@ -31,7 +31,7 @@ namespace HLab.Base
             return base.MeasureOverride(constraint);
         }
 
-        private void UpdateChildren()
+        void UpdateChildren()
         {
             //if (Children.Count == _count) return;
             //_count = Children.Count;

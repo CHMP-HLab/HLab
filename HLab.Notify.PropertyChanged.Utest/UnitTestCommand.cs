@@ -5,7 +5,7 @@ namespace HLab.Notify.PropertyChanged.UTest
 {
     using H = H<CommandObject>;
 
-    class CommandObject : NotifierBase
+    internal class CommandObject : NotifierBase
     {
         public CommandObject()
         {

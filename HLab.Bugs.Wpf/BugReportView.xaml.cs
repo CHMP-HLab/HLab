@@ -12,22 +12,22 @@ namespace HLab.Bugs.Wpf
             InitializeComponent();
         }
 
-        private void ButtonOk_OnClick(object sender, RoutedEventArgs e)
+        void ButtonOk_OnClick(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void ButtonReopen_OnClick(object sender, RoutedEventArgs e)
+        void ButtonReopen_OnClick(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
+        void ToggleButton_OnChecked(object sender, RoutedEventArgs e)
         {
 
         }
 
-        private void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
+        void ToggleButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
 
         }

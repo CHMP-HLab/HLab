@@ -45,7 +45,7 @@ namespace HLab.Mvvm.Views
                 e.UpdateString(a.NewValue);
             }).Register();
 
-        private void SetNa(bool na)
+        void SetNa(bool na)
         {
             ButtonNa.Visibility =  na?Visibility.Visible:Visibility.Collapsed;
             Spacer.Visibility = na?Visibility.Visible:Visibility.Collapsed;
@@ -72,7 +72,7 @@ namespace HLab.Mvvm.Views
             set => SetValue(StringProperty, value);
         }
 
-        private void UpdateString(string s)
+        void UpdateString(string s)
         {
             ButtonYes.IsChecked = s == "true";
             ButtonNa.IsChecked = s == "na";
@@ -84,7 +84,7 @@ namespace HLab.Mvvm.Views
             if (s == "") Value = null;
         }
 
-        private void UpdateValue(bool? v, bool? old)
+        void UpdateValue(bool? v, bool? old)
         {
             ButtonYes.IsChecked = v == true;
             ButtonNo.IsChecked = v == false;
@@ -101,7 +101,7 @@ namespace HLab.Mvvm.Views
             }
         }
 
-        private void Button_OnChecked(object sender, RoutedEventArgs e)
+        void Button_OnChecked(object sender, RoutedEventArgs e)
         {
             if (IsReadOnly)
             {
@@ -133,13 +133,14 @@ namespace HLab.Mvvm.Views
                     String = "";
             }
         }
-        private void SetReadOnly()
+
+        void SetReadOnly()
         {
             //ButtonNo.IsEnabled = !IsReadOnly;
             //ButtonYes.IsEnabled = !IsReadOnly;
         }
 
-        private void Button_OnClick(object sender, RoutedEventArgs e)
+        void Button_OnClick(object sender, RoutedEventArgs e)
         {
             if (IsReadOnly)
             {
@@ -147,7 +148,7 @@ namespace HLab.Mvvm.Views
             }
         }
 
-        private void Button_OnMouseDown(object sender, MouseButtonEventArgs e)
+        void Button_OnMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (IsReadOnly)
             {
@@ -155,7 +156,7 @@ namespace HLab.Mvvm.Views
             }
         }
 
-        private void Button_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
+        void Button_OnPreviewMouseDown(object sender, MouseButtonEventArgs e)
         {
             if (IsReadOnly)
             {

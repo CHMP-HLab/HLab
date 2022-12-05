@@ -30,11 +30,11 @@ namespace HLab.Base
     public class HelperFactory<T>
         where T : class
     {
-        private readonly ConditionalWeakTable<object, T> _wtable
+        readonly ConditionalWeakTable<object, T> _wtable
             = new ConditionalWeakTable<object, T>();
 
-        private readonly ConcurrentDictionary<Type, Func<object, T>> _registered = new ConcurrentDictionary<Type, Func<object, T>>();
-        private readonly ConcurrentDictionary<Type, Func<object, T>> _cache = new ConcurrentDictionary<Type, Func<object, T>>();
+        readonly ConcurrentDictionary<Type, Func<object, T>> _registered = new ConcurrentDictionary<Type, Func<object, T>>();
+        readonly ConcurrentDictionary<Type, Func<object, T>> _cache = new ConcurrentDictionary<Type, Func<object, T>>();
 
 
         public void Register(Type type, Func<object, T> factory)
@@ -69,7 +69,7 @@ namespace HLab.Base
 
         }
 
-        private Func<object, T> GetFactory(Type type)
+        Func<object, T> GetFactory(Type type)
         {
             KeyValuePair<Type, Func<object, T>>? bestMatch=null;
             foreach (var entry in _registered)

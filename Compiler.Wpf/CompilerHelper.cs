@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 
@@ -11,8 +12,8 @@ namespace HLab.Compiler.Wpf
             Code = code;
         }
 
-        private const string Alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
-        private const string Space = " \t\n\r";
+        const string Alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_";
+        const string Space = " \t\n\r";
 
         public string Code { get; private set; }
 
@@ -72,6 +73,13 @@ namespace HLab.Compiler.Wpf
         {
             Code = Code.Insert(Index, value);
             Index += value.Length;
+        }
+
+        public void Insert(Action<StringBuilder> build)
+        {
+            StringBuilder sb = new();
+            build(sb);
+            Insert(sb.ToString());
         }
 
         public string NextWord()

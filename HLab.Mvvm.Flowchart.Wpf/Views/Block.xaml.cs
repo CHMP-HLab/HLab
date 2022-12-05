@@ -17,9 +17,9 @@ namespace HLab.Mvvm.Flowchart.Views
         IView<ViewModeDefault,IBlockViewModel>,
         IView<ViewModeEdit,IBlockViewModel>
     {
-        private readonly IMessageBus _msg;
+        readonly IMessagesService _msg;
 
-        public BlockView(IMessageBus msg)
+        public BlockView(IMessagesService msg)
         {
             _msg = msg;
             InitializeComponent();
@@ -27,25 +27,26 @@ namespace HLab.Mvvm.Flowchart.Views
             Unloaded += Block_Unloaded;
         }
 
-        private void Block_Unloaded(object sender, RoutedEventArgs e)
+        void Block_Unloaded(object sender, RoutedEventArgs e)
         {
             _msg.Unsubscribe<PinViewModel>(SetDraggedPin);
         }
 
-        private void Block_Loaded(object sender, RoutedEventArgs e)
+        void Block_Loaded(object sender, RoutedEventArgs e)
         {
             _msg.Subscribe<PinViewModel>(SetDraggedPin);
         }
 
-        private void SetDraggedPin(PinViewModel pvm)
+        void SetDraggedPin(PinViewModel pvm)
         {
             ViewModel?.SetDraggedPin(pvm);
         }
 
-        private IBlockViewModel ViewModel => DataContext as IBlockViewModel;
+        IBlockViewModel ViewModel => DataContext as IBlockViewModel;
 
-        private Point _oldMousePosition;
-        private void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        Point _oldMousePosition;
+
+        void UIElement_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (sender is UIElement el)
             {
@@ -55,7 +56,7 @@ namespace HLab.Mvvm.Flowchart.Views
             }
         }
 
-        private void UIElement_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
+        void UIElement_OnMouseLeftButtonUp(object sender, MouseButtonEventArgs e)
         {
             if (sender is UIElement el && el.IsMouseCaptured)
             {
@@ -64,8 +65,9 @@ namespace HLab.Mvvm.Flowchart.Views
             }
         }
 
-        private bool _moved = false;
-        private void UIElement_OnMouseMove(object sender, MouseEventArgs e)
+        bool _moved = false;
+
+        void UIElement_OnMouseMove(object sender, MouseEventArgs e)
         {
             if (sender is FrameworkElement el && el.IsMouseCaptured)
             {
@@ -84,7 +86,7 @@ namespace HLab.Mvvm.Flowchart.Views
             }
         }
 
-        private void BlockView_OnLayoutUpdated(object sender, EventArgs e)
+        void BlockView_OnLayoutUpdated(object sender, EventArgs e)
         {
             if (ViewModel is BlockViewModel vm)
             {

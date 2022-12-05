@@ -17,7 +17,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
             set => _graphViewModel.Set(value);
         }
 
-        private readonly IProperty<IGraphViewModel> _graphViewModel = H.Property<IGraphViewModel>(c => c.Default((IGraphViewModel)default));
+        readonly IProperty<IGraphViewModel> _graphViewModel = H.Property<IGraphViewModel>(c => c.Default((IGraphViewModel)default));
 
 
         public IObservableFilter<IPinGroup> LeftGroups { get; } = H.Filter<IPinGroup>(c => c
@@ -30,7 +30,8 @@ namespace HLab.Mvvm.Flowchart.ViewModel
 
 
         public Thickness Margin => _margin.Get();
-        private readonly IProperty<Thickness> _margin = H.Property<Thickness>(c => c
+
+        readonly IProperty<Thickness> _margin = H.Property<Thickness>(c => c
             .On(e => e.Model.Left)
             .On(e => e.Model.Top)
             .Set(
@@ -44,7 +45,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
             set => _selected.Set(value);
         }
 
-        private readonly IProperty<bool> _selected = H.Property<bool>(c => c.Default((bool)default));
+        readonly IProperty<bool> _selected = H.Property<bool>(c => c.Default((bool)default));
 
 
         public void Select()
@@ -53,13 +54,15 @@ namespace HLab.Mvvm.Flowchart.ViewModel
         }
 
         public Visibility SelectedVisibility => _selectedVisibility.Get();
-        private readonly IProperty<Visibility> _selectedVisibility = H.Property<Visibility>(c => c
+
+        readonly IProperty<Visibility> _selectedVisibility = H.Property<Visibility>(c => c
             .On(e => e.Selected)
             .Set(e => e.Selected ? Visibility.Visible : Visibility.Collapsed)
         );
 
         public Type ViewMode => _viewMode.Get();
-        private readonly IProperty<Type> _viewMode = H.Property<Type>(c => c
+
+        readonly IProperty<Type> _viewMode = H.Property<Type>(c => c
             .On(e => e.Selected)
             .Set(e => e.Selected ? typeof(ViewModeEdit) : typeof(ViewModeDefault)));
 

@@ -22,15 +22,18 @@
 */
 
 using System;
+using System.Collections.Concurrent;
 using System.ComponentModel;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-
+using System.Windows.Markup;
+using System.Windows.Threading;
 using HLab.Base.Wpf;
 using HLab.Mvvm.Annotations;
-namespace HLab.Mvvm
+
+namespace HLab.Mvvm.Wpf
 {
     using H = DependencyHelper<ViewLocator>;
 
@@ -38,70 +41,82 @@ namespace HLab.Mvvm
     /// <summary>
     /// Logique d'interaction pour EntityViewLocator.xaml
     /// </summary>
-    /// 
-    public class ViewLocator : UserControl
+    ///
+    [ContentProperty(nameof(Model))]
+    public class ViewLocator : ContentControl
     {
         bool _loaded = false;
 
-        private Type _viewMode;
         public static readonly DependencyProperty ViewModeProperty =
             H.Property<Type>()
-                .OnChange(async (e, a) =>
+                .OnChange((e, a) =>
                 {
                     if(a.NewValue ==  null) return;
-                    if(e._viewMode != null && a.NewValue == e._viewMode) return;
+                    if(a.OldValue != null && a.NewValue == a.OldValue) return;
 
-                    e._viewMode = a.NewValue;
-                    e._loaded = false;
-                    await e.UpdateAsync();
+                    e.Update();
                 })
                 .Default(typeof(ViewModeDefault))
                 .Inherits
                 .RegisterAttached();
 
-        private Type _viewClass;
         public static readonly DependencyProperty ViewClassProperty =
             H.Property<Type>()
-                .OnChange(async (e, a) =>
+                .OnChange((e, a) =>
                 {
                     if(a.NewValue ==  null) return;
-                    if(e._viewClass != null && a.NewValue == e._viewClass) return;
+                    if(a.OldValue != null && ReferenceEquals(a.NewValue,a.OldValue)) return;
 
-                    e._viewClass = a.NewValue;
-                    e._loaded = false;
-                    await e.UpdateAsync();
+                    e.Update();
                 })
                 .Default(typeof(IViewClassDefault))
                 .Inherits
                 .RegisterAttached();
 
-        private WeakReference<IMvvmContext> _mvvmContextReference;
-
         public static readonly DependencyProperty MvvmContextProperty =
             H.Property<IMvvmContext>()
-                .OnChange(async (e, a) =>
+                .OnChange((e, a) =>
                 {
                     if(a.NewValue ==  null) return;
-                    if(e._mvvmContextReference!=null && e._mvvmContextReference.TryGetTarget(out var context) && ReferenceEquals(a.NewValue,context)) return;
+                    if(ReferenceEquals(a.NewValue,a.OldValue)) return;
 
-                    e._mvvmContextReference = new(a.NewValue);
-                    e._loaded = false;
-                    await e.UpdateAsync();
+                    e.Update();
                 })
                 .Default(null)
                 .Inherits
                 .RegisterAttached();
 
-        private WeakReference<object> _modelReference;
+        bool _hasModel = false;
         public static readonly DependencyProperty ModelProperty = H.Property<object>()
-            .OnChange(async (e, a) =>
+            .OnChange((e, a) =>
             {
-//                    if(a.NewValue ==  null) return;
-                    if(e._modelReference!=null && e._modelReference.TryGetTarget(out var model) && ReferenceEquals(a.NewValue,model)) return;
+                if (e._hasModel)
+                {
+                    var o = e.Content;
+                        while(o is FrameworkElement fe)
+                        {
+                            if (ReferenceEquals(fe.DataContext, a.OldValue))
+                            {
+                                fe.DataContext = a.NewValue;
+                                return;
+                            }
+                            o = fe.DataContext;
+                        }
 
-                    e._modelReference = new(a.NewValue);
-                    e._loaded = false;
-                await e.UpdateAsync();
+                        while (o is IViewModel vm)
+                        {
+                            if (ReferenceEquals(vm.Model, a.OldValue))
+                            {
+                                vm.Model = a.NewValue;
+                                return;
+                            }
+
+                            o = vm.Model;
+                        }
+                }
+                e._hasModel = true;
+
+                e.Update();
             })
             .Register();
 
@@ -155,56 +170,81 @@ namespace HLab.Mvvm
 
         public ViewLocator()
         {
-            var b = new Binding
-            {
-                Source = this,
-                Path = new PropertyPath("DataContext"),
-                Mode = BindingMode.OneWay
-            };
-            BindingOperations.SetBinding(this, ModelProperty, b);
+            DataContextChanged += ViewLocator_DataContextChanged;
+            Loaded += ViewLocator_Loaded;
+            //var b = new Binding
+            //{
+            //    Source = this,
+            //    Path = new PropertyPath("DataContext"),
+            //    Mode = BindingMode.OneWay,
+            //    //IsAsync = true
+            //};
+            //BindingOperations.SetBinding(this, ModelProperty, b);
             // Update();
         }
 
-
-        int count = 0;
-        protected async Task UpdateAsync()
+        async void ViewLocator_Loaded(object sender, RoutedEventArgs e)
         {
+            _loaded = true;
+            Update();
+        }
+
+        void ViewLocator_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            if(!_hasModel) Dispatcher.InvokeAsync(Update);
+        }
+
+        class Canceler
+        {
+            public bool State { get; private set; }
+
+            public void Cancel()
+            {
+                State = true;
+            }
+        }
+
+        readonly ConcurrentStack<Canceler> _cancel = new();
+
+        protected void Update()
+        {
+            if(!_loaded) return;
+            var context = MvvmContext;
+            var viewMode = ViewMode;
+            var viewClass = ViewClass;
+            var model = Model;
+
+            if (viewMode == null) return;
+            if (viewClass == null) return;
+            if (context == null) return;
+            if(model==null) return;
 
             if (DesignerProperties.GetIsInDesignMode(this)) return;
 
-            var view = GetView();
-
-            if (view != null)
+            while (_cancel.TryPop(out var c))
             {
-                SetViewClass(view, typeof(IViewClassDefault));
-                SetViewMode(view, typeof(ViewModeDefault));
+                c.Cancel();
             }
 
-            if (count++ > 0) { }
 
-            await Dispatcher.InvokeAsync(() =>
+            var cancel = new Canceler();
+            _cancel.Push(cancel);
+
+            var t = Dispatcher.BeginInvoke(() =>
             {
+                if(cancel.State) return;
 
-                if (Content is FrameworkElement f)
+                var view = (FrameworkElement)context.GetView(model, viewMode, viewClass);
+                if(cancel.State) return;
+
+                if (view != null)
                 {
-                    f.DataContext = null;
+                    SetViewClass(view, typeof(IViewClassDefault));
+                    SetViewMode(view, typeof(ViewModeDefault));
                 }
-
                 Content = view;
-            });
-        }
+            }, DispatcherPriority.Input);
 
-        private FrameworkElement GetView()
-        {
-            if (MvvmContext == null) return null;
-
-            if (Model == null) return null;
-
-            if (ViewMode == typeof(ViewModeCollapsed)) return null;
-
-            if (ViewMode == null || ViewClass == null) return null;
-
-            return (FrameworkElement)MvvmContext.GetView(Model, ViewMode, ViewClass);
         }
     }
 }

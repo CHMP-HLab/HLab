@@ -6,23 +6,24 @@ namespace HLab.Mvvm.Application
 {
     public abstract class DocumentService : IDocumentService
     {
-        private IMvvmService _mvvm;
-        private Func<Type, object> _getter;
+        readonly IMvvmService _mvvm;
+        readonly Func<Type, object> _getter;
 
-        public void  Inject(IMvvmService mvvm, Func<Type, object> getter)
+        protected DocumentService(IMvvmService mvvm, Func<Type, object> getter)
         {
             _mvvm = mvvm;
             _getter = getter;
         }
 
         public abstract Task OpenDocumentAsync(IView content);
-        public virtual Task OpenDocumentAsync<T>() => OpenDocumentAsync(typeof(T));
+
+        public Task OpenDocumentAsync<T>() => OpenDocumentAsync(typeof(T));
 
         public abstract Task CloseDocumentAsync(object content);
 
         public object MainViewModel {get;set;}
 
-        public virtual async Task OpenDocumentAsync(object obj)
+        public async Task OpenDocumentAsync(object obj)
         {
             if (obj is Type t)
             {

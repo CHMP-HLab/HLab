@@ -6,7 +6,7 @@ namespace HLab.Mvvm
 {
     public class DialogService : Service, IDialogService
     {
-        private bool? ShowMessage(string text, string caption, MessageBoxButton button, string icon)
+        bool? ShowMessage(string text, string caption, MessageBoxButton button, string icon)
         {
             if (!Enum.TryParse("Active", out MessageBoxImage img))
                 img = MessageBoxImage.Information;

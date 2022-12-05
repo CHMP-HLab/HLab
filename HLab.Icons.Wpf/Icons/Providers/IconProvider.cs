@@ -1,38 +1,30 @@
 ﻿using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Media;
-
 using Size = System.Drawing.Size;
 
 namespace HLab.Icons.Wpf.Icons.Providers
 {
     public abstract class IconProvider
     {
-        private readonly ConcurrentDictionary<Size, object> _cache = new();
-        public object Get(object background, Size size = default)
+
+        readonly ConcurrentQueue<object> _pool = new();
+        public async Task<object> GetAsync()
         {
-            if (size == default) return Get(background);
-            if (_cache.TryGetValue(size, out var icon)) return icon;
+            while (_pool.TryDequeue(out var pooledIcon))
+            {
+                if (pooledIcon is FrameworkElement { Parent: null })
+                    return pooledIcon;
+            }
 
-            var newIcon = Get(background);
-
-            return _cache.GetOrAdd(size,  s => XamlTools.GetBitmap((UIElement)newIcon,s));
-            //return _cache.GetOrAdd(size,  s => (UIElement)newIcon);
+            var icon = await GetActualAsync();
+            return icon;
         }
 
-        public async Task<object> GetAsync(object background, Size size = default)
-        {
-            if (size == default) return await GetAsync(background);
-            if (_cache.TryGetValue(size, out var icon)) return icon;
 
-            var newIcon = await GetAsync(background);
-
-            return _cache.GetOrAdd(size,  s => XamlTools.GetBitmap((UIElement)newIcon,s));
-            //return _cache.GetOrAdd(size,  s => (UIElement)newIcon);
-        }
-
-        protected abstract object Get(object background = null);
-        protected abstract Task<object> GetAsync(object background = null);
+        public abstract object Get();
+        protected abstract Task<object> GetActualAsync();
+        public abstract Task<string> GetTemplateAsync();
     }
 }

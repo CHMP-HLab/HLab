@@ -9,7 +9,7 @@ using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Application.Wpf.Icons
 {
-    public class IconListViewModel: EntityListViewModel<Icon>, IMvvmContextProvider
+    public class IconListViewModel: Erp.Core.EntityLists.EntityListViewModel<Icon>, IMvvmContextProvider
     {
         protected override bool CanExecuteAdd(Action<string> errorAction) => true;
         protected override bool CanExecuteDelete(Icon arg, Action<string> errorAction) => true;
@@ -17,7 +17,7 @@ namespace HLab.Mvvm.Application.Wpf.Icons
         protected override bool CanExecuteExport(Action<string> errorAction) => true;
         protected override bool CanExecuteImport(Action<string> errorAction) => true;
 
-        public IconListViewModel() : base(c => c
+        public IconListViewModel(Injector i) : base(i, c => c
             .Column("Path")
             .Header("{Path}")
             .Width(210).Link(e => e.Path)

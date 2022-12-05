@@ -29,11 +29,11 @@ namespace HLab.Base
 {
     public class LossyThread
     {
-        private readonly Queue<ThreadStart> _delegates = new Queue<ThreadStart>();
+        readonly Queue<ThreadStart> _delegates = new Queue<ThreadStart>();
 
-        private Thread _thread;
+        Thread _thread;
 
-        private readonly object _threadLock = new object();
+        readonly object _threadLock = new object();
 
         public void Add(ThreadStart ts)
         {

@@ -23,7 +23,7 @@ namespace HLab.Mvvm.Flowchart.Views
             DataContextChanged += GraphEditorView_DataContextChanged;
         }
 
-        private void GraphEditorView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        void GraphEditorView_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
             if(ViewModel is IViewModel vm)
             {
@@ -39,7 +39,7 @@ namespace HLab.Mvvm.Flowchart.Views
 
         }
 
-        private void Blocks_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
+        void Blocks_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
         {
             if (ViewModel is IViewModel vm)
             {
@@ -64,12 +64,13 @@ namespace HLab.Mvvm.Flowchart.Views
             }
         }
 
-        private IGraphViewModel ViewModel => DataContext as IGraphViewModel;
+        IGraphViewModel ViewModel => DataContext as IGraphViewModel;
 
-        private readonly Func<GraphToolboxViewModel> _getGraphToolboxViewModel;
+        readonly Func<GraphToolboxViewModel> _getGraphToolboxViewModel;
 
-        private FrameworkElement _toolbox;
-        private void ShowToolBox(Point p)
+        FrameworkElement _toolbox;
+
+        void ShowToolBox(Point p)
         {
             if (_toolbox == null)
                 _toolbox = (FrameworkElement)ViewModel.MvvmService.ViewHelperFactory.Get(this).Context.GetView<ViewModeDefault>(_getGraphToolboxViewModel());
@@ -87,12 +88,12 @@ namespace HLab.Mvvm.Flowchart.Views
             if (_toolbox != null) _toolbox.Visibility = Visibility.Hidden;
         }
 
-        private void LinkArea_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
+        void LinkArea_OnMouseRightButtonDown(object sender, MouseButtonEventArgs e)
         {
             ShowToolBox(e.GetPosition(WorkArea));
         }
 
-        private void LinkArea_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        void LinkArea_OnMouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             HideToolbox();
         }

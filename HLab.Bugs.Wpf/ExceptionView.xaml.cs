@@ -15,7 +15,7 @@ namespace HLab.Bugs.Wpf
     /// </summary>
     public partial class ExceptionView : Window
     {
-        private Exception _exception;
+        Exception _exception;
 
         public ExceptionView()
         {
@@ -47,7 +47,7 @@ namespace HLab.Bugs.Wpf
         public string Project { get; set; }
 
 
-        private void SetLanguage()
+        void SetLanguage()
         {
             var currentCulture = Thread.CurrentThread.CurrentUICulture;
             if (currentCulture.Name == "fr-FR")
@@ -66,22 +66,22 @@ namespace HLab.Bugs.Wpf
         }
 
 
-        private void ShowDetailButton_OnChecked(object sender, RoutedEventArgs e)
+        void ShowDetailButton_OnChecked(object sender, RoutedEventArgs e)
         {
             DetailTextBlock.Text = Exception.ToString();
             ScrollViewer.Visibility = Visibility.Visible;
             DetailTextBlock.Visibility = Visibility.Visible;
         }
 
-        private void ShowDetailButton_OnUnchecked(object sender, RoutedEventArgs e)
+        void ShowDetailButton_OnUnchecked(object sender, RoutedEventArgs e)
         {
             ScrollViewer.Visibility = Visibility.Collapsed;
             DetailTextBlock.Visibility = Visibility.Collapsed;
         }
 
-        private Task Post() => PostGithub();
+        Task Post() => PostGithub();
 
-        private void PostMantis()
+        void PostMantis()
         {
             if (ReportCheckBox.IsChecked != true) return;
             if (string.IsNullOrWhiteSpace(Token)) return;
@@ -132,7 +132,7 @@ namespace HLab.Bugs.Wpf
         }
 
 
-        private async Task PostGithub()
+        async Task PostGithub()
         {
             if (ReportCheckBox.IsChecked != true) return;
             if (string.IsNullOrWhiteSpace(Token)) return;
@@ -152,34 +152,34 @@ namespace HLab.Bugs.Wpf
             var issue = await client.Issue.Create("CHMP-HLab", "HLab.Erp.Lims.Analysis", createIssue);
         }
 
-        private async void OkButton_OnClick(object sender, RoutedEventArgs e)
+        async void OkButton_OnClick(object sender, RoutedEventArgs e)
         {
             await Post();
             Application.Current.Shutdown();
         }
 
-        private async void ReopenButton_OnClick(object sender, RoutedEventArgs e)
+        async void ReopenButton_OnClick(object sender, RoutedEventArgs e)
         {
             await Post();
             Process.Start(Application.ResourceAssembly.Location);
             Application.Current.Shutdown();
         }
 
-        private void ReportCheckBox_OnChecked(object sender, RoutedEventArgs e)
+        void ReportCheckBox_OnChecked(object sender, RoutedEventArgs e)
         {
             if (CommentTextBox == null) return;
             CommentTextBlock.Visibility = Visibility.Visible;
             CommentTextBox.Visibility = Visibility.Visible;
         }
 
-        private void ReportCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
+        void ReportCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
         {
             if (CommentTextBox == null) return;
             CommentTextBlock.Visibility = Visibility.Collapsed;
             CommentTextBox.Visibility = Visibility.Collapsed;
         }
 
-        private void ThrowButton_OnClick(object sender, RoutedEventArgs e)
+        void ThrowButton_OnClick(object sender, RoutedEventArgs e)
         {
             Close();
         }

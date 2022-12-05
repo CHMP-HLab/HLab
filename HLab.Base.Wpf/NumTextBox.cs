@@ -98,7 +98,7 @@ namespace HLab.Base.Wpf
             set => SetValue(HideZeroValueProperty, value);
         }
 
-        private static string FormatZeros(int value, int zeros, bool hideZeroValue)
+        static string FormatZeros(int value, int zeros, bool hideZeroValue)
         {
             if (hideZeroValue && value == 0) return "";
 
@@ -112,7 +112,7 @@ namespace HLab.Base.Wpf
             return text;
         }
 
-        private static int ParseTextToValue(string text)
+        static int ParseTextToValue(string text)
         {
             if(int.TryParse(text,out var value))
             {
@@ -160,7 +160,7 @@ namespace HLab.Base.Wpf
                 e.Handled = MoveNext();
         }
 
-        private void SetMandatoryNotFilled()
+        void SetMandatoryNotFilled()
         {
             if (MandatoryNotFilled)
             {
@@ -174,7 +174,7 @@ namespace HLab.Base.Wpf
             }
         }
 
-        private void UpdateText()
+        void UpdateText()
         {
             Text = FormatZeros(Value, Zeros, HideZeroValue);
         }
@@ -209,13 +209,13 @@ namespace HLab.Base.Wpf
                 return true;
         }
 
-        private static void SelectAllText(RoutedEventArgs e)
+        static void SelectAllText(RoutedEventArgs e)
         {
             if (e.OriginalSource is NumTextBox textBox)
                 textBox.SelectAll();
         }
 
-        private int ConstrainedValue(int value)
+        int ConstrainedValue(int value)
         {
             if (value > MaxValue) value = MaxValue;
             if (value < MinValue) value = MinValue;
@@ -229,7 +229,7 @@ namespace HLab.Base.Wpf
             UpdateText();
         }
 
-        private static void SelectivelyIgnoreMouseButton( MouseButtonEventArgs e)
+        static void SelectivelyIgnoreMouseButton( MouseButtonEventArgs e)
         {
             // Find the TextBox
             DependencyObject parent = e.OriginalSource as UIElement;

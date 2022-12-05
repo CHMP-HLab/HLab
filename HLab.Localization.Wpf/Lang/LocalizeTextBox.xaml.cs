@@ -23,7 +23,7 @@ namespace HLab.Localization.Wpf.Lang
             InitializeComponent();
         }
 
-        private void SetReadOnly(bool readOnly)
+        void SetReadOnly(bool readOnly)
         {
             if (readOnly)
             {
@@ -67,7 +67,7 @@ namespace HLab.Localization.Wpf.Lang
                 })
                 .Register();
 
-        private async void SetLocalizationOpened(bool opened)
+        async void SetLocalizationOpened(bool opened)
         {
             if (opened)
             {
@@ -102,7 +102,7 @@ namespace HLab.Localization.Wpf.Lang
 
         public ObservableCollection<ILocalizeEntry> Translations { get; } = new();
 
-        private async Task PopulateAsync(string source)
+        async Task PopulateAsync(string source)
         {
             var service = (ILocalizationService)GetValue(Localize.LocalizationServiceProperty);
             var list = source.GetInside('{', '}').ToList();
@@ -115,12 +115,12 @@ namespace HLab.Localization.Wpf.Lang
             }
         }
 
-        private void UnPopulate()
+        void UnPopulate()
         {
             Translations.Clear();
         }
 
-        private void Button_OnClick(object sender, RoutedEventArgs e)
+        void Button_OnClick(object sender, RoutedEventArgs e)
         {
             LocalizationOpened = !LocalizationOpened;
         }

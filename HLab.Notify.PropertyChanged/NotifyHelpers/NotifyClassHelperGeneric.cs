@@ -14,7 +14,7 @@ namespace HLab.Notify.PropertyChanged.NotifyHelpers
             }
         }
 
-        private void TargetPropertyChanged(object sender, PropertyChangedEventArgs args)
+        void TargetPropertyChanged(object sender, PropertyChangedEventArgs args)
         {
             if (TryGetPropertyEntry(args.PropertyName, out var propertyEntry))
             {

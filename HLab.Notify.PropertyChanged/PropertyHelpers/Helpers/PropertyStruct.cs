@@ -4,9 +4,9 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyStruct<T> : IPropertyValue<T>
     {
-        private readonly object _lock = new object();
+        readonly object _lock = new object();
 
-        private T _value;
+        T _value;
 
         public T Get()
         {
@@ -33,7 +33,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             return Set(setter(_holder.Parent));
         }
 
-        private readonly PropertyHolder<T> _holder;
+        readonly PropertyHolder<T> _holder;
         public PropertyStruct(PropertyHolder<T> holder)
         {
             _holder = holder;

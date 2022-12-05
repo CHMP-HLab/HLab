@@ -14,13 +14,13 @@ namespace HLab.Mvvm
 {
     public abstract class MvvmService : IMvvmService
     {
-        private IMessageBus _messageBus;
+        IMessagesService _messageBus;
 
-        private string _assemblyName;
+        string _assemblyName;
 
         public IMvvmContext GetNewContext(IMvvmContext parent, string name) => new MvvmContext(parent, name, this); 
 
-        public MvvmService(IMessageBus messageBus, Func<Type,object> locateFunc)
+        public MvvmService(IMessagesService messageBus, Func<Type,object> locateFunc)
         {
             LocateFunc = locateFunc;
             _messageBus = messageBus;
@@ -98,8 +98,8 @@ namespace HLab.Mvvm
             ServiceState = ServiceState.Available;
         }
 
-        private double _perAssemblyProgress = 0.0;
-        private double _progress = 0.0;
+        double _perAssemblyProgress = 0.0;
+        double _progress = 0.0;
 
         public void Register(Assembly assembly)
         {
@@ -203,14 +203,15 @@ namespace HLab.Mvvm
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        private IEnumerable<Type> GetViewClasses(Type type)
+        IEnumerable<Type> GetViewClasses(Type type)
         {
             return type.GetInterfaces().Where(i => typeof(IViewClass).IsAssignableFrom(i) && typeof(IViewClass) != i);
         }
 
 
-        private readonly ConcurrentDictionary<Type, Type> _modelsTypes = new ConcurrentDictionary<Type, Type>();
-        private Type GetModelType(Type type)
+        readonly ConcurrentDictionary<Type, Type> _modelsTypes = new ConcurrentDictionary<Type, Type>();
+
+        Type GetModelType(Type type)
         {
             return _modelsTypes.GetOrAdd(type, (t) => {
                 //if (!typeof(IViewModel).IsAssignableFrom(type)) return null; //throw new ArgumentException(type + " does not implement IViewModel");
@@ -229,12 +230,13 @@ namespace HLab.Mvvm
                 return null;
             });
         }
-        private IEnumerable<Assembly> AllAssemblies()
+
+        IEnumerable<Assembly> AllAssemblies()
         {
             return AppDomain.CurrentDomain.GetAssemblies()/*.Where(a => a.GetReferencedAssemblies().Any(e => e.Name == "Mvvm"))*/;
         }
 
-        private readonly ConcurrentDictionary<Type, MvvmBaseEntry> _entries = new ConcurrentDictionary<Type, MvvmBaseEntry>();
+        readonly ConcurrentDictionary<Type, MvvmBaseEntry> _entries = new ConcurrentDictionary<Type, MvvmBaseEntry>();
 
         protected virtual void OnProgress(double progress, string text)
         {
@@ -244,7 +246,7 @@ namespace HLab.Mvvm
         internal class MvvmBaseEntry
         {
             public Type BaseType { get; }
-            private readonly HashSet<MvvmLinkedEntry> _list = new HashSet<MvvmLinkedEntry>();
+            readonly HashSet<MvvmLinkedEntry> _list = new HashSet<MvvmLinkedEntry>();
             public MvvmBaseEntry(Type baseType)
             {
                 BaseType = baseType;

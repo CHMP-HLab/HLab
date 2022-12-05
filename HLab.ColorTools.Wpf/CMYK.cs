@@ -12,10 +12,10 @@ namespace HLab.ColorTools.Wpf
         /// </summary>
         public readonly static CMYK Empty = new CMYK();
 
-        private double c;
-        private double m;
-        private double y;
-        private double k;
+        double c;
+        double m;
+        double y;
+        double k;
 
         public static bool operator ==(CMYK item1, CMYK item2)
         {

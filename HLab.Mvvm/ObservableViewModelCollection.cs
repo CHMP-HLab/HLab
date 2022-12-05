@@ -40,11 +40,11 @@ namespace HLab.Mvvm
     public class ObservableViewModelCollection<T> : ObservableCollection<T> , INotifyPropertyChangedWithHelper/*, ITriggable*/
         where T : INotifyPropertyChanged
     {
-        private readonly ConditionalWeakTable<object, object> _weakTable= new ConditionalWeakTable<object, object>();
-        private Func<object,T> _viewModelCreator = null;
-        private Action<CreateHelper> _viewModelDestructor = null;
+        readonly ConditionalWeakTable<object, object> _weakTable= new ConditionalWeakTable<object, object>();
+        Func<object,T> _viewModelCreator = null;
+        Action<CreateHelper> _viewModelDestructor = null;
 
-        private Func<IMvvmContext> _getMvvmContext = null;
+        Func<IMvvmContext> _getMvvmContext = null;
 
         public ObservableViewModelCollection<T> AddCreator(Func<object, T> c)
         {
@@ -76,7 +76,7 @@ namespace HLab.Mvvm
             }
         }
 
-        private void SetList()
+        void SetList()
         {
             var list = _getList();
             if (!ReferenceEquals(list,_list))
@@ -102,8 +102,8 @@ namespace HLab.Mvvm
             }
         }
 
-        private Func<INotifyCollectionChanged> _getList = null;
-        private INotifyCollectionChanged _list = null;
+        Func<INotifyCollectionChanged> _getList = null;
+        INotifyCollectionChanged _list = null;
         public ObservableViewModelCollection<T> Link(Func<INotifyCollectionChanged> getList)
         {
             Debug.Assert(Count == 0);
@@ -114,7 +114,7 @@ namespace HLab.Mvvm
         }
 
         // TODO
-        private void L_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        void L_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             //if (e.PropertyName != "Selected") return;
             //if (!(_list is ObservableCollectionNotifier<T> l)) return;
@@ -141,7 +141,8 @@ namespace HLab.Mvvm
                 }
             }
         }
-        private IProperty<T> _selected = H<ObservableViewModelCollection<T>>.Property<T>();
+
+        IProperty<T> _selected = H<ObservableViewModelCollection<T>>.Property<T>();
 
         public bool Select(T entity)
         {
@@ -179,7 +180,7 @@ namespace HLab.Mvvm
         //}
 
 
-        private void _list_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        void _list_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
         {
             switch (e.Action)
             {

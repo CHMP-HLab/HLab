@@ -44,8 +44,9 @@ namespace HLab.Base.Wpf
             get => (double)GetValue(DoubleProperty);
         }
 
-        private bool _preventFormat = false;
-        private void OnDoubleChanged(double oldValue, double value)
+        readonly bool _preventFormat = false;
+
+        void OnDoubleChanged(double oldValue, double value)
         {
             if (!_preventFormat)
             {
@@ -57,8 +58,8 @@ namespace HLab.Base.Wpf
         public static readonly RoutedEvent DoubleChangedEvent = H.Event<RoutedEvent>().Bubble.Register();
         public event RoutedEventHandler DoubleChanged
         {
-            add { AddHandler(DoubleChangedEvent, value); }
-            remove { RemoveHandler(DoubleChangedEvent, value); }
+            add => AddHandler(DoubleChangedEvent, value);
+            remove => RemoveHandler(DoubleChangedEvent, value);
         }
 
         public static implicit operator double(DoubleBox doubleBox) => doubleBox?.Double ?? default;
@@ -78,7 +79,7 @@ namespace HLab.Base.Wpf
             get => (int)GetValue(DecimalsProperty);
         }
 
-        private void OnDecimalsChanged(int value)
+        void OnDecimalsChanged(int value)
         {
             if (double.IsFinite(Double))
             {
@@ -115,7 +116,7 @@ namespace HLab.Base.Wpf
         }
 
         //Privates
-        private void FormatDouble()
+        void FormatDouble()
         {
             if (double.IsNaN(Double))
             {
@@ -128,18 +129,18 @@ namespace HLab.Base.Wpf
             }
         }
 
-        private void TextBox_GotFocus(object sender, RoutedEventArgs e)
+        void TextBox_GotFocus(object sender, RoutedEventArgs e)
         {
             if (TextBox.SelectionLength == 0)
                 TextBox.SelectAll();
         }
 
-        private void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        void TextBox_LostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
         {
             TextBox.LostMouseCapture += TextBox_LostMouseCapture;
         }
 
-        private void TextBox_LostMouseCapture(object sender, MouseEventArgs e)
+        void TextBox_LostMouseCapture(object sender, MouseEventArgs e)
         {
             // If user highlights some text, don't override it
             if (TextBox.SelectionLength == 0)
@@ -149,66 +150,59 @@ namespace HLab.Base.Wpf
             TextBox.LostMouseCapture -= TextBox_LostMouseCapture;
         }
 
-        private void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
+        void TextBox_PreviewTextInput(object sender, TextCompositionEventArgs e)
         {
-            foreach (char c in e.Text)
+            foreach (var c in e.Text)
             {
                 var text = TextBox.Text;
                 var selectionStart = TextBox.SelectionStart;
                 var separatorPos = text.IndexOf(Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator);
 
-                if (c == '.' || c == ',')
+                switch (c)
                 {
-                    if (separatorPos >= 0)
+                    case '.':
+                    case ',':
                     {
-                        if (separatorPos >= TextBox.SelectionStart)
+                        if (separatorPos >= 0)
                         {
-                            TextBox.SelectionStart = separatorPos + 1;
-                            TextBox.SelectionLength = TextBox.Text.Length - TextBox.SelectionStart;
-                            e.Handled = true;
-                            return;
-                        }
-                        else
-                        {
-                            e.Handled = true;
-                            return;
-                        }
-                    }
-                }
+                            if (separatorPos >= TextBox.SelectionStart)
+                            {
+                                TextBox.SelectionStart = separatorPos + 1;
+                                TextBox.SelectionLength = TextBox.Text.Length - TextBox.SelectionStart;
+                                e.Handled = true;
+                                return;
+                            }
 
-                if (c == '-')
-                {
-                    if (Double >= 0)
-                    {
+                            e.Handled = true;
+                            return;
+                        }
+
+                        break;
+                    }
+                    case '-' when Double >= 0:
                         TextBox.Text = $"-{text.Trim()}";
                         TextBox.SelectionStart = selectionStart + 1;
                         e.Handled = true;
                         return;
-                    }
-                }
 
-                if (c == '+')
-                {
-                    if (TextBox.Text.Contains("-"))
-                    {
+                    case '+' when TextBox.Text.Contains("-"):
                         TextBox.Text = text.Replace("-", "");
                         TextBox.SelectionStart = Math.Max(selectionStart + 1, 0);
                         e.Handled = true;
                         return;
-                    }
                 }
 
-                if (!"0123456789.,".Contains(c))
-                {
-                    e.Handled = true;
-                    return;
-                }
+                if ("0123456789.,".Contains(c)) continue;
+
+                e.Handled = true;
+                return;
             }
         }
 
 
-        string oldText = "";
-        private void TextBox_TextChanged(object sender, TextChangedEventArgs e)
+        string _oldText = "";
+
+        void TextBox_TextChanged(object sender, TextChangedEventArgs e)
         {
             if (IsReadOnly) return;
 
@@ -223,14 +217,14 @@ namespace HLab.Base.Wpf
             if (
                 e.Changes.Count > 0
                 && e.Changes.First().RemovedLength == 1
-                && oldText.Length > offset
-                && oldText[offset] == ',')
+                && _oldText.Length > offset
+                && _oldText[offset] == ',')
             {
-                text = oldText[0..(offset - 1)] + oldText[offset..];
+                text = _oldText[..(offset - 1)] + _oldText[offset..];
                 selection--;
             }
 
-            oldText = TextBox.Text;
+            _oldText = TextBox.Text;
 
             // if french separator is used but numpad has point
             if (separator == ",")
@@ -249,7 +243,7 @@ namespace HLab.Base.Wpf
             if (text.EndsWith(separator + "[]")) text += new string('0', Decimals);
 
             //Find separator
-            var separatorPos = text.IndexOf(separator);
+            var separatorPos = text.IndexOf(separator, StringComparison.Ordinal);
 
             //If no separator lets add one
             if (separatorPos < 0)
@@ -260,61 +254,81 @@ namespace HLab.Base.Wpf
 
             // Cut or add missing exeeding decimals
             var q = text.Substring(separatorPos + 1).Replace("[", "").Replace("]", "");
-            int n = Decimals - q.Length;
+            var n = Decimals - q.Length;
 
-            if (n > 0)
-                text += new string('0', Decimals - q.Length);
-            if (n < 0)
-                text = text.Substring(0, text.Length + n);
+            switch (n)
+            {
+                case > 0:
+                    text += new string('0', Decimals - q.Length);
+                    break;
+
+                case < 0:
+                    text = text[..(text.Length + n)];
+                    break;
+            }
 
             var textOut = "";
             n = 0;
 
             var neg = false;
             var prefix = "";
-            bool atSelection = false;
+            var atSelection = false;
 
             // Format integer part
-            for (int i = separatorPos - 1; i >= 0; i--)
+            for (var i = separatorPos - 1; i >= 0; i--)
             {
                 var c = text[i];
 
                 if (c == '-') neg = true;
 
-                if ("0123456789".Contains(c))
+                switch (c)
                 {
-                    if (atSelection && prefix == " " && e.Changes.First().RemovedLength == 1)
-                    { }
-                    else
-                    {
-                        textOut = c + prefix + textOut;
-
-                        n++;
-                        if (n == 3)
-                        {
-                            n = 0;
-                            prefix = " ";
-                        }
+                    case '-':
+                        neg = true;
+                        break;
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        if (atSelection && prefix == " " && e.Changes.First().RemovedLength == 1)
+                        { }
                         else
-                            prefix = "";
-                    }
-                    atSelection = false;
+                        {
+                            textOut = c + prefix + textOut;
+
+                            n++;
+                            if (n == 3)
+                            {
+                                n = 0;
+                                prefix = " ";
+                            }
+                            else
+                                prefix = "";
+                        }
+                        atSelection = false;
+                        break;
+
+                    case '[':
+                        textOut = c + textOut;
+                        atSelection = true;
+                        break;
+                    case ']':
+                        textOut = c + textOut;
+                        atSelection = false;
+                        break;
+                    case ' ':
+                        atSelection = false;
+                        break;
+                    default:
+                        atSelection = false;
+                        break;
                 }
-                else if (c == '[')
-                {
-                    textOut = c + textOut;
-                    atSelection = true;
-                }
-                else if (c == ']')
-                {
-                    textOut = c + textOut;
-                    atSelection = false;
-                }
-                else if (c == ' ')
-                {
-                    atSelection = false;
-                }
-                else atSelection = false;
             }
 
             // Format decimal part
@@ -331,13 +345,26 @@ namespace HLab.Base.Wpf
 
                 var c = text[i];
 
-                if ("0123456789".Contains(c))
+                switch (c)
                 {
-                    if (n < Decimals) textOut += c;
-                    n++;
+                    case '0':
+                    case '1':
+                    case '2':
+                    case '3':
+                    case '4':
+                    case '5':
+                    case '6':
+                    case '7':
+                    case '8':
+                    case '9':
+                        if (n < Decimals) textOut += c;
+                        n++;
+                        break;
+                    case '[':
+                    case ']':
+                        textOut += c;
+                        break;
                 }
-                else if (c == '[' || c == ']')
-                    textOut += c;
             }
 
             while ((textOut.StartsWith('0') || textOut.StartsWith(' ')) && !textOut.StartsWith("0" + separator))
@@ -365,7 +392,7 @@ namespace HLab.Base.Wpf
         }
 
 
-        private double DeltaWithModifierKey(double delta)
+        double DeltaWithModifierKey(double delta)
         {
             if ((Keyboard.Modifiers & ModifierKeys.Control) != 0) return delta / 10;
             if ((Keyboard.Modifiers & ModifierKeys.Shift) != 0) return delta * 10;
@@ -373,10 +400,11 @@ namespace HLab.Base.Wpf
         }
 
         [DllImport("User32.dll")]
-        private static extern bool SetCursorPos(int X, int Y);
-        private static void SetCursorPos(Point p) => SetCursorPos((int)Math.Round(p.X,0), (int)Math.Round(p.Y,0));
+        static extern bool SetCursorPos(int X, int Y);
 
-        private void Shift(double delta, object sender,  MouseEventArgs args)
+        static void SetCursorPos(Point p) => SetCursorPos((int)Math.Round(p.X,0), (int)Math.Round(p.Y,0));
+
+        void Shift(double delta, object sender,  MouseEventArgs args)
         {
             Double += delta;
 
@@ -402,37 +430,35 @@ namespace HLab.Base.Wpf
             
         }
 
-        private void OnMouseWheel(object sender, MouseWheelEventArgs e)
+        void OnMouseWheel(object sender, MouseWheelEventArgs e)
         {
             Shift(DeltaWithModifierKey((e.Delta > 0) ? 1.0 : -1.0),sender,e);
         }
 
-        private void Click_Up(object sender, RoutedEventArgs e)
+        void Click_Up(object sender, RoutedEventArgs e)
         {
             Shift(DeltaWithModifierKey(1.0),sender,null);
         }
 
-        private void Click_Down(object sender, RoutedEventArgs e)
+        void Click_Down(object sender, RoutedEventArgs e)
         {
             Shift(DeltaWithModifierKey(-1.0),sender,null);
 
         }
 
-        private void UpdateDoubleFromText()
+        void UpdateDoubleFromText()
         {
-            if (double.TryParse(TextBox.Text, out var value)) Double = value;
-            else Double = Double.NaN;
-
+            Double = double.TryParse(TextBox.Text, out var value) ? value : double.NaN;
         }
 
-        private void TextBox_LostFocus(object sender, RoutedEventArgs e)
+        void TextBox_LostFocus(object sender, RoutedEventArgs e)
         {
             if(IsReadOnly) return;
 
             UpdateDoubleFromText();
         }
 
-        private void OnKeyEnterUpdate(object sender, KeyEventArgs e)
+        void OnKeyEnterUpdate(object sender, KeyEventArgs e)
         {
             if(e.Key == Key.Enter)
             {

@@ -25,9 +25,9 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
             }
         }
 
-        private static readonly Func<string,PropertyActivator> _getByHolderParent;
-        private static readonly ConcurrentDictionary<string, PropertyActivator> CacheByHolder = new();
-        private static readonly ConcurrentDictionary<string, PropertyActivator> CacheByProperty = new();
+        static readonly Func<string,PropertyActivator> _getByHolderParent;
+        static readonly ConcurrentDictionary<string, PropertyActivator> CacheByHolder = new();
+        static readonly ConcurrentDictionary<string, PropertyActivator> CacheByProperty = new();
         public static PropertyActivator GetByProperty(string name )
         {
             if(CacheByProperty.TryGetValue(name, out var e)) return e;

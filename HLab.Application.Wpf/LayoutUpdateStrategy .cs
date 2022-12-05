@@ -5,9 +5,9 @@ using HLab.Erp.Core;
 
 namespace HLab.Mvvm.Application.Wpf
 {
-    class LayoutUpdateStrategy : ILayoutUpdateStrategy
+    internal class LayoutUpdateStrategy : ILayoutUpdateStrategy
     {
-        private bool BeforeInsertContent(LayoutRoot layout, LayoutContent anchorableToShow)
+        bool BeforeInsertContent(LayoutRoot layout, LayoutContent anchorableToShow)
         {
             var viewModel = (IViewClassAnchorable)anchorableToShow.Content;
             var layoutContent = layout.Descendents().OfType<LayoutContent>().FirstOrDefault(x => x.ContentId == viewModel.ContentId);

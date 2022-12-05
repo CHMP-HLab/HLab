@@ -11,6 +11,7 @@ using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using System.Xml;
 using System.Xml.Xsl;
 
@@ -20,19 +21,22 @@ namespace HLab.Icons.Wpf.Icons
 {
     public static class XamlTools
     {
-        private static readonly Color ForeColor = Colors.Yellow;
-        private static readonly Color BackColor = Colors.Transparent;
+        //public static DispatcherPriority Priority { get; } = DispatcherPriority.Input;
+        //public static DispatcherPriority Priority { get; } = DispatcherPriority.Render;
+        public static DispatcherPriority Priority { get; } = DispatcherPriority.DataBind;
+        public static DispatcherPriority Priority2 { get; } = DispatcherPriority.Input;
 
-        private static readonly Brush DefaultForeColor = new SolidColorBrush(ForeColor);
-        private static readonly Brush DefaultBackColor = new SolidColorBrush(BackColor);
+        static readonly Color ForeColor = Colors.Yellow;
+        static readonly Color BackColor = Colors.Transparent;
 
-        private static XslCompiledTransform _transformSvg;
-        public static XslCompiledTransform TransformSvg
+        static readonly Brush DefaultForeColor = new SolidColorBrush(ForeColor);
+        static readonly Brush DefaultBackColor = new SolidColorBrush(BackColor);
+
+        static XslCompiledTransform _transformSvg;
+        public static XslCompiledTransform TransformSvg => _transformSvg??=GetTransformSvg();
+
+        static XslCompiledTransform GetTransformSvg()
         {
-            get
-            {
-                if (_transformSvg != null) return _transformSvg;
-
                 using var xslStream = Assembly.GetAssembly(typeof(IconProviderSvg))
                     .GetManifestResourceStream("HLab.Icons.Wpf.Icons.svg2xaml.xsl");
                 if (xslStream == null) throw new IOException("xsl file not found");
@@ -40,29 +44,35 @@ namespace HLab.Icons.Wpf.Icons
                 using var stylesheet = XmlReader.Create(xslStream);
                 var settings = new XsltSettings(true, true);
 
-                _transformSvg = new XslCompiledTransform();
+                var transformSvg = new XslCompiledTransform();
 
                 XmlUrlResolver resolver = new();
 
-                _transformSvg.Load(stylesheet, settings, resolver);
+                transformSvg.Load(stylesheet, settings, resolver);
 
 
-                return _transformSvg;
-            }
+                return transformSvg;
         }
 
 
         public static async Task<string> SvgToXamlAsync(string svg)
         {
-            if (svg == null) return null;
-            var byteArray = Encoding.ASCII.GetBytes(svg);
-            await using var stream = new MemoryStream(byteArray);
+            if (string.IsNullOrEmpty(svg)) return null;
+            try
+            {
+                var byteArray = Encoding.ASCII.GetBytes(svg);
+                await using var stream = new MemoryStream(byteArray);
 
-            await using var s = await StreamFromSvgStreamAsync(stream);
-            var r = new StreamReader(s);
-            var xaml = await r.ReadToEndAsync();
+                await using var s = await StreamFromSvgStreamAsync(stream);
+                var r = new StreamReader(s);
+                var xaml = await r.ReadToEndAsync();
 
-            return xaml;
+                return xaml;
+            }
+            catch
+            {
+                return null;
+            }
         }
 
         public static async Task<object> FromSvgStringAsync(string svg)
@@ -97,7 +107,7 @@ namespace HLab.Icons.Wpf.Icons
             return FromXamlStream(input);
         }
 
-        private static async Task<Stream> StreamFromSvgStreamAsync(Stream svgStream)
+        static async Task<Stream> StreamFromSvgStreamAsync(Stream svgStream)
         {
             var settings = new XmlReaderSettings
             {
@@ -135,7 +145,8 @@ namespace HLab.Icons.Wpf.Icons
             }
 
         }
-        private static Stream StreamFromSvgStream(Stream svgStream)
+
+        static Stream StreamFromSvgStream(Stream svgStream)
         {
             var settings = new XmlReaderSettings
             {
@@ -194,11 +205,11 @@ namespace HLab.Icons.Wpf.Icons
             try
             {
                 var tcs = new TaskCompletionSource<UIElement>();
-                XmlReaderSettings settings = new XmlReaderSettings
-                {
-                    DtdProcessing = DtdProcessing.Parse,
-                    MaxCharactersFromEntities = 1024
-                };
+                //var settings = new XmlReaderSettings
+                //{
+                //    DtdProcessing = DtdProcessing.Parse,
+                //    MaxCharactersFromEntities = 1024
+                //};
 
                 var xr = new XamlReader();
 
@@ -210,14 +221,21 @@ namespace HLab.Icons.Wpf.Icons
                     if (obj is not UIElement icon) return;
                     tcs.SetResult(icon);
                 };
-
-                obj = xr.LoadAsync(xamlStream);
+                await Application.Current.Dispatcher.InvokeAsync(() =>
+                {
+                    obj = xr.LoadAsync(xamlStream);
+                },XamlTools.Priority2);
 
                 return await tcs.Task.ConfigureAwait(false);
             }
             catch (XamlParseException e)
             {
-                return new Viewbox
+                xamlStream.Position = 0;
+
+                var r = new StreamReader(xamlStream);
+                var code = await r.ReadToEndAsync();
+
+                return await Application.Current.Dispatcher.InvokeAsync(() => new Viewbox
                 {
                     Stretch = Stretch.Uniform,
                     Child = new Canvas
@@ -225,13 +243,13 @@ namespace HLab.Icons.Wpf.Icons
                         Height = 100,
                         Width = 100,
                         Children = {new Rectangle()
-                    {
-                        Height = 100, Width = 100,
-                        Fill=new SolidColorBrush(Colors.Red)
-                    } }
+                        {
+                            Height = 100, Width = 100,
+                            Fill=new SolidColorBrush(Colors.Red)
+                        } }
                     },
                     ToolTip = e.Message
-                };
+                },XamlTools.Priority2);
             }
             catch (IOException e)
             {
@@ -280,7 +298,7 @@ namespace HLab.Icons.Wpf.Icons
         }
 
 
-        private static BindingBase GetForeBinding() => new Binding("Foregound")
+        static BindingBase GetForeBinding() => new Binding("Foregound")
             {
 //                IsAsync = true,
 //                Mode = BindingMode.OneWay,
@@ -289,7 +307,7 @@ namespace HLab.Icons.Wpf.Icons
                     typeof(Control), 1)
             };
 
-        private static BindingBase GetBackBinding() => new Binding("Background")
+        static BindingBase GetBackBinding() => new Binding("Background")
             {
 //                IsAsync = true,
 //                Mode = BindingMode.OneWay,
@@ -298,7 +316,14 @@ namespace HLab.Icons.Wpf.Icons
                     typeof(Control), 1)
             };
 
-        static public DependencyObject SetForeground(DependencyObject ui, Color foregroundColor, Brush foregroundBrush)
+        public static async Task<DependencyObject> SetForegroundAsync(DependencyObject ui, Color foregroundColor,
+            Brush foregroundBrush)
+        {
+            return await Application.Current.Dispatcher.InvokeAsync(() =>
+                SetForeground(ui, foregroundColor, foregroundBrush),XamlTools.Priority2);
+        }
+
+        public static DependencyObject SetForeground(DependencyObject ui, Color foregroundColor, Brush foregroundBrush)
         {
             if (ui is Shape shape)
             {
@@ -327,7 +352,7 @@ namespace HLab.Icons.Wpf.Icons
             return ui;
 
         }
-        static private DependencyObject SetForeground(DependencyObject element, Color foregroundColor, Brush foregroundBrush, DependencyProperty property)
+        static DependencyObject SetForeground(DependencyObject element, Color foregroundColor, Brush foregroundBrush, DependencyProperty property)
         {
 
                 var brush = element.GetValue(property);
@@ -372,7 +397,7 @@ namespace HLab.Icons.Wpf.Icons
             return ui;
         }
 
-        private static void SetBinding(FrameworkElement element, Color? foreColor, Color? backColor, DependencyProperty property)
+        static void SetBinding(FrameworkElement element, Color? foreColor, Color? backColor, DependencyProperty property)
         {
                 var brush = element.GetValue(property);
 
@@ -393,9 +418,9 @@ namespace HLab.Icons.Wpf.Icons
         }
 
 
-        private static XslCompiledTransform _transformHtml;
+        static XslCompiledTransform _transformHtml;
 
-        private static XslCompiledTransform TransformHtml
+        static XslCompiledTransform TransformHtml
         {
             get
             {

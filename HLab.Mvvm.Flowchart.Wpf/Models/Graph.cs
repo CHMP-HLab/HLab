@@ -3,6 +3,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Runtime.Serialization;
 using System.Xml;
+using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Flowchart.Models
 {
@@ -10,7 +11,12 @@ namespace HLab.Mvvm.Flowchart.Models
     {
         public event EventHandler BlocksLoaded;
 
-        private GraphService _graphService;
+        readonly GraphService _graphService;
+        public Graph(GraphService graphService) 
+        {
+            _graphService = graphService;
+            Id = "#";
+        }
 
         [DataMember] public ObservableCollection<IGraphBlock> Blocks { get; } = new ObservableCollection<IGraphBlock>();  // => N.Get(() => );
         public void Load(string s)
@@ -19,15 +25,13 @@ namespace HLab.Mvvm.Flowchart.Models
             doc.LoadXml(s);
             foreach (var node in doc.ChildNodes)
             {
-                if (node is XmlElement e)
+                if (node is not XmlElement e) continue;
+                if (e.Name == GetType().Name)
                 {
-                    if (e.Name == GetType().Name)
-                    {
-                        _graphService.LoadXmlAttributes(this,e);
-                    }
+                    _graphService.LoadXmlAttributes(this,e);
                 }
             }
-            BlocksLoaded?.Invoke(this, new EventArgs());
+            BlocksLoaded?.Invoke(this, EventArgs.Empty);
         }
 
 
@@ -43,10 +47,5 @@ namespace HLab.Mvvm.Flowchart.Models
             Blocks.Add(block);
         }
 
-        public void Inject(GraphService graphService)
-        {
-            _graphService = graphService;
-            Id = "#";
-        }
     }
 }

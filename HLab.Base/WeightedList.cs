@@ -13,7 +13,7 @@ namespace HLab.Base
 
     public class WeightedList<T> : IEnumerable<T>
     {
-        private Func<Node, Node, int> _comparator;
+        Func<Node, Node, int> _comparator;
 
         public WeightedList()
         {
@@ -77,8 +77,8 @@ namespace HLab.Base
         }
 
 
-        private Node _first;
-        private Node _last;
+        Node _first;
+        Node _last;
 
         public Node First { get => _first;}
         public Node Last { get => _last; }
@@ -139,7 +139,7 @@ namespace HLab.Base
             }
         }
 
-        private void Unlink(Node node)
+        void Unlink(Node node)
         {
             var previous = node.Previous;
 
@@ -157,7 +157,7 @@ namespace HLab.Base
         }
 
 
-        private void Link(ref Node previousNext, ref Node nextPrevious, Node node)
+        void Link(ref Node previousNext, ref Node nextPrevious, Node node)
         {
             var next = previousNext;
             var previous = nextPrevious;
@@ -169,7 +169,7 @@ namespace HLab.Base
             nextPrevious = node;
         }
 
-        private void LinkAfter(Node previous, Node node)
+        void LinkAfter(Node previous, Node node)
         {
             if (previous == null)
             {
@@ -187,7 +187,7 @@ namespace HLab.Base
             }
         }
 
-        private void LinkBefore(Node next, Node node)
+        void LinkBefore(Node next, Node node)
         {
             if (next == null)
             {
@@ -218,7 +218,7 @@ namespace HLab.Base
             return this;
         }
 
-        private void Relocate(Node node)
+        void Relocate(Node node)
         {
             var newPrevious = node.Previous;
 
@@ -273,8 +273,8 @@ namespace HLab.Base
 
         class Enumerator : IEnumerator<T>
         {
-            private readonly WeightedList<T> _list;
-            private Node _current;
+            readonly WeightedList<T> _list;
+            Node _current;
             public Enumerator(WeightedList<T> list)
             {
                 _list = list;

@@ -65,7 +65,7 @@
             </Popup>
         </Grid>
 
-        <Label Opacity="0.5" Grid.Column="2" Content="/" IsTabStop="False"/>
+        <Label Margin="-5" Opacity="0.5" Grid.Column="2" Content="/" IsTabStop="False"/>
 
         <wpf:NumTextBox 
             Margin ="0"
@@ -79,7 +79,7 @@
             ValueChanged="OnValueChange"
             />
 
-        <Label Opacity="0.5" Grid.Column="4" Content="/" IsTabStop="False"/>
+        <Label Margin="-5,0" Opacity="0.5" Grid.Column="4" Content="/" IsTabStop="False"/>
 
         <wpf:NumTextBox 
             Margin ="0"

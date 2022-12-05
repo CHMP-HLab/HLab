@@ -4,7 +4,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 {
     public class PropertyDouble : IPropertyValue<double>
     {
-        private double _value;
+        double _value;
         public double Get() => _value;
 
         public bool Set(double value)
@@ -25,7 +25,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             return Set(setter(_holder.Parent));
         }
 
-        private readonly PropertyHolder<double> _holder;
+        readonly PropertyHolder<double> _holder;
 
         public PropertyDouble(PropertyHolder<double> holder)
         {

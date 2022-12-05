@@ -3,10 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:wpf="clr-namespace:HLab.Icons.Wpf;assembly=HLab.Icons.Wpf"
              xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
              mc:Ignorable="d" 
-             d:DesignHeight="15" d:DesignWidth="200"
+             d:DesignHeight="30" d:DesignWidth="200"
              >
     <Grid>
         <Grid.ColumnDefinitions>
@@ -15,8 +14,19 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
-        <icons:IconView HorizontalAlignment="Center" Margin="0,0,10,0" Height="25" Path ="{Binding Path=Path,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"/>
-        <TextBox Grid.Column="1" Text ="{Binding Path=Path,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"/>
+
+        <icons:IconView 
+            HorizontalAlignment="Center" 
+            Margin="0,0,10,0" 
+            Height="25" 
+            Path ="{Binding Path,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}}"
+            />
+
+        <TextBox 
+            Grid.Column="1" 
+            Text ="{Binding Path,RelativeSource={RelativeSource FindAncestor,AncestorType=UserControl}, UpdateSourceTrigger=PropertyChanged}"
+            Margin="0, 0, 10, 0"
+            />
 
         <StackPanel Grid.Column="2" Orientation="Horizontal">
 
@@ -29,7 +39,7 @@
                         Placement="Left"
                         AllowsTransparency="True">
                         
-                        <Border CornerRadius="10" BorderBrush="White" Background="#F0000000" BorderThickness="0">
+                        <Border CornerRadius="10" Background="{DynamicResource HLab.Brushes.Background}" BorderThickness="0">
                             <Grid Margin="10">
                                 <ContentPresenter x:Name="PopupContent"/>
                             </Grid>

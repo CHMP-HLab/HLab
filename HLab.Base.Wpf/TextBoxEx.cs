@@ -162,7 +162,7 @@ namespace HLab.Base.Wpf
             get => (DateTime)GetValue(DateProperty);
         }
 
-        private void OnDateChanged(DateTime date)
+        void OnDateChanged(DateTime date)
         {
             if (_preventChange) return;
 
@@ -203,7 +203,7 @@ namespace HLab.Base.Wpf
             get => (double)GetValue(DoubleProperty);
         }
 
-        private void OnDoubleChanged(double value)
+        void OnDoubleChanged(double value)
         {
             if (_preventChange) return;
 
@@ -257,7 +257,7 @@ namespace HLab.Base.Wpf
             remove => RemoveHandler(IsValidChangedEvent, value);
         }
 
-        private bool _preventChange = false;
+        bool _preventChange = false;
 
 
         //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -570,7 +570,7 @@ namespace HLab.Base.Wpf
         * 
         ***********************************************************************************************************************************************************************************************************************************************************************************/
 
-        private static string Cleanup(string text, TextBoxMode mode, ref int selectionStart, ref int selectionLength)
+        static string Cleanup(string text, TextBoxMode mode, ref int selectionStart, ref int selectionLength)
         {
             var result = "";
             var resultStart = selectionStart;
@@ -608,7 +608,7 @@ namespace HLab.Base.Wpf
             return result;
         }
 
-        private static readonly char Separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
+        static readonly char Separator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator[0];
 
         /********************************************************************************************************************************************************************************************************************************************************************************
         * 
@@ -616,7 +616,7 @@ namespace HLab.Base.Wpf
         * 
         ***********************************************************************************************************************************************************************************************************************************************************************************/
 
-        private static string Format(TextBoxMode mode, int decimals, DisplayZeros displayZeros, string text, ref int cursorPos, ref double doubleValue, ref DateTime dateTimeValue, ref bool valid)
+        static string Format(TextBoxMode mode, int decimals, DisplayZeros displayZeros, string text, ref int cursorPos, ref double doubleValue, ref DateTime dateTimeValue, ref bool valid)
         {
             var result = "";
             valid = true;
@@ -942,7 +942,7 @@ namespace HLab.Base.Wpf
         * 
         ***********************************************************************************************************************************************************************************************************************************************************************************/
 
-        private static double DoubleFormat(string text, int decimals, ref int cursorPos, ref string result)
+        static double DoubleFormat(string text, int decimals, ref int cursorPos, ref string result)
         {
             var temp = text.TrimStart(new char[] { '0' });
             var tempLength = temp.Length;
@@ -1096,7 +1096,7 @@ namespace HLab.Base.Wpf
             return email != "" && Regex.IsMatch(email, @"^(?("")(""[^""]+?""@)|(([0-9a-z]((\.(?!\.))|[-!#\$%&'\*\+/=\?\^`\{\}\|~\w])*)(?<=[0-9a-z])@))(?(\[)(\[(\d{1,3}\.){3}\d{1,3}\])|(([0-9a-z][-\w]*[0-9a-z]*\.)+[a-z0-9]{2,17}))$", RegexOptions.IgnoreCase);
         }
 
-        private static string DomainMapper(Match match)
+        static string DomainMapper(Match match)
         {
             // IdnMapping class with default property values.
             IdnMapping idn = new();

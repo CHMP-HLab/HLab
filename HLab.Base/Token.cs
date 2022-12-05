@@ -26,8 +26,8 @@ namespace HLab.Base
 {
     public class Token
     {
-        private readonly object _locked = new object();
-        private int _count = 0;
+        readonly object _locked = new object();
+        int _count = 0;
 
         public Token(int nb = 1)
         {
@@ -64,8 +64,8 @@ namespace HLab.Base
 
     public class TokenGetter : IDisposable
     {
-        private readonly Token _token;
-        private readonly int _nb;
+        readonly Token _token;
+        readonly int _nb;
         public TokenGetter(Token t, int nb)
         {
             _nb = nb;

@@ -7,9 +7,14 @@ namespace HLab.Base.Extensions
     {
         public static Expression<Func<T,TCast>> CastReturn<T,TR,TCast>(this Expression<Func<T,TR>> expr, TCast target)
         {
-            var param = expr.Parameters[0];
-            var body = Expression.Convert(expr.Body,typeof(TCast));
-            return Expression.Lambda <Func<T, TCast>>(body, param);
+            var body = expr.Body;
+            var t = expr.Body.Type;
+            if ((t.IsValueType && t!=typeof(TCast)) || !(t.IsAssignableTo(typeof(TCast))))
+            {
+                body = Expression.Convert(expr.Body,typeof(TCast));
+            }
+                
+            return Expression.Lambda <Func<T, TCast>>(body, expr.Parameters);
         }
 
     }

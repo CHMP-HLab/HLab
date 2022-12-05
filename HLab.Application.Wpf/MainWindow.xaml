@@ -8,12 +8,22 @@
         xmlns:wpf="clr-namespace:HLab.Mvvm.Application.Wpf"
         xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
         mc:Ignorable="d"
-        d:DataContext="{d:DesignInstance Type=wpf:MainWpfViewModel, IsDesignTimeCreatable=True}"
+        d:DataContext="{d:DesignInstance Type=wpf:MainWpfViewModelDesign, IsDesignTimeCreatable=True}"
              
         icons:IconView.IconService="{Binding IconService}"
         lang:Localize.LocalizationService="{Binding LocalizationService}"
+
+        Foreground="{DynamicResource HLab.Brushes.Foreground}"
 >
-        <Grid  Margin="2">
+    <!--
+    <UserControl.Resources>
+        <Style TargetType="{x:Type ContextMenu}">
+            <Setter Property="Background"
+                    Value="Red" />
+        </Style>
+    </UserControl.Resources>
+    -->
+    <Grid  Margin="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto" />
                 <RowDefinition Height="Auto" />
@@ -32,7 +42,7 @@
                     <icons:IconView Path="icons/logo" HorizontalAlignment="Stretch"/>
                 </Viewbox>
 
-                <ContentControl Grid.Column="1" FontSize="25" Content="{Binding Menu}" Background="{DynamicResource MahApps.Brushes.Accent4}"/>
+                <ContentControl Grid.Column="1" VerticalAlignment="Center" FontSize="25" Content="{Binding Menu}" Background="{DynamicResource MahApps.Brushes.Accent4}"/>
 
                 <Label Opacity="0.5" Grid.Column="2" 
                        HorizontalContentAlignment="Center" 
@@ -41,6 +51,20 @@
                 />
 
                 <StackPanel Grid.Column="3" Orientation="Horizontal" Margin="0,0,120,0" VerticalAlignment="Center">
+                    <ComboBox 
+                        SelectedItem="{Binding ApplicationInfo.Theme}" 
+                        Visibility="{Binding AllowThemeSelection,Converter={StaticResource ToVisibilityConverter},FallbackValue=Visible}"      
+                        Grid.Row="1" 
+                        Grid.Column="1" 
+                        ItemsSource="{Binding ApplicationInfo.Themes}"
+                    >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <lang:LocalizedLabel Text="{Binding}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+
+                    </ComboBox>
                     <Label Content="{Binding ApplicationInfo.DataSource}" VerticalAlignment="Center"/>
                     <Label Content="{Binding ApplicationInfo.Name}" VerticalAlignment="Center"/>
                     <Label Content="{Binding ApplicationInfo.Version}" VerticalAlignment="Center"/>

@@ -6,10 +6,10 @@ namespace HLab.Base
 
     public static class ObjectsExtension
     {
-        private class ObjectHelper<T>
+        class ObjectHelper<T>
         {
-            private static readonly Action<T, T> CopyPrimitivesToAction = GetCopyTo(true);
-            private static readonly Action<T, T> CopyToAction = GetCopyTo(false);
+            static readonly Action<T, T> CopyPrimitivesToAction = GetCopyTo(true);
+            static readonly Action<T, T> CopyToAction = GetCopyTo(false);
 
             public static void CopyPrimitivesTo(T source, T target)
             {
@@ -26,7 +26,7 @@ namespace HLab.Base
                 }
             }
 
-            private static Action<T, T> GetCopyTo(bool primitivesOnly)
+            static Action<T, T> GetCopyTo(bool primitivesOnly)
             {
                 Action<T, T> action = null;
                 foreach (var info in typeof(T).GetProperties().Where(p => p.CanWrite))

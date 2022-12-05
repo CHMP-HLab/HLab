@@ -2,7 +2,7 @@
 
 namespace HLab.Core.Annotations
 {
-    public interface IMessageBus
+    public interface IMessagesService
     {
         void Publish<T>(T payload);
         void Subscribe<T>(Action<T> action);

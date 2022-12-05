@@ -33,10 +33,9 @@ namespace HLab.Mvvm
 
     public abstract class ViewModel : NotifierBase
     {
+        static int _lastId = 0;
 
-        private static int _lastId = 0;
-
-        private readonly Lazy<int> _id = new(() => Interlocked.Increment(ref _lastId));
+        readonly Lazy<int> _id = new(() => Interlocked.Increment(ref _lastId));
 
         public int Id => _id.Value;
 
@@ -58,7 +57,8 @@ namespace HLab.Mvvm
             get => _model.Get();
             set => _model.Set(value);
         }
-        private readonly IProperty<T> _model = H<ViewModel<T>>.Property<T>();
+
+        readonly IProperty<T> _model = H<ViewModel<T>>.Property<T>();
 
         public Type ModelType => typeof(T);
     }

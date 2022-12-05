@@ -9,7 +9,7 @@ namespace HLab.Notify.PropertyChanged
     {
         public class Notifier : INotifyPropertyChanged
         {
-            private ConcurrentDictionary<NotifyPropertyA, NotifyPropertyA.NotifyPropertyValue> _dict = new ConcurrentDictionary<NotifyPropertyA, NotifyPropertyA.NotifyPropertyValue>();
+            ConcurrentDictionary<NotifyPropertyA, NotifyPropertyA.NotifyPropertyValue> _dict = new ConcurrentDictionary<NotifyPropertyA, NotifyPropertyA.NotifyPropertyValue>();
 
             public Notifier()
             {

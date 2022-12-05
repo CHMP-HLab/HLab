@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using System.Reflection.Metadata;
 using System.Threading.Tasks;
 using System.Windows;
 using HLab.Core.Annotations;
@@ -10,94 +11,84 @@ namespace HLab.Mvvm.Application.Wpf
 {
     public class DocumentServiceWpf : DocumentService
     {
-        public IMessageBus MessageBus { get; private set; }
-        private Func<object, ISelectedMessage> GetMessage { get; set; }
+        public IMessagesService MessageBus { get; }
+        Func<object, ISelectedMessage> GetMessage { get; }
 
-        public void Inject(IMessageBus messageBus,Func<object, ISelectedMessage> getMessage)
+        public DocumentServiceWpf(
+                IMvvmService mvvm,
+                Func<Type, object> getter,
+                IMessagesService messageBus,
+                Func<object, ISelectedMessage> getMessage
+            ) : base(mvvm,getter)
         {
             MessageBus = messageBus;
             GetMessage = getMessage;
         }
 
+        object GetModel(object view)
+        {
+            var o = view;
+            while (true)
+            {
+                var linked = o switch
+                {
+                    FrameworkElement fe => fe.DataContext,
+                    IViewModel vm => vm.Model,
+                    _ => null
+                };
 
-        public override async Task OpenDocumentAsync(IView content)
+                if (linked is null) return o;
+                o = linked;
+            }
+        }
+
+        public override async Task OpenDocumentAsync(IView view)
         {
             if (MainViewModel is MainWpfViewModel vm)
             {
-                if (content is IViewClassAnchorable)
+                if (view is IViewClassAnchorable)
                 {
-                    if (!vm.Anchorables.Contains(content))
-                        vm.Anchorables.Add(content);
+                    if (!vm.Anchorables.Contains(view))
+                        vm.Anchorables.Add(view);
                 }
                 else
                 {
-                    if (!vm.Documents.Contains(content))
+                    if (!vm.Documents.Contains(view))
                     {
-                        vm.Documents.Add(content);
+                        vm.Documents.Add(view);
 
-                        var message = GetMessage(content);
-
-                        MessageBus.Publish(message);
+                        MessageBus.Publish(GetMessage(view));
                     }
+
+                    vm.ActiveDocument = view as FrameworkElement;
                 }
 
-                vm.ActiveDocument = content as FrameworkElement;
-            }
-        }
 
-        public override async Task OpenDocumentAsync(object content)
-        {
-
-            if (MainViewModel is MainWpfViewModel vm)
-            {
-                if (content is IView view)
-                {
-                    if (vm.Documents.Contains(view))
-                    {
-                        vm.ActiveDocument = view as FrameworkElement;
-                        return;
-                    }
-
-                    if (vm.Anchorables.Contains(view))
-                    {
-//                        vm.Anchorables.Remove(view);
-                        return;
-                    }
-                }
-
-                var documents = vm.Documents.OfType<FrameworkElement>().ToList();
+                var model = GetModel(view);
+                var documents = vm.Documents.ToList();
                 foreach (var document in documents)
                 {
-                    if (ReferenceEquals(document.DataContext, content))
-                    {
-                        vm.ActiveDocument = document;
-                        return;
-                    }
+                    var documentModel = GetModel(document);
 
-                    else if (document.DataContext is IViewModel mvm && ReferenceEquals(mvm.Model, content))
-                    {
-                        vm.ActiveDocument = document;
-                        return;
-                    }
+                    if (!ReferenceEquals(model, documentModel)) continue;
+
+                    vm.ActiveDocument = document;
+                    return;
                 }
 
-                var anchorables = vm.Anchorables.OfType<FrameworkElement>().ToList();
+                var anchorables = vm.Anchorables.ToList();
                 foreach (var anchorable in anchorables)
                 {
-                    if (ReferenceEquals(anchorable.DataContext, content))
-                    {
-                        return;
-                    }
-                    else if (anchorable.DataContext is IViewModel mvm && ReferenceEquals(mvm.Model, content))
+                    var documentModel = GetModel(anchorable);
+                    if (ReferenceEquals(model, documentModel))
                     {
                         return;
                     }
                 }
+
             }
-
-
-            await base.OpenDocumentAsync(content);
         }
+
 
         public override async Task CloseDocumentAsync(object content)
         {

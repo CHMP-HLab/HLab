@@ -22,7 +22,8 @@ namespace HLab.Notify.PropertyChanged.UTest
         {
             public ObservableCollection<ClassWithProperty> Children { get; } = new ObservableCollection<ClassWithProperty>();
             public int SumValue => _sumValue.Get();
-            private readonly IProperty<int> _sumValue = H.Property<int>(c => c
+
+            readonly IProperty<int> _sumValue = H.Property<int>(c => c
                 .On(e => e.Children.Item().Value)
                 .Set(e => e.Children.ToList().Sum(a => a.Value))
             );

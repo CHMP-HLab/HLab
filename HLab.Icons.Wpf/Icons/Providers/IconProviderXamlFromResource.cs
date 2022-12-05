@@ -5,6 +5,7 @@ using System.Windows;
 using System.Windows.Markup;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using HLab.Icons.Annotations.Icons;
 using Color = System.Windows.Media.Color;
 
@@ -12,11 +13,11 @@ namespace HLab.Icons.Wpf.Icons.Providers
 {
     public class IconProviderXamlFromResource : IconProvider, IIconProvider
     {
-        private readonly ResourceManager _resourceManager;
-        private readonly string _name;
-        private readonly Color? _foreColor;
-        private bool _parsed = false;
-        private string _source;
+        readonly ResourceManager _resourceManager;
+        readonly string _name;
+        readonly Color? _foreColor;
+        bool _parsed = false;
+        string _source;
  
         public IconProviderXamlFromResource(ResourceManager resourceManager, string name, Color? foreColor)
         { 
@@ -24,9 +25,8 @@ namespace HLab.Icons.Wpf.Icons.Providers
             _name = name;
             _foreColor = foreColor;
         }
-        protected override async Task<object> GetAsync(object foreground = null)
+        protected override async Task<object> GetActualAsync()
         {
-
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
             object icon;
@@ -39,17 +39,29 @@ namespace HLab.Icons.Wpf.Icons.Providers
                 await using var xamlStream = _resourceManager.GetStream(_name);
                 if (xamlStream == null) return null;
                 icon = await XamlTools.FromXamlStreamAsync(xamlStream).ConfigureAwait(true);
-                _source = XamlWriter.Save(icon);
+                await Application.Current.Dispatcher.InvokeAsync(
+                    ()=>_source = XamlWriter.Save(icon),XamlTools.Priority2
+                    );
                 _parsed = true;
             }
 
-            if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
-                XamlTools.SetForeground(o, _foreColor.Value, brush);
+            //if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
+            //    await XamlTools.SetForegroundAsync(o, _foreColor.Value, brush);
 
             return icon;
         }
 
-        protected override object Get(object foreground = null)
+        public override async Task<string> GetTemplateAsync()
+        {
+            if (string.IsNullOrWhiteSpace(_name)) return "";
+            while (!_parsed)
+            {
+                var icon = await GetActualAsync();
+            }
+            return _source;
+        }
+
+        public override object Get()
         {
             if (string.IsNullOrWhiteSpace(_name)) return null;
 
@@ -68,8 +80,8 @@ namespace HLab.Icons.Wpf.Icons.Providers
                 _parsed = true;
             }
 
-            if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
-                XamlTools.SetForeground(o, _foreColor.Value, brush);
+            //if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
+            //    XamlTools.SetForeground(o, _foreColor.Value, brush);
 
             return icon;
         }

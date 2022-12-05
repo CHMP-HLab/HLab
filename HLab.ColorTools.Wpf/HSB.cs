@@ -12,9 +12,9 @@ namespace HLab.ColorTools.Wpf
         /// </summary>
         public static readonly HSB Empty = new HSB();
 
-        private double hue;
-        private double saturation;
-        private double brightness;
+        double hue;
+        double saturation;
+        double brightness;
 
         public static bool operator ==(HSB item1, HSB item2)
         {

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -15,20 +16,20 @@ namespace HLab.Localization.Wpf.Lang
     {
         public Localize()
         {
-            System.ComponentModel.DependencyPropertyDescriptor pdIsAvailable = System.ComponentModel.DependencyPropertyDescriptor.FromProperty
+            if(DesignerProperties.GetIsInDesignMode(this))
+                _updateAsync = UpdateDesignModeAsync;
+            else
+                _updateAsync = InitAsync;
+
+            var pdIsAvailable = System.ComponentModel.DependencyPropertyDescriptor.FromProperty
                     (LanguageProperty, typeof(FrameworkElement));
 
             pdIsAvailable.AddValueChanged(this, async (o, a) =>
             {
-                if(LocalizationService == null) return;
-                if(Id == null) return;
-                await UpdateAsync(Language, LocalizationService, Id, StringFormat);
+                await _updateAsync();
             });
 
         }
-
-        private WeakReference<ILocalizationService> _localizationServiceReference;
-        
 
         public string Id
         {
@@ -39,10 +40,8 @@ namespace HLab.Localization.Wpf.Lang
             H.Property<string>()
                 .OnChange(async (e, a) =>
                 {
-                    if(e.LocalizationService ==  null) return;
-                    if(e.Language ==  null) return;
 
-                    await e.UpdateAsync(e.Language, e.LocalizationService, a.NewValue, e.StringFormat);
+                    await e._updateAsync();
                 })
                 .Register();
 
@@ -51,9 +50,11 @@ namespace HLab.Localization.Wpf.Lang
 //                .Default("{}{0}")
                 .OnChange(async (e, a) =>
                 {
-                    if(e.LocalizationService ==  null) return;
-                    if(e.Language ==  null) return;
-                    await e.UpdateAsync(e.Language, e.LocalizationService, e.Id, a.NewValue);
+                    if (a.NewValue == null)
+                    {
+                        e._updateAsync = e.InitAsync;
+                    }
+                    await e._updateAsync();
                 })
                 .Register();
 
@@ -61,15 +62,11 @@ namespace HLab.Localization.Wpf.Lang
             H.Property<ILocalizationService>()
                 .OnChange(async (e, a) =>
                 {
-                        if(a.NewValue ==  null) return;
-                        if(e._localizationServiceReference!=null && e._localizationServiceReference.TryGetTarget(out var service) && ReferenceEquals(a.NewValue,service)) return;
-
-                        e._localizationServiceReference = new(a.NewValue);
-
-                        if(e.Language ==  null) return;
-                        if(e.Id == null) return;
-
-                        await e.UpdateAsync(e.Language, a.NewValue, e.Id, e.StringFormat);
+                    if (a.NewValue == null)
+                    {
+                        e._updateAsync = e.InitAsync;
+                    }
+                    await e._updateAsync();
                 })
                 .Inherits
                 .RegisterAttached();
@@ -87,40 +84,35 @@ namespace HLab.Localization.Wpf.Lang
             set => SetValue(LocalizationServiceProperty, value);
         }
 
-        public async Task UpdateAsync(XmlLanguage lang, ILocalizationService service, string source, string format)
+        Func<Task> _updateAsync;
+
+        public async Task InitAsync()
         {
-            if (service == null) return;
+            if (LocalizationService == null) return;
+            if (Language == null) return;
+            if (Id == null) return;
+            _updateAsync = UpdateAsync;
+            await UpdateAsync();
+        }
 
-            if (string.IsNullOrWhiteSpace(source))
-            {
-                Text = "";
-                return;
-            }
-
-            string localized = source;
+        public async Task UpdateAsync()
+        {
+            var localized = Id;
             try
             {
-                localized = await service.LocalizeAsync(lang.IetfLanguageTag, source).ConfigureAwait(false);
-
+                localized = await LocalizationService.LocalizeAsync(Language.IetfLanguageTag, localized).ConfigureAwait(false);
             }
             catch (Exception)
             {
             }
 
-            if (!string.IsNullOrEmpty(format))
-            {
-                try
-                {
-                    localized = string.Format(format, localized);
-                }
-                catch(FormatException)
-                {
-                    localized = "F(" + format + ")" + localized;
-                }
-            }
-
-            Dispatcher.Invoke(() => Text = localized);
+            await Dispatcher.InvokeAsync(() => Text = localized);
         }
+        public async Task UpdateDesignModeAsync()
+        {
+            await Dispatcher.InvokeAsync(() => Text = Id);
+        }
+
 
         public static ILocalizationService GetLocalizationService(DependencyObject obj)
         {

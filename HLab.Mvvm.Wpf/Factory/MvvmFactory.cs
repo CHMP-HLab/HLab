@@ -1,6 +1,6 @@
 ﻿namespace HLab.Mvvm.Factory
 {
-    class MvvmFactory
+    internal class MvvmFactory
     {
 
     }

@@ -7,9 +7,9 @@ using NotifyClassHelper = HLab.Notify.PropertyChanged.NotifyHelpers.NotifyClassH
 
 namespace HLab.Notify.PropertyChanged
 {
-    class TriggerEntryCollectionWithPath : TriggerEntryCollection
+    internal class TriggerEntryCollectionWithPath : TriggerEntryCollection
     {
-        private readonly TriggerPath _path;
+        readonly TriggerPath _path;
 
         public TriggerEntryCollectionWithPath(IPropertyEntry propertyEntry, TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
             : base(propertyEntry, handler)
@@ -18,7 +18,7 @@ namespace HLab.Notify.PropertyChanged
             PropertyEntry.Link(OnPropertyChangedWithPath);
         }
 
-        private void OnPropertyChangedWithPath(object sender, ExtendedPropertyChangedEventArgs e)
+        void OnPropertyChangedWithPath(object sender, ExtendedPropertyChangedEventArgs e)
         {
             if (e.OldValue != null && _next.TryRemove(e.OldValue, out var oldTrigger))
             {
@@ -34,9 +34,7 @@ namespace HLab.Notify.PropertyChanged
         }
 
 
-
-
-        private readonly ConcurrentDictionary<object, ITriggerEntry> _next = new ConcurrentDictionary<object, ITriggerEntry>();
+        readonly ConcurrentDictionary<object, ITriggerEntry> _next = new ConcurrentDictionary<object, ITriggerEntry>();
         public override void Dispose()
         {
             PropertyEntry.Unlink(OnPropertyChangedWithPath);

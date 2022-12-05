@@ -9,8 +9,8 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
 {
     public abstract class ChildObject : IChildObject
     {
-        private readonly PropertyActivator _activator;
-        private readonly List<WeakReference<Action>> _onDispose = new();
+        readonly PropertyActivator _activator;
+        readonly List<WeakReference<Action>> _onDispose = new();
 
         protected ChildObject(PropertyActivator activator)
         {
@@ -28,7 +28,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
             }
         }
 
-        private INotifyPropertyChangedWithHelper _parent;
+        INotifyPropertyChangedWithHelper _parent;
         public INotifyPropertyChangedWithHelper Parent { 
             get => _parent; 
             set {

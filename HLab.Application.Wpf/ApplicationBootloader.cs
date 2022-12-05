@@ -11,28 +11,27 @@ using HLab.Erp.Core.Update;
 using HLab.Erp.Core.Wpf.Localization;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.Views;
+using HLab.Mvvm.Wpf.Views;
 
 namespace HLab.Mvvm.Application.Wpf
 {
     public class ApplicationBootloader : IBootloader
     {
-        private readonly IMenuService _menu;
-
-        private readonly IMvvmService _mvvm;
-
-        private readonly IApplicationInfoService _info;
+        readonly IMenuService _menu;
+        readonly IMvvmService _mvvm;
+        readonly IApplicationInfoService _info;
 
         public IUpdater Updater { get; set; }
-        private readonly Func<MainWpfViewModel> _getVm;
+        readonly Func<MainWpfViewModel> _getMainViewModel;
 
         public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
 
-        public ApplicationBootloader(IMenuService menu, IMvvmService mvvm, IApplicationInfoService info, Func<MainWpfViewModel> getVm)
+        public ApplicationBootloader(IMenuService menu, IMvvmService mvvm, IApplicationInfoService info, Func<MainWpfViewModel> getMainViewModel)
         {
             _menu = menu;
             _mvvm = mvvm;
             _info = info;
-            _getVm = getVm;
+            _getMainViewModel = getMainViewModel;
         }
 
         public void SetMainViewMode(Type vm)
@@ -43,8 +42,8 @@ namespace HLab.Mvvm.Application.Wpf
 
         public MainWpfViewModel ViewModel { get; set; } 
         public Window MainWindow { get; protected set; }
- 
-        private static void InitializeCultures()
+
+        static void InitializeCultures()
         {
             FrameworkElement.LanguageProperty.OverrideMetadata(
                 typeof(FrameworkElement),
@@ -84,7 +83,7 @@ namespace HLab.Mvvm.Application.Wpf
                 }
             }
 
-            ViewModel = _getVm();
+            ViewModel = _getMainViewModel();
 
             MainWindow = _mvvm.MainContext.GetView(ViewModel,MainViewMode).AsWindow();
             MainWindow.Closing += (sender, args) => System.Windows.Application.Current.Shutdown();

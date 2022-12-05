@@ -2,7 +2,7 @@
 
 namespace HLab.Notify.PropertyChanged.UTest
 {
-    class TestChild : NotifierBase
+    internal class TestChild : NotifierBase
     {
         public TestChild()
         {
@@ -13,16 +13,18 @@ namespace HLab.Notify.PropertyChanged.UTest
             get => _value.Get();
             set => _value.Set(value);
         }
-        private readonly IProperty<int> _value = H<TestChild>.Property<int>();
+
+        readonly IProperty<int> _value = H<TestChild>.Property<int>();
         public TestChild Child
         {
             get => _child.Get();
             set => _child.Set(value);
         }
-        private readonly IProperty<TestChild> _child = H<TestChild>.Property<TestChild>();
+
+        readonly IProperty<TestChild> _child = H<TestChild>.Property<TestChild>();
     }
 
-    class TestParent : NotifierBase
+    internal class TestParent : NotifierBase
     {
         public TestParent(TestChild a)
         {
@@ -34,10 +36,12 @@ namespace HLab.Notify.PropertyChanged.UTest
             get => _child.Get();
             set => _child.Set(value);
         }
-        private readonly IProperty<TestChild> _child = H<TestParent>.Property<TestChild>();
+
+        readonly IProperty<TestChild> _child = H<TestParent>.Property<TestChild>();
 
         public int Value => _value.Get();
-        private readonly IProperty<int> _value = H<TestParent>.Property<int>(c=>c
+
+        readonly IProperty<int> _value = H<TestParent>.Property<int>(c=>c
             .Set(e=>e.Child.Child.Value)
             .On(e => e.Child.Child.Value)
             .Update()

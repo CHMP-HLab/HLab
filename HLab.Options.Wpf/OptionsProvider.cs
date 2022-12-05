@@ -33,7 +33,7 @@ namespace HLab.Options.Wpf
             return t;
         }
 
-        private string getPath(string path) => (string.IsNullOrEmpty(path))?"":$@"\{path}";
+        string getPath(string path) => (string.IsNullOrEmpty(path))?"":$@"\{path}";
 
         public Task SetValueAsync<T>(string path, string name, T value, int? userid)
         {

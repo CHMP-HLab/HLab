@@ -24,18 +24,19 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
     public class MvvmContext : IMvvmContext//, IInitializer
     {
-        private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
+        readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
 
-        private readonly Lazy<ViewModelCache> _cache;
+        readonly Lazy<ViewModelCache> _cache;
 
         public IMvvmService Mvvm => _mvvm;
-        private MvvmService _mvvm;
+        readonly MvvmService _mvvm;
 
         public string Name { get; }
         public IMvvmContext Parent { get; }
@@ -91,6 +92,8 @@ namespace HLab.Mvvm
 
         public IView GetView(object baseObject, Type viewMode, Type viewClass)
             => _cache.Value.GetView(baseObject, viewMode, viewClass);
+        public Task<IView> GetViewAsync(object baseObject, Type viewMode, Type viewClass)
+            => _cache.Value.GetViewAsync(baseObject, viewMode, viewClass);
 
         //private readonly Func<Type, object> _locate ;
         public T Locate<T>(object baseObject = null) => (T)Locate(typeof(T), baseObject);
@@ -118,6 +121,7 @@ namespace HLab.Mvvm
                     h.Linked = baseObject;
                     CallCreators(v);
                     break;
+
                 case IViewModel vm:
                     IMvvmContext context = this;
                     if (vm is IMvvmContextProvider p)

@@ -3,7 +3,7 @@ using System.Windows.Controls;
 
 namespace HLab.Base.Wpf
 {
-    class HUserControl<T> : UserControl
+    internal class HUserControl<T> : UserControl
     where T : DependencyObject
     {
         class H : DependencyHelper<T> {}

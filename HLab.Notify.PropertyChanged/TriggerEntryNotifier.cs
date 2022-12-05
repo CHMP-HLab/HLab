@@ -10,7 +10,7 @@ namespace HLab.Notify.PropertyChanged
         protected readonly WeakReference<EventHandler<ExtendedPropertyChangedEventArgs>> Handler;
 
 #if DEBUG
-        private readonly string _targetName;
+        readonly string _targetName;
 #endif
 
         public WeakTriggerEntryNotifier(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
@@ -25,7 +25,7 @@ namespace HLab.Notify.PropertyChanged
             propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
         }
 
-        private void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
+        void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
         {
             if (Handler.TryGetTarget(out var handler))
             {
@@ -51,7 +51,7 @@ namespace HLab.Notify.PropertyChanged
         protected readonly EventHandler<ExtendedPropertyChangedEventArgs> Handler;
 
 #if DEBUG
-        private readonly string _targetName;
+        readonly string _targetName;
 #endif
 
         public TriggerEntryNotifier(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
@@ -66,7 +66,7 @@ namespace HLab.Notify.PropertyChanged
             propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
         }
 
-        private void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
+        void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
         {
                 Handler.Invoke(sender, e);
         }

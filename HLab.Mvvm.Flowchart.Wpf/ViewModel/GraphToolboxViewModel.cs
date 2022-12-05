@@ -6,7 +6,7 @@ namespace HLab.Mvvm.Flowchart.ViewModel
 {
     public class GraphToolboxViewModel : Mvvm.ViewModel
     {
-        private readonly IGraphService _graph;
+        readonly IGraphService _graph;
 
         public GraphToolboxViewModel(IGraphService graph)
         {
@@ -15,7 +15,8 @@ namespace HLab.Mvvm.Flowchart.ViewModel
         }
 
         public ObservableCollection<IToolGraphBlock> Blocks => _blocks.Get();
-        private readonly IProperty<ObservableCollection<IToolGraphBlock>> _blocks 
+
+        readonly IProperty<ObservableCollection<IToolGraphBlock>> _blocks 
             = H<GraphToolboxViewModel>.Property<ObservableCollection<IToolGraphBlock>>(c => c.Set(e => e._graph.Blocks));
 
     }
