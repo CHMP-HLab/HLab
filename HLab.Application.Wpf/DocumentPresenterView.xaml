@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="HLab.Mvvm.Application.Wpf.DocumentPresenterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:HLab.Mvvm.Application.Wpf"
+             xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
+             xmlns:lang="clr-namespace:HLab.Localization.Wpf.Lang;assembly=HLab.Localization.Wpf"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+            <DockingManager x:Name="DockingManager"
+                            DocumentsSource="{Binding Documents}"
+                            AnchorablesSource="{Binding Anchorables}"
+                            ActiveContent="{Binding ActiveDocument, Mode=TwoWay}"
+                            IsEnabled="{Binding IsEnabled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
+                            Background="Transparent"
+                            >
+
+                <DockingManager.Theme>
+                    <!--<xcad:Vs2013LightTheme />-->
+                    <!--<xcad:Vs2013DarkTheme />-->
+                    <!--<xcad:ExpressionLightTheme />-->
+                    <ExpressionDarkTheme />
+                    <!--<xcad:MetroTheme />-->
+                    <!--<xcad:AeroTheme />-->
+                </DockingManager.Theme>
+
+                <DockingManager.LayoutUpdateStrategy>
+                    <local:LayoutUpdateStrategy/>
+                </DockingManager.LayoutUpdateStrategy>
+
+                <DockingManager.DocumentHeaderTemplate>
+                    <DataTemplate>
+                        <Grid>
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal" >
+                                <Viewbox HorizontalAlignment="Left" Height="16">
+                                     <icons:IconView Opacity="1" Foreground="{DynamicResource MahApps.Brushes.Badged.Foreground}" Path="{Binding Content.DataContext.IconPath}"/>
+                                </Viewbox>
+                                <lang:LocalizedLabel Margin="10,0,0,0" FontSize="14" FontWeight="Bold" Text="{Binding Content.DataContext.Header}"/>
+                            </StackPanel>
+                            <StackPanel Background="{DynamicResource MahApps.Brushes.Badged.Background}" Visibility="{Binding Content.DataContext.SubTitle,Converter={StaticResource ToVisibilityConverter},FallbackValue=Collapsed}">
+                                <lang:LocalizedLabel Margin="3,0" FontSize="12" FontStyle="Italic" Text="{Binding Content.DataContext.SubTitle}"/>
+                            </StackPanel>                        
+                        </StackPanel>
+                        </Grid>
+                    </DataTemplate>
+                </DockingManager.DocumentHeaderTemplate>
+
+                <DockingManager.AnchorableHeaderTemplate>
+                    <DataTemplate>
+                        <StackPanel Orientation="Horizontal">
+                            <Viewbox HorizontalAlignment="Left" Height="16">
+                                <ContentControl Content="{Binding Content.DataContext.IconPath}"/>
+                            </Viewbox>
+                            <lang:Localize Margin="10,0,0,0" FontSize="14" Id="{Binding Content.DataContext.Title}"/>
+                        </StackPanel>
+                    </DataTemplate>
+                </DockingManager.AnchorableHeaderTemplate>
+
+                <DockingManager.LayoutItemContainerStyle>
+                 <!--you can add additional bindings from the layoutitem to the DockWindowViewModel--> 
+                    <Style TargetType="{x:Type LayoutItem}">
+                        <Setter Property="Title" Value="{Binding Model.DataContext.Title, FallbackValue=Undefined}" />
+                        <Setter Property="IconSource" Value="{Binding Model.DataContext.IconBitmap}"/>
+                        <!--<Setter Property="Title" Value="{Binding Model.DataContext.IconCanvas}"/>-->
+                        <Setter Property="CloseCommand" Value="{Binding Model.DataContext.CloseCommand}" />
+                        <Setter Property="CanClose" Value="{Binding Model.DataContext.CanClose}" />
+                        <Setter Property="ContentId" Value="{Binding Model.ContentId}"/>
+                    </Style>
+                </DockingManager.LayoutItemContainerStyle>
+                
+            </DockingManager>
+</UserControl>

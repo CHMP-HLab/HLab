@@ -42,41 +42,39 @@ namespace HLab.Mvvm.Application.Wpf
             }
         }
 
-        public override async Task OpenDocumentAsync(IView view)
+        public override async Task OpenDocumentAsync(IView view, IDocumentPresenter presenter)
         {
-            if (MainViewModel is MainWpfViewModel vm)
-            {
                 if (view is IViewClassAnchorable)
                 {
-                    if (!vm.Anchorables.Contains(view))
-                        vm.Anchorables.Add(view);
+                    if (!presenter.Anchorables.Contains(view))
+                        presenter.Anchorables.Add(view);
                 }
                 else
                 {
-                    if (!vm.Documents.Contains(view))
+                    if (!presenter.Documents.Contains(view))
                     {
-                        vm.Documents.Add(view);
+                        presenter.Documents.Add(view);
 
                         MessageBus.Publish(GetMessage(view));
                     }
 
-                    vm.ActiveDocument = view as FrameworkElement;
+                    presenter.ActiveDocument = view as FrameworkElement;
                 }
 
 
                 var model = GetModel(view);
-                var documents = vm.Documents.ToList();
+                var documents = presenter.Documents.ToList();
                 foreach (var document in documents)
                 {
                     var documentModel = GetModel(document);
 
                     if (!ReferenceEquals(model, documentModel)) continue;
 
-                    vm.ActiveDocument = document;
+                    presenter.ActiveDocument = document;
                     return;
                 }
 
-                var anchorables = vm.Anchorables.ToList();
+                var anchorables = presenter.Anchorables.ToList();
                 foreach (var anchorable in anchorables)
                 {
                     var documentModel = GetModel(anchorable);
@@ -86,57 +84,53 @@ namespace HLab.Mvvm.Application.Wpf
                     }
                 }
 
-            }
         }
 
 
-        public override async Task CloseDocumentAsync(object content)
+        public override async Task CloseDocumentAsync(object content, IDocumentPresenter presenter)
         {
-            if (MainViewModel is MainWpfViewModel vm)
-            {
                 if (content is IView view)
                 {
-                    if (vm.Documents.Contains(view))
+                    if (presenter.Documents.Contains(view))
                     {
-                        vm.RemoveDocument((FrameworkElement)view);
+                        presenter.RemoveDocument((FrameworkElement)view);
                         return;
                     }
 
-                    if (vm.Anchorables.Contains(view))
+                    if (presenter.Anchorables.Contains(view))
                     {
-                        vm.Anchorables.Remove(view);
+                        presenter.Anchorables.Remove(view);
                         return;
                     }
                 }
 
-                var documents = vm.Documents.OfType<FrameworkElement>().ToList();
+                var documents = presenter.Documents.OfType<FrameworkElement>().ToList();
                 foreach (var document in documents)
                 {
                     if (ReferenceEquals(document.DataContext, content))
                     {
-                        vm.RemoveDocument(document);
+                        presenter.RemoveDocument(document);
                     }
 
                     else if (document.DataContext is IViewModel mvm && ReferenceEquals(mvm.Model, content))
                     {
-                        vm.RemoveDocument(document);
+                        presenter.RemoveDocument(document);
                     }
                 }
 
-                var anchorables = vm.Anchorables.OfType<FrameworkElement>().ToList();
+                var anchorables = presenter.Anchorables.OfType<FrameworkElement>().ToList();
                 foreach (var anchorable in anchorables)
                 {
                     if (ReferenceEquals(anchorable.DataContext, content))
                     {
-                        vm.Anchorables.Remove(anchorable);
+                        presenter.Anchorables.Remove(anchorable);
                     }
                     else if (anchorable.DataContext is IViewModel mvm && ReferenceEquals(mvm.Model, content))
                     {
-                        vm.Anchorables.Remove(anchorable);
+                        presenter.Anchorables.Remove(anchorable);
                     }
                 }
 
-            }
         }
     }
 }

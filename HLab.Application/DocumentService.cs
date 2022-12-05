@@ -1,9 +1,18 @@
 ﻿using System;
+using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Application
 {
+    public interface IDocumentPresenter
+    {
+        ObservableCollection<object> Documents { get; }
+        ObservableCollection<object> Anchorables { get; }
+        object ActiveDocument { get; set; }
+        bool RemoveDocument(object document);
+    }
+
     public abstract class DocumentService : IDocumentService
     {
         readonly IMvvmService _mvvm;
@@ -15,15 +24,13 @@ namespace HLab.Mvvm.Application
             _getter = getter;
         }
 
-        public abstract Task OpenDocumentAsync(IView content);
+        public abstract Task OpenDocumentAsync(IView content, IDocumentPresenter presenter);
 
-        public Task OpenDocumentAsync<T>() => OpenDocumentAsync(typeof(T));
+        public abstract Task CloseDocumentAsync(object content, IDocumentPresenter presenter);
 
-        public abstract Task CloseDocumentAsync(object content);
+        public IDocumentPresenter MainPresenter {get;set;}
 
-        public object MainViewModel {get;set;}
-
-        public async Task OpenDocumentAsync(object obj)
+        public async Task OpenDocumentAsync(object obj, IDocumentPresenter presenter)
         {
             if (obj is Type t)
             {
@@ -31,11 +38,11 @@ namespace HLab.Mvvm.Application
             }
 
             if (obj is IView view)
-                await OpenDocumentAsync(view);
+                await OpenDocumentAsync(view, presenter);
             else
             {
-                var doc = _mvvm.MainContext.GetView(obj, typeof(ViewModeDefault), typeof(IViewClassDocument));
-                await OpenDocumentAsync(doc);
+                var doc = await _mvvm.MainContext.GetViewAsync(obj, typeof(ViewModeDefault), typeof(IViewClassDocument));
+                await OpenDocumentAsync(doc, presenter);
             }
         }
     }

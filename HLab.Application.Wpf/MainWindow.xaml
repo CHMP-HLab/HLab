@@ -7,6 +7,7 @@
         xmlns:xcad="https://github.com/Dirkster99/AvalonDock"
         xmlns:wpf="clr-namespace:HLab.Mvvm.Application.Wpf"
         xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf"
+        xmlns:wpf1="clr-namespace:HLab.Mvvm.Wpf;assembly=HLab.Mvvm.Wpf"
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance Type=wpf:MainWpfViewModelDesign, IsDesignTimeCreatable=True}"
              
@@ -79,75 +80,8 @@
             </Viewbox>
             
             <!-- Documents-->
-            <xcad:DockingManager x:Name="DockingManager" Grid.Row="2"
-                                 
-                            DocumentsSource="{Binding Documents}"
-                            AnchorablesSource="{Binding Anchorables}"
-                            ActiveContent="{Binding ActiveDocument, Mode=TwoWay}"
-                            IsEnabled="{Binding IsEnabled, Mode=OneWay, UpdateSourceTrigger=PropertyChanged}"
-                            Background="Transparent"
-                                 
-                           >
+            <wpf1:ViewLocator Grid.Row="2" Model="{Binding DocumentPresenter}"/>
 
-                <xcad:DockingManager.Theme>
-                    <!--<xcad:Vs2013LightTheme />-->
-                    <!--<xcad:Vs2013DarkTheme />-->
-                    <!--<xcad:ExpressionLightTheme />-->
-                    <xcad:ExpressionDarkTheme />
-                    <!--<xcad:MetroTheme />-->
-                    <!--<xcad:AeroTheme />-->
-                </xcad:DockingManager.Theme>
-
-                <xcad:DockingManager.LayoutUpdateStrategy>
-                    <wpf:LayoutUpdateStrategy/>
-                </xcad:DockingManager.LayoutUpdateStrategy>
-
-                <xcad:DockingManager.DocumentHeaderTemplate>
-                    <DataTemplate>
-                        <Grid>
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" >
-                                <Viewbox HorizontalAlignment="Left" Height="16">
-                                     <icons:IconView Opacity="1" Foreground="{DynamicResource MahApps.Brushes.Badged.Foreground}" Path="{Binding Content.DataContext.IconPath}"/>
-                                </Viewbox>
-                                <lang:LocalizedLabel Margin="10,0,0,0" FontSize="14" FontWeight="Bold" Text="{Binding Content.DataContext.Header}"/>
-                            </StackPanel>
-                            <StackPanel Background="{DynamicResource MahApps.Brushes.Badged.Background}" Visibility="{Binding Content.DataContext.SubTitle,Converter={StaticResource ToVisibilityConverter},FallbackValue=Collapsed}">
-                                <lang:LocalizedLabel Margin="3,0" FontSize="12" FontStyle="Italic" Text="{Binding Content.DataContext.SubTitle}"/>
-                            </StackPanel>                        
-                        </StackPanel>
-                        </Grid>
-                    </DataTemplate>
-                </xcad:DockingManager.DocumentHeaderTemplate>
-
-                <xcad:DockingManager.AnchorableHeaderTemplate>
-                    <DataTemplate>
-                        <StackPanel Orientation="Horizontal">
-                            <Viewbox HorizontalAlignment="Left" Height="16">
-                                <ContentControl Content="{Binding Content.DataContext.IconPath}"/>
-                            </Viewbox>
-                            <lang:Localize Margin="10,0,0,0" FontSize="14" Id="{Binding Content.DataContext.Title}"/>
-                        </StackPanel>
-                    </DataTemplate>
-                </xcad:DockingManager.AnchorableHeaderTemplate>
-
-                <xcad:DockingManager.LayoutItemContainerStyle>
-                 <!--you can add additional bindings from the layoutitem to the DockWindowViewModel--> 
-                    <Style TargetType="{x:Type xcad:LayoutItem}">
-                        <Setter Property="Title" Value="{Binding Model.DataContext.Title, FallbackValue=Undefined}" />
-                        <Setter Property="IconSource" Value="{Binding Model.DataContext.IconBitmap}"/>
-                        <!--<Setter Property="Title" Value="{Binding Model.DataContext.IconCanvas}"/>-->
-                        <Setter Property="CloseCommand" Value="{Binding Model.DataContext.CloseCommand}" />
-                        <Setter Property="CanClose" Value="{Binding Model.DataContext.CanClose}" />
-                        <Setter Property="ContentId" Value="{Binding Model.ContentId}"/>
-                    </Style>
-                </xcad:DockingManager.LayoutItemContainerStyle>
-                
-                <!--<xcad:LayoutRoot>
-                    <xcad:LayoutPanel Orientation="Horizontal">
-                    </xcad:LayoutPanel>
-                </xcad:LayoutRoot>-->
-            </xcad:DockingManager>
 
             <ContentControl Grid.Row="0" Content="{Binding DragCanvas}"/>
             <Canvas Grid.Row="0" x:Name="DragCanvas"/>

@@ -59,8 +59,6 @@ namespace HLab.Mvvm.Application.Wpf
             _options.SetValue("Display","Height",w.Height,"registry");
 
             _options.SetValue("Display","WindowState",w.WindowState,"registry");
-
-            SaveLayout();
         }
 
         readonly IOptionsService _options;
@@ -70,46 +68,6 @@ namespace HLab.Mvvm.Application.Wpf
             var ctx = this.GetValue(ViewLocator.MvvmContextProperty);
         }
 
-        int? UserId => null; // TODO _acl.Connection.UserId
 
-        void SaveLayout()
-        {
-            var layoutSerializer = new XmlLayoutSerializer(DockingManager);
-            var sb = new StringBuilder();
-            using var writer = new StringWriter(sb);
-            layoutSerializer.Serialize(writer);
-            _options.SetValue<string>("","Layout", sb.ToString(),"", UserId);
-        }
-
-        async void LoadLayout()
-        {
-            var layoutSerializer = new XmlLayoutSerializer(DockingManager);
-
-            try
-            {
-                var layout = await _options.GetValueAsync<string>("","Layout",null,null,UserId).ConfigureAwait(true);
-                if (!string.IsNullOrWhiteSpace(layout))
-                {
-                    using var reader = new StringReader(layout);
-                    layoutSerializer.Deserialize(reader);
-                }
-            }
-            catch (FileNotFoundException ex)
-            {
-                var res = MessageBox.Show(ex.Message, "Debug", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            catch (DirectoryNotFoundException ex)
-            {
-                var res = MessageBox.Show(ex.Message, "Debug", MessageBoxButton.OK,
-                    MessageBoxImage.Information);
-            }
-            catch (InvalidOperationException ex)
-            {
-                var res = MessageBox.Show(ex.Message, "Debug", MessageBoxButton.OK,
-                    MessageBoxImage.Information);                
-            }
-
-        }
     }
 }

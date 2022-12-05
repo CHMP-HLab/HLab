@@ -4,10 +4,14 @@ namespace HLab.Mvvm.Application
 {
     public interface IDocumentService
     {
-        Task OpenDocumentAsync(object content);
-        Task OpenDocumentAsync<T>();
-        Task CloseDocumentAsync(object content);
+        Task OpenDocumentAsync(object content, IDocumentPresenter presenter);
+        Task CloseDocumentAsync(object content, IDocumentPresenter presenter);
 
-        object MainViewModel { get; set; }
+        Task OpenDocumentAsync(object content) => OpenDocumentAsync(content, MainPresenter);
+        Task OpenDocumentAsync<T>(IDocumentPresenter presenter) => OpenDocumentAsync(typeof(T), presenter);
+        Task OpenDocumentAsync<T>() =>  OpenDocumentAsync<T>(MainPresenter);
+        Task CloseDocumentAsync(object content) => CloseDocumentAsync(content, MainPresenter);
+
+        IDocumentPresenter MainPresenter { get; set; }
     }
 }

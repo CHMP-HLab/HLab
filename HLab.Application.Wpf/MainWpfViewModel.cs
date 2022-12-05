@@ -20,7 +20,7 @@ namespace HLab.Mvvm.Application.Wpf
     public class MainWpfViewModelDesign : MainWpfViewModel
     {
         public MainWpfViewModelDesign() 
-            : base(null, null, null, null, null, null, null)
+            : base(null, null, null, null, null, null )
         {
             
         }
@@ -29,78 +29,41 @@ namespace HLab.Mvvm.Application.Wpf
     public class MainWpfViewModel : NotifierBase
     {
         public IAclService Acl {get; }
-        readonly IMessagesService _message;
         readonly IDocumentService _doc;
         public IApplicationInfoService ApplicationInfo { get; }
-        readonly Func<object, ISelectedMessage> _getSelectedMessage;
         public ILocalizationService LocalizationService { get; }
         public IIconService IconService { get; }
 
         public MainWpfViewModel(
             IAclService acl, 
-            IMessagesService message, 
             IDocumentService doc, 
+            IDocumentPresenter presenter, 
             IApplicationInfoService applicationInfo, 
             ILocalizationService localizationService, 
-            Func<object, ISelectedMessage> getSelectedMessage, 
             IIconService iconService)
         {
             Acl = acl;
-            _message = message;
-            doc.MainViewModel = this;
+            DocumentPresenter = presenter;
+            doc.MainPresenter = presenter;
             _doc = doc;
             ApplicationInfo = applicationInfo;
             LocalizationService = localizationService;
-            _getSelectedMessage = getSelectedMessage;
             IconService = iconService;
 
             H.Initialize(this);
         }
 
-
-        public ObservableCollection<object> Anchorables { get; } = new();
-        public ObservableCollection<object> Documents { get; } = new();
+        public IDocumentPresenter DocumentPresenter { get; }
 
         public bool IsActive
         {
             get => _isActive.Get();
             set => _isActive.Set(value);
         }
-
         readonly IProperty<bool> _isActive = H.Property<bool>(c => c.Default(true));
 
 
-        public bool RemoveDocument(object document)
-        {
-            if (!Documents.Contains(document)) return false;
-            if (_documentHistory.Count <= 0 || !ReferenceEquals(_documentHistory[0], document)) return false;
 
-            _documentHistory.Remove(document);
-            if (_documentHistory.Count > 0)
-            {
-                ActiveDocument = _documentHistory[0];
-            }
-            Documents.Remove(document);
-
-            return true;
-        }
-
-        readonly List<object> _documentHistory = new();
-        public object ActiveDocument
-        {
-            get => _activeDocument.Get();
-            set
-            {
-                _documentHistory.Remove(value);
-                _documentHistory.Insert(0,value);
-
-                if (!_activeDocument.Set(value)) return;
-
-                _message.Publish(_getSelectedMessage(value));
-            }
-        }
-
-        readonly IProperty<object> _activeDocument = H.Property<object>();
 
         // TODO
         //public Canvas DragCanvas => _dragCanvas.Get();
