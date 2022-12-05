@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Drawing;
 using System.IO;
 using System.Reflection;
 using System.Text;
@@ -16,6 +17,11 @@ using System.Xml;
 using System.Xml.Xsl;
 
 using HLab.Icons.Wpf.Icons.Providers;
+using Brush = System.Windows.Media.Brush;
+using Color = System.Windows.Media.Color;
+using Image = System.Windows.Controls.Image;
+using Rectangle = System.Windows.Shapes.Rectangle;
+using Size = System.Windows.Size;
 
 namespace HLab.Icons.Wpf.Icons
 {
@@ -507,7 +513,7 @@ namespace HLab.Icons.Wpf.Icons
             return textBlock;
         }
 
-        public static Image GetBitmap(UIElement source, System.Drawing.Size size)
+        public static Image GetImage(UIElement source, System.Drawing.Size size)
         {
             var wSize = new Size(size.Height, size.Width);
 
@@ -533,7 +539,42 @@ namespace HLab.Icons.Wpf.Icons
                     96,
                     PixelFormats.Pbgra32);
             renderBitmap.Render(grid);
+            
             return new Image { Width = size.Width, Height = size.Height, Source = BitmapFrame.Create(renderBitmap) };
+        }
+        public static Bitmap GetBitmap(UIElement source, System.Drawing.Size size)
+        {
+            var wSize = new Size(size.Height, size.Width);
+
+            var grid = new Grid { Width = size.Width, Height = size.Height };
+
+            var viewbox = new Viewbox
+            {
+                Width = size.Width,
+                Height = size.Height,
+                Child = source
+            };
+
+            grid.Children.Add(viewbox);
+
+            grid.Measure(wSize);
+            grid.Arrange(new Rect(wSize));
+
+            var renderBitmap =
+                new RenderTargetBitmap(
+                    size.Width,
+                    size.Height,
+                    96,
+                    96,
+                    PixelFormats.Pbgra32);
+            renderBitmap.Render(grid);
+            
+            MemoryStream stream = new();
+            BitmapEncoder encoder = new BmpBitmapEncoder();
+            encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
+            encoder.Save(stream);
+
+            return new Bitmap(stream);
         }
 
     }

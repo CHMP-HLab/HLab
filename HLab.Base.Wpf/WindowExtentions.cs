@@ -37,7 +37,7 @@ namespace HLab.Base.Wpf
             if(
                 Environment.OSVersion.Platform == PlatformID.Win32NT 
                 && Environment.OSVersion.Version.Major == 10 
-                && Environment.OSVersion.Version.Build is < 22000 or >= 22563
+                //&& Environment.OSVersion.Version.Build != 22000
                 )
             {
                     new BlurHelper(window, enable);
