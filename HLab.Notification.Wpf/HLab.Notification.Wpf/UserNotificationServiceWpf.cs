@@ -1,10 +1,8 @@
-﻿
+﻿using System.Drawing;
 using H.NotifyIcon;
 using H.NotifyIcon.Core;
-using HLab.UserNotification;
-using System.Drawing;
 
-namespace HLab.Notification.Wpf
+namespace HLab.UserNotification.Wpf
 {
     public class UserNotificationServiceWpf : UserNotificationService
     {
@@ -30,9 +28,9 @@ namespace HLab.Notification.Wpf
             }
         }
 
-        private TaskbarIcon _taskbarIcon;
-        private Icon _icon;
-        private string _toolTipText;
+        TaskbarIcon _taskbarIcon;
+        Icon _icon;
+        string _toolTipText;
 
         public void Show()
         {

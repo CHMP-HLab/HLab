@@ -32,7 +32,7 @@ namespace HLab.UserNotification.Wpf
 {
     public class UserNotify //: IDisposable
     {
-        private readonly TaskbarIcon _notify;
+        readonly TaskbarIcon _notify;
 
         public UserNotify(IIconService iconService)
         {
@@ -72,12 +72,12 @@ namespace HLab.UserNotification.Wpf
             _notify.Visibility = Visibility.Hidden;
         }
 
-        private void _notify_TrayRightMouseUp(object sender, RoutedEventArgs e)
+        void _notify_TrayRightMouseUp(object sender, RoutedEventArgs e)
         {
             //_notify.ContextMenuStrip.Show( Control.MousePosition);
         }
 
-        private void _notify_TrayLeftMouseUp(object sender, RoutedEventArgs e)
+        void _notify_TrayLeftMouseUp(object sender, RoutedEventArgs e)
         {
             Click?.Invoke(sender, e);
         }
