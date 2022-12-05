@@ -1,18 +1,17 @@
-﻿using System;
-using System.Threading.Tasks;
-using System.Windows;
+﻿using System.Net.Mime;
+using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Markup.Xaml.Templates;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
-using HLab.Mvvm.Views;
-using HLab.Mvvm.Wpf.Views;
 
-namespace HLab.Mvvm.Wpf
+namespace HLab.Mvvm.Avalonia
 {
-    public class MvvmServiceWpf : MvvmService
+    public class MvvmServiceAvalonia : MvvmService
     {
         private readonly ResourceDictionary _dictionary = new();
 
-        public MvvmServiceWpf(
+        public MvvmServiceAvalonia(
             IMessageBus messageBus, 
             Func<Type, object> locateFunc,
             Func<ProgressLoadingViewModel> getProgressLoadingViewModel
@@ -42,14 +41,14 @@ namespace HLab.Mvvm.Wpf
             });
 
 
-            ViewHelperFactory.Register<IView>(v=>new ViewHelperWpf((FrameworkElement)v));
+            ViewHelperFactory.Register<IView>(v=>new ViewHelperWpf((AvaloniaObject)v));
         }
         
         public override void Register()
         {
                 base.Register();
                 Application.Current.Resources.MergedDictionaries.Add(_dictionary);
-            ViewHelperFactory.Register<IView>(v => new ViewHelperWpf((FrameworkElement)v));
+            ViewHelperFactory.Register<IView>(v => new ViewHelperWpf((AvaloniaObject)v));
         }
 
         public override void PrepareView(object view)

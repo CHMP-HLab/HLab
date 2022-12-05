@@ -1,0 +1,50 @@
+﻿<Window  
+    x:Class="HLab.Mvvm.DefaultWindow"
+    xmlns="https://github.com/avaloniaui"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:lang="clr-namespace:HLab.Localization.Wpf.Lang;assembly=HLab.Localization.Wpf"
+    xmlns:annotations="clr-namespace:HLab.Mvvm.Annotations;assembly=HLab.Mvvm.Annotations" xmlns:icons="clr-namespace:HLab.Icons.Wpf.Icons;assembly=HLab.Icons.Wpf" xmlns:mvvm="clr-namespace:HLab.Mvvm"
+    xmlns:wpf="clr-namespace:HLab.Mvvm.Wpf"
+    mc:Ignorable="d" 
+    d:DesignHeight="450" d:DesignWidth="800"
+                  
+    Title ="{Binding Title}"
+                  
+    icons:IconView.IconService="{Binding IconService}"
+    lang:Localize.LocalizationService="{Binding LocalizationService}"
+                  
+    BorderThickness="0"
+                  
+    d:DataContext="{d:DesignInstance Type=annotations:IMainViewModel}"
+    
+    Background="Transparent"
+    AllowsTransparency="True"
+                  
+    MouseDown="OnMouseDown"
+    MouseUp="OnMouseUp"
+    MouseMove="OnMouseMove"
+         
+    WindowStyle="None"
+    >
+    
+    <wpf:ResizeGrid x:Name="ResizeGrid" >
+        <Grid>
+            <Border
+                Background="{DynamicResource HLab.Brushes.Header.Active.Background}" 
+                BorderBrush="{DynamicResource MahApps.Brushes.Accent}"
+                CornerRadius="8"
+                />
+        
+            <ContentControl/>
+        </Grid>
+    </wpf:ResizeGrid>
+    
+    
+    <!--
+        ShowTitleBar="False"
+    ShowSystemMenu="False"
+
+    -->
+</Window>

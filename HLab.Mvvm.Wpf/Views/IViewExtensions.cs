@@ -2,7 +2,7 @@
 using System.Windows;
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm.Views
+namespace HLab.Mvvm.Wpf.Views
 {
     public static class ViewWpfExtensions
     {

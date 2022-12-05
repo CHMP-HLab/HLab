@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net5.0-windows;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net5.0-windows;net6.0-windows;net7.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <Platforms>AnyCPU;x64</Platforms>
     <LangVersion>default</LangVersion>
@@ -33,7 +33,7 @@
 
   <ItemGroup>
     <PackageReference Include="libxslt" Version="1.1.28" />
-    <PackageReference Include="Svg" Version="3.4.2" />
+    <PackageReference Include="Svg" Version="3.4.4" />
   </ItemGroup>
 
   <ItemGroup>

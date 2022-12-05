@@ -1,0 +1,53 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <AvaloniaXaml Remove="ProgressLoadingView.axaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="DefaultWindow.xaml" />
+    <None Remove="NotFoundView.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview4" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Include="DefaultWindow.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="NotFoundView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="ProgressLoadingView.axaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Mvvm\HLab.Mvvm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="DefaultWindow.xaml.cs">
+      <DependentUpon>DefaultWindow.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="NotFoundView.xaml.cs">
+      <DependentUpon>NotFoundView.xaml</DependentUpon>
+    </Compile>
+    <Compile Update="ProgressLoadingView.xaml.cs">
+      <DependentUpon>ProgressLoadingView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>
