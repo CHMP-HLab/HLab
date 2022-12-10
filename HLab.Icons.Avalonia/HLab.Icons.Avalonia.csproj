@@ -1,17 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.0-preview4" />
     <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview4" />
+    <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="11.0.0-preview4" />
+    <PackageReference Include="Avalonia.Native" Version="11.0.0-preview4" />
+    <PackageReference Include="Avalonia.Svg" Version="11.0.0-preview4" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\HLab.Base.Avalonia\HLab.Base.Avalonia.csproj" />
+    <ProjectReference Include="..\HLab.Core\HLab.Core.csproj" />
     <ProjectReference Include="..\Hlab.Icons.Annotations\HLab.Icons.Annotations.csproj" />
   </ItemGroup>
 

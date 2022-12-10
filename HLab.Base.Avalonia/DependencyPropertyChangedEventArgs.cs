@@ -1,16 +1,20 @@
-﻿namespace HLab.Base.Avalonia;
+﻿using Avalonia;
+
+namespace HLab.Base.Avalonia;
 
 //[StructLayout(LayoutKind.Sequential, Size = 1)]
-public readonly struct DependencyPropertyChangedEventArgs<TValue> 
+public readonly struct StyledPropertyChangedEventArgs<TValue> 
 {
     /// <summary>Initializes a new instance of the <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> class.</summary>
-    /// <param name="eventArgs"></param>
-    public DependencyPropertyChangedEventArgs(
-        object oldvalue, object newValue)
+    /// <param name="property"></param>
+    /// <param name="oldValue"></param>
+    /// <param name="newValue"></param>
+    public StyledPropertyChangedEventArgs(
+        StyledProperty<TValue> property, TValue oldValue, TValue newValue)
     {
-        Property = eventArgs.Property;
-        OldValue = (TValue)eventArgs.OldValue;
-        NewValue = (TValue)eventArgs.NewValue;
+        Property = property;
+        OldValue = oldValue;
+        NewValue = newValue;
 
     }
 
@@ -31,13 +35,13 @@ public readonly struct DependencyPropertyChangedEventArgs<TValue>
     /// <param name="obj">The object to compare to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />.</param>
     /// <returns>
     /// <see langword="true" /> if the provided object is equivalent to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />; otherwise, <see langword="false" />.</returns>
-    public override bool Equals(object obj) => Equals((DependencyPropertyChangedEventArgs<TValue>) obj);
+    public override bool Equals(object obj) => Equals((StyledPropertyChangedEventArgs<TValue>) obj);
 
     /// <summary>Determines whether the provided <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> is equivalent to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />.</summary>
     /// <param name="args">The <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> to compare to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /></param>
     /// <returns>
     /// <see langword="true" /> if the provided <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> is equivalent to the current <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />; otherwise, <see langword="false" />.</returns>
-    public bool Equals(DependencyPropertyChangedEventArgs<TValue> args) =>
+    public bool Equals(StyledPropertyChangedEventArgs<TValue> args) =>
         Property.Equals(args.Property) && OldValue.Equals(args.OldValue) && NewValue.Equals(args.NewValue);
 
     /// <summary>Gets a hash code  for this <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" />.</summary>
@@ -50,8 +54,8 @@ public readonly struct DependencyPropertyChangedEventArgs<TValue>
     /// <returns>
     /// <see langword="true" /> if the two <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> instances are equivalent; otherwise, <see langword="false" />.</returns>
     public static bool operator ==(
-        DependencyPropertyChangedEventArgs<TValue> left,
-        DependencyPropertyChangedEventArgs<TValue> right) => left.Equals(right);
+        StyledPropertyChangedEventArgs<TValue> left,
+        StyledPropertyChangedEventArgs<TValue> right) => left.Equals(right);
 
     /// <summary>Determines whether two specified <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> objects are different.</summary>
     /// <param name="left">The first <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> to compare.</param>
@@ -59,6 +63,6 @@ public readonly struct DependencyPropertyChangedEventArgs<TValue>
     /// <returns>
     /// <see langword="true" /> if the two <see cref="T:System.Windows.DependencyPropertyChangedEventArgs" /> instances are different; otherwise, <see langword="false" />.</returns>
     public static bool operator !=(
-        DependencyPropertyChangedEventArgs<TValue> left,
-        DependencyPropertyChangedEventArgs<TValue> right) =>  ! left.Equals(right);
+        StyledPropertyChangedEventArgs<TValue> left,
+        StyledPropertyChangedEventArgs<TValue> right) =>  ! left.Equals(right);
 }

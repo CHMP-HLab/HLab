@@ -1,30 +1,30 @@
-﻿using System.Collections.Concurrent;
-using System.Collections.Generic;
+﻿using Mages.Core.Ast;
+using System;
+using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using System.Windows;
-using Size = System.Drawing.Size;
 
-namespace HLab.Icons.Wpf.Icons.Providers
+namespace HLab.Icons.Wpf.Icons.Providers;
+
+public abstract class IconProvider
 {
-    public abstract class IconProvider
+    public object? Get() => GetPooled()?? GetIcon();
+    public async Task<object?> GetAsync() => GetPooled()??await GetIconAsync();
+
+    protected abstract object? GetIcon();
+    protected abstract Task<object?> GetIconAsync();
+    public abstract Task<string> GetTemplateAsync();
+
+
+    readonly ConcurrentQueue<object> _pool = new();
+    object? GetPooled()
     {
-
-        readonly ConcurrentQueue<object> _pool = new();
-        public async Task<object> GetAsync()
+        while (_pool.TryDequeue(out var pooledIcon))
         {
-            while (_pool.TryDequeue(out var pooledIcon))
-            {
-                if (pooledIcon is FrameworkElement { Parent: null })
-                    return pooledIcon;
-            }
-
-            var icon = await GetActualAsync();
-            return icon;
+            if (pooledIcon is FrameworkElement { Parent: null })
+                return pooledIcon;
         }
 
-
-        public abstract object Get();
-        protected abstract Task<object> GetActualAsync();
-        public abstract Task<string> GetTemplateAsync();
+        return null;
     }
 }

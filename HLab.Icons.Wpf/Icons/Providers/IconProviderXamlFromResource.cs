@@ -1,89 +1,33 @@
-﻿using System.Collections.Generic;
-using System.Resources;
+﻿using System.Resources;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Markup;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 using HLab.Icons.Annotations.Icons;
 using Color = System.Windows.Media.Color;
 
-namespace HLab.Icons.Wpf.Icons.Providers
+namespace HLab.Icons.Wpf.Icons.Providers;
+
+public class IconProviderXamlFromResource : IconProviderXamlParser, IIconProvider
 {
-    public class IconProviderXamlFromResource : IconProvider, IIconProvider
-    {
-        readonly ResourceManager _resourceManager;
-        readonly string _name;
-        readonly Color? _foreColor;
-        bool _parsed = false;
-        string _source;
+    readonly ResourceManager _resourceManager;
+    readonly string _name;
+    readonly Color? _foreColor;
  
-        public IconProviderXamlFromResource(ResourceManager resourceManager, string name, Color? foreColor)
-        { 
-            _resourceManager = resourceManager; 
-            _name = name;
-            _foreColor = foreColor;
-        }
-        protected override async Task<object> GetActualAsync()
-        {
-            if (string.IsNullOrWhiteSpace(_name)) return null;
+    public IconProviderXamlFromResource(ResourceManager resourceManager, string name, Color? foreColor)
+    { 
+        _resourceManager = resourceManager; 
+        _name = name;
+        _foreColor = foreColor;
+    }
 
-            object icon;
-            if (_parsed)
-            {
-                icon = await XamlTools.FromXamlStringAsync(_source).ConfigureAwait(true);
-            }
-            else
-            {
-                await using var xamlStream = _resourceManager.GetStream(_name);
-                if (xamlStream == null) return null;
-                icon = await XamlTools.FromXamlStreamAsync(xamlStream).ConfigureAwait(true);
-                await Application.Current.Dispatcher.InvokeAsync(
-                    ()=>_source = XamlWriter.Save(icon),XamlTools.Priority2
-                    );
-                _parsed = true;
-            }
+    protected override object? ParseIcon()
+    {
+        using var xamlStream = _resourceManager.GetStream(_name);
+        return xamlStream is null ? null : XamlTools.FromXamlStream(xamlStream);
+    }
 
-            //if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
-            //    await XamlTools.SetForegroundAsync(o, _foreColor.Value, brush);
-
-            return icon;
-        }
-
-        public override async Task<string> GetTemplateAsync()
-        {
-            if (string.IsNullOrWhiteSpace(_name)) return "";
-            while (!_parsed)
-            {
-                var icon = await GetActualAsync();
-            }
-            return _source;
-        }
-
-        public override object Get()
-        {
-            if (string.IsNullOrWhiteSpace(_name)) return null;
-
-            object icon;
-            if (_parsed)
-            {
-                icon = XamlTools.FromXamlString(_source);
-            }
-            else
-            {
-                using var xamlStream = _resourceManager.GetStream(_name);
-                if (xamlStream == null) return null;
-                
-                icon = XamlTools.FromXamlStream(xamlStream);
-                _source = XamlWriter.Save(icon);
-                _parsed = true;
-            }
-
-            //if(icon is DependencyObject o && _foreColor.HasValue && foreground is Brush brush)
-            //    XamlTools.SetForeground(o, _foreColor.Value, brush);
-
-            return icon;
-        }
+    protected override async Task<object?> ParseIconAsync()
+    {
+        await using var xamlStream = _resourceManager.GetStream(_name);
+        if (xamlStream == null) return null;
+        return await XamlTools.FromXamlStreamAsync(xamlStream).ConfigureAwait(true);
     }
 }

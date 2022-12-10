@@ -30,12 +30,12 @@ public static class ViewWpfExtensions
 
     public static Window AsDialog(this IView view)
     {
-        if (view is FrameworkElement fe) return fe.AsDialog();
+        if (view is StyledElement fe) return fe.AsDialog();
 
         throw new ArgumentException("view should be FrameworkElement");
     }
 
-    public static Window AsDialog(this FrameworkElement view)
+    public static Window AsDialog(this StyledElement view)
     {
         if (view is Window win) return win;
 
@@ -46,8 +46,8 @@ public static class ViewWpfExtensions
 
             SizeToContent = SizeToContent.WidthAndHeight,
             WindowStartupLocation = WindowStartupLocation.CenterScreen,
-            WindowStyle = WindowStyle.None,
-            ResizeMode = ResizeMode.NoResize,
+            //WindowStyle = WindowStyle.None,
+            //ResizeMode = ResizeMode.NoResize,
         };
 
         return w;
@@ -55,7 +55,7 @@ public static class ViewWpfExtensions
     public static TViewModel ViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view)
         where TViewMode : ViewMode
     {
-        if (view is FrameworkElement fe)
+        if (view is IStyledElement fe)
         {
             if (fe.DataContext is TViewModel vm)
             {
@@ -69,7 +69,7 @@ public static class ViewWpfExtensions
     public static bool TryGetViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view,out TViewModel viewModel)
         where TViewMode : ViewMode
     {
-        if (view is FrameworkElement fe)
+        if (view is IStyledElement fe)
         {
             if (fe.DataContext is TViewModel vm)
             {

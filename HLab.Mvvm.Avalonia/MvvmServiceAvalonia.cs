@@ -1,6 +1,9 @@
 ﻿using System.Net.Mime;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Controls.Templates;
+using Avalonia.Data;
+using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Templates;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
@@ -9,10 +12,10 @@ namespace HLab.Mvvm.Avalonia
 {
     public class MvvmServiceAvalonia : MvvmService
     {
-        private readonly ResourceDictionary _dictionary = new();
+        readonly ResourceDictionary _dictionary = new();
 
         public MvvmServiceAvalonia(
-            IMessageBus messageBus, 
+            IMessagesService messageBus, 
             Func<Type, object> locateFunc,
             Func<ProgressLoadingViewModel> getProgressLoadingViewModel
             ) : base(messageBus, locateFunc)
@@ -41,19 +44,19 @@ namespace HLab.Mvvm.Avalonia
             });
 
 
-            ViewHelperFactory.Register<IView>(v=>new ViewHelperWpf((AvaloniaObject)v));
+            ViewHelperFactory.Register<IView>(v=>new ViewHelperAvalonia((IStyledElement)v));
         }
         
         public override void Register()
         {
                 base.Register();
                 Application.Current.Resources.MergedDictionaries.Add(_dictionary);
-            ViewHelperFactory.Register<IView>(v => new ViewHelperWpf((AvaloniaObject)v));
+            ViewHelperFactory.Register<IView>(v => new ViewHelperAvalonia((IStyledElement)v));
         }
 
         public override void PrepareView(object view)
         {
-            if (view is DependencyObject obj)
+            if (view is AvaloniaObject obj)
             {
                 ViewLocator.SetViewClass(obj,typeof(IViewClassDefault));
                 ViewLocator.SetViewMode(obj,typeof(ViewModeDefault));
@@ -64,14 +67,13 @@ namespace HLab.Mvvm.Avalonia
         {
             if (t.IsInterface) return;
 
-            var viewLocatorFactory = new FrameworkElementFactory(typeof(ViewLocator));
-            var template = new DataTemplate(t)
-            {
-                VisualTree = viewLocatorFactory
-            };
+            var template = new FuncDataTemplate(t,(value, namescope) =>
+                new ViewLocator());
+
 
 //            Application.Current.Dispatcher.InvokeAsync(()=>
-            _dictionary.Add(new DataTemplateKey(t), template)
+//TODO : Avalonia not sure about the key
+            _dictionary.Add(t, template)
 //                )
                 ;
 

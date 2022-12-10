@@ -1,15 +1,14 @@
 ﻿using System.Windows.Controls;
 
-namespace HLab.Icons.Wpf.Icons
+namespace HLab.Icons.Wpf.Icons;
+
+/// <summary>
+/// Logique d'interaction pour IconGrid.xaml
+/// </summary>
+public partial class IconGrid : UserControl
 {
-    /// <summary>
-    /// Logique d'interaction pour IconGrid.xaml
-    /// </summary>
-    public partial class IconGrid : UserControl
+    public IconGrid()
     {
-        public IconGrid()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

@@ -1,21 +1,19 @@
-﻿using HLab.Base.Wpf;
+﻿using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Input;
+using HLab.Base.Avalonia;
 
-using System;
-using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Input;
-
-namespace HLab.Mvvm;
+namespace HLab.Mvvm.Avalonia;
 
 using H = DependencyHelper<DefaultWindow>;
 
 /// <summary>
 /// Logique d'interaction pour DefaultWindow.xaml
 /// </summary>
-public partial class DefaultWindow
+public partial class DefaultWindow : Window
 {
-    private readonly Border _insideBorder;
-    private readonly ContentControl _content;
+    readonly Border _insideBorder;
+    readonly ContentControl _content;
 
     public DefaultWindow()
     {
@@ -23,7 +21,7 @@ public partial class DefaultWindow
 
         if (ResizeGrid.NestedContent is Grid grid)
         {
-            foreach (UIElement child in grid.Children)
+            foreach (var child in grid.Children)
             {
                 if (child is Border border) _insideBorder = border;
                 if (child is ContentControl content) _content = content;
@@ -36,20 +34,21 @@ public partial class DefaultWindow
         set => SetValue(ViewProperty, value);
     }
 
-    public static readonly DependencyProperty ViewProperty =
+    public static readonly StyledProperty<object> ViewProperty =
         H.Property<object>()
-            .OnChange((e, a) =>
+            .OnChangeBeforeNotification((e) =>
             {
-                e._content.Content = a.NewValue;
+                e._content.Content = e.View;
             })
             .Register();
 
 
-    private bool _clicked = false;
+    PointerPressedEventArgs? _clicked = null;
 
-    private void OnMouseDown(object sender, MouseButtonEventArgs e)
+    void OnMouseDown(object? sender, PointerPressedEventArgs e)
     {
         var pos = e.GetPosition(this);
+        _clicked = null;
 
         //Not in drag zone  (Title bar)
         if (pos.Y > 30) return;
@@ -62,56 +61,64 @@ public partial class DefaultWindow
             return;
         }
 
-        _clicked = true;
+        _clicked = e;
 
     }
 
-    private void OnMouseMove(object sender, MouseEventArgs e)
+    protected override void OnPointerPressed(PointerPressedEventArgs e)
     {
-        if (!_clicked) return;
+        base.OnPointerPressed(e);
+    }
+
+    void OnMouseMove(object? sender, PointerEventArgs e)
+    {
+        if (_clicked is null) return;
 
         var pos = e.GetPosition(this);
 
-        if (e.LeftButton == MouseButtonState.Pressed)
+        if (e.GetCurrentPoint(this).Properties.IsLeftButtonPressed)
         {
             if (WindowState == WindowState.Maximized)
             {
-                var width = ActualWidth;
-                var height = ActualHeight;
+                var width = Bounds.Width;
+                var height = Bounds.Height;
 
 
                 var xRatio = pos.X / width;
 
-                var absPos = PointToScreen(pos);
+                var absPos = this.PointToScreen(pos);
 
-                var ct = PresentationSource.FromVisual(this)?.CompositionTarget;
+                // var m = this.PresentationSource.FromVisual(this)?.CompositionTargett?.TransformToDevice;
 
-                if (ct != null)
-                {
-                    var m = ct.TransformToDevice;
+                
 
-
-                    Top = (absPos.Y / m.M22) - pos.Y * (Height / height);
-
-                    Left = (absPos.X / m.M11) - pos.X * (Width / width);
+                //if (m != null)
+                //{
+                    Bounds = new Rect(
+                        (absPos.X/* / m.M11*/) - pos.X * (Width / width),
+                        (absPos.Y/* / m.M22*/) - pos.Y * (Height / height),
+                        Bounds.Width,
+                        Bounds.Height
+                    );
 
                     WindowState = WindowState.Normal;
-                }
+                //}
 
             }
 
-            _clicked = false;
+            var arg = _clicked;
+            _clicked = null;
             try
             {
-                DragMove();
+                this.BeginMoveDrag(arg);
             }
             catch (InvalidOperationException) { }
         }
     }
 
-    private void OnMouseUp(object sender, MouseButtonEventArgs e)
+    void OnMouseUp(object? sender, PointerReleasedEventArgs pointerReleasedEventArgs)
     {
-        _clicked = false;
+        _clicked = null;
     }
 
 
@@ -120,13 +127,12 @@ public partial class DefaultWindow
 
     bool _maximize = false;
 
-    protected override void OnStateChanged(EventArgs e)
+    protected override void HandleWindowStateChanged(WindowState state)
     {
-        base.OnStateChanged(e);
-
+        base.HandleWindowStateChanged(state);
         if (_cornerRadius == _cornerRadiusZero) _cornerRadius = _insideBorder.CornerRadius;
 
-        switch (WindowState)
+        switch (state)
         {
             case WindowState.Normal:
                 if (_cornerRadius != _cornerRadiusZero)
@@ -164,6 +170,8 @@ public partial class DefaultWindow
 
                 break;
         }
+
+
     }
 
     protected override Size ArrangeOverride(Size arrangeBounds)

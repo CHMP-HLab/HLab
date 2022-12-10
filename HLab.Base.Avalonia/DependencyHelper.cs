@@ -1,11 +1,13 @@
 ﻿using System.Runtime.CompilerServices;
+using Avalonia;
+using Avalonia.Interactivity;
 
 namespace HLab.Base.Avalonia
 {
     public class DependencyHelper
     {
         public static DependencyPropertyConfigurator<TClass, TValue> Property<TClass, TValue>([CallerMemberName] string name = null)
-            where TClass : StyledObject
+            where TClass : IAvaloniaObject
         {
             if (name == null) throw new NullReferenceException();
 
@@ -13,7 +15,7 @@ namespace HLab.Base.Avalonia
             return new DependencyPropertyConfigurator<TClass, TValue>(name);
         }
         public static RoutedEventConfigurator<TClass, TValue> Event<TClass, TValue>([CallerMemberName] string name = null)
-            where TClass : DependencyObject
+            where TClass : IAvaloniaObject where TValue : RoutedEventArgs
         {
             if (name == null) throw new NullReferenceException();
 
@@ -24,13 +26,12 @@ namespace HLab.Base.Avalonia
 
 
     public class DependencyHelper<TClass> : DependencyHelper
-    where TClass : StyledObject
+    where TClass : IAvaloniaObject
     {
         public static DependencyPropertyConfigurator<TClass, TValue> Property<TValue>([CallerMemberName] string name = null)
             => Property<TClass, TValue>(name);
-        public static RoutedEventConfigurator<TClass, TValue> Event<TValue>([CallerMemberName] string name = null)
-            => Event<TClass, TValue>(name);
-        public static RoutedEventConfigurator<TClass, RoutedEventHandler> Event([CallerMemberName] string name = null)
-            => Event<TClass, RoutedEventHandler>(name);
+        public static RoutedEventConfigurator<TClass, TValue> Event<TValue>([CallerMemberName] string name = null) where TValue : RoutedEventArgs => Event<TClass, TValue>(name);
+        //public static RoutedEventConfigurator<TClass, RoutedEventHandler> Event([CallerMemberName] string name = null)
+        //    => Event<TClass, RoutedEventHandler>(name);
     }
 }
