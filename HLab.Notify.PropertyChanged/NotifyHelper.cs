@@ -59,27 +59,17 @@ namespace HLab.Notify.PropertyChanged
         public static IProperty<T> Property<T>() => null;
         public static IProperty<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<T>> configurator) => null;
 #else
-        public static PropertyHolder<T> Property<T>(NotifyConfiguratorFactory<TClass, PropertyHolder<T>> configurator, [CallerMemberName] string name = null)
+        public static IProperty<T> Property<T>(NotifyConfiguratorFactory<TClass, IProperty<T>> configurator, [CallerMemberName] string name = null)
         {
             // TODO : benchmark this and see if just storing uncompiled whould perform better :
             var activator =
-                    PropertyCache<TClass>.GetByHolder<PropertyHolder<T>>(name,
-                        n => configurator(new NotifyConfigurator<TClass, PropertyHolder<T>>())
+                    PropertyCache<TClass>.GetByHolder<IProperty<T>>(name,
+                        n => configurator(new NotifyConfigurator<TClass, IProperty<T>>())
                             .Compile(n)
                     );
-            return new PropertyHolder<T>(activator);
-        }
 
-        public static PropertyHolder<T> PropertyNotCompiled<T>(
-            NotifyConfiguratorFactory<TClass, PropertyHolder<T>> configurator, [CallerMemberName] string name = null)
-        {
-            // TODO : benchmark this and see if just storing uncompiled whould perform better :
-            var activator =
-//                PropertyCache<TClass>.GetByHolder<PropertyHolder<T>>(name,n => 
-                    configurator(new NotifyConfigurator<TClass, PropertyHolder<T>>())
-                        .Compile(name)
-//                )
-                ;
+            return PropertyValueHolder<T>.Create(activator);
+
             return new PropertyHolder<T>(activator);
         }
 

@@ -46,15 +46,15 @@ namespace HLab.Base
                 var child = Children[index];
                 if (child == null) continue;
 
-                if(Grid.GetRow(child)!=row)
-                    Grid.SetRow(child, row);
+                if(GetRow(child)!=row)
+                    SetRow(child, row);
 
-                if(Grid.GetColumn(child)!=col)
-                    Grid.SetColumn(child, col);
+                if(GetColumn(child)!=col)
+                    SetColumn(child, col);
 
                 if (!(child is Border))
                 {
-                    col+=Grid.GetColumnSpan(child);
+                    col+=GetColumnSpan(child);
                     if (col >= colSize)
                     {
                         col = 0;

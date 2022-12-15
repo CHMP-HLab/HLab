@@ -9,14 +9,12 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
 
         public bool Set(string value)
         {
-            if (_value != value)
-            {
-                var old = _value;
-                _value = value;
-                _holder.OnPropertyChanged(old,value);
-                return true;
-            }
-            else return false;
+            if (_value == value) return false;
+
+            var old = _value;
+            _value = value;
+            _holder.OnPropertyChanged(old,value);
+            return true;
         }
 
         public bool Set(Func<object, string> setter)

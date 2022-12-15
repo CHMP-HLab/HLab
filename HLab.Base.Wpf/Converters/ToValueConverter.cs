@@ -27,7 +27,7 @@ namespace HLab.Base.Wpf.Converters
         public T FalseValue { get; set; }
         public T TrueValue { get; set; }
 
-        public object Convert(object value, Type targetType, object parameter, global::System.Globalization.CultureInfo culture)
+        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             if (value is bool b)
             {
@@ -45,7 +45,7 @@ namespace HLab.Base.Wpf.Converters
             return NullValue;
         }
 
-        public object ConvertBack(object value, Type targetType, object parameter, global::System.Globalization.CultureInfo culture)
+        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
         {
             throw new NotImplementedException();
         }

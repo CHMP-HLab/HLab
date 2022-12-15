@@ -38,13 +38,13 @@ public static class XamlTools
     static readonly Brush DefaultForeColor = new SolidColorBrush(ForeColor);
     static readonly Brush DefaultBackColor = new SolidColorBrush(BackColor);
 
-    static XslCompiledTransform _transformSvg;
+    static XslCompiledTransform? _transformSvg;
     public static XslCompiledTransform TransformSvg => _transformSvg??=GetTransformSvg();
 
     static XslCompiledTransform GetTransformSvg()
     {
         using var xslStream = Assembly.GetAssembly(typeof(IconProviderSvg))
-            .GetManifestResourceStream("HLab.Icons.Wpf.Icons.svg2xaml.xsl");
+            ?.GetManifestResourceStream("HLab.Icons.Wpf.Icons.svg2xaml.xsl");
         if (xslStream == null) throw new IOException("xsl file not found");
 
         using var stylesheet = XmlReader.Create(xslStream);

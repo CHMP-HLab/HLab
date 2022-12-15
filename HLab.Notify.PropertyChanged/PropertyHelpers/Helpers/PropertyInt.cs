@@ -13,12 +13,10 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
             if (_value == value) return false;
 
             var old = Interlocked.Exchange(ref _value, value);
-            if (old != value)
-            {
-                _holder.OnPropertyChanged(old,value);
-                return true;
-            }
-            else return false;
+            if (old == value) return false;
+
+            _holder.OnPropertyChanged(old,value);
+            return true;
         }
 
         public bool Set(Func<object, int> setter) => Set(setter(_holder.Parent));

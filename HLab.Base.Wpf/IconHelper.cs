@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+using HLab.Sys.Windows.API;
 
 namespace HLab.Base.Wpf
 {
@@ -69,11 +70,11 @@ namespace HLab.Base.Wpf
 			Shell32.SHGetFileInfo(	name, 
 				Shell32.FILE_ATTRIBUTE_NORMAL, 
 				ref shfi, 
-				(uint) System.Runtime.InteropServices.Marshal.SizeOf(shfi), 
+				(uint) Marshal.SizeOf(shfi), 
 				flags );
 
 			// Copy (clone) the returned icon to a new object, thus allowing us to clean-up properly
-			System.Drawing.Icon icon = (System.Drawing.Icon)System.Drawing.Icon.FromHandle(shfi.hIcon).Clone();
+			Icon icon = (Icon)Icon.FromHandle(shfi.hIcon).Clone();
 			User32.DestroyIcon( shfi.hIcon );		// Cleanup
 			return icon;
 		}
@@ -108,13 +109,13 @@ namespace HLab.Base.Wpf
 			Shell32.SHGetFileInfo(	null, 
 				Shell32.FILE_ATTRIBUTE_DIRECTORY, 
 				ref shfi, 
-				(uint) System.Runtime.InteropServices.Marshal.SizeOf(shfi), 
+				(uint) Marshal.SizeOf(shfi), 
 				flags );
 
-			System.Drawing.Icon.FromHandle(shfi.hIcon);	// Load the icon from an HICON handle
+			Icon.FromHandle(shfi.hIcon);	// Load the icon from an HICON handle
 
 			// Now clone the icon, so that it can be successfully stored in an ImageList
-			System.Drawing.Icon icon = (System.Drawing.Icon)System.Drawing.Icon.FromHandle(shfi.hIcon).Clone();
+			Icon icon = (Icon)Icon.FromHandle(shfi.hIcon).Clone();
 
 			User32.DestroyIcon( shfi.hIcon );		// Cleanup
 			return icon;
@@ -221,19 +222,5 @@ namespace HLab.Base.Wpf
 			);
 	}
 
-	/// <summary>
-	/// Wraps necessary functions imported from User32.dll. Code courtesy of MSDN Cold Rooster Consulting example.
-	/// </summary>
-	public class User32
-	{
-		/// <summary>
-		/// Provides access to function required to delete handle. This method is used internally
-		/// and is not required to be called separately.
-		/// </summary>
-		/// <param name="hIcon">Pointer to icon handle.</param>
-		/// <returns>N/A</returns>
-		[DllImport("User32.dll")]
-		public static extern int DestroyIcon( IntPtr hIcon );
-	}
 }
 

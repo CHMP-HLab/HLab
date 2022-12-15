@@ -1,5 +1,9 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq.Expressions;
+using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using HLab.Notify.Annotations;
@@ -62,12 +66,165 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         }
     }
 
+    public class PropertyHolderInt : PropertyValueHolder<int>
+    {
+        public PropertyHolderInt(PropertyActivator activator) : base(activator)
+        {
+        }
+
+        int _value;
+
+        public override int GetNoCheck() => _value;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public override bool Set(int value)
+        {
+            if (_value == value) return false;
+
+            var old = Interlocked.Exchange(ref _value, value);
+            if (old == value) return false;
+
+            OnPropertyChanged(old,value);
+            return true;
+        }
+    }
+    public abstract class PropertyValueHolder<T> : ChildObject, IProperty<T>
+    {
+        public static IProperty<T> Create(PropertyActivator activator) => GetPropertyHolder(activator);
+
+        static readonly Func<PropertyActivator,IProperty<T>> GetPropertyHolder;
+
+        static PropertyValueHolder()
+        {
+            var propertyType = typeof(T);
+            if (propertyType.IsPrimitive)
+            {
+                if (propertyType == typeof(int))
+                {
+                    GetPropertyHolder = a => (IProperty<T>)new PropertyHolderInt(a);
+                    return;
+                }
+                /*
+                if (propertyType == typeof(long))
+                {
+                    _getPropertyValue = e => (IPropertyValue<T>)new PropertyLong(e as PropertyHolder<long>);
+                    return;
+                }
+
+                if (propertyType == typeof(float))
+                {
+                    _getPropertyValue = e => (IPropertyValue<T>)new PropertyFloat(e as PropertyHolder<float>);
+                    return;
+                }
+
+                if (propertyType == typeof(double))
+                {
+                    _getPropertyValue = e => (IPropertyValue<T>)new PropertyDouble(e as PropertyHolder<double>);
+                    return;
+                }
+
+                if (propertyType == typeof(bool))
+                {
+                    _getPropertyValue = e => (IPropertyValue<T>)new PropertyBool(e as PropertyHolder<bool>);
+                    return;
+                }*/
+            }
+            /*
+            if (propertyType == typeof(string))
+            {
+                _getPropertyValue = e => (IPropertyValue<T>)new PropertyString(e as PropertyHolder<string>);
+                return;
+            }
+
+            Type makeType = null;
+            if (propertyType.IsInterface)
+                makeType = typeof(PropertyStruct<T>);//TODO maybe we can optimize
+            else if (propertyType.IsArray)
+                makeType = typeof(PropertyStructuralEquatable<>).MakeGenericType(propertyType);
+            else if (propertyType.IsClass)
+                makeType = typeof(PropertyObject<>).MakeGenericType(propertyType);
+            else if (propertyType.IsEnum && Enum.GetUnderlyingType(propertyType) == typeof(int))
+                makeType = typeof(PropertyEnum<>).MakeGenericType(propertyType);
+            else if (propertyType.IsValueType)
+                makeType = typeof(PropertyStruct<T>);//.MakeGenericType(propertyType);
+            else
+            {
+                throw new ArgumentException("Invalid type");
+            }
+            var argumentTypes = new[] { typeof(PropertyHolder<T>) };
+
+            var constructor = makeType.GetConstructor(
+                BindingFlags.Instance | BindingFlags.Public,
+                null,
+                CallingConventions.HasThis,
+                argumentTypes,
+                new ParameterModifier[0]);
+
+            var lamdaParameterExpressions = new[]
+            {
+                    Expression.Parameter(typeof(PropertyHolder<T>), "holder"),
+                };
+
+            var constructorParameterExpressions = lamdaParameterExpressions
+                .Take(argumentTypes.Length)
+                .ToArray();
+
+            var constructorCallExpression =
+                Expression.New(constructor, constructorParameterExpressions);
+            var func = Expression
+                .Lambda<Func<PropertyHolder<T>, IPropertyValue<T>>>(constructorCallExpression, lamdaParameterExpressions)
+                .Compile();
+
+            _getPropertyValue = func;
+            */
+
+            GetPropertyHolder = a => (IProperty<T>)new PropertyHolder<T>(a);
+        }
+
+
+
+        protected PropertyValueHolder(PropertyActivator activator) : base(activator)
+        {
+        }
+
+        public T Value
+        {
+            get => Get();
+            set => Set(value);
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public  T Get() => GetNoCheck();
+
+        public abstract T GetNoCheck();
+
+#if DEBUG
+        [DebuggerStepThrough]
+        public T Get([CallerMemberName] string name = null)
+        {
+            if (name != null && name != "SetOneToMany" && name != "Set")
+                Debug.Assert(name == this.Name);
+
+            return GetNoCheck();
+        }
+#endif
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public abstract bool Set(T value);
+
+    }
+
     public class PropertyHolder<T> : ChildObject, IProperty<T>
     {
         protected internal IPropertyValue<T> PropertyValue;
 
         public PropertyHolder(PropertyActivator activator) : base(activator)
         {
+        }
+
+        public T Value
+        {
+            get => PropertyValue.Get();
+            set => PropertyValue.Set(value);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

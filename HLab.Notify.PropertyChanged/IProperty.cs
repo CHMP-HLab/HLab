@@ -18,6 +18,7 @@ namespace HLab.Notify.PropertyChanged
 
     public interface IProperty<T> : IProperty, IChildObject
     {
+        T Value { get; set; }
         bool Set(T value);
         void Update();
         T GetNoCheck();

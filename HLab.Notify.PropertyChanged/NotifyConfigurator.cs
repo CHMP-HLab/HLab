@@ -30,7 +30,7 @@ namespace HLab.Notify.PropertyChanged
         where TClass : class, INotifyPropertyChangedWithHelper
         where T : class, IChildObject
     {
-        internal readonly List<TriggerEntry> Triggers = new();
+        readonly List<TriggerEntry> Triggers = new();
         internal TriggerEntry CurrentTrigger = new();
 
         internal class TriggerEntry

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers
@@ -9,6 +10,7 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
     /// Hold 
     /// </summary>
     /// <typeparam name="TClass"></typeparam>
+    [SuppressMessage("ReSharper", "StaticMemberInGenericType")]
     public static class PropertyCache<TClass>
         where TClass : class, INotifyPropertyChangedWithHelper
     {
@@ -16,16 +18,15 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
         static PropertyCache()
         {
             var type = typeof(TClass).BaseType;
-            if (type != null && typeof(INotifyPropertyChangedWithHelper).IsAssignableFrom(type))
-            {
-                var t = typeof(PropertyCache<>).MakeGenericType(type);
-                var getByHolder = t.GetMethod("GetByHolder", new[] {typeof(string)});
-                Debug.Assert(getByHolder!=null);
-                _getByHolderParent = s => (PropertyActivator)getByHolder.Invoke(null,new object[]{s});
-            }
+            if (type == null || !typeof(INotifyPropertyChangedWithHelper).IsAssignableFrom(type)) return;
+
+            var t = typeof(PropertyCache<>).MakeGenericType(type);
+            var getByHolder = t.GetMethod("GetByHolder", new[] {typeof(string)});
+            Debug.Assert(getByHolder!=null);
+            GetByHolderParent = s => (PropertyActivator)getByHolder.Invoke(null,new object[]{s});
         }
 
-        static readonly Func<string,PropertyActivator> _getByHolderParent;
+        static readonly Func<string,PropertyActivator> GetByHolderParent;
         static readonly ConcurrentDictionary<string, PropertyActivator> CacheByHolder = new();
         static readonly ConcurrentDictionary<string, PropertyActivator> CacheByProperty = new();
         public static PropertyActivator GetByProperty(string name )
@@ -34,13 +35,8 @@ namespace HLab.Notify.PropertyChanged.PropertyHelpers
             throw new Exception("Error");
         }
 
-        public static PropertyActivator GetByHolder(string name )
-        {
-            if(CacheByHolder.TryGetValue(name, out var e)) return e;
-            if (_getByHolderParent != null) return _getByHolderParent(name);
-            return null;
-            // throw new ArgumentException($"PropertyHolder {name} not found in {typeof(TClass)}");
-        }
+        public static PropertyActivator GetByHolder(string name ) 
+            => CacheByHolder.TryGetValue(name, out var e) ? e : GetByHolderParent?.Invoke(name);
 
         public static PropertyActivator GetByHolder<T>(string name,
             Func<string,NotifyConfigurator<TClass,T>.Activator> activator)

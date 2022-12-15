@@ -180,7 +180,7 @@ namespace HLab.Base.Wpf
 
         public void SetNow()
         {
-            this.Date = DateTime.Now;
+            Date = DateTime.Now;
         }
 
 
@@ -244,7 +244,7 @@ namespace HLab.Base.Wpf
             {
                 if (IsValid == value) return;
                 SetValue(IsValidProperty, value);
-                RaiseEvent(new RoutedEventArgs(TextBoxEx.IsValidChangedEvent, this));
+                RaiseEvent(new RoutedEventArgs(IsValidChangedEvent, this));
             }
             get => (bool)GetValue(IsValidProperty);
         }
@@ -539,7 +539,7 @@ namespace HLab.Base.Wpf
 
             if (Mode == TextBoxMode.Date || Mode == TextBoxMode.Time)
             {
-                if (this.Date != dateTimeValue)
+                if (Date != dateTimeValue)
                 {
                     SetValue(DateProperty, dateTimeValue);
                     RaiseEvent(new RoutedEventArgs(DateChangeEvent, this));
@@ -547,14 +547,14 @@ namespace HLab.Base.Wpf
             }
             else
             {
-                if (this.Double != doubleValue)
+                if (Double != doubleValue)
                 {
                     SetValue(DoubleProperty, doubleValue);
                     RaiseEvent(new RoutedEventArgs(DoubleChangeEvent, this));
                 }
             }
 
-            if (this.IsValid != valid)
+            if (IsValid != valid)
             {
                 SetValue(IsValidProperty, valid);
                 RaiseEvent(new RoutedEventArgs(IsValidChangedEvent, this));

@@ -20,19 +20,19 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, TMember> 
             Set<TClass, TMember, T>(this NotifyConfigurator<TClass, TMember> c, Func<TClass, T> setter)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where TMember : PropertyHolder<T>
+            where TMember : class, IProperty<T>
         {
             if (c.CurrentTrigger.TriggerOnList.Count == 0)
             {
-                var action = c.GetDoWhenAction((target, property) => property.PropertyValue.Set(setter(target)));
+                var action = c.GetDoWhenAction((target, property) => property.Set(setter(target)));
                 c.Init(action);
                 return c.On().Do((target, property) =>
                 {
-                    property.SetProperty(new PropertyValueLazy<T>(property, o => setter((TClass) o)));
+                    //property.Set(setter((TClass)target));
                 });
             }
 
-            return c.Do((target, property) => property.PropertyValue.Set(setter(target)));
+            return c.Do((target, property) => property.Set(setter(target)));
         }
 
         public static NotifyConfigurator<TClass, TMember> 
@@ -106,7 +106,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, TMember> 
             Default<TClass, TMember, T>(this NotifyConfigurator<TClass, TMember> c, T @default)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where TMember : PropertyHolder<T>
+            where TMember : class,IProperty<T>
         {
             return c.Set(target => @default);
         }
@@ -123,7 +123,7 @@ namespace HLab.Notify.PropertyChanged
         public static NotifyConfigurator<TClass, TMember> 
             Bind<TClass, TMember,T>(this NotifyConfigurator<TClass, TMember> c, Expression<Func<TClass, T>> expr)
             where TClass : class, INotifyPropertyChangedWithHelper
-            where TMember : PropertyHolder<T>
+            where TMember : class, IProperty<T>
         {
             return c.Set(expr.Compile()).AddTriggerExpression(expr).Update();
         }

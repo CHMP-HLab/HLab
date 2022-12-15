@@ -80,9 +80,9 @@ namespace HLab.Base.Wpf.Themes
         {
             SetTheme(name switch
             {
-                "{Dark}" => ThemeService.WindowsTheme.Dark,
-                "{Light}" => ThemeService.WindowsTheme.Light,
-                _ => ThemeService.WindowsTheme.Auto
+                "{Dark}" => WindowsTheme.Dark,
+                "{Light}" => WindowsTheme.Light,
+                _ => WindowsTheme.Auto
             });
         }
 
