@@ -57,6 +57,7 @@
     <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Windows.API\HLab.Sys.Windows.API.csproj" />
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.ColorTools.Wpf\HLab.ColorTools.Wpf.csproj" />
+    <ProjectReference Include="..\HLab.Sys.Windows.API\HLab.Sys.Windows.API.csproj" />
   </ItemGroup>
 
 </Project>

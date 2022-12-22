@@ -75,7 +75,7 @@ namespace HLab.Base.Wpf
 
 			// Copy (clone) the returned icon to a new object, thus allowing us to clean-up properly
 			Icon icon = (Icon)Icon.FromHandle(shfi.hIcon).Clone();
-			User32.DestroyIcon( shfi.hIcon );		// Cleanup
+			WinUser.DestroyIcon( shfi.hIcon );		// Cleanup
 			return icon;
 		}
 
@@ -117,7 +117,7 @@ namespace HLab.Base.Wpf
 			// Now clone the icon, so that it can be successfully stored in an ImageList
 			Icon icon = (Icon)Icon.FromHandle(shfi.hIcon).Clone();
 
-			User32.DestroyIcon( shfi.hIcon );		// Cleanup
+			WinUser.DestroyIcon( shfi.hIcon );		// Cleanup
 			return icon;
 		}	
 	}
