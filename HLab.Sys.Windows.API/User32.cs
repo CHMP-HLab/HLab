@@ -231,13 +231,6 @@ namespace HLab.Sys.Windows.API
         [LibraryImport("user32.dll", SetLastError = true)]
         public static partial int SendInput(int nInputs, ref WinUser.Input mi, int cbSize);
 
-        //2297
-        [DllImport("user32.dll")]
-        public static extern int SendMessage(IntPtr hWnd, int wMsg, bool wParam, int lParam);
-        [LibraryImport("user32.dll")]
-        public static partial int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
-        [LibraryImport("user32.dll")]
-        public static partial int SendMessage(int hWnd, int Msg, int wParam, int lParam);
 
         //2387
         [LibraryImport("user32.dll")]
@@ -250,5 +243,11 @@ namespace HLab.Sys.Windows.API
         //2486 
         [LibraryImport("user32.dll", StringMarshalling = StringMarshalling.Utf16)]
         public static partial short VkKeyScan(char ch);
+
+        [LibraryImport("user32.dll")]
+        public static partial int SendMessage(IntPtr hWnd, int Msg, int wParam, int lParam);
+
+        [LibraryImport("user32.dll")]
+        public static partial int SendMessage(int hWnd, int Msg, int wParam, int lParam);
     }
 }

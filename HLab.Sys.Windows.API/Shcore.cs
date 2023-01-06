@@ -13,11 +13,11 @@ public static partial class Shcore
     }        //https://msdn.microsoft.com/en-us/library/windows/desktop/dn280510.aspx
 
     [LibraryImport("Shcore.dll")]
-    public static partial IntPtr GetDpiForMonitor(in IntPtr hmonitor, in DpiType dpiType, out uint dpiX, out uint dpiY);
+    public static partial nint GetDpiForMonitor(in nint hmonitor, in DpiType dpiType, out uint dpiX, out uint dpiY);
 
     [LibraryImport("Shcore.dll")]
     public static partial int GetScaleFactorForMonitor(
-        IntPtr hMonitor,
+        nint hMonitor,
         ref int scale
     );
 

@@ -1,0 +1,114 @@
+﻿using System;
+using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Threading;
+using static HLab.Sys.Windows.API.DwmApi;
+using static HLab.Sys.Windows.API.WinUser;
+
+namespace HLab.Sys.Windows.API;
+
+
+
+public class Window : IEquatable<Window>
+{
+    readonly nint _hWnd;
+    public Window(nint hWnd)
+    {
+        _hWnd = hWnd;
+    }
+
+    public WindowPlacement GetPlacement()
+    {
+        var placement = new WindowPlacement();
+        GetWindowPlacement(_hWnd, ref placement);
+        return placement;
+    }
+
+    public void SetFocus()
+    {
+        WinUser.SetFocus(_hWnd);
+    }
+
+    public bool SetPos(nint hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPosFlags uFlags) => SetWindowPos(_hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
+    public bool SetPos(HandleWindow hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPosFlags uFlags) => SetWindowPos(_hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
+
+    public WinDef.Rect GetRect() => GetRect(out var rect) ? rect : default;
+    public bool GetRect(out WinDef.Rect rect) => GetWindowRect(_hWnd, out rect);
+
+    public WinDef.Rect ExtendedFrameBounds {
+        get
+        {
+            var hresult = DwmGetWindowAttribute(_hWnd, DwmWindowAttribute.ExtendedFrameBounds, out var rect, Marshal.SizeOf(typeof(WinDef.Rect)));
+            return rect;
+
+        }
+    } 
+
+    public void BringToFront() => SetForegroundWindow(_hWnd);
+
+    public nint SetActive() => SetActiveWindow(_hWnd);
+
+    public (uint,int) GetThreadProcessId()
+    {
+        var threadId = GetWindowThreadProcessId(_hWnd, out var lpdwProcessId);
+        return threadId > 0 ? (threadId,lpdwProcessId) : default;
+    }
+
+    public bool ShowWindow(ShowWindowEnum flags) => WinUser.ShowWindow(_hWnd, flags);
+
+    public bool IsVisible => IsWindowVisible(_hWnd);
+
+    public static void EnumDesktopWindows(Func<Window,bool> callBackAction, nint hDesktop = 0)
+    {
+        bool EnumerateHandle(nint window, nint lParam) => callBackAction(new Window(window));
+
+        WinUser.EnumDesktopWindows(hDesktop, EnumerateHandle, 0);
+    }
+
+    public bool Equals(Window other)
+    {
+        if (other is null) return false;
+        return ReferenceEquals(this, other) || _hWnd.Equals(other._hWnd);
+    }
+
+    public override bool Equals(object obj)
+    {
+        if (obj is null) return false;
+        if (ReferenceEquals(this, obj)) return true;
+        return obj.GetType() == GetType() && Equals((Window)obj);
+    }
+
+    public override int GetHashCode()
+    {
+        return _hWnd.GetHashCode();
+    }
+
+    public Bitmap Icon(CancellationToken token)
+    {
+        try
+        {
+            nint hIcon = SendMessage(_hWnd, WindowMessage.GetIcon, (int)IconSize.Big, 0);
+
+            if(token.IsCancellationRequested) return null;
+
+            if (hIcon == 0)
+                hIcon = GetClassLongPtr(_hWnd, GetClassWindow.HIcon);
+
+            if(token.IsCancellationRequested) return null;
+
+            if (hIcon == 0)
+                hIcon = LoadIcon(0, 0x7F00/*IDI_APPLICATION*/);
+
+            if (token.IsCancellationRequested) return null;
+
+            if (hIcon != IntPtr.Zero)
+                return System.Drawing.Icon.FromHandle(hIcon).ToBitmap();
+        }
+        catch (Exception)
+        {
+        }
+
+        return null;
+    }
+
+}

@@ -1,9 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.Marshalling;
-using static HLab.Sys.Windows.API.DwmApi;
 using static HLab.Sys.Windows.API.WinDef;
-using static HLab.Sys.Windows.API.WinUser;
 
 namespace HLab.Sys.Windows.API;
 
@@ -1554,80 +1552,181 @@ public static partial class WinUser
     public static partial bool GetCursorPos(out WinDef.Point lpPoint);
 
 
-}
-
-public class Window : IEquatable<Window>
-{
-    readonly nint _hWnd;
-    public Window(nint hWnd)
+    public enum WindowMessage
     {
-        _hWnd = hWnd;
+        Null = 0,
+
+        Create = 0x0001,
+        Destroy = 0x0002,
+        Move = 0x0003,
+        Size = 0x0005,
+        Enable = 0x000A,
+        Close = 0x0010,
+        Quit = 0x0012,
+        QueryOpen = 0x0013,
+
+        ShowWindow = 0x0018,
+        ActivateApp = 0x001C,
+        CancelMode = 0x001F,
+        ChildActivate = 0x0022,
+        GetMinMaxInfo = 0x0024,
+        QueryDragIcon = 0x0037,
+        Compacting = 0x0041,
+        WindowPosChanging = 0x0046,
+        WindowPosChanged = 0x0047,
+        InputLangChangeRequest = 0x0050,
+        InputLangChange = 0x0051,
+        UserChanged = 0x0054,
+
+        StyleChanging = 0x007C,
+        StyleChanged = 0x007D,
+        GetIcon = 0x007F,
+
+        NcCreate = 0x0081,
+        NcDestroy = 0x0082,
+        NcCalcSize = 0x0083,
+        NcActivate = 0x0086,
+
+        Sizing = 0x0214,
+        Moving = 0x0216,
+        EnterSizeMode = 0x0231,
+        ExitSizeMove = 0x0232,
+
+        ThemeChanged = 0x031A,
+    }
+    public enum IconSize : int
+    {
+        Small = 0x0,
+        Big = 0x1,
+        Small2 = 0x2,
     }
 
-    public WindowPlacement GetPlacement()
+    public enum GetClassWindow
     {
-        var placement = new WindowPlacement();
-        GetWindowPlacement(_hWnd, ref placement);
-        return placement;
+        /// <summary>
+        /// Retrieves an ATOM value that uniquely identifies the window class. This is the same atom that the RegisterClassEx function returns. 
+        /// </summary>
+        Atom = -32,
+        /// <summary>
+        /// Retrieves the size, in bytes, of the extra memory associated with the class. 
+        /// </summary>
+        CbClsExtra = -20,
+        /// <summary>
+        /// Retrieves the size, in bytes, of the extra window memory associated with each window in the class. For information on how to access this memory, see GetWindowLongPtr. 
+        /// </summary>
+        CbWndExtra = -18,
+        /// <summary>
+        /// Retrieves a handle to the background brush associated with the class. 
+        /// </summary>
+        HBrBackground = -10,
+        /// <summary>
+        /// Retrieves a handle to the cursor associated with the class. 
+        /// </summary>
+        HCursor = -12,
+        /// <summary>
+        /// Retrieves a handle to the icon associated with the class. 
+        /// </summary>
+        HIcon = -14,
+        /// <summary>
+        /// Retrieves a handle to the small icon associated with the class. 
+        /// </summary>
+        HIconSm = -34,
+        /// <summary>
+        /// Retrieves a handle to the module that registered the class. 
+        /// </summary>
+        HModule = -16,
+        /// <summary>
+        /// Retrieves the pointer to the menu name string. The string identifies the menu resource associated with the class. 
+        /// </summary>
+        MenuName = -8,
+        /// <summary>
+        /// Retrieves the window-class style bits. 
+        /// </summary>
+        Style = -26,
+        /// <summary>
+        /// Retrieves the address of the window procedure, or a handle representing the address of the window procedure. You must use the CallWindowProc function to call the window procedure. 
+        /// </summary>
+        WndProc = -24,
     }
 
-    public void SetFocus()
+    //2297
+    [LibraryImport("user32.dll")]
+    public static partial int SendMessage(nint hWnd, WindowMessage wMsg, [MarshalAs(UnmanagedType.Bool)] bool wParam, int lParam);
+
+    [LibraryImport("user32.dll")]
+    public static partial int SendMessage(nint hWnd, WindowMessage wMsg, int wParam, int lParam);
+
+
+    public enum PredefinedIcons
     {
-        WinUser.SetFocus(_hWnd);
+        /// <summary>
+        /// Default application icon. 
+        /// </summary>
+        Application = 0x7F00,
+
+        /// <summary>
+        /// Hand-shaped icon. 
+        /// </summary>
+        Error = 0x7F01,
+        /// <summary>
+        /// Hand-shaped icon. Same as IDI_ERROR. 
+        /// </summary>
+        Hand = 0x7F01,
+
+        /// <summary>
+        /// Question mark icon. 
+        /// </summary>
+        Question = 0x7F02,
+
+        /// <summary>
+        /// Exclamation point icon. 
+        /// </summary>
+        Warning = 0x7F03,
+        /// <summary>
+        /// Exclamation point icon. Same as IDI_WARNING. 
+        /// </summary>
+        Exclamation = 0x7F03,
+
+        /// <summary>
+        /// Asterisk icon. 
+        /// </summary>
+        Information = 0x7F04,
+        /// <summary>
+        /// Asterisk icon. Same as IDI_INFORMATION. 
+        /// </summary>
+        Asterisk = 0x7F04,
+
+        /// <summary>
+        /// Default application icon.
+        /// Windows 2000:  Windows logo icon.
+        /// </summary>
+        WinLogo = 0x7F05,
+
+        /// <summary>
+        /// Security Shield icon. 
+        /// </summary>
+        Shield = 0x7F06,
     }
 
-    public bool SetPos(nint hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPosFlags uFlags) => SetWindowPos(_hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
-    public bool SetPos(HandleWindow hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPosFlags uFlags) => SetWindowPos(_hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
 
-    public Rect GetRect() => GetWindowRect(_hWnd,out var rect) ? rect : default;
+    [LibraryImport("user32.dll")]
+    internal static partial nint LoadIcon(nint hInstance, string lpIconName);
 
-    public Rect ExtendedFrameBounds {
-        get
-        {
-            var hresult = DwmGetWindowAttribute(_hWnd, DwmWindowAttribute.ExtendedFrameBounds, out var rect, Marshal.SizeOf(typeof(WinDef.Rect)));
-            return rect;
+    [LibraryImport("user32.dll")]
+    internal static partial nint LoadIcon(nint hInstance, PredefinedIcons lpIconName);
 
-        }
-    } 
 
-    public void BringToFront() => SetForegroundWindow(_hWnd);
 
-    public nint SetActive() => WinUser.SetActiveWindow(_hWnd);
+    [DllImport("user32.dll", EntryPoint = "GetClassLong")]
+    internal static extern uint GetClassLong32(nint hWnd, GetClassWindow nIndex);
 
-    public (uint,int) GetThreadProcessId()
+    [DllImport("user32.dll", EntryPoint = "GetClassLongPtr")]
+    internal static extern Int64 GetClassLong64(nint hWnd, GetClassWindow nIndex);
+
+    internal static nint GetClassLongPtr(nint hWnd, GetClassWindow nIndex)
     {
-        var threadId = WinUser.GetWindowThreadProcessId(_hWnd, out var lpdwProcessId);
-        return threadId > 0 ? (threadId,lpdwProcessId) : default;
+        if (Environment.Is64BitProcess) return (nint)GetClassLong64(hWnd, nIndex);
+
+        return (nint)GetClassLong32(hWnd, nIndex);
     }
-
-    public bool ShowWindow(ShowWindowEnum flags) => WinUser.ShowWindow(_hWnd, flags);
-
-    public bool IsVisible => IsWindowVisible(_hWnd);
-
-    public static void EnumDesktopWindows(Func<Window,bool> callBackAction, nint hDesktop = 0)
-    {
-        bool EnumerateHandle(nint window, nint lParam) => callBackAction(new Window(window));
-
-        WinUser.EnumDesktopWindows(hDesktop, EnumerateHandle, 0);
-    }
-
-    public bool Equals(Window other)
-    {
-        if (other is null) return false;
-        return ReferenceEquals(this, other) || _hWnd.Equals(other._hWnd);
-    }
-
-    public override bool Equals(object obj)
-    {
-        if (obj is null) return false;
-        if (ReferenceEquals(this, obj)) return true;
-        return obj.GetType() == GetType() && Equals((Window)obj);
-    }
-
-    public override int GetHashCode()
-    {
-        return _hWnd.GetHashCode();
-    }
-
-
 }
