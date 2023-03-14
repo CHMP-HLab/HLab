@@ -1,4 +1,5 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 
 namespace HLab.Sys.Windows.API;
@@ -19,11 +20,11 @@ public static partial class WinDef
 
     }
 
-    public struct PointL
-    {
-        public int x;
-        public int y;
-    }
+    //public struct PointL
+    //{
+    //    public int X;
+    //    public int Y;
+    //}
 
     [StructLayout(LayoutKind.Sequential)]
     public struct Rect
@@ -86,10 +87,32 @@ public static partial class WinDef
             };
         }
 
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(Left, Top, Right, Bottom);
+        }
+
         public override string ToString()
         {
             return string.Format(CultureInfo.CurrentCulture, "{{Left={0},Top={1},Right={2},Bottom={3}}}", Left, Top, Right, Bottom);
         }
     }
 
+    public enum DpiAwareness
+    {
+        Invalid = -1,
+        Unaware = 0,
+        SystemAware = 1,
+        PerMonitorAware = 2
+    }
+
+
+    public enum DpiAwarenessContext
+    {
+        Unset = 0,
+        Unaware = 16,
+        SystemAware = 17,
+        PerMonitorAware = 18,
+        PerMonitorAwareV2 = 34,
+    }
 }

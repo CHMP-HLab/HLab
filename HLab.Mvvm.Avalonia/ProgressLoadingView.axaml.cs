@@ -1,13 +1,14 @@
 ﻿using System.ComponentModel;
 using Avalonia.Controls;
 using HLab.Mvvm.Annotations;
+using HLab.Mvvm.ReactiveUI;
 
 namespace HLab.Mvvm.Avalonia
 {
     /// <summary>
     /// Logique d'interaction pour ProgressLoadingView.xaml
     /// </summary>
-    public partial class ProgressLoadingView : UserControl, IView<ViewModeDefault,ProgressLoadingViewModel>
+    public partial class ProgressLoadingView : UserControl, IView<DefaultViewMode,ProgressLoadingViewModel>
     {
         public ProgressLoadingView()
         {

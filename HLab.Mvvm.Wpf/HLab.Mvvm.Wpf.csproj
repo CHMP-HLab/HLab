@@ -28,8 +28,10 @@
     <ProjectReference Include="..\HLab.Icons.Wpf\HLab.Icons.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Localization.Wpf\HLab.Localization.Wpf.csproj" />
     <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.ReactiveUI\HLab.Mvvm.ReactiveUI.csproj" />
     <ProjectReference Include="..\HLab.Mvvm\HLab.Mvvm.csproj" />
     <ProjectReference Include="..\HLab.Notify.PropertyChanged\HLab.Notify.PropertyChanged.csproj" />
+    <ProjectReference Include="..\HLab.Sys.Windows.API\HLab.Sys.Windows.API.csproj" />
   </ItemGroup>
 
   <ItemGroup>

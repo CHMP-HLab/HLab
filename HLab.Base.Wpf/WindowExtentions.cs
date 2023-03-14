@@ -26,6 +26,8 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Interop;
 using System.Windows.Media;
+using static HLab.Sys.Windows.API.DwmApi;
+using Window = System.Windows.Window;
 
 namespace HLab.Base.Wpf
 {
@@ -71,69 +73,25 @@ namespace HLab.Base.Wpf
 
             var windowHelper = new WindowInteropHelper(window);
 
-            var accent = new NativeMethods.AccentPolicy();
+            var accent = new AccentPolicy();
             var accentStructSize = Marshal.SizeOf(accent);
-            accent.AccentState = _enable?NativeMethods.AccentState.ACCENT_ENABLE_BLURBEHIND:NativeMethods.AccentState.ACCENT_DISABLED; //NativeMethods.AccentState.ACCENT_ENABLE_BLURBEHIND;
+            accent.AccentState = _enable?AccentState.EnableBlurBehind:AccentState.Disabled; //NativeMethods.AccentState.ACCENT_ENABLE_BLURBEHIND;
 
             var accentPtr = Marshal.AllocHGlobal(accentStructSize);
             Marshal.StructureToPtr(accent, accentPtr, false);
 
-            var data = new NativeMethods.WindowCompositionAttributeData
+            var data = new WindowCompositionAttributeData
             {
-                Attribute = NativeMethods.WindowCompositionAttribute.WCA_ACCENT_POLICY,
+                Attribute = WindowCompositionAttribute.AccentPolicy,
                 SizeOfData = accentStructSize,
                 Data = accentPtr
             };
 
-            _ = NativeMethods.SetWindowCompositionAttribute(windowHelper.Handle, ref data);
+            _ = SetWindowCompositionAttribute(windowHelper.Handle, ref data);
 
             Marshal.FreeHGlobal(accentPtr);
             _window.SetTarget(null);
         }
     }
 
-    internal static partial class NativeMethods
-    {
-        public enum AccentState
-        {
-            ACCENT_DISABLED = 0,
-            ACCENT_ENABLE_GRADIENT = 1,
-            ACCENT_ENABLE_TRANSPARENTGRADIENT = 2,
-            ACCENT_ENABLE_BLURBEHIND = 3,
-            ACCENT_ENABLE_ACRYLICBLURBEHIND = 4,
-            ACCENT_5 = 5,
-            ACCENT_6 = 6,
-            ACCENT_7 = 7,
-            ACCENT_8 = 8,
-            ACCENT_9 = 9
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct AccentPolicy
-        {
-            public AccentState AccentState;
-            public int AccentFlags;
-            public int GradientColor;
-            public int AnimationId;
-        }
-
-        public enum WindowCompositionAttribute
-        {
-            // ...
-            WCA_ACCENT_POLICY = 19
-            // ...
-        }
-
-        [StructLayout(LayoutKind.Sequential)]
-        public struct WindowCompositionAttributeData
-        {
-            public WindowCompositionAttribute Attribute;
-            public IntPtr Data;
-            public int SizeOfData;
-        }
-
-        [DllImport("user32.dll")]
-        public static extern int SetWindowCompositionAttribute(IntPtr hwnd, ref WindowCompositionAttributeData data);
-
-    }
 }

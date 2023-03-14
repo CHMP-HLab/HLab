@@ -1,7 +1,7 @@
 ﻿using System;
 using HLab.Notify.Annotations;
 
-namespace HLab.Notify.Wpf
+namespace HLab.Notify.Avalonia
 {
     internal class ExtendedPropertyChangedEventEventManager //: WeakEventManager
     {

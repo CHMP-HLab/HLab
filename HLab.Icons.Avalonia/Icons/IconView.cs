@@ -1,10 +1,9 @@
 ﻿using System.Collections.Concurrent;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
 using Avalonia.Layout;
 using Avalonia.Markup.Xaml.Templates;
-using Avalonia.Metadata;
+using Avalonia.Media;
 using Avalonia.Threading;
 using HLab.Base.Avalonia;
 using HLab.Icons.Annotations.Icons;
@@ -16,15 +15,12 @@ using H = DependencyHelper<IconView>;
 
 public class IconView : ContentControl
 {
-    WeakReference<IIconService> _iconServiceReference;
     static IIconService _designTimeService = null;
 
     readonly ContentControl _iconElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
     readonly ContentControl _captionElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
 
     readonly ColumnDefinition _spacer = new() { Width = new GridLength(0.0) };
-
-
 
     public IconView()
     {
@@ -46,9 +42,16 @@ public class IconView : ContentControl
 
     static IconView()
     {
-        /* TODO
+
+        /* TODO : Avalonia
         ForegroundProperty.OverrideMetadata<IconView>(typeof(IconView), new FrameworkPropertyMetadata(SystemColors.ControlTextBrush,
                         FrameworkPropertyMetadataOptions.Inherits, (s, e) => ((IconView)s).OnForegroundChanged(e)));
+
+        == First attempt : ==
+
+        ForegroundProperty.OverrideMetadata<IconView>(new StyledPropertyMetadata<IBrush?>());
+
+
         */
     }
 
@@ -71,7 +74,7 @@ public class IconView : ContentControl
     /// </summary>
     public static readonly StyledProperty<IIconService> IconServiceProperty =
         H.Property<IIconService>()
-            .OnChange(async (e, a) =>
+            .OnChangeBeforeNotification(async (e) =>
             {
                 //if (a.NewValue == null) return;
                 //if (e._iconServiceReference != null && e._iconServiceReference.TryGetTarget(out var iconService) && ReferenceEquals(a.NewValue, iconService)) return;
@@ -83,11 +86,12 @@ public class IconView : ContentControl
                 //await e.LoadIconAsync().ConfigureAwait(false);
             })
             .Inherits
-            .RegisterAttached();
+            .Attached
+            .Register();
 
     public static IIconService GetIconService(StyledElement obj)
     {
-        return (IIconService)obj.GetValue(IconServiceProperty);
+        return obj.GetValue(IconServiceProperty);
     }
 
     public static void SetIconService(StyledElement obj, IIconService value)
@@ -106,7 +110,7 @@ public class IconView : ContentControl
 
     public static readonly StyledProperty<object> CaptionProperty =
         H.Property<object>()
-            .OnChange((s, e) => s.Update())
+            .OnChangeBeforeNotification((s) => s.Update())
             .Register();
 
     public static readonly StyledProperty<double> IconMaxHeightProperty =
@@ -128,7 +132,7 @@ public class IconView : ContentControl
 
     public double MainBrush
     {
-        get => (double)GetValue(IconMaxWidthProperty);
+        get => GetValue(IconMaxWidthProperty);
         set => SetValue(IconMaxWidthProperty, value);
     }
 
@@ -138,20 +142,20 @@ public class IconView : ContentControl
         set => SetValue(PathProperty, value);
     }
 
-    [Content]    
+    //TODO : Avalonia - [Content]    
     public object Caption
     {
-        get => (object)GetValue(CaptionProperty);
+        get => GetValue(CaptionProperty);
         set => SetValue(CaptionProperty, value);
     }
     public double IconMaxHeight
     {
-        get => (double)GetValue(IconMaxHeightProperty);
+        get => GetValue(IconMaxHeightProperty);
         set => SetValue(IconMaxHeightProperty, value);
     }
     public double IconMaxWidth
     {
-        get => (double)GetValue(IconMaxWidthProperty);
+        get => GetValue(IconMaxWidthProperty);
         set => SetValue(IconMaxWidthProperty, value);
     }
 

@@ -1,11 +1,24 @@
-﻿using System.Drawing;
+﻿using System;
+using System.Drawing;
 using H.NotifyIcon;
 using H.NotifyIcon.Core;
 
 namespace HLab.UserNotification.Wpf
 {
-    public class UserNotificationServiceWpf : UserNotificationService
+    public class UserNotificationServiceWpf : IUserNotificationService
     {
+        public void AddMenu(int v1, string v2, string v3, Action showControl)
+        {
+            throw new NotImplementedException();
+        }
+
+        public event Action<object, object> Click;
+
+        public void SetIcon(string icon, int i)
+        {
+            throw new NotImplementedException();
+        }
+
         public string ToolTipText
         {
             get => _toolTipText;

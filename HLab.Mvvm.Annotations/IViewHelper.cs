@@ -1,6 +1,6 @@
 ﻿namespace HLab.Mvvm.Annotations
 {
-    //public static class ViewExtention
+    //public static class ViewExtensions
     //{
     //    public static IViewHelper GetHelper(this IView view) => MvvmService.D.ViewHelperFactory.Get(view);
     //    public static void SetMvvmContext(this IView view, MvvmContext ctx) => view.GetHelper().Context = ctx;

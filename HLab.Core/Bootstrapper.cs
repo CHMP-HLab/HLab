@@ -52,7 +52,9 @@ namespace HLab.Core
         readonly ConcurrentQueue<Context> _queue = new();
         public void Boot()
         {
-            var bootLoaders = Sort(_getBootloaders());
+            var bl = _getBootloaders();
+
+            var bootLoaders = Sort(bl);
 
             HashSet<string> done = new();
 

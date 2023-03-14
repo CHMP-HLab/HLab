@@ -4,19 +4,25 @@
     <TargetFramework>net7.0</TargetFramework>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.0-preview4" />
-    <PackageReference Include="Avalonia.Desktop" Version="11.0.0-preview4" />
-    <PackageReference Include="XamlNameReferenceGenerator" Version="1.5.1" />
+    <PackageReference Include="XamlNameReferenceGenerator" Version="1.6.1" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Sys\HLab.Sys.Windows.Monitors\HLab.Sys.Windows.Monitors.csproj" />
     <ProjectReference Include="..\HLab.Icons.Avalonia\HLab.Icons.Avalonia.csproj" />
     <ProjectReference Include="..\HLab.Localization.Avalonia3\HLab.Localization.Avalonia.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.ReactiveUI\HLab.Mvvm.ReactiveUI.csproj" />
     <ProjectReference Include="..\HLab.Mvvm\HLab.Mvvm.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="BorderLessWindow.axaml.cs">
+      <DependentUpon>BorderLessWindow.axaml</DependentUpon>
+    </Compile>
   </ItemGroup>
 
 </Project>

@@ -6,7 +6,12 @@ namespace HLab.UserNotification
 {
     public interface IUserNotificationService
     {
+        void AddMenu(int v1, string v2, string v3, Action showControl);
+        event Action<object, object> Click;
+        void SetIcon(string icon, int i);
 
+        public string ToolTipText { get; set; }
+        void Show();
     }
 
     public class UserNotificationServiceBootloader : IBootloader
@@ -24,9 +29,4 @@ namespace HLab.UserNotification
         }
     }
 
-    public abstract class UserNotificationService
-    {
-
-
-    }
 }

@@ -34,7 +34,7 @@ namespace HLab.Mvvm
     {
         class LinkedViewModels
         {
-            readonly ConcurrentDictionary<Type, object> _linked = new ConcurrentDictionary<Type, object>();
+            readonly ConcurrentDictionary<Type, object> _linked = new();
 
             public object GetOrAdd(Type type, Func<Type,object> factory)
             {
@@ -47,7 +47,7 @@ namespace HLab.Mvvm
         //private readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<object>>> _creators;
 
 
-        readonly ConditionalWeakTable<object, LinkedViewModels> _linked = new ConditionalWeakTable<object, LinkedViewModels>();
+        readonly ConditionalWeakTable<object, LinkedViewModels> _linked = new();
 
         //private readonly Type _viewMode;
         readonly IMvvmContext _context;
@@ -153,17 +153,17 @@ namespace HLab.Mvvm
                 return cache.GetOrAdd(linkedType, (t) => context.Locate(t, baseObject));
             }
         }
-        public async Task<IView> GetViewAsync(object baseObject,Type viewMode, Type viewClass)
+        public async Task<IView?> GetViewAsync(object baseObject,Type viewMode, Type viewClass)
         {
             //TODO : find a solution to identify baseObject type when it's null and retrieve an empty view
             if (baseObject == null) return null;
 
-            viewClass ??= typeof(IViewClassDefault);
-            viewMode ??= typeof(ViewModeDefault);
+            viewClass ??= typeof(IDefaultViewClass);
+            viewMode ??= typeof(DefaultViewMode);
 
             while (true)
             {
-                var linked = GetLinked(baseObject,viewMode,viewClass);
+                var linked = await GetLinkedAsync(baseObject,viewMode,viewClass);
 
                 switch (linked)
                 {
@@ -186,8 +186,8 @@ namespace HLab.Mvvm
             //TODO : find a solution to identify baseObject type when it's null and retrieve an empty view
             if (baseObject == null) return null;
 
-            viewClass ??= typeof(IViewClassDefault);
-            viewMode ??= typeof(ViewModeDefault);
+            viewClass ??= typeof(IDefaultViewClass);
+            viewMode ??= typeof(DefaultViewMode);
 
             while (true)
             {

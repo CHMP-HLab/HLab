@@ -18,7 +18,7 @@ public abstract class IconProvider
     {
         while (_pool.TryDequeue(out var pooledIcon))
         {
-            if (pooledIcon is IStyledElement { Parent: null })
+            if (pooledIcon is StyledElement { Parent: null })
                 return pooledIcon;
         }
 

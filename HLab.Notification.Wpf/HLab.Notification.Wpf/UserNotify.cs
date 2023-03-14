@@ -86,7 +86,7 @@ public class UserNotify //: IDisposable
         return XamlTools.GetBitmap(wpfIcon, new(size, size));
     }
 
-    private System.Windows.Controls.Image GetImage(string path, int size)
+    System.Windows.Controls.Image GetImage(string path, int size)
     {
         var wpfIcon = new IconView {Path = path};// _iconService.GetIcon(path);}
 

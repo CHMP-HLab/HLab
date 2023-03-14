@@ -3,11 +3,10 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Threading;
 using static HLab.Sys.Windows.API.DwmApi;
+using static HLab.Sys.Windows.API.WinDef;
 using static HLab.Sys.Windows.API.WinUser;
 
 namespace HLab.Sys.Windows.API;
-
-
 
 public class Window : IEquatable<Window>
 {
@@ -32,13 +31,13 @@ public class Window : IEquatable<Window>
     public bool SetPos(nint hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPosFlags uFlags) => SetWindowPos(_hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
     public bool SetPos(HandleWindow hWndInsertAfter, int x, int y, int cx, int cy, SetWindowPosFlags uFlags) => SetWindowPos(_hWnd, hWndInsertAfter, x, y, cx, cy, uFlags);
 
-    public WinDef.Rect GetRect() => GetRect(out var rect) ? rect : default;
-    public bool GetRect(out WinDef.Rect rect) => GetWindowRect(_hWnd, out rect);
+    public Rect GetRect() => GetRect(out var rect) ? rect : default;
+    public bool GetRect(out Rect rect) => GetWindowRect(_hWnd, out rect);
 
-    public WinDef.Rect ExtendedFrameBounds {
+    public Rect ExtendedFrameBounds {
         get
         {
-            var hresult = DwmGetWindowAttribute(_hWnd, DwmWindowAttribute.ExtendedFrameBounds, out var rect, Marshal.SizeOf(typeof(WinDef.Rect)));
+            var hresult = DwmGetWindowAttribute(_hWnd, DwmWindowAttribute.ExtendedFrameBounds, out var rect, Marshal.SizeOf(typeof(Rect)));
             return rect;
 
         }
@@ -97,11 +96,11 @@ public class Window : IEquatable<Window>
             if(token.IsCancellationRequested) return null;
 
             if (hIcon == 0)
-                hIcon = LoadIcon(0, 0x7F00/*IDI_APPLICATION*/);
+                hIcon = LoadIcon(0, PredefinedIcons.Application);
 
             if (token.IsCancellationRequested) return null;
 
-            if (hIcon != IntPtr.Zero)
+            if (hIcon != 0)
                 return System.Drawing.Icon.FromHandle(hIcon).ToBitmap();
         }
         catch (Exception)

@@ -4,7 +4,7 @@
     <TargetFrameworks>net7.0-windows</TargetFrameworks>
     <UseWPF>true</UseWPF>
     <RootNamespace>HLab.Base.Wpf</RootNamespace>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>x64</Platforms>
     <Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
     <LangVersion>default</LangVersion>
   </PropertyGroup>

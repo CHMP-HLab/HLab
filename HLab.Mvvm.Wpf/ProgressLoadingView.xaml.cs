@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Threading.Tasks;
 using System.Windows.Controls;
 using HLab.Mvvm.Annotations;
+using HLab.Mvvm.ReactiveUI;
 
 namespace HLab.Mvvm
 {

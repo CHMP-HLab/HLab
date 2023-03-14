@@ -38,7 +38,7 @@ namespace HLab.Sys.Windows.API
             public uint cbSize;
             public Guid classGuid;
             public uint devInst;
-            public IntPtr reserved;
+            public nint reserved;
 
             public SP_DEVINFO_DATA()
             {
@@ -57,27 +57,27 @@ namespace HLab.Sys.Windows.API
 
         public const int KEY_READ = 0x20019;
 
-        private const int NAME_SIZE = 128;
-        private const uint ERROR_SUCCESS = 0;
+        const int NAME_SIZE = 128;
+        const uint ERROR_SUCCESS = 0;
 
         [DllImport(DLL)]
-        public static extern IntPtr SetupDiGetClassDevsEx(ref Guid ClassGuid,
+        public static extern nint SetupDiGetClassDevsEx(ref Guid ClassGuid,
             [MarshalAs(UnmanagedType.LPStr)] string enumerator,
-            IntPtr hwndParent, int Flags, IntPtr DeviceInfoSet,
-            [MarshalAs(UnmanagedType.LPStr)] string MachineName, IntPtr Reserved);
+            nint hwndParent, int Flags, nint DeviceInfoSet,
+            [MarshalAs(UnmanagedType.LPStr)] string MachineName, nint Reserved);
 
         [DllImport(DLL, SetLastError = true)]
-        public static extern bool SetupDiEnumDeviceInfo(IntPtr DeviceInfoSet, uint MemberIndex, ref SP_DEVINFO_DATA DeviceInfoData);
+        public static extern bool SetupDiEnumDeviceInfo(nint DeviceInfoSet, uint MemberIndex, ref SP_DEVINFO_DATA DeviceInfoData);
 
         [DllImport(DLL, SetLastError = true)]
         public static extern bool SetupDiDestroyDeviceInfoList
         (
-             IntPtr DeviceInfoSet
+             nint DeviceInfoSet
         );
 
         [DllImport(DLL, CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern IntPtr SetupDiOpenDevRegKey(
-            IntPtr hDeviceInfoSet,
+        public static extern nint SetupDiOpenDevRegKey(
+            nint hDeviceInfoSet,
             ref SP_DEVINFO_DATA deviceInfoData,
             int scope,
             int hwProfile,

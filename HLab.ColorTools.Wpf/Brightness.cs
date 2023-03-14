@@ -2,7 +2,7 @@
 
 namespace HLab.ColorTools.Wpf
 {
-    public static class ColorExtentions
+    public static class ColorExtensions
     {
         public static Color AdjustBrightness(this Color color, double correctionFactor)
         {

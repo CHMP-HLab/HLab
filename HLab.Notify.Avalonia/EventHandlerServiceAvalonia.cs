@@ -2,11 +2,10 @@
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Threading;
 using HLab.Notify.Annotations;
 
-namespace HLab.Notify.Wpf
+namespace HLab.Notify.Avalonia
 {
     public class EventHandlerServiceAvalonia : IEventHandlerService
     {

@@ -327,7 +327,7 @@ public static class XamlTools
         return ui;
 
     }
-    static StyledElement SetForeground(StyledElement element, Color foregroundColor, IBrush foregroundBrush, StyledPropertyBase<IBrush> property)
+    static StyledElement SetForeground(StyledElement element, Color foregroundColor, IBrush foregroundBrush, StyledProperty<IBrush> property)
     {
 
         var brush = element.GetValue(property);
@@ -372,7 +372,7 @@ public static class XamlTools
     //    return ui;
     //}
 
-    static void SetBinding(StyledElement element, Color? foreColor, Color? backColor, StyledPropertyBase<IBrush> property)
+    static void SetBinding(StyledElement element, Color? foreColor, Color? backColor, StyledProperty<IBrush> property)
     {
         var brush = element.GetValue(property);
 
@@ -482,7 +482,7 @@ public static class XamlTools
         return textBlock;
     }
 
-    public static Image GetImage(IControl source, PixelSize size)
+    public static Image GetImage(Control source, PixelSize size)
     {
         var wSize = new Size(size.Height, size.Width);
 
@@ -502,10 +502,12 @@ public static class XamlTools
 
         var renderBitmap = new RenderTargetBitmap(size);
         renderBitmap.Render(grid);
+
+        //return renderBitmap.CreateScaledBitmap(size);
             
-        return new Image { Width = size.Width, Height = size.Height, /* TODO Avalonia : Source = BitmapFrame.Create(renderBitmap) */ };
+        return new Image { Width = size.Width, Height = size.Height, Source = renderBitmap};
     }
-    public static Bitmap GetBitmap(IControl source, PixelSize size)
+    public static Bitmap GetBitmap(Control source, PixelSize size)
     {
         var wSize = new Size(size.Height, size.Width);
 
@@ -527,12 +529,7 @@ public static class XamlTools
             new RenderTargetBitmap(size);
         renderBitmap.Render(grid);
             
-        MemoryStream stream = new();
-        // TODO Avalonia port : BitmapEncoder encoder = new BmpBitmapEncoder();
-        //encoder.Frames.Add(BitmapFrame.Create(renderBitmap));
-        //encoder.Save(stream);
-
-        return new Bitmap(stream);
+        return renderBitmap.CreateScaledBitmap(size);
     }
 
 }

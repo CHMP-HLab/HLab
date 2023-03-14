@@ -64,7 +64,7 @@ public static partial class ProcessThreadsApi
     {
         public ushort Length;
         public ushort MaximumLength;
-        public IntPtr Buffer;
+        public nint Buffer;
     }
 
     [StructLayout(LayoutKind.Sequential)]
@@ -73,7 +73,7 @@ public static partial class ProcessThreadsApi
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 16)]
         public byte[] Reserved1;
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 10)]
-        public IntPtr[] Reserved2;
+        public nint[] Reserved2;
         public UnicodeString ImagePathName;
         public UnicodeString CommandLine;
     }
@@ -94,10 +94,10 @@ public static partial class ProcessThreadsApi
     }
     [DllImport("kernel32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool ReadProcessMemory(IntPtr hProcess, IntPtr lpBaseAddress, IntPtr lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
+    public static extern bool ReadProcessMemory(nint hProcess, nint lpBaseAddress, nint lpBuffer, uint nSize, out uint lpNumberOfBytesRead);
 
     [DllImport("kernel32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
-    public static extern bool CloseHandle(IntPtr hObject);
+    public static extern bool CloseHandle(nint hObject);
 
 }

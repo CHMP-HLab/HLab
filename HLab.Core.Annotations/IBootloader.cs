@@ -17,12 +17,10 @@
         }
         bool WaitService(IService service)
         {
-            if(service.ServiceState == ServiceState.NotConfigured)
-            {
-                Requeue();
-                return true;
-            }
-            return false;
+            if (service.ServiceState != ServiceState.NotConfigured) return false;
+
+            Requeue();
+            return true;
         }
 
         bool WaitDependency<T>() => WaitDependency(typeof(T).Name);

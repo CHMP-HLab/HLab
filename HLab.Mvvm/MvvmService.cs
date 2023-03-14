@@ -11,33 +11,41 @@ using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm
 {
-    public abstract class MvvmService : IMvvmService
+
+    public class MvvmService : IMvvmService
     {
-        IMessagesService _messageBus;
+        readonly IMessagesService _messageBus;
+        readonly IMvvmPlatformImpl _platform;
 
-        string _assemblyName;
+        readonly string _assemblyName;
 
-        public IMvvmContext GetNewContext(IMvvmContext parent, string name) => new MvvmContext(parent, name, this); 
+        readonly ConcurrentDictionary<Type, MvvmBaseEntry> _entries = new();
 
-        public MvvmService(IMessagesService messageBus, Func<Type,object> locateFunc)
+
+        public IMvvmContext GetNewContext(IMvvmContext parent, string name) => new MvvmContext(parent, name, this);
+
+        public MvvmService(
+            IMessagesService messageBus, 
+            Func<Type,object> locateFunc,
+            IMvvmPlatformImpl platform)
         {
             LocateFunc = locateFunc;
             _messageBus = messageBus;
+            _platform = platform;
             ServiceState = ServiceState.NotConfigured;
             MainContext = new MvvmContext(null,"root",this);
-            _assemblyName = Assembly.GetAssembly(typeof(IView)).GetName().Name;
+            _assemblyName = Assembly.GetAssembly(typeof(IView))?.GetName().Name??"";
         }
 
-        public Func<Type,object> LocateFunc {get; private set;}
+        public Func<Type,object> LocateFunc {get; }
 
-        public abstract void PrepareView(object view);
+        public IMvvmContext MainContext { get; }
 
-        public IMvvmContext MainContext { get; private set;}
-
-        public HelperFactory<IViewHelper> ViewHelperFactory { get; } = new HelperFactory<IViewHelper>();
+        public HelperFactory<IViewHelper> ViewHelperFactory { get; } = new ();
 
         public Type GetLinkedType(Type getType, Type viewMode, Type viewClass)
         {
+
             if (getType.IsConstructedGenericType)
             {
                 getType = getType.GetGenericTypeDefinition();
@@ -58,35 +66,31 @@ namespace HLab.Mvvm
                 var l = 0;
                 while(t.BaseType!=null && entry.Key.IsAssignableFrom(t)) { t = t.BaseType; l++; }
 
-                if (l < level)
-                {
-                    var lt = entry.Value.GetLinked(viewClass, viewMode).LinkedType;
-                    if(lt!=null)
-                    {
-                        linkedType = lt;
-                        level = l;
-                    }
-                }
+                if (l >= level) continue;
+
+                var lt = entry.Value.GetLinked(viewClass, viewMode).LinkedType;
+                if (lt == null) continue;
+
+                linkedType = lt;
+                level = l;
             }
 
-            if (linkedType == null)
-            {
-                var baseMode = viewMode.BaseType;
-                if (baseMode == typeof(ViewMode)) return null;
-                linkedType = GetLinkedType(getType, baseMode, viewClass);
-                Register(getType, linkedType, viewClass, viewMode);
-            }
+            if (linkedType != null) return linkedType;
+
+            var baseMode = viewMode.BaseType;
+            if (baseMode == typeof(ViewMode)) return null;
+            linkedType = GetLinkedType(getType, baseMode, viewClass);
+            Register(getType, linkedType, viewClass, viewMode);
             return linkedType;
         }
-
-        public abstract IView GetNotFoundView(Type getType, Type viewMode, Type viewClass);
-        protected abstract void Register(Type t);
 
         /// <summary>
         /// Register all assemblies referencing this (HLab.Mvvm).
         /// </summary>
         public virtual void Register()
         {
+            _platform.Register(this);
+
             var assemblies = AssemblyHelper.GetReferencingAssemblies(_assemblyName).ToList();
             _perAssemblyProgress = 1.0 / assemblies.Count;
             foreach (var assembly in assemblies)
@@ -100,7 +104,7 @@ namespace HLab.Mvvm
         double _perAssemblyProgress = 0.0;
         double _progress = 0.0;
 
-        public void Register(Assembly assembly)
+        void Register(Assembly assembly)
         {
             // Find all views and register it
             var views = assembly.GetTypesSafe().Where(t => typeof(IView).IsAssignableFrom(t)).ToList();
@@ -137,7 +141,7 @@ namespace HLab.Mvvm
                         }
                         else
                         {
-                            RegisterAll(baseType, viewType, typeof(IViewClassDefault), viewMode);
+                            RegisterAll(baseType, viewType, typeof(IDefaultViewClass), viewMode);
                         }
                     }
 
@@ -151,50 +155,52 @@ namespace HLab.Mvvm
             , Type linkedType
             , Type viewClass
             , Type viewMode
-            /*, Type regFrom = null*/)
+            )
         {
-            Register(baseType, linkedType /*lt*/, viewClass, viewMode);
+            Register(baseType, linkedType, viewClass, viewMode);
 
-
-            var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom).Where(t => !t.IsAssignableFrom(baseType)).Where(t => !typeof(IViewModelDesign).IsAssignableFrom(t)));
+            var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom).Where(t => !t.IsAssignableFrom(baseType)).Where(t => !typeof(IDesignViewModel).IsAssignableFrom(t)));
             var linkedTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(linkedType.IsAssignableFrom)).ToList();
 
             foreach (var bt in basesTypes)
                 foreach (var lt in linkedTypes)
-                    Register(bt, lt /*lt*/, viewClass, viewMode);
-
+                    Register(bt, lt, viewClass, viewMode);
         }
 
-
-        public void Register(
-            Type baseType
-            , Type linkedType
-            , Type viewClass
-            , Type viewMode
-            )
+        public void Register(Type baseType, Type linkedType, Type viewClass, Type viewMode)
         {
-            if (!viewClass.IsInterface) throw new ArgumentOutOfRangeException("viewClass must be interface " + viewClass.Name);
+            var type = baseType;
 
-            if (typeof(IViewModelDesign).IsAssignableFrom(linkedType)) return;
+            while (true)
+            {
+                if (!viewClass.IsInterface) throw new ArgumentOutOfRangeException("viewClass must be interface " + viewClass.Name);
 
-            Debug.WriteLine(baseType.Name+"->"+linkedType.Name+":"+viewClass.Name+"#"+viewMode.Name );
-            Debug.Assert(baseType!=linkedType);
+                // IViewModelDesign are to be used at design time only
+                if (typeof(IDesignViewModel).IsAssignableFrom(linkedType)) return;
 
-            var entry = _entries.GetOrAdd(
-                baseType,
-                (t) => {
-                    Register(t);
-                    return new MvvmBaseEntry(t); }
-                );
+                Debug.WriteLine(type?.Name + "->" + linkedType.Name + ":" + viewClass.Name + "#" + viewMode.Name);
+                Debug.Assert(type != linkedType);
+                Debug.Assert(type != null, nameof(type) + " != null");
 
-            entry.Register(linkedType, viewClass, viewMode);
+                var entry = _entries.GetOrAdd(type, (t) =>
+                {
+                    _platform.Register(t);
+                    return new MvvmBaseEntry(t);
+                });
 
-            var modelType = GetModelType(baseType);
-            if (modelType != null)
-                Register(modelType, baseType, viewClass, viewMode);
+                entry.Register(linkedType, viewClass, viewMode);
 
+                if (!GetModelType(type, out var modelType)) break;
+
+                linkedType = type;
+                type = modelType;
+            }
         }
 
+        public IView GetNotFoundView(Type getType, Type viewMode, Type viewClass) =>
+            _platform.GetNotFoundView(getType, viewMode, viewClass);
+
+        public void PrepareView(IView view) => _platform.PrepareView(view);
 
 
         /// <summary>
@@ -202,40 +208,40 @@ namespace HLab.Mvvm
         /// </summary>
         /// <param name="type"></param>
         /// <returns></returns>
-        IEnumerable<Type> GetViewClasses(Type type)
+        static IEnumerable<Type> GetViewClasses(Type type) 
+            => type
+                .GetInterfaces()
+                .Where(i => typeof(IViewClass).IsAssignableFrom(i) && typeof(IViewClass) != i);
+
+
+        readonly ConcurrentDictionary<Type, Type?> _modelsTypes = new();
+
+        bool GetModelType(Type type, out Type? modelType)
         {
-            return type.GetInterfaces().Where(i => typeof(IViewClass).IsAssignableFrom(i) && typeof(IViewClass) != i);
-        }
-
-
-        readonly ConcurrentDictionary<Type, Type> _modelsTypes = new ConcurrentDictionary<Type, Type>();
-
-        Type GetModelType(Type type)
-        {
-            return _modelsTypes.GetOrAdd(type, (t) => {
+            modelType = _modelsTypes.GetOrAdd(type, (t) => {
                 //if (!typeof(IViewModel).IsAssignableFrom(type)) return null; //throw new ArgumentException(type + " does not implement IViewModel");
-                foreach (var iface in t.GetInterfaces())
+                foreach (var @interface in t.GetInterfaces())
                 {
-                    var curiface = iface.IsGenericType ? iface.GetGenericTypeDefinition() : iface;
-                    if (curiface != typeof(IViewModel<>)) continue;
+                    var currentInterface = @interface.IsGenericType ? @interface.GetGenericTypeDefinition() : @interface;
+                    if (currentInterface != typeof(IViewModel<>)) continue;
 
-                    if (iface.GenericTypeArguments.Length > 0)
-                    {
-                        var modelType = iface.GenericTypeArguments[0];
-                        Debug.Assert(modelType!=type);
-                        return modelType;
-                    }
+                    if (@interface.GenericTypeArguments.Length <= 0) continue;
+
+                    var modelType = @interface.GenericTypeArguments[0];
+                    Debug.Assert(modelType!=type);
+                    return modelType;
                 }
                 return null;
             });
+
+            return modelType != null;
         }
 
-        IEnumerable<Assembly> AllAssemblies()
+        static IEnumerable<Assembly> AllAssemblies()
         {
             return AppDomain.CurrentDomain.GetAssemblies()/*.Where(a => a.GetReferencedAssemblies().Any(e => e.Name == "Mvvm"))*/;
         }
 
-        readonly ConcurrentDictionary<Type, MvvmBaseEntry> _entries = new ConcurrentDictionary<Type, MvvmBaseEntry>();
 
         protected virtual void OnProgress(double progress, string text)
         {
@@ -245,7 +251,7 @@ namespace HLab.Mvvm
         internal class MvvmBaseEntry
         {
             public Type BaseType { get; }
-            readonly HashSet<MvvmLinkedEntry> _list = new HashSet<MvvmLinkedEntry>();
+            readonly HashSet<MvvmLinkedEntry> _list = new();
             public MvvmBaseEntry(Type baseType)
             {
                 BaseType = baseType;
@@ -256,24 +262,25 @@ namespace HLab.Mvvm
                 _list.Add(new MvvmLinkedEntry(linkedType, viewClass, viewMode));
             }
 
-            public MvvmLinkedEntry GetLinked(Type viewClass, Type viewMode)
+            public MvvmLinkedEntry GetLinked(Type? viewClass, Type? viewMode)
             {
-
-                if (viewClass == null) viewClass = typeof(IViewClassDefault);
-                if (viewMode == null) viewMode = typeof(ViewModeDefault);
+                viewClass ??= typeof(IDefaultViewClass);
+                viewMode ??= typeof(DefaultViewMode);
 
                 var result = new MvvmLinkedEntry();
-                foreach(var e in _list)
+                foreach (var e in _list
+                             .Where(e => e.ViewClass.IsAssignableFrom(viewClass))
+                             .Where(e => e.ViewMode.IsAssignableFrom(viewMode)))
                 {
-                    if (!e.ViewClass.IsAssignableFrom(viewClass)) continue;
-                    if (!e.ViewMode.IsAssignableFrom(viewMode)) continue;
-
                     if (result.LinkedType == null) { result = e; continue; } // initial
 
-                    if(result.ViewClass.IsAssignableFrom(e.ViewClass)) { result = e; continue; } // better viewClass
-                    if(result.ViewMode.IsAssignableFrom(e.ViewMode)) { } // better viewMode
+                    if(result.ViewClass!=null && result.ViewClass.IsAssignableFrom(e.ViewClass)) { result = e; continue; } // better viewClass
 
-                    if(result.ViewMode.IsAssignableFrom(e.ViewMode)) { } // better linked type
+                    
+                    // TODO : deal with better ViewMode
+                    if(result.ViewMode!=null && result.ViewMode.IsAssignableFrom(e.ViewMode)) { } // better viewMode
+
+                    if(result.ViewMode!=null && result.ViewMode.IsAssignableFrom(e.ViewMode)) { } // better linked type
                 }
 
                 return result;
@@ -283,11 +290,11 @@ namespace HLab.Mvvm
         internal readonly struct MvvmLinkedEntry
         {
             public readonly Type LinkedType;
-            public readonly Type ViewClass;
-            public readonly Type ViewMode;
+            public readonly Type? ViewClass;
+            public readonly Type? ViewMode;
             public readonly bool Cacheable;
 
-            public override string ToString() => LinkedType.Name + "(" + ViewClass.Name + ":" + ViewMode.Name + ")";
+            public override string ToString() => LinkedType.Name + "(" + ViewClass?.Name + ":" + ViewMode?.Name + ")";
 
             public MvvmLinkedEntry(Type linkedType, Type viewClass, Type viewMode)
             {
@@ -298,7 +305,7 @@ namespace HLab.Mvvm
                 Cacheable = (attr==null || attr.Cacheability == MvvmCacheability.Cacheable) ;
             }
 
-            public override bool Equals(object other)
+            public override bool Equals(object? other)
             {
                 if (other is MvvmLinkedEntry e)
                 {

@@ -33,7 +33,7 @@ namespace HLab.Mvvm
     {
         readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
 
-        readonly Lazy<ViewModelCache> _cache;
+        readonly ViewModelCache _cache;
 
         public IMvvmService Mvvm => _mvvm;
         readonly MvvmService _mvvm;
@@ -41,21 +41,17 @@ namespace HLab.Mvvm
         public string Name { get; }
         public IMvvmContext Parent { get; }
 
-        public MvvmContext(object parent, string name, MvvmService mvvm)
+        public MvvmContext(IMvvmContext parent, string name, MvvmService mvvm)
         {
-            _mvvm = mvvm;
-
-            if (parent is IMvvmContext ctx)
-                Parent = ctx;
             Name = name;
-            _cache = new Lazy<ViewModelCache>(() => new ViewModelCache(this, Mvvm));
+
+            _mvvm = mvvm;
+            Parent = parent;
+
+            _cache = new ViewModelCache(this, mvvm);
         }
 
-        public IMvvmContext GetChildContext(string name)
-        {
-            var ctx = new MvvmContext(this,name,_mvvm);
-            return ctx;
-        }
+        public IMvvmContext GetChildContext(string name) => new MvvmContext(this,name,_mvvm);
 
         public IMvvmContext AddCreator<T>(Action<T> action)
         {
@@ -85,31 +81,29 @@ namespace HLab.Mvvm
             }
         }
 
-        public object GetLinked(object o, Type viewMode, Type viewClass) => _cache.Value.GetLinked(o, viewMode, viewClass);
+        public object GetLinked(object o, Type viewMode, Type viewClass) 
+            => _cache.GetLinked(o, viewMode, viewClass);
 
+        public IView? GetView(object baseObject) 
+            => GetView(baseObject, typeof(DefaultViewMode), typeof(IDefaultViewClass));
 
-        public IView GetView(object baseObject) => GetView(baseObject, typeof(ViewModeDefault), typeof(IViewClassDefault));
+        public IView? GetView(object baseObject, Type viewMode, Type viewClass)
+            => _cache.GetView(baseObject, viewMode, viewClass);
 
-        public IView GetView(object baseObject, Type viewMode, Type viewClass)
-            => _cache.Value.GetView(baseObject, viewMode, viewClass);
-        public Task<IView> GetViewAsync(object baseObject, Type viewMode, Type viewClass)
-            => _cache.Value.GetViewAsync(baseObject, viewMode, viewClass);
+        public Task<IView?> GetViewAsync(object baseObject, Type viewMode, Type viewClass)
+            => _cache.GetViewAsync(baseObject, viewMode, viewClass);
 
         //private readonly Func<Type, object> _locate ;
-        public T Locate<T>(object baseObject = null) => (T)Locate(typeof(T), baseObject);
+        public T Locate<T>(object baseObject = null) 
+            => (T)Locate(typeof(T), baseObject);
 
 
-        public object Locate(Type type, object baseObject = null)
-        {
-            // TODO check
-            //return Locate(() => Scope.Locate(RuntimeImportContext.GetStatic(this, type)), baseObject);
-            return Locate(() => _mvvm.LocateFunc?.Invoke(type), baseObject);// _locateFunc();
-        }
+        public object Locate(Type type, object baseObject = null) 
+            =>
+            Locate(() => _mvvm.LocateFunc?.Invoke(type), baseObject); // _locateFunc();
 
-        public T Locate<T>(Func<T> locate, object baseObject = null)
-        {
-            return (T)Locate(new Func<object>(() => locate()), baseObject);
-        }
+        public T Locate<T>(Func<T> locate, object baseObject = null) 
+            => (T)Locate(new Func<object>(() => locate()), baseObject);
 
         public object Locate(Func<object> locate, object baseObject = null)
         {

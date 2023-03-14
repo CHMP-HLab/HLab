@@ -4,7 +4,7 @@ using Avalonia.Interactivity;
 namespace HLab.Base.Avalonia
 {
     public class RoutedEventConfigurator<TClass,TValue>
-        where TClass : IAvaloniaObject where TValue : RoutedEventArgs
+        where TClass : AvaloniaObject where TValue : RoutedEventArgs
     {
         readonly string _name;
         RoutingStrategies _routingStrategy = RoutingStrategies.Tunnel;

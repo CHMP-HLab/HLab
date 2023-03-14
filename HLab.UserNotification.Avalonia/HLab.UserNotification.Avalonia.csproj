@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net7.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="MessageBox.Avalonia" Version="2.3.1-prev5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\HLab.Icons.Avalonia\HLab.Icons.Avalonia.csproj" />
+    <ProjectReference Include="..\HLab.Notification\HLab.UserNotification.csproj" />
+  </ItemGroup>
+
+</Project>

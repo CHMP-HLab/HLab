@@ -32,16 +32,47 @@ namespace HLab.Mvvm.Annotations
 {
     //TODO : should not reference HLab.Base
 
+    public interface IMvvmPlatformImpl
+    {
+        /// <summary>
+        /// Provide a default view 
+        /// </summary>
+        /// <param name="getType"></param>
+        /// <param name="viewMode"></param>
+        /// <param name="viewClass"></param>
+        /// <returns></returns>
+        IView GetNotFoundView(Type getType, Type viewMode, Type viewClass);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="view"></param>
+        void PrepareView(object view);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        void Register(IMvvmService mvvm);
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type"></param>
+        void Register(Type type);
+
+    }
+
+
     public interface IMvvmService : IService
     {
         IMvvmContext MainContext { get; }
         HelperFactory<IViewHelper> ViewHelperFactory { get; }
         Type GetLinkedType(Type getType, Type viewMode, Type viewClass);
-        IView GetNotFoundView(Type getType, Type viewMode, Type viewClass);
 
         void Register();
         void Register(Type baseType, Type type, Type viewMode, Type viewClass);
-        void PrepareView(object view);
 
+        IView GetNotFoundView(Type getType, Type viewMode, Type viewClass);
+        void PrepareView(IView fe);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Media;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Avalonia;
@@ -19,8 +20,11 @@ public static class ViewWpfExtensions
 
         var w = new DefaultWindow
         {
+            //Background = Brushes.Blue,
             DataContext = view?.DataContext,
-            View = view,
+            Content = view,
+//
+            
             //SizeToContent = SizeToContent.WidthAndHeight,
             //WindowStartupLocation = WindowStartupLocation.CenterOwner,
         };
@@ -37,45 +41,34 @@ public static class ViewWpfExtensions
 
     public static Window AsDialog(this StyledElement view)
     {
-        if (view is Window win) return win;
-
-        var w = new DefaultWindow
+        if (view is not Window w)
         {
-            DataContext = view?.DataContext,
-            View = view,
+            w = new DefaultWindow
+            {
+                DataContext = view?.DataContext,
+                Content = view,
 
-            SizeToContent = SizeToContent.WidthAndHeight,
-            WindowStartupLocation = WindowStartupLocation.CenterScreen,
-            //WindowStyle = WindowStyle.None,
-            //ResizeMode = ResizeMode.NoResize,
-        };
+                SizeToContent = SizeToContent.WidthAndHeight,
+                WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                //WindowStyle = WindowStyle.None,
+                //ResizeMode = ResizeMode.NoResize,
+            };
+        }
 
         return w;
     }
-    public static TViewModel ViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view)
+
+    public static TViewModel? ViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view)
+        where TViewMode : ViewMode =>
+        view is StyledElement { DataContext: TViewModel vm } ? vm : default;
+
+    public static bool TryGetViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view,out TViewModel? viewModel)
         where TViewMode : ViewMode
     {
-        if (view is IStyledElement fe)
+        if (view is StyledElement { DataContext: TViewModel vm })
         {
-            if (fe.DataContext is TViewModel vm)
-            {
-                return vm;
-            }
-        }
-
-        return default;
-    }
-
-    public static bool TryGetViewModel<TViewMode,TViewModel>(this IView<TViewMode,TViewModel> view,out TViewModel viewModel)
-        where TViewMode : ViewMode
-    {
-        if (view is IStyledElement fe)
-        {
-            if (fe.DataContext is TViewModel vm)
-            {
-                viewModel = vm;
-                return true;
-            }
+            viewModel = vm;
+            return true;
         }
 
         viewModel = default;

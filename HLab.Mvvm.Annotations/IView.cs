@@ -26,23 +26,24 @@ using System;
 namespace HLab.Mvvm.Annotations
 {
     public abstract class ViewMode { }
-    public class ViewModeDefault : ViewMode { }
-    public class ViewModeDetail : ViewModeDefault { }
-    public class ViewModeEdit : ViewModeDefault { }
-    public class ViewModeSummary : ViewModeDefault { }
-    public class ViewModeString : ViewModeDefault { }
-    public class ViewModeList : ViewModeDefault { }
-    public class ViewModePreview : ViewModeDefault { }
-    public class ViewModeCollapsed : ViewModeDefault { }
+    public class DefaultViewMode : ViewMode { }
+    public class DetailViewMode : DefaultViewMode { }
+    public class EditViewMode : DefaultViewMode { }
+    public class SummaryViewMode : DefaultViewMode { }
+    public class StringViewMode : DefaultViewMode { }
+    public class ListViewMode : DefaultViewMode { }
+    public class PreviewViewMode : DefaultViewMode { }
+    public class CollapsedViewMode : DefaultViewMode { }
 
-    public class ViewModeDocument : ViewMode { }
-    public class ViewModeDraggable : ViewMode { }
+    public class DocumentViewMode : ViewMode { }
+    public class DraggableViewMode : ViewMode { }
 
     public interface IViewClass { }
-    public interface IViewClassDefault  : IViewClass{ }
-    public interface IViewClassListItem  : IViewClass{ }
-    public interface IViewClassContent  : IViewClass{ }
-    public interface IViewModelDesign { }
+    public interface IDefaultViewClass  : IViewClass{ }
+    public interface IListItemViewClass  : IViewClass{ }
+    public interface IContentViewClass  : IViewClass{ }
+
+    public interface IDesignViewModel { }
 
 
     [MvvmCacheability(MvvmCacheability.NotCacheable)]
@@ -54,7 +55,7 @@ namespace HLab.Mvvm.Annotations
         where TViewMode : ViewMode
     {
     }
-    public interface IView<TViewModel> : IView<ViewModeDefault,TViewModel>
+    public interface IView<TViewModel> : IView<DefaultViewMode,TViewModel>
     {
     }
 

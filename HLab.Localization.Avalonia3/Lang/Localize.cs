@@ -4,7 +4,6 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Metadata;
 using Avalonia.Threading;
-using HarfBuzzSharp;
 using HLab.Base.Avalonia;
 using HLab.Mvvm.Annotations;
 
@@ -31,9 +30,8 @@ public class Localize : TextBlock
     }
     public static readonly StyledProperty<string> IdProperty =
         H.Property<string>()
-            .OnChange(async (e, a) =>
+            .OnChangeBeforeNotification(async (e) =>
             {
-
                 await e._updateAsync();
             })
             .Register();
@@ -53,7 +51,7 @@ public class Localize : TextBlock
 
     public static readonly StyledProperty<ILocalizationService?> LocalizationServiceProperty =
         H.Property<ILocalizationService?>()
-            .OnChange(async (e, a) =>
+            .OnChangeBeforeNotification(async (e) =>
             {
                 if (e.LocalizationService == null)
                 {
@@ -62,11 +60,11 @@ public class Localize : TextBlock
                 await e._updateAsync();
             })
             .Inherits
-            .RegisterAttached();
+            .Attached.Register();
 
     public static readonly StyledProperty<string?> LanguageProperty =
         H.Property<string?>()
-            .OnChange(async (e, a) =>
+            .OnChangeBeforeNotification(async (e) =>
             {
                 if (e.Language == null)
                 {
@@ -75,7 +73,7 @@ public class Localize : TextBlock
                 await e._updateAsync();
             })
             .Inherits
-            .RegisterAttached();
+            .Attached.Register();
 
 
     public string? StringFormat

@@ -7,25 +7,26 @@ using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Templates;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
+using HLab.Mvvm.ReactiveUI;
 
 namespace HLab.Mvvm.Avalonia
 {
-    public class MvvmServiceAvalonia : MvvmService
+    public class MvvmAvaloniaImpl : IMvvmPlatformImpl
     {
         readonly ResourceDictionary _dictionary = new();
 
-        public MvvmServiceAvalonia(
+        public MvvmAvaloniaImpl(
             IMessagesService messageBus, 
             Func<Type, object> locateFunc,
             Func<ProgressLoadingViewModel> getProgressLoadingViewModel
-            ) : base(messageBus, locateFunc)
+            ) 
         {
             GetProgressLoadingViewModel = getProgressLoadingViewModel;
         }
 
         public Func<ProgressLoadingViewModel> GetProgressLoadingViewModel { get; set; }
 
-        public  void RegisterWithProgress()
+        public  void RegisterWithProgress(IMvvmService mvvm)
         {
             var vm = GetProgressLoadingViewModel();
             //vm.Title = InfoService.Name;
@@ -39,31 +40,28 @@ namespace HLab.Mvvm.Avalonia
             //SetMainView(progressWindow);
 
             var t = Task.Run(() => {
-                base.Register();
                 Application.Current.Resources.MergedDictionaries.Add(_dictionary);
             });
 
 
-            ViewHelperFactory.Register<IView>(v=>new ViewHelperAvalonia((IStyledElement)v));
+            mvvm.ViewHelperFactory.Register<IView>(v=>new ViewHelperAvalonia((StyledElement)v));
         }
         
-        public override void Register()
+        public void Register(IMvvmService mvvm)
         {
-                base.Register();
                 Application.Current.Resources.MergedDictionaries.Add(_dictionary);
-            ViewHelperFactory.Register<IView>(v => new ViewHelperAvalonia((IStyledElement)v));
+                mvvm.ViewHelperFactory.Register<IView>(v => new ViewHelperAvalonia((StyledElement)v));
         }
 
-        public override void PrepareView(object view)
+        public void PrepareView(object view)
         {
-            if (view is AvaloniaObject obj)
-            {
-                ViewLocator.SetViewClass(obj,typeof(IViewClassDefault));
-                ViewLocator.SetViewMode(obj,typeof(ViewModeDefault));
-            }
+            if (view is not AvaloniaObject obj) return;
+
+            ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));
+            ViewLocator.SetViewMode(obj,typeof(DefaultViewMode));
         }
 
-        protected override void Register(Type t)
+        public void Register(Type t)
         {
             if (t.IsInterface) return;
 
@@ -79,7 +77,7 @@ namespace HLab.Mvvm.Avalonia
 
         }
 
-        public override IView GetNotFoundView(Type viewModelType, Type viewMode, Type viewClass)
+        public IView GetNotFoundView(Type viewModelType, Type viewMode, Type viewClass)
         {
             return new NotFoundView
             {

@@ -9,6 +9,12 @@ using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Avalonia;
 
+public class IconServiceDesign : IconService
+{
+
+}
+
+
 public class IconService : Service, IIconService
 {
     readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
@@ -73,7 +79,7 @@ public class IconService : Service, IIconService
         }
 
         result = $@"<DataTemplate 
-                xmlns=""http://schemas.microsoft.com/winfx/2006/xaml/presentation""
+                xmlns=""https://github.com/avaloniaui""
                 xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
                 xmlns:icons=""clr-namespace:HLab.Icons.Avalonia.Icons;assembly=HLab.Icons.Avalonia"">
                 {result}

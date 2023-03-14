@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
 using System.Windows.Input;
+using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged.PropertyHelpers;
 
 namespace HLab.Notify.PropertyChanged
@@ -14,13 +15,6 @@ namespace HLab.Notify.PropertyChanged
         }
     }
 
-    public interface INotifyCommand : ICommand
-    {
-        public string IconPath { get; set; }
-        public string ToolTipText { get; set; }
-
-        public void CheckCanExecute();
-    }
     public class NCommand : INotifyCommand
     {
         readonly Action _execute = null;

@@ -9,14 +9,14 @@ public static partial class ShellApi
     [StructLayout(LayoutKind.Sequential)]
     public struct SHFileInfo
     {
-        public const int NAMESIZE = 80;
+        public const int NAME_SIZE = 80;
         public nint hIcon;
         public int iIcon;
         public uint dwAttributes;
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 260)]
-        public string szDisplayName;
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = NAMESIZE)]
-        public string szTypeName;
+        public unsafe fixed char szDisplayName[260];
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = NAME_SIZE)]
+        public unsafe fixed char szTypeName[NAME_SIZE];
     };
 
     [Flags]
@@ -155,19 +155,19 @@ public static partial class ShellApi
     {
 
         [PreserveSig]
-        int Add(IntPtr hbmImage, IntPtr hbmMask, ref int pi);
+        int Add(nint hbmImage, nint hbmMask, ref int pi);
 
         [PreserveSig]
-        int ReplaceIcon(int i, IntPtr hicon, ref int pi);
+        int ReplaceIcon(int i, nint hicon, ref int pi);
 
         [PreserveSig]
         int SetOverlayImage(int iImage, int iOverlay);
 
         [PreserveSig]
-        int Replace(int i, IntPtr hbmImage, IntPtr hbmMask);
+        int Replace(int i, nint hbmImage, nint hbmMask);
 
         [PreserveSig]
-        int AddMasked(IntPtr hbmImage, int crMask, ref int pi);
+        int AddMasked(nint hbmImage, int crMask, ref int pi);
 
         [PreserveSig]
         int Draw(ref ImageListDrawParams pimldp);
@@ -176,7 +176,7 @@ public static partial class ShellApi
         int Remove(int i);
 
         [PreserveSig]
-        int GetIcon(int i, ImageListDrawFlags flags, ref IntPtr picon);
+        int GetIcon(int i, ImageListDrawFlags flags, ref nint picon);
         [PreserveSig]
         int GetImageInfo(int i, ref ImageInfo pImageInfo);
 
@@ -184,7 +184,7 @@ public static partial class ShellApi
         int Copy(int iDst, IImageList punkSrc, int iSrc, int uFlags);
 
         [PreserveSig]
-        int Merge(int i1, IImageList punk2, int i2, int dx, int dy, ref Guid riid, ref IntPtr ppv);
+        int Merge(int i1, IImageList punk2, int i2, int dx, int dy, ref Guid riid, ref nint ppv);
 
         [PreserveSig]
         int Clone(ref Guid riid, ref nint ppv);
@@ -217,10 +217,10 @@ public static partial class ShellApi
         int EndDrag();
 
         [PreserveSig]
-        int DragEnter(IntPtr hwndLock, int x, int y);
+        int DragEnter(nint hwndLock, int x, int y);
 
         [PreserveSig]
-        int DragLeave(IntPtr hwndLock);
+        int DragLeave(nint hwndLock);
 
         [PreserveSig]
         int DragMove(int x, int y);

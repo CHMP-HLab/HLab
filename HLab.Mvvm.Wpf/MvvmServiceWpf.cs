@@ -6,6 +6,7 @@ using HLab.Base;
 using HLab.Base.Wpf;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
+using HLab.Mvvm.ReactiveUI;
 using HLab.Mvvm.Views;
 using HLab.Mvvm.Wpf.Views;
 

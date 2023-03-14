@@ -7,6 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <StackPanel Background="AliceBlue" Opacity="0.5">
+        <Label Foreground="White" FontWeight="Bold">Not Found</Label>
         <Label Foreground="Black" FontWeight="Bold" x:Name="Title"/>
         <Label Foreground="Black" x:Name="Message"/>
     </StackPanel>

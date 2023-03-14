@@ -9,7 +9,7 @@
 
 	<ItemGroup>
 		<PackageReference Include="Microsoft.NETCore.App" Version="2.2.8" />
-		<PackageReference Include="System.Drawing.Common" Version="7.0.0" />
+		<PackageReference Include="System.Drawing.Common" Version="8.0.0-preview.1.23110.8" />
 	</ItemGroup>
 
 </Project>

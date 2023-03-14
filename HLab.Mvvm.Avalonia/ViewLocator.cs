@@ -22,11 +22,10 @@
 */
 
 using System.Collections.Concurrent;
+using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Interactivity;
-using Avalonia.Metadata;
-using Avalonia.Threading;
+using Avalonia.Styling;
 using HLab.Base.Avalonia;
 using HLab.Mvvm.Annotations;
 
@@ -39,120 +38,88 @@ namespace HLab.Mvvm.Avalonia
     /// Logique d'interaction pour EntityViewLocator.xaml
     /// </summary>
     ///
-    public class ViewLocator : ContentControl
+    public class ViewLocator : ContentControl, IStyleable
     {
         bool _loaded = false;
+        Type IStyleable.StyleKey => typeof(ContentControl);
 
         public static readonly StyledProperty<Type> ViewModeProperty =
             H.Property<Type>()
-                .OnChangeBeforeNotification((e) =>
+                .OnChanged((e,a) =>
                 {
-                    // TODO : Avalonia
-                    //if(a.NewValue ==  null) return;
-                    //if(a.OldValue != null && a.NewValue == a.OldValue) return;
+                    if(!a.NewValue.HasValue) return;
+                    if(a.OldValue.HasValue && a.NewValue.Value == a.OldValue.Value) return;
 
                     e.Update();
                 })
-                .Default(typeof(ViewModeDefault))
+                .Default(typeof(DefaultViewMode))
                 .Inherits
-                .RegisterAttached();
+                .Attached
+                .Register();
 
         public static readonly StyledProperty<Type> ViewClassProperty =
             H.Property<Type>()
-                .OnChangeBeforeNotification((e) =>
+                .OnChanged((e,a) =>
                 { 
-                    // TODO : Avalonia
-                    //if(a.NewValue ==  null) return;
-                    //if(a.OldValue != null && ReferenceEquals(a.NewValue,a.OldValue)) return;
+                    if(!a.NewValue.HasValue) return;
+                    if(a.OldValue.HasValue && ReferenceEquals(a.NewValue.Value,a.OldValue.Value)) return;
 
                     e.Update();
                 })
-                .Default(typeof(IViewClassDefault))
+                .Default(typeof(IDefaultViewClass))
                 .Inherits
-                .RegisterAttached();
+                .Attached
+                .Register();
 
-        public static readonly StyledProperty<IMvvmContext> MvvmContextProperty =
-            H.Property<IMvvmContext>()
-                .OnChangeBeforeNotification((e) =>
+        public static readonly StyledProperty<IMvvmContext?> MvvmContextProperty =
+            H.Property<IMvvmContext?>()
+                .OnChanged((e,a) =>
                 {
-                    // TODO : Avalonia
-                    //if(a.NewValue ==  null) return;
-                    //if(ReferenceEquals(a.NewValue,a.OldValue)) return;
+                    if(!a.NewValue.HasValue) return;
+                    if(a.OldValue.HasValue && ReferenceEquals(a.NewValue.Value,a.OldValue.Value)) return;
 
                     e.Update();
                 })
                 .Default(null)
                 .Inherits
-                .RegisterAttached();
+                .Attached
+                .Register();
 
-        bool _hasModel = false;
-        object _oldModel = null;
+        object? _oldModel = null;
 
-        public static readonly StyledProperty<object> ModelProperty = H.Property<object>()
+       public static readonly StyledProperty<object?> ModelProperty = H.Property<object?>()
             .OnChangeBeforeNotification((e) =>
             {
-                var oldModel = e._oldModel;
-                var model = e.Model;
-
-                if (e._hasModel)
-                {
-                    var o = e.Content;
-
-                    while(o is StyledElement se)
-                    {
-                        if (ReferenceEquals(se.DataContext, oldModel))
-                        {
-                            se.DataContext = model;
-                            return;
-                        }
-                        o = se.DataContext;
-                    }
-
-                    while (o is IViewModel vm)
-                    {
-                        if (ReferenceEquals(vm.Model, oldModel))
-                        {
-                            vm.Model = model;
-                            return;
-                        }
-
-                        o = vm.Model;
-                    }
-                }
-                e._oldModel = model;
-                e._hasModel = true;
-
-                e.Update();
+                e.SetModel();
             })
             .Register();
 
-        public static object GetModel(AvaloniaObject obj)
+        public static object? GetModel(AvaloniaObject obj)
             => obj.GetValue(ModelProperty);
 
         public static void SetModel(AvaloniaObject obj, object value)
             => obj.SetValue(ModelProperty, value);
 
         public static Type GetViewMode(AvaloniaObject obj)
-            => (Type)obj.GetValue(ViewModeProperty);
+            => obj.GetValue(ViewModeProperty);
 
         public static void SetViewMode(AvaloniaObject obj, Type value)
             => obj.SetValue(ViewModeProperty, value);
 
         public static Type GetViewClass(AvaloniaObject obj)
-            => (Type)obj.GetValue(ViewClassProperty);
+            => obj.GetValue(ViewClassProperty);
 
         public static void SetViewClass(AvaloniaObject obj, Type value)
             => obj.SetValue(ViewClassProperty, value);
 
-        public static IMvvmContext GetMvvmContext(AvaloniaObject obj)
-            => (IMvvmContext)obj.GetValue(MvvmContextProperty);
+        public static IMvvmContext? GetMvvmContext(AvaloniaObject obj)
+            => obj.GetValue(MvvmContextProperty);
 
         public static void SetMvvmContext(AvaloniaObject obj, IMvvmContext value)
             => obj.SetValue(MvvmContextProperty, value);
 
 
-        [Content]
-        public object Model
+        public object? Model
         {
             get => GetValue(ModelProperty);
             set => SetValue(ModelProperty, value);
@@ -160,28 +127,30 @@ namespace HLab.Mvvm.Avalonia
 
         public Type ViewMode
         {
-            get => (Type)GetValue(ViewModeProperty);
+            get => GetValue(ViewModeProperty);
             set => SetValue(ViewModeProperty, value);
         }
 
         public Type ViewClass
         {
-            get => (Type)GetValue(ViewClassProperty);
+            get => GetValue(ViewClassProperty);
             set => SetValue(ViewClassProperty, value);
         }
 
-        public IMvvmContext MvvmContext
+        public IMvvmContext? MvvmContext
         {
-            get => (IMvvmContext)GetValue(MvvmContextProperty);
+            get => GetValue(MvvmContextProperty);
             set => SetValue(MvvmContextProperty, value);
         }
 
         public ViewLocator()
         {
-            DataContextChanged += ViewLocator_DataContextChanged;
 
+            //DataContextChanged += ViewLocator_DataContextChanged;
             
-            AttachedToVisualTree += ViewLocator_Loaded;
+            // AttachedToVisualTree += ViewLocator_Loaded;
+
+
             //var b = new Binding
             //{
             //    Source = this,
@@ -193,15 +162,48 @@ namespace HLab.Mvvm.Avalonia
             // Update();
         }
 
+
+        void SetModel()
+        {
+            var o = Content;
+
+            while (o != null)
+            {
+                switch (o)
+                {
+                    case StyledElement se:
+                        o = se.DataContext;
+                        if (ReferenceEquals(o, _oldModel))
+                        {
+                            _oldModel = o;
+                            se.DataContext = Model;
+                            return;
+                        }
+                        break;
+                    case IViewModel vm:
+                        o = vm.Model;
+                        if (ReferenceEquals(o, _oldModel))
+                        {
+                            _oldModel = o;
+                            vm.Model = Model;
+                            return;
+                        }
+                        break;
+                    default:
+                        o = null;
+                        break;
+                }
+
+            }
+
+            Update();
+        }
+
+
         async void ViewLocator_Loaded(object? sender, VisualTreeAttachmentEventArgs visualTreeAttachmentEventArgs)
         {
             _loaded = true;
             Update();
-        }
-
-        void ViewLocator_DataContextChanged(object? sender, EventArgs eventArgs)
-        {
-            if(!_hasModel) Dispatcher.UIThread.InvokeAsync(Update);
         }
 
         class Canceler
@@ -218,14 +220,16 @@ namespace HLab.Mvvm.Avalonia
 
         protected void Update()
         {
-            if(!_loaded) return;
+            //if(!_loaded) return;
+
             var context = MvvmContext;
             var viewMode = ViewMode;
             var viewClass = ViewClass;
             var model = Model;
 
-            if (viewMode == null) return;
-            if (viewClass == null) return;
+            Debug.Assert(viewMode != null);
+            Debug.Assert(viewClass != null);
+
             if (context == null) return;
             if(model==null) return;
 
@@ -240,21 +244,28 @@ namespace HLab.Mvvm.Avalonia
             var cancel = new Canceler();
             _cancel.Push(cancel);
 
-            var t = Dispatcher.UIThread.InvokeAsync(() =>
-            {
+            //var t = Dispatcher.UIThread.InvokeAsync(() =>
+            //{
                 if(cancel.State) return;
 
-                var view = (StyledElement)context.GetView(model, viewMode, viewClass);
+                var view = context.GetView(model, viewMode, viewClass);
+
                 if(cancel.State) return;
 
-                if (view != null)
+                if (view is AvaloniaObject obj)
                 {
-                    SetViewClass(view, typeof(IViewClassDefault));
-                    SetViewMode(view, typeof(ViewModeDefault));
+                    SetViewClass(obj, typeof(IDefaultViewClass));
+                    SetViewMode(obj, typeof(DefaultViewMode));
                 }
+
                 Content = view;
-            }, DispatcherPriority.Input);
+
+                InvalidateVisual();
+
+            //}, DispatcherPriority.Input);
 
         }
+
+        
     }
 }
