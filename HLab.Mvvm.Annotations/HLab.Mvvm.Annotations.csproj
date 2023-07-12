@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+	<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <Platforms>x64</Platforms>
     <Version>2.0.0.2-dev0354</Version>
     <Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
@@ -13,7 +13,6 @@
   <ItemGroup>
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.Core.Annotations\HLab.Core.Annotations.csproj" />
-    <ProjectReference Include="..\Hlab.Icons.Annotations\HLab.Icons.Annotations.csproj" />
   </ItemGroup>
 
 </Project>

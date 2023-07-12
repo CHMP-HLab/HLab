@@ -43,7 +43,7 @@ public partial class BorderLessWindow : Window
 
     public static readonly StyledProperty<object?> ViewProperty =
         H.Property<object?>()
-            .OnChangeBeforeNotification((e) =>
+            .OnChanged((e, a) =>
             {
                 //e._content.Content = e.View;
                 e.Content = e.View;
@@ -132,9 +132,10 @@ public partial class BorderLessWindow : Window
 
     bool _maximize = false;
 
-    protected override void HandleWindowStateChanged(WindowState state)
+    // TODO : override
+    protected void HandleWindowStateChanged(WindowState state)
     {
-        base.HandleWindowStateChanged(state);
+        //base.HandleWindowStateChanged(state);
         if (_cornerRadius == _cornerRadiusZero) _cornerRadius = _insideBorder.CornerRadius;
 
         switch (state)

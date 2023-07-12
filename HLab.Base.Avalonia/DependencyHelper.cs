@@ -32,7 +32,8 @@ namespace HLab.Base.Avalonia
     {
         public static IDependencyPropertyConfigurator<TClass, TValue> Property<TValue>([CallerMemberName] string? name = null)
             => Property<TClass, TValue>(name);
-        public static RoutedEventConfigurator<TClass, TValue> Event<TValue>([CallerMemberName] string? name = null) where TValue : RoutedEventArgs => Event<TClass, TValue>(name);
+        public static RoutedEventConfigurator<TClass, TValue> Event<TValue>([CallerMemberName] string? name = null) 
+            where TValue : RoutedEventArgs => Event<TClass, TValue>(name);
         //public static RoutedEventConfigurator<TClass, RoutedEventHandler> Event([CallerMemberName] string name = null)
         //    => Event<TClass, RoutedEventHandler>(name);
     }

@@ -20,12 +20,6 @@ namespace HLab.Base.Wpf
     //------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
     // AffichageZero
 
-    public enum DisplayZeros
-    {
-        Always,
-        Never,
-        Free
-    }
     public enum TextBoxMode
     {
         /// <summary>
@@ -67,11 +61,6 @@ namespace HLab.Base.Wpf
         /// Adresse e-mail
         /// </summary>
         Email = 7
-    }
-
-    public interface IDoubleProvider
-    {
-        double Double {get; set;}
     }
 
     public class TextBoxEx : TextBox, IDoubleProvider

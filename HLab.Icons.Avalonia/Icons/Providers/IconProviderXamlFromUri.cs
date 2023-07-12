@@ -1,6 +1,5 @@
 ﻿using Avalonia.Markup.Xaml;
 using Avalonia.Threading;
-using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;
 

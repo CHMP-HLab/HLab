@@ -1,6 +1,5 @@
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Metadata;
 using HLab.Base.Avalonia;
 
 namespace HLab.Localization.Avalonia.Lang;
@@ -22,6 +21,6 @@ public partial class LocalizedLabel : Label, INamed
 
     public static readonly StyledProperty<string> TextProperty =
         H.Property<string>()
-            .OnChangeBeforeNotification((e)=> e.Localize.Id = e.Text)
+            .OnChanged((e, a)=> e.Localize.Id = e.Text)
             .Register();
 }

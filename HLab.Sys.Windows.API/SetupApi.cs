@@ -25,63 +25,62 @@ using System;
 using System.Runtime.InteropServices;
 using System.Security;
 
-namespace HLab.Sys.Windows.API
+namespace HLab.Sys.Windows.API;
+
+[SuppressUnmanagedCodeSecurity]
+public static partial class SetupApi
 {
-    [SuppressUnmanagedCodeSecurity]
-    public static partial class SetupApi
+    const string DLL = $"{nameof(SetupApi)}.dll";
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct SP_DEVINFO_DATA
     {
-        const string DLL = $"{nameof(SetupApi)}.dll";
+        public uint cbSize;
+        public Guid classGuid;
+        public uint devInst;
+        public nint reserved;
 
-        [StructLayout(LayoutKind.Sequential)]
-        public struct SP_DEVINFO_DATA
+        public SP_DEVINFO_DATA()
         {
-            public uint cbSize;
-            public Guid classGuid;
-            public uint devInst;
-            public nint reserved;
-
-            public SP_DEVINFO_DATA()
-            {
-                cbSize = (uint)Marshal.SizeOf(typeof(SP_DEVINFO_DATA));
-            }
+            cbSize = (uint)Marshal.SizeOf(typeof(SP_DEVINFO_DATA));
         }
-
-        public static Guid GUID_CLASS_MONITOR = new Guid(0x4d36e96e, 0xe325, 0x11ce, 0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18);
-        const int MAX_DEVICE_ID_LEN = 200;
-        public const int MAX_PATH = 260;
-
-        public const int DIGCF_PRESENT = 0x2;
-        public const int DIGCF_PROFILE = 0x8;
-        public const int DICS_FLAG_GLOBAL = 0x1;
-        public const int DIREG_DEV = 0x1;
-
-        public const int KEY_READ = 0x20019;
-
-        const int NAME_SIZE = 128;
-        const uint ERROR_SUCCESS = 0;
-
-        [DllImport(DLL)]
-        public static extern nint SetupDiGetClassDevsEx(ref Guid ClassGuid,
-            [MarshalAs(UnmanagedType.LPStr)] string enumerator,
-            nint hwndParent, int Flags, nint DeviceInfoSet,
-            [MarshalAs(UnmanagedType.LPStr)] string MachineName, nint Reserved);
-
-        [DllImport(DLL, SetLastError = true)]
-        public static extern bool SetupDiEnumDeviceInfo(nint DeviceInfoSet, uint MemberIndex, ref SP_DEVINFO_DATA DeviceInfoData);
-
-        [DllImport(DLL, SetLastError = true)]
-        public static extern bool SetupDiDestroyDeviceInfoList
-        (
-             nint DeviceInfoSet
-        );
-
-        [DllImport(DLL, CharSet = CharSet.Auto, SetLastError = true)]
-        public static extern nint SetupDiOpenDevRegKey(
-            nint hDeviceInfoSet,
-            ref SP_DEVINFO_DATA deviceInfoData,
-            int scope,
-            int hwProfile,
-            int parameterRegistryValueKind,
-            int samDesired);
     }
+
+    public static Guid GUID_CLASS_MONITOR = new Guid(0x4d36e96e, 0xe325, 0x11ce, 0xbf, 0xc1, 0x08, 0x00, 0x2b, 0xe1, 0x03, 0x18);
+    const int MAX_DEVICE_ID_LEN = 200;
+    public const int MAX_PATH = 260;
+
+    public const int DIGCF_PRESENT = 0x2;
+    public const int DIGCF_PROFILE = 0x8;
+    public const int DICS_FLAG_GLOBAL = 0x1;
+    public const int DIREG_DEV = 0x1;
+
+    public const int KEY_READ = 0x20019;
+
+    const int NAME_SIZE = 128;
+    const uint ERROR_SUCCESS = 0;
+
+    [DllImport(DLL)]
+    public static extern nint SetupDiGetClassDevsEx(ref Guid ClassGuid,
+        [MarshalAs(UnmanagedType.LPStr)] string enumerator,
+        nint hwndParent, int Flags, nint DeviceInfoSet,
+        [MarshalAs(UnmanagedType.LPStr)] string MachineName, nint Reserved);
+
+    [DllImport(DLL, SetLastError = true)]
+    public static extern bool SetupDiEnumDeviceInfo(nint DeviceInfoSet, uint MemberIndex, ref SP_DEVINFO_DATA DeviceInfoData);
+
+    [DllImport(DLL, SetLastError = true)]
+    public static extern bool SetupDiDestroyDeviceInfoList
+    (
+        nint DeviceInfoSet
+    );
+
+    [DllImport(DLL, CharSet = CharSet.Auto, SetLastError = true)]
+    public static extern nint SetupDiOpenDevRegKey(
+        nint hDeviceInfoSet,
+        ref SP_DEVINFO_DATA deviceInfoData,
+        int scope,
+        int hwProfile,
+        int parameterRegistryValueKind,
+        int samDesired);
 }

@@ -1,61 +1,48 @@
-﻿namespace HLab.ColorTools
+﻿using System.Numerics;
+
+namespace HLab.ColorTools
 {
     /// <summary>
     /// Structure to define YUV.
     /// </summary>
-    public struct YUV
+    public readonly struct YUV<T>(T alpha, T y, T u, T v) where T : INumber<T>
     {
-        /// <summary>
-        /// Gets an empty YUV structure.
-        /// </summary>
-        public static readonly YUV Empty = new YUV();
+        public T Alpha { get; } = alpha;
 
-        public static bool operator ==(YUV item1, YUV item2)
-        {
-            return (
-                item1.Y == item2.Y
-                && item1.U == item2.U
-                && item1.V == item2.V
-                );
-        }
+        public T Y { get; } = y.Cut(T.Zero, ColorConst<T>.N);
 
-        public static bool operator !=(YUV item1, YUV item2)
-        {
-            return (
-                item1.Y != item2.Y
-                || item1.U != item2.U
-                || item1.V != item2.V
-                );
-        }
+        public T U { get; } = u.Cut(-_0_436, _0_436);
 
-        public double Y { get; }
+        public T V { get; } = v.Cut(-_0_615, _0_615);
 
-        public double U { get; }
+        static T _0_436 = 0.436.Normalized<T>();
+        static T _0_615 = 0.615.Normalized<T>();
 
-        public double V { get; }
+        public static bool operator ==(YUV<T> c1, YUV<T> c2) 
+            => c1.Y == c2.Y 
+            && c1.U == c2.U
+            && c1.V == c2.V;
 
-        /// <summary>
-        /// Creates an instance of a YUV structure.
-        /// </summary>
-        public YUV(double y, double u, double v)
-        {
-            Y = (y > 1) ? 1 : ((y < 0) ? 0 : y);
-            U = (u > 0.436) ? 0.436 : ((u < -0.436) ? -0.436 : u);
-            V = (v > 0.615) ? 0.615 : ((v < -0.615) ? -0.615 : v);
-        }
+        public static bool operator != (YUV<T> item1, YUV<T> item2) => !(item1 == item2);
+
+
+        ///// <summary>
+        ///// Creates an instance of a YUV structure.
+        ///// </summary>
+        //public YUV(double y, double u, double v)
+        //{
+        //    Y = (y > 1) ? 1 : ((y < 0) ? 0 : y);
+        //    U = (u > 0.436) ? 0.436 : ((u < -0.436) ? -0.436 : u);
+        //    V = (v > 0.615) ? 0.615 : ((v < -0.615) ? -0.615 : v);
+        //}
 
         public override bool Equals(object? obj)
         {
-            if (obj is YUV yuv) return this == yuv;
-                
-                
+            if (obj is YUV<T> yuv) return this == yuv;
             return false;
         }
 
-        public override int GetHashCode()
-        {
-            return Y.GetHashCode() ^ U.GetHashCode() ^ V.GetHashCode();
-        }
+        public override int GetHashCode() => HashCode.Combine(Y, U, V);
 
     }
 }

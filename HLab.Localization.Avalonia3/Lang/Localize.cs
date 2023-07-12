@@ -30,7 +30,7 @@ public class Localize : TextBlock
     }
     public static readonly StyledProperty<string> IdProperty =
         H.Property<string>()
-            .OnChangeBeforeNotification(async (e) =>
+            .OnChanged(async (e, a) =>
             {
                 await e._updateAsync();
             })
@@ -39,7 +39,7 @@ public class Localize : TextBlock
     public static readonly StyledProperty<string?> StringFormatProperty =
         H.Property<string?>()
 //                .Default("{}{0}")
-            .OnChangeBeforeNotification(async e =>
+            .OnChanged(async (e,a) =>
             {
                 if (e.StringFormat == null)
                 {
@@ -51,7 +51,7 @@ public class Localize : TextBlock
 
     public static readonly StyledProperty<ILocalizationService?> LocalizationServiceProperty =
         H.Property<ILocalizationService?>()
-            .OnChangeBeforeNotification(async (e) =>
+            .OnChanged(async (e, a) =>
             {
                 if (e.LocalizationService == null)
                 {
@@ -64,7 +64,7 @@ public class Localize : TextBlock
 
     public static readonly StyledProperty<string?> LanguageProperty =
         H.Property<string?>()
-            .OnChangeBeforeNotification(async (e) =>
+            .OnChanged(async (e, a) =>
             {
                 if (e.Language == null)
                 {

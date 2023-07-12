@@ -33,29 +33,14 @@ namespace HLab.Base.Avalonia.Themes
 
             var assemblyName = typeof(ThemeService).Assembly.GetName().Name;
 
-            // include that code when avalonia is preview5
-            // please copilot
-#if true
-            // Todo Preview 5
-
-            _themeDark = new ResourceInclude(new Uri(
-                    $"avares://{assemblyName}/Themes/HLab.Theme.Dark.axaml",
-                    UriKind.RelativeOrAbsolute));
-
-            _themeLight = new ResourceInclude(new Uri(
-                    $"avares://{assemblyName}/Themes/HLab.Theme.Light.axaml",
-                    UriKind.RelativeOrAbsolute));
-#endif
-#if false
-            // Todo Preview 4
-            _themeDark = new ResourceInclude {Source = new Uri(
-                $"avares://{assemblyName}/Themes/HLab.Theme.Dark.axaml",
+            _themeDark = new ResourceInclude(new Uri($"avares://{assemblyName}")) {Source = new Uri(
+                "/Themes/HLab.Theme.Dark.axaml",
                 UriKind.RelativeOrAbsolute)};
 
-            _themeLight = new ResourceInclude {Source = new Uri(
-                $"avares://{assemblyName}/Themes/HLab.Theme.Light.axaml", 
+            _themeLight = new ResourceInclude(new Uri($"avares://{assemblyName}")) {Source = new Uri(
+                "/Themes/HLab.Theme.Light.axaml", 
                 UriKind.RelativeOrAbsolute)};
-#endif
+
             _dictionary = dictionary;
         }
 
@@ -115,29 +100,29 @@ namespace HLab.Base.Avalonia.Themes
             //ThemeManager.Current.SyncTheme(ThemeSyncMode.SyncAll);
 
             // TODO Avalonia
-            //switch (theme)
-            //{
-            //    case WindowsTheme.Light:
-            //        //ThemeManager.Current.ChangeTheme(this, "Light.Blue");
-            //        UnsetAuto();
-            //        if (_dictionary.MergedDictionaries.Contains(_themeDark)) _dictionary.MergedDictionaries.Remove(_themeDark);
-            //        if (!_dictionary.MergedDictionaries.Contains(_themeLight))
-            //            _dictionary.MergedDictionaries.Add(_themeLight);
-            //        break;
+            switch (theme)
+            {
+                case WindowsTheme.Light:
+                    //ThemeManager.Current.ChangeTheme(this, "Light.Blue");
+                    UnsetAuto();
+                    if (_dictionary.MergedDictionaries.Contains(_themeDark)) _dictionary.MergedDictionaries.Remove(_themeDark);
+                    if (!_dictionary.MergedDictionaries.Contains(_themeLight))
+                        _dictionary.MergedDictionaries.Add(_themeLight);
+                    break;
 
-            //    case WindowsTheme.Dark:
-            //        //ThemeManager.Current.ChangeTheme(this, "Dark.Blue");
-            //        UnsetAuto();
-            //        if (_dictionary.MergedDictionaries.Contains(_themeLight)) _dictionary.MergedDictionaries.Remove(_themeLight);
-            //        if (!_dictionary.MergedDictionaries.Contains(_themeDark))
-            //            _dictionary.MergedDictionaries.Add(_themeDark);
-            //        break;
-            //    case WindowsTheme.Auto:
-            //        SetAuto();
-            //        break;
-            //    default:
-            //        throw new ArgumentOutOfRangeException(nameof(theme), theme, null);
-            //}
+                case WindowsTheme.Dark:
+                    //ThemeManager.Current.ChangeTheme(this, "Dark.Blue");
+                    UnsetAuto();
+                    if (_dictionary.MergedDictionaries.Contains(_themeLight)) _dictionary.MergedDictionaries.Remove(_themeLight);
+                    if (!_dictionary.MergedDictionaries.Contains(_themeDark))
+                        _dictionary.MergedDictionaries.Add(_themeDark);
+                    break;
+                case WindowsTheme.Auto:
+                    SetAuto();
+                    break;
+                default:
+                    throw new ArgumentOutOfRangeException(nameof(theme), theme, null);
+            }
         }
         static WindowsTheme GetWindowsTheme()
         {
@@ -159,7 +144,7 @@ namespace HLab.Base.Avalonia.Themes
 
             if (value is string s && int.TryParse(s, out var result))
             {
-                return result.ToColor();
+                return result.ToAvaloniaColor();
             }
             return Colors.Blue;
         }

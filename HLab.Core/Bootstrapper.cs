@@ -25,29 +25,20 @@ namespace HLab.Core
                 Name = name;
             }
 
-            public void Requeue()
-            {
-                _bootstrapper.Enqueue(this);
-            }
+            public void Requeue() => _bootstrapper.Enqueue(this);
 
-            public void Enqueue(string name, Action<IBootContext> action)
-            {
-                _bootstrapper.Enqueue(name, action);
-            }
+            public void Enqueue(string name, Action<IBootContext> action) => _bootstrapper.Enqueue(name, action);
 
             public void Invoke() => _action(this);
 
             public bool StillContains(params string[] name) => _bootstrapper.Contains(name);
+
             public override string ToString() => Name;
         }
 
         readonly Func<IEnumerable<IBootloader>> _getBootloaders;
 
-        public Bootstrapper(Func<IEnumerable<IBootloader>> getBootloaders)
-        {
-            _getBootloaders = getBootloaders;
-        }
-
+        public Bootstrapper(Func<IEnumerable<IBootloader>> getBootloaders) => _getBootloaders = getBootloaders;
 
         readonly ConcurrentQueue<Context> _queue = new();
         public void Boot()
@@ -66,10 +57,7 @@ namespace HLab.Core
                 done.Add(name);
             }
 
-            while (_queue.TryDequeue(out var context))
-            {
-                context.Invoke();
-            }
+            while (_queue.TryDequeue(out var context)) context.Invoke();
         }
 
         static IEnumerable<T> Sort<T>(IEnumerable<T> src)
@@ -94,26 +82,15 @@ namespace HLab.Core
             return result;
         }
 
-
-
-
         //private readonly Dictionary<string, Assembly> _loadedAssemblies = new Dictionary<string, Assembly>();
 
+        void Enqueue(Context context) 
+            => _queue.Enqueue(context);
 
-        void Enqueue(Context context)
-        {
-            _queue.Enqueue(context);
-        }
+        public void Enqueue(string name, Action<IBootContext> action) 
+            => Enqueue(new Context(this, name, action));
 
-        public void Enqueue(string name, Action<IBootContext> action)
-        {
-            Enqueue(new Context(this, name, action));
-        }
-
-        public bool Contains(params string[] names)
-        {
-            return names.Any(name => _queue.Any(e => e.Name.EndsWith(name)));
-        }
-
+        public bool Contains(params string[] names) 
+            => names.Any(name => _queue.Any(e => e.Name.EndsWith(name)));
     }
 }

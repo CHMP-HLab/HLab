@@ -2,24 +2,26 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
-using Avalonia.Markup.Xaml.Templates;
 using Avalonia.Media;
+using Avalonia.Styling;
 using Avalonia.Threading;
 using HLab.Base.Avalonia;
-using HLab.Icons.Annotations.Icons;
 
 namespace HLab.Icons.Avalonia.Icons;
 
 using H = DependencyHelper<IconView>;
 
 
-public class IconView : ContentControl
+public class IconView : ContentControl, IStyleable
 {
-    static IIconService _designTimeService = null;
+    Type IStyleable.StyleKey => typeof(ContentControl);
+
+    #if DEBUG
+    static IIconService? _designTimeService;
+    #endif
 
     readonly ContentControl _iconElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
     readonly ContentControl _captionElement = new() { IsTabStop = false, VerticalAlignment = VerticalAlignment.Center };
-
     readonly ColumnDefinition _spacer = new() { Width = new GridLength(0.0) };
 
     public IconView()
@@ -38,6 +40,16 @@ public class IconView : ContentControl
         };
 
         AttachedToVisualTree += IconView_Loaded;
+
+        PropertyChanged += IconView_PropertyChanged;
+    }
+
+    void IconView_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    {
+        if (e.Property == ForegroundProperty)
+        {
+            LoadIcon();
+        }
     }
 
     static IconView()
@@ -49,32 +61,30 @@ public class IconView : ContentControl
 
         == First attempt : ==
 
+
         ForegroundProperty.OverrideMetadata<IconView>(new StyledPropertyMetadata<IBrush?>());
 
-
         */
-    }
 
-    void OnForegroundChanged(StyledPropertyChangedEventArgs<IconView> eventArgs)
-    {
-        if (eventArgs.NewValue != eventArgs.OldValue)
-            LoadIcon(Path);
+        //AffectsRender<ContentPresenter>(CaptionProperty, IconServiceProperty, PathProperty, IconMaxHeightProperty, IconMaxWidthProperty);
+        //AffectsArrange<ContentPresenter>(CaptionProperty, IconServiceProperty, PathProperty, IconMaxHeightProperty, IconMaxWidthProperty);
+        //AffectsMeasure<ContentPresenter>(CaptionProperty, IconServiceProperty, PathProperty, IconMaxHeightProperty, IconMaxWidthProperty);
     }
 
     bool _attached = false;
     void IconView_Loaded(object? sender, VisualTreeAttachmentEventArgs visualTreeAttachmentEventArgs)
     {
         _attached = true;
-        LoadIcon(Path);
+        LoadIcon();
     }
 
 
     /// <summary>
     /// IconService
     /// </summary>
-    public static readonly StyledProperty<IIconService> IconServiceProperty =
-        H.Property<IIconService>()
-            .OnChangeBeforeNotification(async (e) =>
+    public static readonly StyledProperty<IIconService?> IconServiceProperty =
+        H.Property<IIconService?>()
+            .OnChanged(async (e,a) =>
             {
                 //if (a.NewValue == null) return;
                 //if (e._iconServiceReference != null && e._iconServiceReference.TryGetTarget(out var iconService) && ReferenceEquals(a.NewValue, iconService)) return;
@@ -101,20 +111,19 @@ public class IconView : ContentControl
 
     public static readonly StyledProperty<string> PathProperty =
         H.Property<string>()
-            .OnChangeBeforeNotification(e =>
+            .OnChanged((e,a) =>
             {
-                // TODO avalonia : Loaded
-                e.LoadIcon(e.Path);
+                e.LoadIcon();
             })
             .Register();
 
     public static readonly StyledProperty<object> CaptionProperty =
         H.Property<object>()
-            .OnChangeBeforeNotification((s) => s.Update())
+            .OnChanged((s, a) => s.Update())
             .Register();
 
     public static readonly StyledProperty<double> IconMaxHeightProperty =
-        H.Property<double>().Default(30.0).OnChangeBeforeNotification(e =>
+        H.Property<double>().Default(30.0).OnChanged((e,a) =>
             {
                 if (double.IsNaN(e.IconMaxHeight)) return;
                 e._iconElement.MaxHeight = e.IconMaxHeight;
@@ -122,7 +131,7 @@ public class IconView : ContentControl
             .Register();
 
     public static readonly StyledProperty<double> IconMaxWidthProperty =
-        H.Property<double>().Default(50.0).OnChangeBeforeNotification(e =>
+        H.Property<double>().Default(50.0).OnChanged((e,a) =>
             {
                 if (double.IsNaN(e.IconMaxWidth)) return;
                 e._iconElement.MaxWidth = e.IconMaxWidth;
@@ -148,6 +157,7 @@ public class IconView : ContentControl
         get => GetValue(CaptionProperty);
         set => SetValue(CaptionProperty, value);
     }
+
     public double IconMaxHeight
     {
         get => GetValue(IconMaxHeightProperty);
@@ -159,9 +169,9 @@ public class IconView : ContentControl
         set => SetValue(IconMaxWidthProperty, value);
     }
 
-    public IIconService IconService
+    public IIconService? IconService
     {
-        get => (IIconService)GetValue(IconServiceProperty);
+        get => GetValue(IconServiceProperty);
         set => SetValue(IconServiceProperty, value);
     }
     class Canceler
@@ -174,12 +184,14 @@ public class IconView : ContentControl
         }
     }
 
-    int _count = 0;
     readonly ConcurrentStack<Canceler> _cancel = new();
 
-    void LoadIcon(string path)
+    void LoadIcon()
     {
-        if(path==null) return;
+        var path = Path;
+
+        if(string.IsNullOrEmpty(path)) return;
+
         if (IconService == null)
         {
 #if DEBUG
@@ -207,18 +219,30 @@ public class IconView : ContentControl
         var cancel = new Canceler();
         _cancel.Push(cancel);
 
-        var t2 = Dispatcher.UIThread.InvokeAsync(
+        //Dispatcher.UIThread.InvokeAsync(
+        //    async () =>
+        //    {
+        //        if (cancel.State) return;
+        //        var icon = await iconService.GetIconTemplateAsync(path);
+        //        if (cancel.State) return;
+        //        if (icon is DataTemplate template)
+        //        {
+        //            _iconElement.ContentTemplate = template;
+        //            Update();
+        //        }
+        //    }
+        //    , XamlTools.Priority);
+
+
+
+        Dispatcher.UIThread.InvokeAsync(
             async () =>
             {
-
                 if (cancel.State) return;
-                var icon = await iconService.GetIconTemplateAsync(path);
+                var icon = await iconService.GetIconAsync(path,Foreground);
                 if (cancel.State) return;
-                if (icon is DataTemplate template)
-                {
-                    _iconElement.ContentTemplate = template;
-                    Update();
-                }
+                _iconElement.Content = icon;
+                Update();
             }
             , XamlTools.Priority);
 

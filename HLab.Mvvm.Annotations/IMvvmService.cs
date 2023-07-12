@@ -60,6 +60,15 @@ namespace HLab.Mvvm.Annotations
         /// <param name="type"></param>
         void Register(Type type);
 
+
+        /// <summary>
+        /// Called when a view is activated
+        /// </summary>
+        /// <param name="obj"></param>
+        object Activate(object obj);
+
+        object Deactivate(object obj);
+
     }
 
 

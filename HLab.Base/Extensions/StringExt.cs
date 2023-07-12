@@ -68,12 +68,51 @@ namespace HLab.Base.Extensions
             return r.Replace(s," ");
         }
 
-        public static string BeforeSuffix(this string s, string suffix)
+        public static string BeforeSuffix(this string @this, string suffix)
         {
-            var i = s.IndexOf(suffix);
-            if (i >= 0) return s.Substring(0, i);
-            return s;
+            if(string.IsNullOrEmpty(suffix)) return @this;
+            if (@this is null) return null;
+
+            var i = @this.IndexOf(suffix, StringComparison.Ordinal);
+            return i >= 0 ? @this[..i] : @this;
         }
+
+        public static bool HasSuffix(this string @this, string suffix, out string result)
+        {
+            if (@this is null)
+            {
+                result = null;
+                return false;
+            }
+
+            if (!@this.EndsWith(suffix))
+            {
+                result = null;
+                return false;
+            }
+
+            result = @this[..^suffix.Length];
+            return true;
+        }
+
+        public static bool HasPrefix(this string @this, string prefix, out string result)
+        {
+            if (@this is null)
+            {
+                result = null;
+                return false;
+            }
+
+            if (!@this.StartsWith(prefix))
+            {
+                result = null;
+                return false;
+            }
+
+            result = @this[prefix.Length..];
+            return true;
+        }
+
         public static IEnumerable<string> GetInside(this string source,char left, char right)
         {
             var s = "";

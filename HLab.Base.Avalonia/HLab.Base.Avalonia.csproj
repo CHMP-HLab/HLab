@@ -1,26 +1,25 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net7.0</TargetFramework>
+	<TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
     <Platforms>x64</Platforms>
   </PropertyGroup>
 
-	<ItemGroup>
-		<EmbeddedResource Include="**\*.xaml">
-			<SubType>Designer</SubType>
-		</EmbeddedResource>
-	</ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.0-preview5" />
-    <PackageReference Include="System.Management" Version="8.0.0-preview.1.23110.8" />
+    <PackageReference Include="Avalonia" Version="11.0.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.0" />
+    <PackageReference Include="System.Management" Version="8.0.0-preview.5.23280.8" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HLab.Base\HLab.Base.csproj" />
     <ProjectReference Include="..\HLab.ColorTools.Avalonia\HLab.ColorTools.Avalonia.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Controls\NewFolder\" />
   </ItemGroup>
 
 </Project>

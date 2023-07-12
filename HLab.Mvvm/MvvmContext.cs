@@ -111,8 +111,8 @@ namespace HLab.Mvvm
             switch (obj)
             {
                 case IView v:
-                    var h = Mvvm.ViewHelperFactory.Get(v, hh => hh.Context = this);
-                    h.Linked = baseObject;
+                    var vh = Mvvm.ViewHelperFactory.Get(v, h => h.Context = this);
+                    vh.Linked = baseObject;
                     CallCreators(v);
                     break;
 

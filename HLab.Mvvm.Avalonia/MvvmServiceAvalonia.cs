@@ -8,6 +8,7 @@ using Avalonia.Markup.Xaml.Templates;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.ReactiveUI;
+using ReactiveUI;
 
 namespace HLab.Mvvm.Avalonia
 {
@@ -88,5 +89,17 @@ namespace HLab.Mvvm.Avalonia
             };
         }
 
+        public object Activate(object obj)
+        {
+            if(obj is IActivatableViewModel a) a.Activator.Activate();
+
+            return obj;
+        }
+
+        public object Deactivate(object obj)
+        {
+            if(obj is IActivatableViewModel a) a.Activator.Deactivate();
+            throw new NotImplementedException();
+        }
     }
 }

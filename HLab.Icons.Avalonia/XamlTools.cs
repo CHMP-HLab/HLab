@@ -19,7 +19,7 @@ public static class XamlTools
 {
     //public static DispatcherPriority Priority { get; } = DispatcherPriority.Input;
     //public static DispatcherPriority Priority { get; } = DispatcherPriority.Render;
-    public static DispatcherPriority Priority { get; } = DispatcherPriority.DataBind;
+    public static DispatcherPriority Priority { get; } = DispatcherPriority.Default;
     public static DispatcherPriority Priority2 { get; } = DispatcherPriority.Input;
 
     static readonly Color ForeColor = Colors.Yellow;
@@ -196,20 +196,16 @@ public static class XamlTools
         return FromXamlStream(stream);
     }
 
-    public static async Task<StyledElement> FromXamlStreamAsync(Stream xamlStream)
+    public static async Task<StyledElement?> FromXamlStreamAsync(Stream xamlStream)
     {
+
         try
         {
-            var tcs = new TaskCompletionSource<StyledElement>();
-
-            await Dispatcher.UIThread.InvokeAsync(() =>
+            return await Dispatcher.UIThread.InvokeAsync(() =>
             {
                 var obj =  AvaloniaRuntimeXamlLoader.Load(xamlStream,null);
-                if (obj is not StyledElement icon) return;
-                tcs.SetResult(icon);
-            },XamlTools.Priority2);
-
-            return await tcs.Task.ConfigureAwait(false);
+                return obj is not StyledElement icon ? null : icon;
+            },XamlTools.Priority2).GetTask();
         }
         catch (Exception e)
         {
@@ -232,7 +228,7 @@ public static class XamlTools
                     } }
                 },
                 // TODO : toolTip = e.Message
-            },XamlTools.Priority2);
+            },XamlTools.Priority2).GetTask();
         }
     }
 
@@ -288,10 +284,10 @@ public static class XamlTools
         RelativeSource = new RelativeSource(RelativeSourceMode.FindAncestor)
     };
 
-    public static async Task<StyledElement> SetForegroundAsync(StyledElement ui, Color foregroundColor,
+    public static DispatcherOperation<StyledElement> SetForegroundAsync(StyledElement ui, Color foregroundColor,
         Brush foregroundBrush)
     {
-        return await Dispatcher.UIThread.InvokeAsync(() =>
+        return Dispatcher.UIThread.InvokeAsync(() =>
             SetForeground(ui, foregroundColor, foregroundBrush),XamlTools.Priority2);
     }
 

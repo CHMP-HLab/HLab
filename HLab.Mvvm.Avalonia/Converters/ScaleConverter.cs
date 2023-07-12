@@ -30,27 +30,34 @@ namespace HLab.Mvvm.Avalonia.Converters
 {
     public class ScaleConverter : IValueConverter
     {
-        public object Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
+        public object? Convert(object? value, Type targetType, object? parameter, CultureInfo culture)
         {
             var v = value switch
             {
                 double d => d,
+                Rect r => Math.Min(r.Height, r.Width),
                 Control control => Math.Min(control.Bounds.Height, control.Bounds.Width),
                 _ => 12
             };
 
-            if (parameter is string s)
-            {
-                var scale = double.Parse(s, CultureInfo.InvariantCulture);
+            if (parameter is not string s) return null;
 
-                scale = Math.Min(Math.Max(v * scale, 0.1), 35791);
+            var p = s.Split('|');
 
-                if (double.IsNaN(scale) || double.IsInfinity(scale)) scale = 0.1;
+            var scale = double.Parse(p[0], CultureInfo.InvariantCulture);
 
-                if (targetType == typeof(double)) return scale;
-                if (targetType == typeof(Thickness)) return new Thickness(scale);
-                if (targetType == typeof(CornerRadius)) return new CornerRadius(scale);
-            }
+            var result = v * scale;
+
+            if (double.IsNaN(result) || double.IsInfinity(result)) result = 0.1;
+
+            var min = (p.Length > 1)?double.Parse(p[1], CultureInfo.InvariantCulture):0.1;
+            var max = (p.Length > 2)?double.Parse(p[2], CultureInfo.InvariantCulture):35791;
+
+            result = Math.Min(Math.Max(result, min), max);
+
+            if (targetType == typeof(double)) return result;
+            if (targetType == typeof(Thickness)) return new Thickness(result);
+            if (targetType == typeof(CornerRadius)) return new CornerRadius(result);
 
             return null;
         }

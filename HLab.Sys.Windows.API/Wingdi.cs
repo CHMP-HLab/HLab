@@ -34,7 +34,7 @@ public static partial class WinGdi
         /// <summary>Represents a pseudo device used to mirror application drawing for remoting or other purposes.</summary>
         MirroringDriver = 0x8,
         /// <summary>The device is VGA compatible.</summary>
-        VGACompatible = 0x10,
+        VgaCompatible = 0x10,
         /// <summary>The device is removable; it cannot be the primary display.</summary>
         Removable = 0x20,
         /// <summary>The device has more display modes than its output devices support.</summary>
@@ -711,9 +711,16 @@ public static partial class WinGdi
             DownloadOutline = 4
         }
 
-
-        /// <summary>Version for XP and later.</summary>
-		public const ushort SpecVersionXp = 0x0401;
+        public enum SpecVersionEnum : ushort
+        {
+            NT4 = 0x0400,
+            Win2K = 0x0500,
+            WinXP = 0x0501,
+            WS03 = 0x0502,
+            Vista = 0x0600,
+            Win7 = 0x0601,
+            Win8 = 0x0602
+        };
 
         /// <summary>
         /// A zero-terminated character array that specifies the "friendly" name of the printer or display; for example, "PCL/HP
@@ -727,7 +734,7 @@ public static partial class WinGdi
         /// The version number of the initialization data specification on which the structure is based. To ensure the correct version is
         /// used for any operating system, use DM_SPECVERSION.
         /// </summary>
-        public ushort SpecVersion;
+        public SpecVersionEnum SpecVersion;
 
         /// <summary>The driver version number assigned by the driver developer.</summary>
         public ushort DriverVersion;
@@ -1854,8 +1861,17 @@ public static partial class WinGdi
 
         public uint PanningHeight;
 
-        /// <summary>A default value with dmSize and dmSpecVersion set.</summary>
-        public static readonly DevMode Default = new DevMode { Size = (ushort)Marshal.SizeOf(typeof(DevMode)), SpecVersion = SpecVersionXp };
+        public DevMode()
+        {
+            Size = (ushort)Marshal.SizeOf(typeof(DevMode));
+            SpecVersion = SpecVersionEnum.WinXP;
+        }
+        public DevMode(SpecVersionEnum version)
+        {
+            Size = (ushort)Marshal.SizeOf(typeof(DevMode));
+            SpecVersion = version;
+        }
+
     }
 
     //[LibraryImport("gdi32.dll", StringMarshalling = StringMarshalling.Utf16)]
@@ -2040,4 +2056,20 @@ public static partial class WinGdi
 
     [DllImport("gdi32.dll", SetLastError = true)]
     public static extern int GetDeviceCaps(nint hdc, DeviceCap capindex);
+
+
+    public enum CombineRgnStyles:int
+    {
+        And         =1,
+        Or          =2,
+        XOr         =3,
+        Diff        =4,
+        Copy        =5,
+        Min         =And,
+        Max         =Copy
+    }
+
+    [DllImport("gdi32.dll")]
+    public static extern int CombineRgn(IntPtr hrgnDest, IntPtr hrgnSrc1,
+        IntPtr hrgnSrc2, CombineRgnStyles fnCombineMode);
 }

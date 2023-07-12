@@ -26,6 +26,7 @@ using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Styling;
+using Avalonia.Threading;
 using HLab.Base.Avalonia;
 using HLab.Mvvm.Annotations;
 
@@ -88,7 +89,7 @@ namespace HLab.Mvvm.Avalonia
         object? _oldModel = null;
 
        public static readonly StyledProperty<object?> ModelProperty = H.Property<object?>()
-            .OnChangeBeforeNotification((e) =>
+            .OnChanged((e, a) =>
             {
                 e.SetModel();
             })
@@ -244,8 +245,8 @@ namespace HLab.Mvvm.Avalonia
             var cancel = new Canceler();
             _cancel.Push(cancel);
 
-            //var t = Dispatcher.UIThread.InvokeAsync(() =>
-            //{
+            var t = Dispatcher.UIThread.InvokeAsync(() =>
+            {
                 if(cancel.State) return;
 
                 var view = context.GetView(model, viewMode, viewClass);
@@ -258,11 +259,18 @@ namespace HLab.Mvvm.Avalonia
                     SetViewMode(obj, typeof(DefaultViewMode));
                 }
 
+                var old = Content;
+
                 Content = view;
 
-                InvalidateVisual();
+                if (old is IDisposable d)
+                {
+                    d.Dispose();
+                }
 
-            //}, DispatcherPriority.Input);
+                //InvalidateVisual();
+
+            }, DispatcherPriority.Default);
 
         }
 

@@ -1,4 +1,5 @@
 ﻿using Avalonia;
+using Avalonia.Media;
 using Avalonia.Threading;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;
@@ -12,11 +13,11 @@ public abstract class IconProviderXaml : IconProvider
         _sourceXaml = sourceXaml;
     }
 
-    protected override object? GetIcon() => XamlTools.FromXamlString(_sourceXaml);
+    protected override object? GetIcon(IBrush? foreground) => XamlTools.FromXamlString(_sourceXaml);
 
-    protected override async Task<object?> GetIconAsync() => await XamlTools.FromXamlStringAsync(_sourceXaml).ConfigureAwait(true);
+    protected override async Task<object?> GetIconAsync(IBrush? foreground) => await XamlTools.FromXamlStringAsync(_sourceXaml).ConfigureAwait(true);
 
-    public override async Task<string> GetTemplateAsync() => _sourceXaml;
+    public override async Task<string> GetTemplateAsync(IBrush? foreground) => _sourceXaml;
 
     protected void SetSource(string  source) => _sourceXaml = source;
 }
@@ -31,9 +32,9 @@ public abstract class IconProviderXamlParser : IconProviderXaml
     protected abstract object? ParseIcon();
     protected abstract Task<object?> ParseIconAsync();
         
-    protected override object? GetIcon()
+    protected override object? GetIcon(IBrush? foreground)
     {
-        if (_parsed) return base.GetIcon();
+        if (_parsed) return base.GetIcon(foreground);
 
         if (ParseIcon() is not { } icon) return null;
 
@@ -44,9 +45,9 @@ public abstract class IconProviderXamlParser : IconProviderXaml
         return icon;
     }
 
-    protected override async Task<object?> GetIconAsync()
+    protected override async Task<object?> GetIconAsync(IBrush? foreground)
     {
-        if (_parsed) return await base.GetIconAsync();
+        if (_parsed) return await base.GetIconAsync(foreground);
 
         if (await ParseIconAsync() is not { } icon) return null;
         
@@ -58,13 +59,13 @@ public abstract class IconProviderXamlParser : IconProviderXaml
         return icon;
     }
 
-    public override async Task<string> GetTemplateAsync()
+    public override async Task<string> GetTemplateAsync(IBrush? foreground)
     {
         while (!_parsed)
         {
-            await GetIconAsync();
+            await GetIconAsync(foreground);
         }
-        return await base.GetTemplateAsync();
+        return await base.GetTemplateAsync(foreground);
     }
 
 }

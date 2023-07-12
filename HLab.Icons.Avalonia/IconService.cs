@@ -1,11 +1,15 @@
 ﻿using System.Collections.Concurrent;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
 using Avalonia;
+using Avalonia.Controls;
+using Avalonia.Controls.Presenters;
 using Avalonia.Markup.Xaml;
+using Avalonia.Media;
 using HLab.Base;
 using HLab.Core;
-using HLab.Icons.Annotations.Icons;
+using HLab.Icons.Avalonia.Icons;
 
 namespace HLab.Icons.Avalonia;
 
@@ -20,43 +24,119 @@ public class IconService : Service, IIconService
     readonly ConcurrentDictionary<string, IIconProvider> _cache = new();
 
     readonly AsyncDictionary<string, object> _templates = new();
+    readonly AsyncDictionary<string, string> _source = new();
 
-    public async Task<object> GetIconTemplateAsync(string path)
+    public async Task<object> GetIconTemplateAsync(string path, IBrush? foreground)
     {
         return await _templates.GetOrAddAsync(
-            path, 
-            p => BuildAsync(path)
+            path,
+            p => BuildTemplateAsync(path, foreground)
         );
     }
 
-    async Task<object> BuildAsync(string path, object foreground = null)
+    //public Task<object> GetIconAsync(string path) => GetObjectAsync(path, "ContentControl");
+    public Task<object> GetIconAsync(string path,IBrush? color) => BuildIconAsync(path,color);
+
+    async Task<object> BuildTemplateAsync(string path, IBrush? foreground)
     {
-        var template = await BuildIconTemplateAsync(path);
+        var template = await GetObjectAsync(path, "Template", foreground);
         // await await Application.Current.Dispatcher.InvokeAsync(() => BuildIconTemplateAsync(path));
         return template;
     }
 
-    public async Task<object> BuildIconTemplateAsync(string path)
+    async Task<object> GetObjectAsync(string path, string container, IBrush? foreground)
     {
-        if (path == null) return null;
-        var result = "";
+        var result = await _source.GetOrAddAsync(
+            path,
+            p => BuildIconSourceAsync(path, foreground)
+        );
+
+        result = $"""
+             <{container} 
+                 xmlns="https://github.com/avaloniaui"
+                 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                 xmlns:icons="clr-namespace:HLab.Icons.Avalonia.Icons;assembly=HLab.Icons.Avalonia">
+                 {result}
+             </{container}>
+             """;
+
+        try
+        {
+            var obj = AvaloniaRuntimeXamlLoader.Parse(result);
+            return obj;
+        }
+        catch
+        {
+#if DEBUG
+            var r1 = result;
+#endif
+        }
+
+        return "";
+    }
+
+
+    public async Task<object?> BuildIconAsync(string path, IBrush? foreground)
+    {
+        if (string.IsNullOrEmpty(path)) return string.Empty;
+
         var paths = path.Split('|');
-            
+
+        Control? icon = null;
+
+        foreach (var p in paths.Reverse())
+        {
+            if (icon == null)
+            {
+                icon = (Control)await GetSingleIconAsync(p,foreground);
+                continue;
+            }
+
+            var i = (Control)await GetSingleIconAsync(p, foreground);
+
+            icon.SetValue(Grid.ColumnProperty, 1);
+            icon.SetValue(Grid.RowProperty, 1);
+
+            icon = new Grid
+            {
+                Children =
+                {
+                    i,
+                    new Grid
+                    {
+                        ColumnDefinitions = new ColumnDefinitions{new (GridLength.Star),new (GridLength.Star)},
+                        RowDefinitions = new RowDefinitions{new (GridLength.Star),new (GridLength.Star)},
+                        Children = { icon }
+                    }
+                }
+            };
+        }
+
+        return icon;
+    }
+
+    public async Task<string> BuildIconSourceAsync(string path, IBrush? foreground)
+    {
+        if (string.IsNullOrEmpty(path)) return string.Empty;
+
+        var result = string.Empty;
+        var paths = path.Split('|');
+
         foreach (var p in paths)
         {
-            var icon = await GetSingleIconTemplateAsync(p);
+            var icon = await GetSingleIconTemplateAsync(p, foreground);
             icon ??= "";
 
             // Remove <?xml ?> tag
             var i = icon.IndexOf("?>", StringComparison.Ordinal);
             if (i >= 0)
             {
-                icon = icon[(i+2)..];
+                icon = icon[(i + 2)..];
             }
 
             if (result == "")
             {
-                result = icon; 
+                result = icon;
                 continue;
             }
 
@@ -78,12 +158,6 @@ public class IconService : Service, IIconService
                 </Grid>";
         }
 
-        result = $@"<DataTemplate 
-                xmlns=""https://github.com/avaloniaui""
-                xmlns:x=""http://schemas.microsoft.com/winfx/2006/xaml""
-                xmlns:icons=""clr-namespace:HLab.Icons.Avalonia.Icons;assembly=HLab.Icons.Avalonia"">
-                {result}
-            </DataTemplate>";
 
         // replace black color with binding to foreground
         // TODO : use clever algo to parse xml, cause "Black" might be used inside strings
@@ -97,32 +171,23 @@ public class IconService : Service, IIconService
         result = Regex.Replace(result, "Name *?= *?\".*?\"", "");
         //result = Regex.Replace(result, "<", "");
 
-        try
-        {
-            return AvaloniaRuntimeXamlLoader.Parse(result);
-        }
-        catch
-        {
-            var r1 = result;
-        }
-
-        return "";
+        return result;
     }
 
 
-    object GetSingleIcon(string path)
+    object GetSingleIcon(string path, IBrush? foreground)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
 
         if (_cache.TryGetValue(path.ToLower(), out var iconProvider))
         {
-            var icon = iconProvider.Get();
+            var icon = iconProvider.Get(foreground);
             return icon;
         }
 
         if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
         {
-            var icon = iconProviderDefault.Get();
+            var icon = iconProviderDefault.Get(foreground);
             return icon;
         }
 
@@ -131,19 +196,19 @@ public class IconService : Service, IIconService
         return null;
     }
 
-    async Task<object> GetSingleIconAsync(string path, object foreground = null, Size size = default)
+    async Task<object> GetSingleIconAsync(string path, IBrush? foreground)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
 
         if (_cache.TryGetValue(path.Trim().ToLower(), out var iconProvider))
         {
-            var icon = await iconProvider.GetAsync().ConfigureAwait(true);
+            var icon = await iconProvider.GetAsync(foreground).ConfigureAwait(true);
             return icon;
         }
 
         if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
         {
-            var icon = await iconProviderDefault.GetAsync().ConfigureAwait(true);
+            var icon = await iconProviderDefault.GetAsync(foreground).ConfigureAwait(true);
             return icon;
         }
 
@@ -151,21 +216,22 @@ public class IconService : Service, IIconService
 
         return null;
     }
-    async Task<string> GetSingleIconTemplateAsync(string path)
+
+    async Task<string> GetSingleIconTemplateAsync(string path, IBrush? foreground)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
 
         if (_cache.TryGetValue(path.Trim().ToLower(), out var iconProvider))
         {
-            var icon = await iconProvider.GetTemplateAsync();
+            var icon = await iconProvider.GetTemplateAsync(foreground);
 
-            Regex.Replace(icon, @"<\?.*?\?>" ,"");//    <?xml version="1.0" encoding="UTF-8"?>
+            Regex.Replace(icon, @"<\?.*?\?>", "");//    <?xml version="1.0" encoding="UTF-8"?>
             return icon;
         }
 
         if (_cache.TryGetValue("icons/default", out var iconProviderDefault))
         {
-            var icon = await iconProviderDefault.GetTemplateAsync();
+            var icon = await iconProviderDefault.GetTemplateAsync(foreground);
             return icon;
         }
 

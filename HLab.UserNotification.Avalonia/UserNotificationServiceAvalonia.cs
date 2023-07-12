@@ -1,7 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
-using HLab.Icons.Annotations.Icons;
 using HLab.Icons.Avalonia;
 using HLab.Icons.Avalonia.Icons;
 
@@ -12,7 +11,7 @@ namespace HLab.UserNotification.Avalonia
         // TODO : Toast implementation
         //readonly INotificationManager _manager;
         TrayIcon _trayIcon;
-        IIconService _icons;
+        readonly IIconService _icons;
 
         public UserNotificationServiceAvalonia(IIconService icons)
         {
@@ -40,7 +39,7 @@ namespace HLab.UserNotification.Avalonia
         //    throw new PlatformNotSupportedException();
         //}
 
-        public void AddMenu(int pos, string header, string iconPath, Action action)
+        public void AddMenu(int pos, string header, string iconPath, Func<Task> action)
         {
             var contextMenu = _trayIcon?.Menu;
             if (contextMenu == null) return;
@@ -53,7 +52,7 @@ namespace HLab.UserNotification.Avalonia
             };
 
 
-            item.Click += (o,a) => action();
+            item.Click += async (o,a) => await action();
 
             if (pos < 0 || pos >= contextMenu.Items.Count)
                 contextMenu.Items.Add(item);
@@ -61,7 +60,7 @@ namespace HLab.UserNotification.Avalonia
                 contextMenu.Items.Insert(pos, item);
         }
 
-        IBitmap GetImage(string path, int size)
+        Bitmap GetImage(string path, int size)
         {
             var icon = new IconView {Path = path};// _iconService.GetIcon(path);}
 

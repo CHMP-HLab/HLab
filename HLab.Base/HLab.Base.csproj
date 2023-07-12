@@ -2,7 +2,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net7.0</TargetFrameworks>
+	<TargetFrameworks>net6.0;net7.0</TargetFrameworks>
     <Platforms>x64</Platforms>
     <LangVersion>default</LangVersion>
     <ApplicationIcon />
@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="Nito.AsyncEx.Coordination" Version="5.1.2" />
+    <PackageReference Include="OneOf" Version="3.0.255" />
   </ItemGroup>
 
 </Project>

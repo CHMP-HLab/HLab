@@ -44,7 +44,7 @@ namespace HLab.Localization.Avalonia.Lang
         public static readonly StyledProperty<string> TextProperty =
             H.Property<string>()
                 .BindsTwoWayByDefault
-                .OnChangeBeforeNotification(async e =>
+                .OnChanged(async (e,a) =>
                 {
                     var localize = e.GetValue(Localize.LocalizationServiceProperty);
                     e.TextBoxDisabled.Text = await localize.LocalizeAsync(e.Text).ConfigureAwait(true);
@@ -54,7 +54,7 @@ namespace HLab.Localization.Avalonia.Lang
 
         public static readonly StyledProperty<bool> IsReadOnlyProperty =
             H.Property<bool>()
-                .OnChangeBeforeNotification(e =>
+                .OnChanged((e,a) =>
                 {
                     e.SetReadOnly(e.IsReadOnly);
                 })
@@ -62,7 +62,7 @@ namespace HLab.Localization.Avalonia.Lang
 
         public static readonly StyledProperty<bool> LocalizationOpenedProperty =
             H.Property<bool>()
-                .OnChangeBeforeNotification(e =>
+                .OnChanged((e,a) =>
                 {
                     e.SetLocalizationOpened(e.LocalizationOpened);
                 })

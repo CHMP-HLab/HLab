@@ -1,12 +1,13 @@
 ﻿using HLab.Core.Annotations;
 
 using System;
+using System.Threading.Tasks;
 
 namespace HLab.UserNotification
 {
-    public interface IUserNotificationService
+    public interface IUserNotificationService 
     {
-        void AddMenu(int v1, string v2, string v3, Action showControl);
+        void AddMenu(int v1, string v2, string v3, Func<Task> todo);
         event Action<object, object> Click;
         void SetIcon(string icon, int i);
 
@@ -14,6 +15,8 @@ namespace HLab.UserNotification
         void Show();
     }
 
+
+/* TODO
     public class UserNotificationServiceBootloader : IBootloader
     {
         private readonly IUserNotificationService _userNotificationService;
@@ -28,5 +31,5 @@ namespace HLab.UserNotification
 
         }
     }
-
+*/
 }

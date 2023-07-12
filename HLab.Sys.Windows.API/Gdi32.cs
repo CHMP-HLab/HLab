@@ -26,53 +26,52 @@ using System.Text;
 // ReSharper disable InconsistentNaming
 // ReSharper disable CheckNamespace
 
-namespace HLab.Sys.Windows.API
+namespace HLab.Sys.Windows.API;
+
+//[System.Security.SuppressUnmanagedCodeSecurity]
+public static partial class Gdi32
 {
-    //[System.Security.SuppressUnmanagedCodeSecurity]
-    public static partial class Gdi32
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+    public struct RAMP
     {
-        [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
-        public struct RAMP
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        public ushort[] Red;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        public ushort[] Green;
+        [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
+        public ushort[] Blue;
+    }
+
+
+
+    [DllImport("gdi32.dll")]
+    public static extern int GetDeviceGammaRamp(nint hDC, ref RAMP lpRamp);
+
+    [DllImport("gdi32.dll")]
+    public static extern int SetDeviceGammaRamp(nint hDC, ref RAMP lpRamp);
+
+    [DllImport("gdi32.dll", EntryPoint = "DDCCIGetCapabilitiesStringLength", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool DDCCIGetCapabilitiesStringLength(
+        [In] nint hMonitor, out uint pdwLength);
+
+    [DllImport("gdi32.dll", EntryPoint = "DDCCIGetCapabilitiesString", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    static extern bool DDCCIGetCapabilitiesString(
+        [In] nint hMonitor, StringBuilder pszString, uint dwLength);
+
+    public static string DDCCIGetCapabilitiesString(nint hMonitor)
+    {
+        if (DDCCIGetCapabilitiesStringLength(hMonitor, out var len))
         {
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
-            public ushort[] Red;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
-            public ushort[] Green;
-            [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
-            public ushort[] Blue;
-        }
+            if (len == 0) return null;
 
-
-
-        [DllImport("gdi32.dll")]
-        public static extern int GetDeviceGammaRamp(nint hDC, ref RAMP lpRamp);
-
-        [DllImport("gdi32.dll")]
-        public static extern int SetDeviceGammaRamp(nint hDC, ref RAMP lpRamp);
-
-        [DllImport("gdi32.dll", EntryPoint = "DDCCIGetCapabilitiesStringLength", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool DDCCIGetCapabilitiesStringLength(
-            [In] nint hMonitor, out uint pdwLength);
-
-        [DllImport("gdi32.dll", EntryPoint = "DDCCIGetCapabilitiesString", SetLastError = true)]
-        [return: MarshalAs(UnmanagedType.Bool)]
-        static extern bool DDCCIGetCapabilitiesString(
-            [In] nint hMonitor, StringBuilder pszString, uint dwLength);
-
-        public static string DDCCIGetCapabilitiesString(nint hMonitor)
-        {
-            if (DDCCIGetCapabilitiesStringLength(hMonitor, out var len))
+            var s = new StringBuilder((int)len + 1);
+            if (DDCCIGetCapabilitiesString(hMonitor, s, len))
             {
-                if (len == 0) return null;
-
-                var s = new StringBuilder((int)len + 1);
-                if (DDCCIGetCapabilitiesString(hMonitor, s, len))
-                {
-                    return s.ToString();
-                }
+                return s.ToString();
             }
-            return null;
         }
+        return null;
     }
 }

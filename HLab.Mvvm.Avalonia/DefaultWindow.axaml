@@ -15,9 +15,8 @@
     icons:IconView.IconService="{Binding IconService}"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
 
-	TransparencyLevelHint="Blur"
+	TransparencyLevelHint="AcrylicBlur"
     Background="Transparent"
-    
     >
     <Design.DataContext>
         <avalonia:WindowViewModelDesign />

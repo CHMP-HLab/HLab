@@ -23,6 +23,7 @@
 
 
 using System.Runtime.CompilerServices;
+using HLab.Base.Avalonia;
 using HLab.Mvvm.Annotations;
 using ReactiveUI;
 
@@ -30,7 +31,7 @@ namespace HLab.Mvvm.ReactiveUI
 {
     public interface IModel {}
 
-    public abstract class ViewModel : ReactiveObject
+    public abstract class ViewModel : ReactiveModel
     {
         static int _lastId = 0;
 
@@ -51,9 +52,23 @@ namespace HLab.Mvvm.ReactiveUI
         public T? Model
         {
             get => _model;
-            set => this.RaiseAndSetIfChanged(ref _model,value);
+            set
+            {
+                if (EqualityComparer<T>.Default.Equals(_model, value)) return;
+
+                this.RaisePropertyChanging();
+
+                _model = OnModelChanging(_model,value);
+
+                this.RaisePropertyChanged();
+            }
         }
         T? _model;
+
+        protected virtual T? OnModelChanging(T? oldModel, T? newModel)
+        {
+            return newModel;
+        }
 
         public Type ModelType => typeof(T);
     }

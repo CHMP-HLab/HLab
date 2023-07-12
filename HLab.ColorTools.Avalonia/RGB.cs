@@ -1,4 +1,5 @@
-﻿using System.Runtime.CompilerServices;
+﻿using System.Numerics;
+using System.Runtime.CompilerServices;
 using Avalonia.Media;
 
 namespace HLab.ColorTools.Avalonia
@@ -34,12 +35,12 @@ namespace HLab.ColorTools.Avalonia
                 );
         }
 
-        public static Color ToColor(this int? v)
+        public static Color ToAvaloniaColor(this int? v)
         {
-            return(v ?? 0).ToColor();
+            return(v ?? 0).ToAvaloniaColor();
         }
 
-        public static Color ToColor(this int v)
+        public static Color ToAvaloniaColor(this int v)
         {
             var c = Color.FromArgb(
             
@@ -51,11 +52,29 @@ namespace HLab.ColorTools.Avalonia
             return c;
         }
 
-        public static Color ToColor(this ColorByte c) => Unsafe.As<ColorByte, Color>(ref c);
+        public static Color ToAvaloniaColor(this uint v)
+        {
+            var c = Color.FromArgb(
+            
+                (byte) ((uint)v & 0xFF),
+                (byte) (((uint)v>>8) & 0xFF),
+                (byte) (((uint)v>>16) & 0xFF),
+                (byte) (((uint)v>>24) & 0xFF)
+            );
+            return c;
+        }
 
-        public static ColorByte ToColorByte(this Color c) => Unsafe.As<Color, ColorByte>(ref c);
+        public static Color ToAvaloniaColor(this IColor<byte> c)
+        {
+            var rgb = c.ToRGB();
+            return Unsafe.As<ColorRGB<byte>, Color>(ref rgb);
+        }
 
-        public static Color ToColor(this ColorDouble c) => new ColorByte(c).ToColor();
-        public static ColorDouble ToColorDouble(this Color c) => new(c.ToColorByte());
+        public static ColorRGB<byte> ToColor(this Color c) => Unsafe.As<Color, ColorRGB<byte>>(ref c);
+
+        public static Color ToAvaloniaColor<T>(this IColor<T> c) where T:INumber<T> => c.To<byte>().ToAvaloniaColor();
+        public static ColorRGB<T> ToColor<T>(this Color c) where T:INumber<T>  => c.ToColor().To<T>();
+
+
     }
 }

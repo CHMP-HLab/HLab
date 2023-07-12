@@ -1,0 +1,44 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:controls="clr-namespace:HLab.Base.Avalonia.Controls;assembly=HLab.Base.Avalonia"
+        mc:Ignorable="d" d:DesignWidth="800" d:DesignHeight="450"
+        x:Class="HLab.Base.Avalonia.UITest.MainWindow"
+        Title="HLab.Base.Avalonia.UITest">
+    <Window.Styles>
+            <StyleInclude Source="avares://HLab.Base.Avalonia/Controls/DoubleBox.axaml"></StyleInclude>
+    </Window.Styles>
+
+    <StackPanel>
+    <controls:DoubleBox 
+        Height="20"
+        Width="200"
+        >
+
+<!--
+        Value="1000" 
+        FormatString="0.0" 
+        HorizontalContentAlignment="Right" 
+        ButtonSpinnerLocation="Right" 
+-->
+
+    </controls:DoubleBox>
+
+    <controls:DoubleBox 
+        Height="20"
+        Width="200"
+        >
+
+<!--
+        Value="1000" 
+        FormatString="0.0" 
+        HorizontalContentAlignment="Right" 
+        ButtonSpinnerLocation="Right" 
+-->
+
+    </controls:DoubleBox>
+
+
+    </StackPanel>
+</Window>

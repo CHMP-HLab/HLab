@@ -25,25 +25,24 @@ using System;
 using System.Runtime.InteropServices;
 using System.Text;
 
-namespace HLab.Sys.Windows.API
+namespace HLab.Sys.Windows.API;
+
+//[System.Security.SuppressUnmanagedCodeSecurity]
+public static partial class WinBase
 {
-    //[System.Security.SuppressUnmanagedCodeSecurity]
-    public static partial class WinBase
+    public const uint ErrorNoMoreItems = 259;
+
+    [Flags]
+    public enum FormatMessageFlags : uint
     {
-        public const uint ErrorNoMoreItems = 259;
-
-        [Flags]
-        public enum FormatMessageFlags : uint
-        {
-            AllocateBuffer = 0x00000100,
-            IgnoreInserts = 0x00000200,
-            FromSystem = 0x00001000,
-            ArgumentArray = 0x00002000,
-            FromHModule = 0x00000800,
-            FromString = 0x00000400
-        }
-    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
-        public static extern int FormatMessage(FormatMessageFlags dwFlags, nint lpSource, int dwMessageId, uint dwLanguageId, out StringBuilder msgOut, int nSize, nint Arguments);
-
+        AllocateBuffer = 0x00000100,
+        IgnoreInserts = 0x00000200,
+        FromSystem = 0x00001000,
+        ArgumentArray = 0x00002000,
+        FromHModule = 0x00000800,
+        FromString = 0x00000400
     }
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode)]
+    public static extern int FormatMessage(FormatMessageFlags dwFlags, nint lpSource, int dwMessageId, uint dwLanguageId, out StringBuilder msgOut, int nSize, nint Arguments);
+
 }

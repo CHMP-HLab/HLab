@@ -15,7 +15,7 @@
             if (contains) Requeue();
             return contains;
         }
-        bool WaitService(IService service)
+        bool WaitingForService(IService service)
         {
             if (service.ServiceState != ServiceState.NotConfigured) return false;
 

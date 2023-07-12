@@ -30,7 +30,7 @@
             x:Name="DataGrid"
             Grid.Row="2" 
             Grid.Column="0" 
-            Items="{Binding Translations, RelativeSource={RelativeSource AncestorType={x:Type local:LocalizedTextBox}}}"
+            ItemsSource="{Binding Translations, RelativeSource={RelativeSource AncestorType={x:Type local:LocalizedTextBox}}}"
             IsVisible="False"
         />
 

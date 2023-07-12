@@ -8,13 +8,15 @@ using static HLab.Sys.Windows.API.WinUser;
 
 namespace HLab.Sys.Windows.API;
 
-public class Window : IEquatable<Window>
+public class ApiWindow : IEquatable<ApiWindow>
 {
     readonly nint _hWnd;
-    public Window(nint hWnd)
+    public ApiWindow(nint hWnd)
     {
         _hWnd = hWnd;
     }
+
+    public nint Handle => _hWnd;
 
     public WindowPlacement GetPlacement()
     {
@@ -57,14 +59,14 @@ public class Window : IEquatable<Window>
 
     public bool IsVisible => IsWindowVisible(_hWnd);
 
-    public static void EnumDesktopWindows(Func<Window,bool> callBackAction, nint hDesktop = 0)
+    public static void EnumDesktopWindows(Func<ApiWindow,bool> callBackAction, nint hDesktop = 0)
     {
-        bool EnumerateHandle(nint window, nint lParam) => callBackAction(new Window(window));
+        bool EnumerateHandle(nint window, nint lParam) => callBackAction(new ApiWindow(window));
 
         WinUser.EnumDesktopWindows(hDesktop, EnumerateHandle, 0);
     }
 
-    public bool Equals(Window other)
+    public bool Equals(ApiWindow other)
     {
         if (other is null) return false;
         return ReferenceEquals(this, other) || _hWnd.Equals(other._hWnd);
@@ -74,7 +76,7 @@ public class Window : IEquatable<Window>
     {
         if (obj is null) return false;
         if (ReferenceEquals(this, obj)) return true;
-        return obj.GetType() == GetType() && Equals((Window)obj);
+        return obj.GetType() == GetType() && Equals((ApiWindow)obj);
     }
 
     public override int GetHashCode()

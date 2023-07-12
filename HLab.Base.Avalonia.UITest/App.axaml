@@ -1,0 +1,14 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Class="HLab.Base.Avalonia.UITest.App">
+
+    <!--
+	TODO : Avalonia
+	Mode="Dark"
+	-->
+    <Application.Styles>
+        <StyleInclude Source="avares://HLab.Base.Avalonia/Controls/DoubleBox.axaml" />
+        <FluentTheme />
+    </Application.Styles>
+
+</Application>

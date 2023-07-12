@@ -1,0 +1,61 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:HLab.Base.Avalonia.Controls">
+  <Design.PreviewWith>
+    <controls:DoubleBox />
+  </Design.PreviewWith>
+
+  <Style Selector="controls|DoubleBox">
+
+      <Setter Property="Background" Value="{DynamicResource ThemeBackgroundBrush}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource ThemeBorderMidBrush}" />
+      <Setter Property="BorderThickness" Value="{DynamicResource ThemeBorderThickness}" />
+      <Setter Property="Padding" Value="4" />
+
+    <Setter Property="Template">
+      <ControlTemplate>
+
+          <!--
+		  AllowSpin="{TemplateBinding AllowSpin}"
+          ShowButtonSpinner="{TemplateBinding ShowButtonSpinner}">
+          ButtonSpinnerLocation="{TemplateBinding ButtonSpinnerLocation}"
+		  -->
+
+          <!--<controls:ButtonSpinnerWithModifiers
+              Theme ="{DynamicResource {x:Type ButtonSpinner}}"
+              Name="PART_Spinner"
+              HorizontalContentAlignment="Stretch"
+              VerticalContentAlignment="Stretch"
+              Background="{TemplateBinding Background}"
+              BorderBrush="{TemplateBinding BorderBrush}"
+              BorderThickness="{TemplateBinding BorderThickness}"
+              CornerRadius="{TemplateBinding CornerRadius}"
+              IsTabStop="False"
+              >-->
+
+<!--
+                  VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                  IsReadOnly="{TemplateBinding IsReadOnly}"
+                  Watermark="{TemplateBinding Watermark}" 
+
+-->
+
+              <TextBox
+                  Name="PART_TextBox"
+                  MinWidth="20"
+                  Margin="4"
+                  Padding="{TemplateBinding Padding}"
+                  AcceptsReturn="False"
+                  Background="{TemplateBinding Background}"
+                  BorderThickness="0"
+                  DataValidationErrors.Errors="{TemplateBinding (DataValidationErrors.Errors)}"
+                  TextWrapping="NoWrap"
+                  HorizontalContentAlignment="Right"
+                  FontSize="{TemplateBinding FontSize}"
+                  />
+
+          <!--</controls:ButtonSpinnerWithModifiers>-->
+      </ControlTemplate>
+    </Setter>
+  </Style>
+</Styles>

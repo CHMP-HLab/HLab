@@ -32,11 +32,11 @@ namespace HLab.Base.Avalonia
         IDependencyPropertyConfigurator<TClass, TValue> BindsTwoWayByDefault { get; }
         IDependencyPropertyConfigurator<TClass, TValue> Default(TValue value);
 
-        IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)
-            where TSender : AvaloniaObject;
+        //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)
+        //    where TSender : AvaloniaObject;
         
-        IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChangeBeforeNotification(Action<TClass> action);
-        IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChangeAfterNotification(Action<TClass> action);
+        //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChangeBeforeNotification(Action<TClass> action);
+        //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChangeAfterNotification(Action<TClass> action);
         IDependencyPropertyConfigurator<TClass, TValue> OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action);
 
         IDependencyPropertyConfiguratorDirect<TClass, TValue> Getter(Func<TClass, TValue> getter);
@@ -55,11 +55,11 @@ namespace HLab.Base.Avalonia
         IDependencyPropertyConfiguratorNotDirect<TClass, TValue> BindsTwoWayByDefault { get; }
         IDependencyPropertyConfiguratorNotDirect<TClass, TValue> Default(TValue value);
 
-        IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)
-            where TSender : AvaloniaObject;
+        //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)
+        //    where TSender : AvaloniaObject;
         
-        IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChangeBeforeNotification(Action<TClass> action);
-        IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChangeAfterNotification(Action<TClass> action);
+        //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChangeBeforeNotification(Action<TClass> action);
+        //IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChangeAfterNotification(Action<TClass> action);
 
         IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action);
 
@@ -82,12 +82,12 @@ namespace HLab.Base.Avalonia
         IDependencyPropertyConfiguratorAttached<TClass, TValue> BindsTwoWayByDefault { get; }
         IDependencyPropertyConfiguratorAttached<TClass, TValue> Default(TValue value);
 
-        IDependencyPropertyConfiguratorAttached<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)            
-            where TSender : AvaloniaObject;
+        //IDependencyPropertyConfiguratorAttached<TClass, TValue> OnChange<TSender>(Action<TSender, bool> action)            
+        //    where TSender : AvaloniaObject;
         
         IDependencyPropertyConfiguratorAttached<TClass, TValue> OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action);
-        IDependencyPropertyConfiguratorAttached<TClass, TValue> OnChangeBeforeNotification(Action<TClass> action);
-        IDependencyPropertyConfiguratorAttached<TClass, TValue> OnChangeAfterNotification(Action<TClass> action);
+        //IDependencyPropertyConfiguratorAttached<TClass, TValue> OnChangeBeforeNotification(Action<TClass> action);
+        //IDependencyPropertyConfiguratorAttached<TClass, TValue> OnChangeAfterNotification(Action<TClass> action);
     }
 
     public class DependencyPropertyConfigurator<TClass,TValue> : 
@@ -102,7 +102,7 @@ namespace HLab.Base.Avalonia
         BindingMode _bindingMode;
         Func<TValue, bool>? _validate;
         Func<AvaloniaObject, TValue, TValue>? _coerce;
-        Action<AvaloniaObject, bool>? _notifying;
+        //Action<AvaloniaObject, bool>? _notifying;
         bool _inherits = false;
         Func<TClass, TValue> _getter;
         Action<TClass, TValue>? _setter;
@@ -127,17 +127,29 @@ namespace HLab.Base.Avalonia
         /// <returns></returns>
         StyledProperty<TValue> IDependencyPropertyConfigurator<TClass, TValue>.Register()
         {
-            var property = AvaloniaProperty.Register<TClass, TValue>(
-                _name, 
-                _defaultValue, 
-                _inherits, 
-                _bindingMode, 
-                _validate, 
-                _coerce is not null?(a,b) => _coerce((AvaloniaObject)a, b):null,
-                _notifying is not null?(a,b) => _notifying((AvaloniaObject)a, b):null
-                //_propertyMetadata,
-                //_validateValueCallback
-            );
+            var property = //_notifying is null ? 
+                AvaloniaProperty.Register<TClass, TValue>(
+                    _name, 
+                    _defaultValue, 
+                    _inherits, 
+                    _bindingMode, 
+                    _validate, 
+                    _coerce is not null?(a,b) => _coerce((AvaloniaObject)a, b):null,
+                    _enableDataValidation
+                   )
+                //    :
+                //AvaloniaProperty.Register<TClass, TValue>(
+                //    _name, 
+                //    _defaultValue, 
+                //    _inherits, 
+                //    _bindingMode, 
+                //    _validate, 
+                //    _coerce is not null?(a,b) => _coerce((AvaloniaObject)a, b):null,
+                //    _enableDataValidation
+                //    //(a,b) => _notifying((AvaloniaObject)a, b)
+                //    )
+                    
+                    ;
 
             _postAction?.Invoke( property );
 
@@ -152,8 +164,8 @@ namespace HLab.Base.Avalonia
                 _inherits,
                 _bindingMode,
                 _validate,
-                _coerce is not null?(a,b) => _coerce((AvaloniaObject)a, b):null/**/,
-                _notifying is not null?(a,b) => _notifying((AvaloniaObject)a, b):null/**/
+                _coerce is not null?(a,b) => _coerce((AvaloniaObject)a, b):null/*,*/
+                /*_notifying is not null?(a,b) => _notifying((AvaloniaObject)a, b):null*/
             );
 
             _postAction?.Invoke( property );
@@ -238,6 +250,8 @@ namespace HLab.Base.Avalonia
         IDependencyPropertyConfiguratorDirect<TClass, TValue> IDependencyPropertyConfiguratorDirect<TClass, TValue>.BindsTwoWayByDefault => Do(() => _bindingMode = BindingMode.TwoWay);
 
 
+        /*
+
         IDependencyPropertyConfiguratorNotDirect<TClass, TValue> IDependencyPropertyConfigurator<TClass, TValue>.OnChange<TSender>(Action<TSender, bool> action)
             => Do(() => OnChange(action));
         IDependencyPropertyConfiguratorNotDirect<TClass, TValue> IDependencyPropertyConfiguratorNotDirect<TClass, TValue>.OnChange<TSender>(Action<TSender, bool> action)
@@ -268,7 +282,7 @@ namespace HLab.Base.Avalonia
         /// <returns></returns>
         public IDependencyPropertyConfiguratorNotDirect<TClass, TValue> OnChange(Action<TClass,bool> action)
             => Do(()=>OnChange<TClass>(action));
-
+        */
 
         IDependencyPropertyConfigurator<TClass, TValue> IDependencyPropertyConfigurator<TClass, TValue>.OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action)
             => Do(() => _OnChanged(action));
@@ -314,25 +328,25 @@ namespace HLab.Base.Avalonia
             };
         }
 
-        void OnChange<TSender>(Action<TSender, bool> action) where TSender : AvaloniaObject
-        {
-            _notifying += (s, b) => action((TSender)s, b);
-        }
+        //void OnChange<TSender>(Action<TSender, bool> action) where TSender : AvaloniaObject
+        //{
+        //    _notifying += (s, b) => action((TSender)s, b);
+        //}
 
-        void OnChangeBeforeNotification(Action<TClass> action)
-        {
-            _notifying += (s,before) =>
-            {
-                if(before && s is TClass cls) action(cls);
-            };
-        }
-        void OnChangeAfterNotification(Action<TClass> action)
-        {
-            _notifying += (s,before) =>
-            {
-                if(!before && s is TClass cls) action(cls);
-            };
-        }
+        //void OnChangeBeforeNotification(Action<TClass> action)
+        //{
+        //    _notifying += (s,before) =>
+        //    {
+        //        if(before && s is TClass cls) action(cls);
+        //    };
+        //}
+        //void OnChangeAfterNotification(Action<TClass> action)
+        //{
+        //    _notifying += (s,before) =>
+        //    {
+        //        if(!before && s is TClass cls) action(cls);
+        //    };
+        //}
 
         /// <summary>
         ///     Represents a method used as a callback that validates the effective value of

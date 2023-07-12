@@ -1,4 +1,4 @@
-﻿using HLab.Icons.Annotations.Icons;
+﻿using HLab.Icons.Avalonia.Icons;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Avalonia;
