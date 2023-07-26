@@ -1,8 +1,7 @@
 ﻿using HLab.Mvvm.Annotations;
 
-namespace HLab.Erp.Acl.Annotations
+namespace HLab.Erp.Acl.Annotations;
+
+public class ViewModeKiosk : ViewMode
 {
-    public class ViewModeKiosk : ViewMode
-    {
-    }
 }

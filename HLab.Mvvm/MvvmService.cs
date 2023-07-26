@@ -175,7 +175,7 @@ namespace HLab.Mvvm
             {
                 if (!viewClass.IsInterface) throw new ArgumentOutOfRangeException("viewClass must be interface " + viewClass.Name);
 
-                // IViewModelDesign are to be used at design time only
+                // IDesignViewModel are to be used at design time only
                 if (typeof(IDesignViewModel).IsAssignableFrom(linkedType)) return;
 
                 Debug.WriteLine(type?.Name + "->" + linkedType.Name + ":" + viewClass.Name + "#" + viewMode.Name);

@@ -1,9 +1,8 @@
 ﻿using System.Windows.Input;
 
-namespace HLab.Erp.Core
+namespace HLab.Erp.Core;
+
+public interface IMenuService
 {
-    public interface IMenuService
-    {
-        bool RegisterMenu(string path, object header, ICommand cmd, string getIcon);
-    }
+    bool RegisterMenu(string path, object header, ICommand cmd, string getIcon);
 }

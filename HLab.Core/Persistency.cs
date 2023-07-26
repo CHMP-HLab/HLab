@@ -1,15 +1,15 @@
 ﻿/*
-  HLab.Mvvm
+  HLab.Notify.4
   Copyright (c) 2021 Mathieu GRENET.  All right reserved.
 
-  This file is part of HLab.Mvvm.
+  This file is part of HLab.Notify.4.
 
-    HLab.Mvvm is free software: you can redistribute it and/or modify
+    HLab.Notify.4 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    HLab.Mvvm is distributed in the hope that it will be useful,
+    HLab.Notify.4 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
@@ -21,21 +21,12 @@
 	  http://www.mgth.fr
 */
 
-using System;
-
-
-////using System.Data.Model;
-
-namespace HLab.Mvvm.Annotations;
-
-public class ProgressEventArgs : EventArgs
+namespace HLab.Core.ReactiveUI
 {
-    public ProgressEventArgs(double progress, string progressText)
+    public enum Persistency
     {
-        Progress = progress;
-        ProgressText = progressText;
+        None,
+        OnChange,
+        OnSave
     }
-
-    public double Progress { get; }
-    public string ProgressText { get; }
 }

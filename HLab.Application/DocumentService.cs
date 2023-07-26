@@ -3,47 +3,46 @@ using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm.Application
+namespace HLab.Mvvm.Application;
+
+public interface IDocumentPresenter
 {
-    public interface IDocumentPresenter
+    ObservableCollection<object> Documents { get; }
+    ObservableCollection<object> Anchorables { get; }
+    object ActiveDocument { get; set; }
+    bool RemoveDocument(object document);
+}
+
+public abstract class DocumentService : IDocumentService
+{
+    readonly IMvvmService _mvvm;
+    readonly Func<Type, object> _getter;
+
+    protected DocumentService(IMvvmService mvvm, Func<Type, object> getter)
     {
-        ObservableCollection<object> Documents { get; }
-        ObservableCollection<object> Anchorables { get; }
-        object ActiveDocument { get; set; }
-        bool RemoveDocument(object document);
+        _mvvm = mvvm;
+        _getter = getter;
     }
 
-    public abstract class DocumentService : IDocumentService
-    {
-        readonly IMvvmService _mvvm;
-        readonly Func<Type, object> _getter;
+    public abstract Task OpenDocumentAsync(IView content, IDocumentPresenter presenter);
 
-        protected DocumentService(IMvvmService mvvm, Func<Type, object> getter)
+    public abstract Task CloseDocumentAsync(object content, IDocumentPresenter presenter);
+
+    public IDocumentPresenter MainPresenter {get;set;}
+
+    public async Task OpenDocumentAsync(object obj, IDocumentPresenter presenter)
+    {
+        if (obj is Type t)
         {
-            _mvvm = mvvm;
-            _getter = getter;
+            obj = _getter(t);
         }
 
-        public abstract Task OpenDocumentAsync(IView content, IDocumentPresenter presenter);
-
-        public abstract Task CloseDocumentAsync(object content, IDocumentPresenter presenter);
-
-        public IDocumentPresenter MainPresenter {get;set;}
-
-        public async Task OpenDocumentAsync(object obj, IDocumentPresenter presenter)
+        if (obj is IView view)
+            await OpenDocumentAsync(view, presenter);
+        else
         {
-            if (obj is Type t)
-            {
-                obj = _getter(t);
-            }
-
-            if (obj is IView view)
-                await OpenDocumentAsync(view, presenter);
-            else
-            {
-                var doc = await _mvvm.MainContext.GetViewAsync(obj, typeof(ViewModeDefault), typeof(IViewClassDocument));
-                await OpenDocumentAsync(doc, presenter);
-            }
+            var doc = await _mvvm.MainContext.GetViewAsync(obj, typeof(DefaultViewMode), typeof(IViewClassDocument));
+            await OpenDocumentAsync(doc, presenter);
         }
     }
 }

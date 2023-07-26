@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-        <TargetFrameworks>net7.0</TargetFrameworks>
-    <Platforms>x64</Platforms>
+    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+    <Platforms>AnyCPU;x64</Platforms>
+    <Version>2.1.0.0</Version>
     <Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
-    <LangVersion>default</LangVersion>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

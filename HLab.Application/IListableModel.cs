@@ -1,8 +1,7 @@
-﻿namespace HLab.Mvvm.Application
+﻿namespace HLab.Mvvm.Application;
+
+public interface IListableModel
 {
-    public interface IListableModel
-    {
-        string Caption => $"{{{GetType()}}}";
-        string IconPath => $"icons/entities/{GetType().Name}";
-    }
+    string Caption => $"{{{GetType()}}}";
+    string IconPath => $"icons/entities/{GetType().Name}";
 }

@@ -1,8 +1,7 @@
 ﻿using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm.Application
+namespace HLab.Mvvm.Application;
+
+public interface IViewClassDocument : IContentViewClass, IViewClass
 {
-    public interface IViewClassDocument : IViewClassContent, IViewClass
-    {
-    }
 }

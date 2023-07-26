@@ -1,4 +1,5 @@
-﻿using System;
+﻿using HLab.Core.Annotations;
+using System;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
@@ -6,16 +7,6 @@ using System.Threading.Tasks;
 namespace HLab.Notify.Annotations
 {
 
-    public interface IGuiTimer
-    {
-        void Start();
-        void Stop();
-        void DoTick();
-        TimeSpan Interval { get; set; }
-        bool IsEnabled { get; set; }
-
-        event EventHandler Tick;
-    }
 
 
     public interface IEventHandlerService

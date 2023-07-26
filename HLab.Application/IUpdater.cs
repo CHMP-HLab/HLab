@@ -1,10 +1,9 @@
-﻿namespace HLab.Erp.Core
+﻿namespace HLab.Erp.Core;
+
+public interface IUpdater
 {
-    public interface IUpdater
-    {
-        void Update();
-        void CheckVersion();
-        bool NewVersionFound { get; }
-        bool Updated { get; }
-    }
+    void Update();
+    void CheckVersion();
+    bool NewVersionFound { get; }
+    bool Updated { get; }
 }
