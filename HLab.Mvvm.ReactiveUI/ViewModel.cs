@@ -38,7 +38,6 @@ namespace HLab.Mvvm.ReactiveUI
         readonly Lazy<int> _id = new(() => Interlocked.Increment(ref _lastId));
 
         public int Id => _id.Value;
-
     }
 
     public abstract class ViewModel<T> : ViewModel, IViewModel<T> where T : class

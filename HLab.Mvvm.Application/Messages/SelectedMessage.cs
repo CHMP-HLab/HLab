@@ -1,11 +1,6 @@
 ﻿using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm.Application;
-
-public interface ISelectedMessage
-{ }
-
-
+namespace HLab.Mvvm.Application.Messages;
 
 public class SelectedMessage : ISelectedMessage
 {
@@ -22,7 +17,6 @@ public class SelectedMessage : ISelectedMessage
         if (item is IViewModel vm)
             ViewModel = vm;
     }
-
 
     public IView View
     {
@@ -43,11 +37,10 @@ public class SelectedMessage : ISelectedMessage
         set
         {
             _viewModel = value;
-            if(_viewModel.ModelType != null)
+            if (_viewModel.ModelType != null)
                 Entity = value.Model;
         }
-        
     }
 
-    public object Entity {get; set; }
+    public object Entity { get; set; }
 }

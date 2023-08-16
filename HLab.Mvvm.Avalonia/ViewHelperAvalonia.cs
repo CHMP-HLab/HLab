@@ -13,7 +13,7 @@ namespace HLab.Mvvm.Avalonia
         public StyledElement View { get; }
         public IMvvmContext? Context
         {
-            get => (IMvvmContext)View.GetValue(ViewLocator.MvvmContextProperty)!;
+            get => View.GetValue(ViewLocator.MvvmContextProperty)!;
             set => View.SetValue(ViewLocator.MvvmContextProperty, value);
         }
 

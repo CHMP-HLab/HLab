@@ -91,7 +91,8 @@ namespace HLab.Mvvm
         {
             _platform.Register(this);
 
-            var assemblies = AssemblyHelper.GetReferencingAssemblies(_assemblyName).ToList();
+            //var assemblies = AssemblyHelper.GetReferencingAssemblies(_assemblyName).ToList();
+            var assemblies = AssemblyHelper.GetAssemblies().ToList();
             _perAssemblyProgress = 1.0 / assemblies.Count;
             foreach (var assembly in assemblies)
             {

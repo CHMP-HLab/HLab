@@ -4,7 +4,7 @@
         <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <Platforms>AnyCPU;x64</Platforms>
     <Configurations>Debug;Release;DebugRelease</Configurations>
-    <LangVersion>default</LangVersion>
+    <LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>

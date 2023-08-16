@@ -51,18 +51,16 @@ public class Persister : ReactiveObject
 
     protected virtual Persistency CheckPersistency(PropertyInfo property)
     {
-        foreach (var attr in property.GetCustomAttributes().OfType<PersistentAttribute>())
-        {
-            return attr.Persistency;
-        }
-
-        return Persistency.None;
+        return property
+            .GetCustomAttributes()
+            .OfType<PersistentAttribute>()
+            .Select(attr => attr.Persistency)
+            .FirstOrDefault();
     }
 
     void Obj_PropertyChanged(object sender, PropertyChangedEventArgs e)
     {
-        if (e.PropertyName.Contains("Country"))
-        { }
+        if (e.PropertyName == null) throw new ArgumentNullException(nameof(e.PropertyName));
 
         var property = Target.GetType().GetProperty(e.PropertyName);
         if (property == null) return;
@@ -77,6 +75,7 @@ public class Persister : ReactiveObject
                 Dirty.Add(property);
                 IsDirty = true;
                 break;
+            case Persistency.None:
             default:
                 break;
         }

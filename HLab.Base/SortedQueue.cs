@@ -1,4 +1,5 @@
-﻿using OneOf;
+﻿#nullable enable
+using OneOf;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -8,22 +9,17 @@ using System.Threading.Tasks;
 
 namespace HLab.Base
 {
-    public class SortedQueue<T>
+    public class SortedQueue<T>(Func<T, T, int> comparator)
     {
         class Node        
         {
-            public Node Next;
-            public T Value;
+            public Node? Next;
+            public T? Value;
         }
 
         Node? _head = null;
 
-        public Func<T,T,int> Comparator { get; }
-
-        public SortedQueue(Func<T, T, int> comparator)
-        {
-            Comparator = comparator;
-        }
+        public Func<T, T, int> Comparator { get; } = comparator;
 
         public void Enqueue(T item)
         {
@@ -35,7 +31,7 @@ namespace HLab.Base
             node = new Node { Value = item, Next = node };
         }
 
-        public bool TryDequeue(out T item)
+        public bool TryDequeue(out T? item)
         {
             var node = _head;
             if (node == null) {

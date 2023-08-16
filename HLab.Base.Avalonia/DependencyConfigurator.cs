@@ -73,6 +73,7 @@ namespace HLab.Base.Avalonia
         IDependencyPropertyConfiguratorDirect<TClass, TValue> Default(TValue value);
         IDependencyPropertyConfiguratorDirect<TClass, TValue> Getter(Func<TClass, TValue> getter);
         IDependencyPropertyConfiguratorDirect<TClass, TValue> Setter(Action<TClass, TValue> setter);
+        IDependencyPropertyConfiguratorDirect<TClass, TValue> OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action);
     }
 
     public interface IDependencyPropertyConfiguratorAttached<TClass, TValue>
@@ -98,17 +99,16 @@ namespace HLab.Base.Avalonia
         where TClass : AvaloniaObject
     {
         readonly string _name;
-        TValue _defaultValue;
+        TValue? _defaultValue;
         BindingMode _bindingMode;
         Func<TValue, bool>? _validate;
         Func<AvaloniaObject, TValue, TValue>? _coerce;
-        //Action<AvaloniaObject, bool>? _notifying;
         bool _inherits = false;
-        Func<TClass, TValue> _getter;
+        Func<TClass, TValue>? _getter;
         Action<TClass, TValue>? _setter;
         bool _enableDataValidation = false;
 
-        Action<StyledProperty<TValue>> _postAction;
+        Action<AvaloniaProperty<TValue>> _postAction;
 
 
         //readonly FrameworkPropertyMetadata _propertyMetadata = new();
@@ -127,29 +127,17 @@ namespace HLab.Base.Avalonia
         /// <returns></returns>
         StyledProperty<TValue> IDependencyPropertyConfigurator<TClass, TValue>.Register()
         {
-            var property = //_notifying is null ? 
+            #pragma warning disable AVP1001 // The same AvaloniaProperty should not be registered twice
+            var property = 
                 AvaloniaProperty.Register<TClass, TValue>(
                     _name, 
                     _defaultValue, 
                     _inherits, 
                     _bindingMode, 
-                    _validate, 
-                    _coerce is not null?(a,b) => _coerce((AvaloniaObject)a, b):null,
+                    _validate,
+                    _coerce,
                     _enableDataValidation
-                   )
-                //    :
-                //AvaloniaProperty.Register<TClass, TValue>(
-                //    _name, 
-                //    _defaultValue, 
-                //    _inherits, 
-                //    _bindingMode, 
-                //    _validate, 
-                //    _coerce is not null?(a,b) => _coerce((AvaloniaObject)a, b):null,
-                //    _enableDataValidation
-                //    //(a,b) => _notifying((AvaloniaObject)a, b)
-                //    )
-                    
-                    ;
+                   );
 
             _postAction?.Invoke( property );
 
@@ -164,8 +152,7 @@ namespace HLab.Base.Avalonia
                 _inherits,
                 _bindingMode,
                 _validate,
-                _coerce is not null?(a,b) => _coerce((AvaloniaObject)a, b):null/*,*/
-                /*_notifying is not null?(a,b) => _notifying((AvaloniaObject)a, b):null*/
+                _coerce
             );
 
             _postAction?.Invoke( property );
@@ -187,7 +174,7 @@ namespace HLab.Base.Avalonia
                 _inherits,
                 _bindingMode,
                 _validate,
-                _coerce is null ? null : (a, b) => _coerce((AvaloniaObject)a, b)/**/
+                _coerce
             );
 
             _postAction?.Invoke( property );
@@ -206,7 +193,7 @@ namespace HLab.Base.Avalonia
                 _enableDataValidation
             );
 
-            // TODO : _postAction?.Invoke( property );
+            _postAction?.Invoke( property );
 
             return property;
         }
@@ -289,43 +276,15 @@ namespace HLab.Base.Avalonia
 
         IDependencyPropertyConfiguratorNotDirect<TClass, TValue> IDependencyPropertyConfiguratorNotDirect<TClass, TValue>.OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action)
             => Do(()=>_OnChanged(action));
+        IDependencyPropertyConfiguratorDirect<TClass, TValue> IDependencyPropertyConfiguratorDirect<TClass, TValue>.OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action)
+            => Do(()=>_OnChanged(action));
 
         IDependencyPropertyConfiguratorAttached<TClass, TValue> IDependencyPropertyConfiguratorAttached<TClass, TValue>.OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action)
             => Do(()=>_OnChanged(action));
 
-
-
-
-
         void _OnChanged(Action<TClass, AvaloniaPropertyChangedEventArgs<TValue>> action)
         {
-            _postAction = p =>
-            {
-                p
-                    .Changed.AddClassHandler<TClass>(
-                        (s, a) =>
-                        {
-                            if (a is AvaloniaPropertyChangedEventArgs<TValue> at)
-                                action(s, at);
-                            else
-                            {
-                                var oldValue = (a.OldValue is TValue old)
-                                    ? new Optional<TValue>(old)
-                                    : Optional<TValue>.Empty;
-                                var newValue = (a.NewValue is TValue value)
-                                    ? new Optional<TValue>(value)
-                                    : Optional<TValue>.Empty;
-
-                                action(s, new AvaloniaPropertyChangedEventArgs<TValue>(
-                                    a.Sender,
-                                    a.Property as StyledProperty<TValue>,
-                                    oldValue,
-                                    newValue,
-                                    a.Priority)
-                                );
-                            }
-                        });
-            };
+            _postAction = p => p.Changed.AddClassHandler(action);
         }
 
         //void OnChange<TSender>(Action<TSender, bool> action) where TSender : AvaloniaObject
@@ -357,7 +316,17 @@ namespace HLab.Base.Avalonia
         public DependencyPropertyConfigurator<TClass,TValue> Validate(Func<TValue,bool> func)
         {
             _validate = func;
+            return this;
+        }
 
+        /// <summary>
+        /// A value coercion callback.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public DependencyPropertyConfigurator<TClass,TValue> Coerce(Func<AvaloniaObject,TValue,TValue> func)
+        {
+            _coerce = func;
             return this;
         }
 

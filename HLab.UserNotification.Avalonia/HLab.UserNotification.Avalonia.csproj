@@ -8,12 +8,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="MessageBox.Avalonia" Version="3.0.1-rc2" />
+    <PackageReference Include="MessageBox.Avalonia" Version="3.1.4" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\HLab.Icons.Avalonia\HLab.Icons.Avalonia.csproj" />
-    <ProjectReference Include="..\HLab.Notification\HLab.UserNotification.csproj" />
+    <ProjectReference Include="..\HLab.UserNotification\HLab.UserNotification.csproj" />
   </ItemGroup>
 
 </Project>

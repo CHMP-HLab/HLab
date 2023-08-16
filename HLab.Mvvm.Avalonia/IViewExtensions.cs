@@ -1,11 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Avalonia;
 
-public static class ViewWpfExtensions
+public static class ViewAvaloniaExtensions
 {
     public static Window AsWindow<T>(this T view) where T : IView
     {

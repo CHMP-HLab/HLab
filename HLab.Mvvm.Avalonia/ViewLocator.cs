@@ -39,10 +39,10 @@ namespace HLab.Mvvm.Avalonia
     /// Logique d'interaction pour EntityViewLocator.xaml
     /// </summary>
     ///
-    public class ViewLocator : ContentControl, IStyleable
+    public class ViewLocator : ContentControl // TODO :, IStyleable
     {
         bool _loaded = false;
-        Type IStyleable.StyleKey => typeof(ContentControl);
+        // TODO : Type IStyleable.StyleKey => typeof(ContentControl);
 
         public static readonly StyledProperty<Type> ViewModeProperty =
             H.Property<Type>()

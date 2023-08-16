@@ -10,11 +10,15 @@ namespace HLab.Base
     {
         public static IEnumerable<Assembly> GetReferencingAssemblies(params Assembly[] referenced)
         {
-            return AppDomain.CurrentDomain.GetAssemblies().Where(a => a.References(referenced));
+            return GetAssemblies().Where(a => a.References(referenced));
         }
         public static IEnumerable<Assembly> GetReferencingAssemblies(string name)
         {
-            return AppDomain.CurrentDomain.GetAssemblies().Where(a => a.References(name));
+            return GetAssemblies().Where(a => a.References(name));
+        }
+        public static IEnumerable<Assembly> GetAssemblies()
+        {
+            return AppDomain.CurrentDomain.GetAssemblies();
         }
 
         public static IEnumerable<Assembly> GetReferencingAssemblies(Type type)
@@ -37,25 +41,17 @@ namespace HLab.Base
         }
 
 
-        static ConcurrentDictionary<Assembly, Type[]> _cache = new ConcurrentDictionary<Assembly, Type[]>();
+        static readonly ConcurrentDictionary<Assembly, Type[]> _cache = new();
         public static Type[] GetTypesSafe(this Assembly assembly)
         {
-
-
             try
             {
-                if(_cache.TryGetValue(assembly,out var t))
-                    return t;
-
-                return assembly.GetTypes();
+                return _cache.TryGetValue(assembly,out var t) ? t : assembly.GetTypes();
             }
             catch (ReflectionTypeLoadException e)
             {
-                var types =
-                    _cache.GetOrAdd(assembly,a =>
-                    e.Types.Where(t => t != null /*&& t.TypeInitializer !=null*/).ToArray());
-
-                return types;
+                return _cache.GetOrAdd(assembly,a =>
+                    e.Types.Where(t => t != null /*&& t.TypeInitializer !=null*/).ToArray());;
             }
         }
 

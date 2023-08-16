@@ -1,6 +1,6 @@
 ﻿using System.Threading.Tasks;
 
-namespace HLab.Mvvm.Application;
+namespace HLab.Mvvm.Application.Documents;
 
 public interface IDocumentService
 {
@@ -9,7 +9,7 @@ public interface IDocumentService
 
     Task OpenDocumentAsync(object content) => OpenDocumentAsync(content, MainPresenter);
     Task OpenDocumentAsync<T>(IDocumentPresenter presenter) => OpenDocumentAsync(typeof(T), presenter);
-    Task OpenDocumentAsync<T>() =>  OpenDocumentAsync<T>(MainPresenter);
+    Task OpenDocumentAsync<T>() => OpenDocumentAsync<T>(MainPresenter);
     Task CloseDocumentAsync(object content) => CloseDocumentAsync(content, MainPresenter);
 
     IDocumentPresenter MainPresenter { get; set; }

@@ -15,17 +15,19 @@ public class Localize : TextBlock
 {
     public Localize()
     {
-        if(Design.IsDesignMode)
+        if (Design.IsDesignMode)
+        {
             _updateAsync = UpdateDesignModeAsync;
-        else
-            _updateAsync = InitAsync;
-
+            return;
+        }
+        
+        _updateAsync = InitAsync;
     }
 
     [Content]
     public string Id
     {
-        get => (string)GetValue(IdProperty);
+        get => GetValue(IdProperty);
         set => SetValue(IdProperty, value);
     }
     public static readonly StyledProperty<string> IdProperty =
@@ -36,9 +38,13 @@ public class Localize : TextBlock
             })
             .Register();
 
+    public string? StringFormat
+    {
+        get => GetValue(StringFormatProperty);
+        set => SetValue(StringFormatProperty, value);
+    }
     public static readonly StyledProperty<string?> StringFormatProperty =
         H.Property<string?>()
-//                .Default("{}{0}")
             .OnChanged(async (e,a) =>
             {
                 if (e.StringFormat == null)
@@ -49,7 +55,15 @@ public class Localize : TextBlock
             })
             .Register();
 
-    public static readonly StyledProperty<ILocalizationService?> LocalizationServiceProperty =
+    public ILocalizationService? LocalizationService
+    {
+        get => GetValue(LocalizationServiceProperty);
+        set => SetValue(LocalizationServiceProperty, value);
+    } 
+    public static ILocalizationService GetLocalizationService(AvaloniaObject obj) => obj.GetValue(LocalizationServiceProperty);
+    public static void SetLocalizationService(AvaloniaObject obj, ILocalizationService value) => obj.SetValue(LocalizationServiceProperty, value);
+
+    public static readonly AttachedProperty<ILocalizationService?> LocalizationServiceProperty =
         H.Property<ILocalizationService?>()
             .OnChanged(async (e, a) =>
             {
@@ -62,7 +76,13 @@ public class Localize : TextBlock
             .Inherits
             .Attached.Register();
 
-    public static readonly StyledProperty<string?> LanguageProperty =
+    public string? Language
+    {
+        get => GetValue(LanguageProperty);
+        set => SetValue(LanguageProperty, value);
+    }
+
+    public static readonly AttachedProperty<string?> LanguageProperty =
         H.Property<string?>()
             .OnChanged(async (e, a) =>
             {
@@ -74,25 +94,7 @@ public class Localize : TextBlock
             })
             .Inherits
             .Attached.Register();
-
-
-    public string? StringFormat
-    {
-        get => GetValue(StringFormatProperty);
-        set => SetValue(StringFormatProperty, value);
-    }
-
-    public ILocalizationService? LocalizationService
-    {
-        get => GetValue(LocalizationServiceProperty);
-        set => SetValue(LocalizationServiceProperty, value);
-    } 
     
-    public string? Language
-    {
-        get => GetValue(LanguageProperty);
-        set => SetValue(LanguageProperty, value);
-    }
 
     Func<Task> _updateAsync;
 
@@ -123,22 +125,7 @@ public class Localize : TextBlock
         await Dispatcher.UIThread.InvokeAsync(() => Text = Id);
     }
 
+    public static string GetLanguage(AvaloniaObject obj) => obj?.GetValue(LanguageProperty)??"";
 
-    public static ILocalizationService GetLocalizationService(StyledElement obj)
-    {
-        return (ILocalizationService)obj.GetValue(LocalizationServiceProperty);
-    }
-    public static void SetLocalizationService(StyledElement obj, ILocalizationService value)
-    {
-        obj.SetValue(LocalizationServiceProperty, value);
-    }
-
-    public static string GetLanguage(StyledElement obj)
-    {
-        return (string)obj.GetValue(LanguageProperty);
-    }
-    public static void SetLanguage(StyledElement obj, string value)
-    {
-        obj.SetValue(LanguageProperty, value);
-    }
+    public static void SetLanguage(AvaloniaObject obj, string value) => obj.SetValue(LanguageProperty, value);
 }

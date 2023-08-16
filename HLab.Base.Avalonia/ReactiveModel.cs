@@ -36,6 +36,28 @@ public abstract class ReactiveModel : ReactiveObject, IDisposable
         return true;
     }
 
+    public bool SetAndRaise<TRet>(
+        ref TRet backingField,
+        TRet newValue,
+        [CallerMemberName] string? propertyName = null)
+    {
+        if (propertyName is null)
+        {
+            throw new ArgumentNullException(nameof(propertyName));
+        }
+
+        if (EqualityComparer<TRet>.Default.Equals(backingField, newValue))
+        {
+            return false;
+        }
+
+        this.RaisePropertyChanging(propertyName);
+        backingField = newValue;
+        this.RaisePropertyChanged(propertyName);
+        return true;
+    }
+
+
     public void Dispose()
     {
         Disposer.Dispose();

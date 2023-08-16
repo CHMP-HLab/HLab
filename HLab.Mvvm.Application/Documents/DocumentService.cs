@@ -1,17 +1,8 @@
 ﻿using System;
-using System.Collections.ObjectModel;
 using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm.Application;
-
-public interface IDocumentPresenter
-{
-    ObservableCollection<object> Documents { get; }
-    ObservableCollection<object> Anchorables { get; }
-    object ActiveDocument { get; set; }
-    bool RemoveDocument(object document);
-}
+namespace HLab.Mvvm.Application.Documents;
 
 public abstract class DocumentService : IDocumentService
 {
@@ -28,7 +19,7 @@ public abstract class DocumentService : IDocumentService
 
     public abstract Task CloseDocumentAsync(object content, IDocumentPresenter presenter);
 
-    public IDocumentPresenter MainPresenter {get;set;}
+    public IDocumentPresenter MainPresenter { get; set; }
 
     public async Task OpenDocumentAsync(object obj, IDocumentPresenter presenter)
     {

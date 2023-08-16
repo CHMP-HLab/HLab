@@ -3,6 +3,7 @@ using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Threading.Tasks;
 using Avalonia.Threading;
+using HLab.Core.Annotations;
 using HLab.Notify.Annotations;
 
 namespace HLab.Notify.Avalonia

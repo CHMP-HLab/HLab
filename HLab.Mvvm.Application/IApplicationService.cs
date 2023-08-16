@@ -1,6 +1,7 @@
 ﻿using HLab.Core.Annotations;
-using HLab.Erp.Core;
 using HLab.Mvvm.Annotations;
+using HLab.Mvvm.Application.Documents;
+using HLab.Mvvm.Application.Menus;
 
 namespace HLab.Mvvm.Application;
 
