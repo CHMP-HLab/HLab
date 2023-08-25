@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Reactive;
-using System.Reactive.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
@@ -20,11 +18,11 @@ public class Localize : TextBlock
     {
         if (Design.IsDesignMode)
         {
-            _updateAsync = UpdateDesignModeAsync;
+            _update = UpdateDesignMode;
             return;
         }
         
-        _updateAsync = InitAsync;
+        _update = Init;
     }
 
     [Content]
@@ -35,9 +33,9 @@ public class Localize : TextBlock
     }
     public static readonly StyledProperty<string> IdProperty =
         H.Property<string>()
-            .OnChanged(async (e, a) =>
+            .OnChanged((e, a) =>
             {
-                await e._updateAsync();
+                e._update();
             })
             .Register();
 
@@ -48,13 +46,13 @@ public class Localize : TextBlock
     }
     public static readonly StyledProperty<string?> StringFormatProperty =
         H.Property<string?>()
-            .OnChanged(async (e,a) =>
+            .OnChanged((e,a) =>
             {
                 if (e.StringFormat == null)
                 {
-                    e._updateAsync = e.InitAsync;
+                    e._update = e.Init;
                 }
-                await e._updateAsync();
+                e._update();
             })
             .Register();
 
@@ -72,7 +70,7 @@ public class Localize : TextBlock
             {
                 if (e.LocalizationService == null)
                 {
-                    e._update = e.Initialize;
+                    e._update = e.Init;
                 }
                 e._update();
             })
@@ -101,7 +99,7 @@ public class Localize : TextBlock
 
     Action _update;
 
-    public async Task InitAsync()
+    public void Init()
     {
         if (LocalizationService == null) return;
         if (Language == null) return;
@@ -118,7 +116,7 @@ public class Localize : TextBlock
             var token = new CancellationToken();
             Task.Run(async ()=>
             {
-                await LocalizationService.LocalizeAsync(Language, localized).ConfigureAwait(false);
+                await LocalizationService.LocalizeAsync(Language, localized, token).ConfigureAwait(false);
                 if(token.IsCancellationRequested) return;
                 await Dispatcher.UIThread.InvokeAsync(() => Text = localized);
             }, token);
@@ -127,9 +125,9 @@ public class Localize : TextBlock
         {
         }
     }
-    public async Task UpdateDesignModeAsync()
+    public void UpdateDesignMode()
     {
-        await Dispatcher.UIThread.InvokeAsync(() => Text = Id);
+        Dispatcher.UIThread.InvokeAsync(() => Text = Id);
     }
 
     public static string GetLanguage(AvaloniaObject obj) => obj?.GetValue(LanguageProperty)??"";
