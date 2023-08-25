@@ -15,7 +15,7 @@ public abstract class ReactiveModel : ReactiveObject, IDisposable
     public bool Saved
     {
         get => _saved;
-        set => this.RaiseAndSetIfChanged(ref _saved, value);
+        set => SetAndRaise(ref _saved, value);
     }
     bool _saved;
 

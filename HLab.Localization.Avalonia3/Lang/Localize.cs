@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Reactive;
+using System.Reactive.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
@@ -65,13 +68,13 @@ public class Localize : TextBlock
 
     public static readonly AttachedProperty<ILocalizationService?> LocalizationServiceProperty =
         H.Property<ILocalizationService?>()
-            .OnChanged(async (e, a) =>
+            .OnChanged((e, a) =>
             {
                 if (e.LocalizationService == null)
                 {
-                    e._updateAsync = e.InitAsync;
+                    e._update = e.Initialize;
                 }
-                await e._updateAsync();
+                e._update();
             })
             .Inherits
             .Attached.Register();
@@ -84,41 +87,45 @@ public class Localize : TextBlock
 
     public static readonly AttachedProperty<string?> LanguageProperty =
         H.Property<string?>()
-            .OnChanged(async (e, a) =>
+            .OnChanged((e, a) =>
             {
                 if (e.Language == null)
                 {
-                    e._updateAsync = e.InitAsync;
+                    e._update = e.Init;
                 }
-                await e._updateAsync();
+                e._update();
             })
             .Inherits
             .Attached.Register();
     
 
-    Func<Task> _updateAsync;
+    Action _update;
 
     public async Task InitAsync()
     {
         if (LocalizationService == null) return;
         if (Language == null) return;
         if (Id == null) return;
-        _updateAsync = UpdateAsync;
-        await UpdateAsync();
+        _update = Update;
+        Update();
     }
 
-    public async Task UpdateAsync()
+    void Update()
     {
         var localized = Id;
         try
         {
-            localized = await LocalizationService.LocalizeAsync(Language, localized).ConfigureAwait(false);
+            var token = new CancellationToken();
+            Task.Run(async ()=>
+            {
+                await LocalizationService.LocalizeAsync(Language, localized).ConfigureAwait(false);
+                if(token.IsCancellationRequested) return;
+                await Dispatcher.UIThread.InvokeAsync(() => Text = localized);
+            }, token);
         }
         catch (Exception)
         {
         }
-
-        await Dispatcher.UIThread.InvokeAsync(() => Text = localized);
     }
     public async Task UpdateDesignModeAsync()
     {
