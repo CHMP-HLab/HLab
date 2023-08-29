@@ -4,7 +4,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
-
+using System.Threading;
+using System.Threading.Tasks;
 using HLab.Base;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
@@ -43,7 +44,7 @@ namespace HLab.Mvvm
 
         public HelperFactory<IViewHelper> ViewHelperFactory { get; } = new ();
 
-        public Type GetLinkedType(Type getType, Type viewMode, Type viewClass)
+        public async Task<Type> GetLinkedTypeAsync(Type getType, Type viewMode, Type viewClass, CancellationToken token = default)
         {
 
             if (getType.IsConstructedGenericType)
@@ -53,7 +54,7 @@ namespace HLab.Mvvm
 
             if(_entries.TryGetValue(getType, out var best))
             {
-                var result = best.GetLinked(viewClass, viewMode);
+                var result = await best.GetLinkedAsync(viewClass, viewMode, token);
                 if (result.LinkedType != null) return result.LinkedType;
             }
 
@@ -68,7 +69,7 @@ namespace HLab.Mvvm
 
                 if (l >= level) continue;
 
-                var lt = entry.Value.GetLinked(viewClass, viewMode).LinkedType;
+                var lt = (await entry.Value.GetLinkedAsync(viewClass, viewMode, token)).LinkedType;
                 if (lt == null) continue;
 
                 linkedType = lt;
@@ -79,7 +80,7 @@ namespace HLab.Mvvm
 
             var baseMode = viewMode.BaseType;
             if (baseMode == typeof(ViewMode)) return null;
-            linkedType = GetLinkedType(getType, baseMode, viewClass);
+            linkedType = await GetLinkedTypeAsync(getType, baseMode, viewClass, token);
             Register(getType, linkedType, viewClass, viewMode);
             return linkedType;
         }
@@ -198,10 +199,10 @@ namespace HLab.Mvvm
             }
         }
 
-        public IView GetNotFoundView(Type getType, Type viewMode, Type viewClass) =>
-            _platform.GetNotFoundView(getType, viewMode, viewClass);
+        public Task<IView> GetNotFoundViewAsync(Type getType, Type viewMode, Type viewClass, CancellationToken token = default) =>
+            _platform.GetNotFoundViewAsync(getType, viewMode, viewClass, token);
 
-        public void PrepareView(IView view) => _platform.PrepareView(view);
+        public Task PrepareViewAsync(IView view, CancellationToken token = default) => _platform.PrepareViewAsync(view, token);
 
 
         /// <summary>
@@ -217,14 +218,21 @@ namespace HLab.Mvvm
 
         readonly ConcurrentDictionary<Type, Type?> _modelsTypes = new();
 
+        /// <summary>
+        /// return Model type from IViewModel&lt;TModel&gt;
+        /// </summary>
+        /// <param name="type"></param>
+        /// <param name="modelType"></param>
+        /// <returns></returns>
         bool GetModelType(Type type, out Type? modelType)
         {
             modelType = _modelsTypes.GetOrAdd(type, (t) => {
                 //if (!typeof(IViewModel).IsAssignableFrom(type)) return null; //throw new ArgumentException(type + " does not implement IViewModel");
                 foreach (var @interface in t.GetInterfaces())
                 {
-                    var currentInterface = @interface.IsGenericType ? @interface.GetGenericTypeDefinition() : @interface;
-                    if (currentInterface != typeof(IViewModel<>)) continue;
+                    if (!@interface.IsGenericType) continue;
+
+                    if (@interface.GetGenericTypeDefinition() != typeof(IViewModel<>)) continue;
 
                     if (@interface.GenericTypeArguments.Length <= 0) continue;
 
@@ -252,18 +260,23 @@ namespace HLab.Mvvm
         internal class MvvmBaseEntry
         {
             public Type BaseType { get; }
-            readonly HashSet<MvvmLinkedEntry> _list = new();
             public MvvmBaseEntry(Type baseType)
             {
                 BaseType = baseType;
             }
+
+            /// <summary>
+            /// All mvvm entries linked to this based type
+            /// </summary>
+            readonly HashSet<MvvmLinkedEntry> _list = new();
+
 
             public void Register(Type linkedType, Type viewClass, Type viewMode)
             {
                 _list.Add(new MvvmLinkedEntry(linkedType, viewClass, viewMode));
             }
 
-            public MvvmLinkedEntry GetLinked(Type? viewClass, Type? viewMode)
+            public async Task<MvvmLinkedEntry> GetLinkedAsync(Type? viewClass, Type? viewMode, CancellationToken token = default)
             {
                 viewClass ??= typeof(IDefaultViewClass);
                 viewMode ??= typeof(DefaultViewMode);
@@ -290,10 +303,10 @@ namespace HLab.Mvvm
 
         internal readonly struct MvvmLinkedEntry
         {
-            public readonly Type LinkedType;
-            public readonly Type? ViewClass;
-            public readonly Type? ViewMode;
-            public readonly bool Cacheable;
+            public Type LinkedType { get; }
+            public Type? ViewClass { get; }
+            public Type? ViewMode { get; }
+            public bool Cacheable { get; }
 
             public override string ToString() => LinkedType.Name + "(" + ViewClass?.Name + ":" + ViewMode?.Name + ")";
 

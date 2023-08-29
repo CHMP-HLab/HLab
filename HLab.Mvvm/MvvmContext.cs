@@ -24,6 +24,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
@@ -81,17 +82,14 @@ namespace HLab.Mvvm
             }
         }
 
-        public object GetLinked(object o, Type viewMode, Type viewClass) 
-            => _cache.GetLinked(o, viewMode, viewClass);
+        public Task<object> GetLinkedAsync(object o, Type viewMode, Type viewClass, CancellationToken token = default) 
+            => _cache.GetLinkedAsync(o, viewMode, viewClass, token);
 
-        public IView? GetView(object baseObject) 
-            => GetView(baseObject, typeof(DefaultViewMode), typeof(IDefaultViewClass));
+        public Task<IView?> GetViewAsync(object baseObject, CancellationToken token) 
+            => GetViewAsync(baseObject, typeof(DefaultViewMode), typeof(IDefaultViewClass), token);
 
-        public IView? GetView(object baseObject, Type viewMode, Type viewClass)
-            => _cache.GetView(baseObject, viewMode, viewClass);
-
-        public Task<IView?> GetViewAsync(object baseObject, Type viewMode, Type viewClass)
-            => _cache.GetViewAsync(baseObject, viewMode, viewClass);
+        public Task<IView?> GetViewAsync(object baseObject, Type viewMode, Type viewClass, CancellationToken token = default)
+            => _cache.GetViewAsync(baseObject, viewMode, viewClass, token);
 
         //private readonly Func<Type, object> _locate ;
         public T Locate<T>(object baseObject = null) 

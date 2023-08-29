@@ -15,6 +15,10 @@ namespace HLab.Icons.Avalonia;
 
 public class IconServiceDesign : IconService
 {
+    public IconServiceDesign()
+    {
+        if(!Design.IsDesignMode) throw new InvalidOperationException("Only for design mode");
+    }
 
 }
 

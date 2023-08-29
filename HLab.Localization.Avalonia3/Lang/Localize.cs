@@ -5,7 +5,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Metadata;
 using Avalonia.Threading;
-using HLab.Base.Avalonia;
+using HLab.Base.Avalonia.DependencyHelpers;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Localization.Avalonia.Lang;
@@ -127,6 +127,8 @@ public class Localize : TextBlock
     }
     public void UpdateDesignMode()
     {
+        if(!Design.IsDesignMode) throw new InvalidOperationException("Only for design mode");
+
         Dispatcher.UIThread.InvokeAsync(() => Text = Id);
     }
 

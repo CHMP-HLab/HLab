@@ -54,11 +54,11 @@ public interface IView
 public interface IView<TViewMode, out TViewModel> : IView
     where TViewMode : ViewMode
 {
-    public object DataContext { get; }
-    public TViewModel ViewModel => (DataContext is TViewModel vm)? vm : default;
 }
 
-public interface IView<TViewModel> : IView<DefaultViewMode,TViewModel>
+
+
+public interface IView<out TViewModel> : IView<DefaultViewMode,TViewModel>
 {
 }
 

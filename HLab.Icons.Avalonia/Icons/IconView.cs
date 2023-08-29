@@ -5,16 +5,16 @@ using Avalonia.Layout;
 using Avalonia.Media;
 using Avalonia.Styling;
 using Avalonia.Threading;
-using HLab.Base.Avalonia;
+using HLab.Base.Avalonia.DependencyHelpers;
 
 namespace HLab.Icons.Avalonia.Icons;
 
 using H = DependencyHelper<IconView>;
 
 
-public class IconView : ContentControl, IStyleable
+public class IconView : ContentControl
 {
-    Type IStyleable.StyleKey => typeof(ContentControl);
+    protected override Type StyleKeyOverride => typeof(ContentControl);
 
     #if DEBUG
     static IIconService? _designTimeService;

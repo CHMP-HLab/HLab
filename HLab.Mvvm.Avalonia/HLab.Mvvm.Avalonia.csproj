@@ -8,6 +8,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="Nito.AsyncEx" Version="5.1.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\HLab.Icons.Avalonia\HLab.Icons.Avalonia.csproj" />
     <ProjectReference Include="..\HLab.Localization.Avalonia3\HLab.Localization.Avalonia.csproj" />
     <ProjectReference Include="..\HLab.Mvvm.ReactiveUI\HLab.Mvvm.ReactiveUI.csproj" />

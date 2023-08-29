@@ -6,13 +6,13 @@ using HLab.Base.Extensions;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using HLab.Base.Avalonia;
 using HLab.Localization.Avalonia.Lang;
 using HLab.Mvvm.Annotations;
+using HLab.Base.Avalonia.DependencyHelpers;
 
 namespace HLab.Localization.Avalonia.Lang
 {
-   using H = DependencyHelper<LocalizedTextBox>;
+    using H = DependencyHelper<LocalizedTextBox>;
     /// <summary>
     /// Logique d'interaction pour LocalizeTextBox.xaml
     /// </summary>

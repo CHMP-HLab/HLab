@@ -5,6 +5,8 @@ using Avalonia.Controls.Templates;
 using Avalonia.Data;
 using Avalonia.Markup.Xaml;
 using Avalonia.Markup.Xaml.Templates;
+using Avalonia.Rendering;
+using Avalonia.Threading;
 using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 using HLab.Mvvm.ReactiveUI;
@@ -54,12 +56,16 @@ namespace HLab.Mvvm.Avalonia
                 mvvm.ViewHelperFactory.Register<IView>(v => new ViewHelperAvalonia((StyledElement)v));
         }
 
-        public void PrepareView(object view)
+        public Task PrepareViewAsync(IView view, CancellationToken token)
         {
-            if (view is not AvaloniaObject obj) return;
+            if (view is not AvaloniaObject obj) throw new InvalidCastException("IView objects should be AvaloniaObject in Avalonia implementation");
 
-            ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));
-            ViewLocator.SetViewMode(obj,typeof(DefaultViewMode));
+            return Dispatcher.UIThread.InvokeAsync(() =>
+            {
+                ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));
+                ViewLocator.SetViewMode(obj,typeof(DefaultViewMode));
+
+            }, DispatcherPriority.Default, token).GetTask();
         }
 
         public void Register(Type t)
@@ -78,25 +84,29 @@ namespace HLab.Mvvm.Avalonia
 
         }
 
-        public IView GetNotFoundView(Type viewModelType, Type viewMode, Type viewClass)
+        public async Task<IView> GetNotFoundViewAsync(Type viewModelType, Type viewMode, Type viewClass, CancellationToken token = default)
         {
-            return new NotFoundView
+            return await Dispatcher.UIThread.InvokeAsync(() => new NotFoundView
             {
                 Title = { Content = "View not found" },
                 Message = { Content = (viewModelType?.ToString() ?? "??") 
                                       + "\n" + (viewMode?.FullName ?? "??") 
                                       + "\n" + (viewClass?.FullName ?? "??") }
-            };
+            }
+                , DispatcherPriority.Default
+            ,token
+            );
+
         }
 
-        public object Activate(object obj)
+        public object Activate(IView obj)
         {
             if(obj is IActivatableViewModel a) a.Activator.Activate();
 
             return obj;
         }
 
-        public object Deactivate(object obj)
+        public object Deactivate(IView obj)
         {
             if(obj is IActivatableViewModel a) a.Activator.Deactivate();
             throw new NotImplementedException();

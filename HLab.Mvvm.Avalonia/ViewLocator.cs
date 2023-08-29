@@ -27,7 +27,7 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Styling;
 using Avalonia.Threading;
-using HLab.Base.Avalonia;
+using HLab.Base.Avalonia.DependencyHelpers;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Avalonia
@@ -39,10 +39,9 @@ namespace HLab.Mvvm.Avalonia
     /// Logique d'interaction pour EntityViewLocator.xaml
     /// </summary>
     ///
-    public class ViewLocator : ContentControl // TODO :, IStyleable
+    public class ViewLocator : ContentControl 
     {
-        bool _loaded = false;
-        // TODO : Type IStyleable.StyleKey => typeof(ContentControl);
+        protected override Type StyleKeyOverride => typeof(ContentControl);
 
         public static readonly StyledProperty<Type> ViewModeProperty =
             H.Property<Type>()
@@ -203,7 +202,6 @@ namespace HLab.Mvvm.Avalonia
 
         async void ViewLocator_Loaded(object? sender, VisualTreeAttachmentEventArgs visualTreeAttachmentEventArgs)
         {
-            _loaded = true;
             Update();
         }
 
@@ -217,12 +215,10 @@ namespace HLab.Mvvm.Avalonia
             }
         }
 
-        readonly ConcurrentStack<Canceler> _cancel = new();
+        readonly ConcurrentStack<CancellationTokenSource> _cancel = new();
 
         protected void Update()
         {
-            //if(!_loaded) return;
-
             var context = MvvmContext;
             var viewMode = ViewMode;
             var viewClass = ViewClass;
@@ -236,28 +232,21 @@ namespace HLab.Mvvm.Avalonia
 
             if (Design.IsDesignMode) return;
 
+            //cancel current running updates
             while (_cancel.TryPop(out var c))
             {
                 c.Cancel();
             }
 
-
-            var cancel = new Canceler();
+            var cancel = new CancellationTokenSource();
             _cancel.Push(cancel);
 
-            var t = Dispatcher.UIThread.InvokeAsync(() =>
+            var token = cancel.Token;
+            var t = Dispatcher.UIThread.InvokeAsync(async() =>
             {
-                if(cancel.State) return;
+                if(token.IsCancellationRequested) return;
 
-                var view = context.GetView(model, viewMode, viewClass);
-
-                if(cancel.State) return;
-
-                if (view is AvaloniaObject obj)
-                {
-                    SetViewClass(obj, typeof(IDefaultViewClass));
-                    SetViewMode(obj, typeof(DefaultViewMode));
-                }
+                var view = await context.GetViewAsync(model, viewMode, viewClass);
 
                 var old = Content;
 
@@ -268,12 +257,8 @@ namespace HLab.Mvvm.Avalonia
                     d.Dispose();
                 }
 
-                //InvalidateVisual();
-
-            }, DispatcherPriority.Default);
+            }, DispatcherPriority.Default, cancel.Token);
 
         }
-
-        
     }
 }
