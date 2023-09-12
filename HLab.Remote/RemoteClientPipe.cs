@@ -1,20 +1,20 @@
 ﻿using System;
 using System.IO.Pipes;
 using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace HLab.Remote
 {
-    public class RemoteClient
+    public class RemoteClientPipe : IRemoteClient
     {
         private readonly string _pipeName;
-        public RemoteClient(string pipeName)
+        public RemoteClientPipe(string pipeName)
         {
-            this._pipeName = pipeName;
+            _pipeName = pipeName;
         }
 
-
-        public async Task<string> SendMessageAsync(string message)
+        public async Task<string> SendMessageAsync(string message, CancellationToken token)
         {
             var retry = true;
             await using var pipe = new NamedPipeClientStream(
@@ -30,7 +30,7 @@ namespace HLab.Remote
                 try
                 {
                     retry = false;
-                    await pipe.ConnectAsync(1000).ConfigureAwait(false);
+                    await pipe.ConnectAsync(1000, token).ConfigureAwait(false);
                     if (pipe.IsConnected)
                     {
                         pipe.ReadMode = PipeTransmissionMode.Message;
@@ -56,12 +56,6 @@ namespace HLab.Remote
 
 
 
-        public async Task<string> SendAsync([CallerMemberName]string name = null)
-        {
-            return await SendMessageAsync(name);
-        }
-
-
-        protected virtual async Task<bool> StartServerAsync() => false;
+       protected virtual async Task<bool> StartServerAsync() => false;
     }
 }

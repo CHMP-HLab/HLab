@@ -11,6 +11,7 @@
     d:DesignHeight="450" d:DesignWidth="800"
 
     Title ="{Binding Title}"
+    Icon="{Binding MainIcon}"
                   
     icons:IconView.IconService="{Binding IconService}"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
