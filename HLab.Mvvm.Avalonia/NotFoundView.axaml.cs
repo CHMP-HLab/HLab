@@ -25,16 +25,15 @@ using Avalonia.Controls;
 
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm.Avalonia
+namespace HLab.Mvvm.Avalonia;
+
+/// <summary>
+/// Logique d'interaction pour NotFoundView.xaml
+/// </summary>
+public partial class NotFoundView : UserControl, IView
 {
-    /// <summary>
-    /// Logique d'interaction pour NotFoundView.xaml
-    /// </summary>
-    public partial class NotFoundView : UserControl, IView
+    public NotFoundView()
     {
-        public NotFoundView()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
     }
 }

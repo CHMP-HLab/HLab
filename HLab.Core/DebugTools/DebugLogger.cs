@@ -27,68 +27,67 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
-namespace HLab.Core.DebugTools
+namespace HLab.Core.DebugTools;
+
+public interface IDebugLogger
 {
-    public interface IDebugLogger
-    {
-        void Log(string name, Stopwatch sw);
-        Dictionary<string, DebugNotifierData> Timings { get; }
-    }
+    void Log(string name, Stopwatch sw);
+    Dictionary<string, DebugNotifierData> Timings { get; }
+}
 
-    public class DebugLogger : IDebugLogger
-    {
-        public Dictionary<string, DebugNotifierData> Timings { get; } = new Dictionary<string, DebugNotifierData>();
+public class DebugLogger : IDebugLogger
+{
+    public Dictionary<string, DebugNotifierData> Timings { get; } = new Dictionary<string, DebugNotifierData>();
 
-        public DebugLogger()
-        {
+    public DebugLogger()
+    {
 #if TIMER
-            //TODO
+        //TODO
 //            Application.Current.Exit += Current_Exit;
 #endif
-        }
+    }
 
-        //private void Current_Exit(object sender, ExitEventArgs e)
-        //{
-        //    Print();
-        //}
+    //private void Current_Exit(object sender, ExitEventArgs e)
+    //{
+    //    Print();
+    //}
 
-        public void Log(string s, Stopwatch w)
+    public void Log(string s, Stopwatch w)
+    {
+
+        var f = Stopwatch.Frequency;
+        if (!Timings.ContainsKey(s)) Timings[s] = new DebugNotifierData
+        {
+            Frequency = Stopwatch.Frequency
+        };
+
+        Timings[s].Ticks.Add(w.ElapsedTicks);
+    }
+
+    public void Print()
+    {
+        List<KeyValuePair<string, DebugNotifierData>> list = Timings.ToList();
+
+        list.Sort( (kp1,kp2) => kp1.Value.SumMillis.CompareTo(kp2.Value.SumMillis) );
+
+        foreach (var kp in list)
         {
 
-            var f = Stopwatch.Frequency;
-            if (!Timings.ContainsKey(s)) Timings[s] = new DebugNotifierData
-            {
-                Frequency = Stopwatch.Frequency
-            };
-
-            Timings[s].Ticks.Add(w.ElapsedTicks);
+            Write($"{kp.Key}", ConsoleColor.DarkBlue);
+            Write($"=>{kp.Value.SumMillis:N2}/{kp.Value.Ticks.Count} = {kp.Value.MinMillis:N2}<{kp.Value.AvgMillis:N2}<{kp.Value.MaxMillis:N2}({kp.Value.MedMillis:N2})\n");
         }
+    }
 
-        public void Print()
-        {
-            List<KeyValuePair<string, DebugNotifierData>> list = Timings.ToList();
+    void Write(string s, ConsoleColor? c=null)
+    {
+        if(!c.HasValue) c = ConsoleColor.Black;
+        var old = Console.ForegroundColor;
 
-            list.Sort( (kp1,kp2) => kp1.Value.SumMillis.CompareTo(kp2.Value.SumMillis) );
+        Console.ForegroundColor = c.Value;
 
-            foreach (var kp in list)
-            {
+        Debug.Print(s);
+        Console.Write(s);
 
-                Write($"{kp.Key}", ConsoleColor.DarkBlue);
-                Write($"=>{kp.Value.SumMillis:N2}/{kp.Value.Ticks.Count} = {kp.Value.MinMillis:N2}<{kp.Value.AvgMillis:N2}<{kp.Value.MaxMillis:N2}({kp.Value.MedMillis:N2})\n");
-            }
-        }
-
-        void Write(string s, ConsoleColor? c=null)
-        {
-            if(!c.HasValue) c = ConsoleColor.Black;
-            var old = Console.ForegroundColor;
-
-            Console.ForegroundColor = c.Value;
-
-            Debug.Print(s);
-            Console.Write(s);
-
-            Console.ForegroundColor = old;
-        }
+        Console.ForegroundColor = old;
     }
 }

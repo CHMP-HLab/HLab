@@ -1,15 +1,13 @@
-﻿namespace HLab.Core.Annotations
+﻿namespace HLab.Core.Annotations;
+
+public enum ServiceState
 {
-    public enum ServiceState
-    {
-        NotConfigured,
-        Available
-    }
+    NotConfigured,
+    Available
+}
 
 
-    public interface IService
-    {
-        public ServiceState ServiceState { get; }
-    }
-
+public interface IService
+{
+    public ServiceState ServiceState { get; }
 }

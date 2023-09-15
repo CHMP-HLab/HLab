@@ -22,15 +22,9 @@
 */
 
 
-namespace HLab.Notify.Annotations
+namespace HLab.Notify.Annotations;
+
+public class TriggerOnPassive : TriggerOnAttribute
 {
-
-    public class TriggerOnPassive : TriggerOnAttribute
-    {
         
-    }
-
-
-
-
 }

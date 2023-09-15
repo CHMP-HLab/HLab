@@ -21,12 +21,11 @@
 	  http://www.mgth.fr
 */
 
-namespace HLab.Core.ReactiveUI
+namespace HLab.Core.ReactiveUI;
+
+public enum Persistency
 {
-    public enum Persistency
-    {
-        None,
-        OnChange,
-        OnSave
-    }
+    None,
+    OnChange,
+    OnSave
 }

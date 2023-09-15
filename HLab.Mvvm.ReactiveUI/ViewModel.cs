@@ -27,48 +27,47 @@ using HLab.Base.Avalonia;
 using HLab.Mvvm.Annotations;
 using ReactiveUI;
 
-namespace HLab.Mvvm.ReactiveUI
+namespace HLab.Mvvm.ReactiveUI;
+
+public interface IModel {}
+
+public abstract class ViewModel : ReactiveModel
 {
-    public interface IModel {}
+    static int _lastId = 0;
 
-    public abstract class ViewModel : ReactiveModel
+    readonly Lazy<int> _id = new(() => Interlocked.Increment(ref _lastId));
+
+    public int Id => _id.Value;
+}
+
+public abstract class ViewModel<T> : ViewModel, IViewModel<T> where T : class
+{
+    object? IViewModel.Model
     {
-        static int _lastId = 0;
-
-        readonly Lazy<int> _id = new(() => Interlocked.Increment(ref _lastId));
-
-        public int Id => _id.Value;
+        get => Model;
+        set => Model = Unsafe.As<T?>(value);
     }
 
-    public abstract class ViewModel<T> : ViewModel, IViewModel<T> where T : class
+    public T? Model
     {
-        object? IViewModel.Model
+        get => _model;
+        set
         {
-            get => Model;
-            set => Model = Unsafe.As<T?>(value);
+            if (EqualityComparer<T>.Default.Equals(_model, value)) return;
+
+            this.RaisePropertyChanging();
+
+            _model = OnModelChanging(_model,value);
+
+            this.RaisePropertyChanged();
         }
-
-        public T? Model
-        {
-            get => _model;
-            set
-            {
-                if (EqualityComparer<T>.Default.Equals(_model, value)) return;
-
-                this.RaisePropertyChanging();
-
-                _model = OnModelChanging(_model,value);
-
-                this.RaisePropertyChanged();
-            }
-        }
-        T? _model;
-
-        protected virtual T? OnModelChanging(T? oldModel, T? newModel)
-        {
-            return newModel;
-        }
-
-        public Type ModelType => typeof(T);
     }
+    T? _model;
+
+    protected virtual T? OnModelChanging(T? oldModel, T? newModel)
+    {
+        return newModel;
+    }
+
+    public Type ModelType => typeof(T);
 }

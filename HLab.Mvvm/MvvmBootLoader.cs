@@ -1,13 +1,12 @@
 ﻿using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm
+namespace HLab.Mvvm;
+
+public class MvvmBootloader(IMvvmService mvvm) : IBootloader
 {
-    public class MvvmBootloader(IMvvmService mvvm) : IBootloader
+    public void Load(IBootContext b)
     {
-        public void Load(IBootContext b)
-        {
-            mvvm.Register();
-        }
+        mvvm.Register();
     }
 }

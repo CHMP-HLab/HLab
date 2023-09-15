@@ -20,10 +20,9 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
-namespace HLab.Notify.Annotations
+namespace HLab.Notify.Annotations;
+
+public interface ITriggerable
 {
-    public interface ITriggerable
-    {
-        void OnTriggered();
-    }
+    void OnTriggered();
 }

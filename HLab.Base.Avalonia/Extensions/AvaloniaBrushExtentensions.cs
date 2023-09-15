@@ -6,9 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Avalonia.Media;
 
-namespace HLab.Base.Avalonia.Extensions
+namespace HLab.Base.Avalonia.Extensions;
+
+public static class AvaloniaBrushExtensions
 {
-    public static class AvaloniaBrushExtensions
-    {
-    }
 }

@@ -24,37 +24,36 @@
 using System;
 using System.Linq.Expressions;
 
-namespace HLab.Notify.Annotations
+namespace HLab.Notify.Annotations;
+
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
+public class TriggerOnAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
-    public class TriggerOnAttribute : Attribute
+    public TriggerOnAttribute()
     {
-        public TriggerOnAttribute()
-        {
-            Path = null;
-        }
-
-        public TriggerOnAttribute(params string[] path)
-        {
-            Path = TriggerPath.Factory(path);
-        }
-
-        public TriggerPath Path { get; }
+        Path = null;
     }
 
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
-    public class TriggerOnAttribute<T> : Attribute
+    public TriggerOnAttribute(params string[] path)
     {
-        public TriggerOnAttribute()
-        {
-            Path = null;
-        }
-
-        public TriggerOnAttribute(Expression<Func<T, object>> expr)
-        {
-            Path = TriggerPath.Factory(expr);
-        }
-
-        public TriggerPath Path { get; }
+        Path = TriggerPath.Factory(path);
     }
+
+    public TriggerPath Path { get; }
+}
+
+[AttributeUsage(AttributeTargets.Property | AttributeTargets.Method, AllowMultiple = true)]
+public class TriggerOnAttribute<T> : Attribute
+{
+    public TriggerOnAttribute()
+    {
+        Path = null;
+    }
+
+    public TriggerOnAttribute(Expression<Func<T, object>> expr)
+    {
+        Path = TriggerPath.Factory(expr);
+    }
+
+    public TriggerPath Path { get; }
 }

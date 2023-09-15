@@ -1,5 +1,5 @@
-﻿namespace HLab.Notify.PropertyChanged
-{/*
+﻿namespace HLab.Notify.PropertyChanged;
+/*
     public static class ObservableCollectionExt
     {
         public static void Sort<T>(this ObservableCollectionNotifier<T> collection, Comparison<T> comparison)
@@ -21,7 +21,7 @@
         {
             //var l = collection as ILockable;
 
-            //l?.Lock.EnterWriteLock(); 
+            //l?.Lock.EnterWriteLock();
             try
             {
                 handler?.Invoke(null,
@@ -39,4 +39,3 @@
             return collection;
         }
     }*/
-}

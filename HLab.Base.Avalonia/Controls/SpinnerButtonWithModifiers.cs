@@ -1,10 +1,9 @@
 ﻿using System;
 
-namespace HLab.Base.Avalonia.Controls
+namespace HLab.Base.Avalonia.Controls;
+
+public enum Location
 {
-    public enum Location
-    {
-        Left,
-        Right
-    }
+    Left,
+    Right
 }

@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace HLab.Base
+namespace HLab.Base;
+
+public static class OneOfExtension
 {
-    public static class OneOfExtension
-    {
-    }
 }

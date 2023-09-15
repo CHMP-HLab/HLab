@@ -30,235 +30,234 @@ using Avalonia.Threading;
 using HLab.Base.Avalonia.DependencyHelpers;
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm.Avalonia
+namespace HLab.Mvvm.Avalonia;
+
+using H = DependencyHelper<ViewLocator>;
+
+/// <inheritdoc />
+/// <summary>
+/// Logique d'interaction pour EntityViewLocator.xaml
+/// </summary>
+///
+public class ViewLocator : ContentControl 
 {
-    using H = DependencyHelper<ViewLocator>;
+    protected override Type StyleKeyOverride => typeof(ContentControl);
 
-    /// <inheritdoc />
-    /// <summary>
-    /// Logique d'interaction pour EntityViewLocator.xaml
-    /// </summary>
-    ///
-    public class ViewLocator : ContentControl 
-    {
-        protected override Type StyleKeyOverride => typeof(ContentControl);
-
-        public static readonly StyledProperty<Type> ViewModeProperty =
-            H.Property<Type>()
-                .OnChanged((e,a) =>
-                {
-                    if(!a.NewValue.HasValue) return;
-                    if(a.OldValue.HasValue && a.NewValue.Value == a.OldValue.Value) return;
-
-                    e.Update();
-                })
-                .Default(typeof(DefaultViewMode))
-                .Inherits
-                .Attached
-                .Register();
-
-        public static readonly StyledProperty<Type> ViewClassProperty =
-            H.Property<Type>()
-                .OnChanged((e,a) =>
-                { 
-                    if(!a.NewValue.HasValue) return;
-                    if(a.OldValue.HasValue && ReferenceEquals(a.NewValue.Value,a.OldValue.Value)) return;
-
-                    e.Update();
-                })
-                .Default(typeof(IDefaultViewClass))
-                .Inherits
-                .Attached
-                .Register();
-
-        public static readonly StyledProperty<IMvvmContext?> MvvmContextProperty =
-            H.Property<IMvvmContext?>()
-                .OnChanged((e,a) =>
-                {
-                    if(!a.NewValue.HasValue) return;
-                    if(a.OldValue.HasValue && ReferenceEquals(a.NewValue.Value,a.OldValue.Value)) return;
-
-                    e.Update();
-                })
-                .Default(null)
-                .Inherits
-                .Attached
-                .Register();
-
-        object? _oldModel = null;
-
-       public static readonly StyledProperty<object?> ModelProperty = H.Property<object?>()
-            .OnChanged((e, a) =>
+    public static readonly StyledProperty<Type> ViewModeProperty =
+        H.Property<Type>()
+            .OnChanged((e,a) =>
             {
-                e.SetModel();
+                if(!a.NewValue.HasValue) return;
+                if(a.OldValue.HasValue && a.NewValue.Value == a.OldValue.Value) return;
+
+                e.Update();
             })
+            .Default(typeof(DefaultViewMode))
+            .Inherits
+            .Attached
             .Register();
 
-        public static object? GetModel(AvaloniaObject obj)
-            => obj.GetValue(ModelProperty);
+    public static readonly StyledProperty<Type> ViewClassProperty =
+        H.Property<Type>()
+            .OnChanged((e,a) =>
+            { 
+                if(!a.NewValue.HasValue) return;
+                if(a.OldValue.HasValue && ReferenceEquals(a.NewValue.Value,a.OldValue.Value)) return;
 
-        public static void SetModel(AvaloniaObject obj, object value)
-            => obj.SetValue(ModelProperty, value);
+                e.Update();
+            })
+            .Default(typeof(IDefaultViewClass))
+            .Inherits
+            .Attached
+            .Register();
 
-        public static Type GetViewMode(AvaloniaObject obj)
-            => obj.GetValue(ViewModeProperty);
+    public static readonly StyledProperty<IMvvmContext?> MvvmContextProperty =
+        H.Property<IMvvmContext?>()
+            .OnChanged((e,a) =>
+            {
+                if(!a.NewValue.HasValue) return;
+                if(a.OldValue.HasValue && ReferenceEquals(a.NewValue.Value,a.OldValue.Value)) return;
 
-        public static void SetViewMode(AvaloniaObject obj, Type value)
-            => obj.SetValue(ViewModeProperty, value);
+                e.Update();
+            })
+            .Default(null)
+            .Inherits
+            .Attached
+            .Register();
 
-        public static Type GetViewClass(AvaloniaObject obj)
-            => obj.GetValue(ViewClassProperty);
+    object? _oldModel = null;
 
-        public static void SetViewClass(AvaloniaObject obj, Type value)
-            => obj.SetValue(ViewClassProperty, value);
-
-        public static IMvvmContext? GetMvvmContext(AvaloniaObject obj)
-            => obj.GetValue(MvvmContextProperty);
-
-        public static void SetMvvmContext(AvaloniaObject obj, IMvvmContext value)
-            => obj.SetValue(MvvmContextProperty, value);
-
-
-        public object? Model
+    public static readonly StyledProperty<object?> ModelProperty = H.Property<object?>()
+        .OnChanged((e, a) =>
         {
-            get => GetValue(ModelProperty);
-            set => SetValue(ModelProperty, value);
-        }
+            e.SetModel();
+        })
+        .Register();
 
-        public Type ViewMode
-        {
-            get => GetValue(ViewModeProperty);
-            set => SetValue(ViewModeProperty, value);
-        }
+    public static object? GetModel(AvaloniaObject obj)
+        => obj.GetValue(ModelProperty);
 
-        public Type ViewClass
-        {
-            get => GetValue(ViewClassProperty);
-            set => SetValue(ViewClassProperty, value);
-        }
+    public static void SetModel(AvaloniaObject obj, object value)
+        => obj.SetValue(ModelProperty, value);
 
-        public IMvvmContext? MvvmContext
-        {
-            get => GetValue(MvvmContextProperty);
-            set => SetValue(MvvmContextProperty, value);
-        }
+    public static Type GetViewMode(AvaloniaObject obj)
+        => obj.GetValue(ViewModeProperty);
 
-        public ViewLocator()
-        {
+    public static void SetViewMode(AvaloniaObject obj, Type value)
+        => obj.SetValue(ViewModeProperty, value);
 
-            //DataContextChanged += ViewLocator_DataContextChanged;
+    public static Type GetViewClass(AvaloniaObject obj)
+        => obj.GetValue(ViewClassProperty);
+
+    public static void SetViewClass(AvaloniaObject obj, Type value)
+        => obj.SetValue(ViewClassProperty, value);
+
+    public static IMvvmContext? GetMvvmContext(AvaloniaObject obj)
+        => obj.GetValue(MvvmContextProperty);
+
+    public static void SetMvvmContext(AvaloniaObject obj, IMvvmContext value)
+        => obj.SetValue(MvvmContextProperty, value);
+
+
+    public object? Model
+    {
+        get => GetValue(ModelProperty);
+        set => SetValue(ModelProperty, value);
+    }
+
+    public Type ViewMode
+    {
+        get => GetValue(ViewModeProperty);
+        set => SetValue(ViewModeProperty, value);
+    }
+
+    public Type ViewClass
+    {
+        get => GetValue(ViewClassProperty);
+        set => SetValue(ViewClassProperty, value);
+    }
+
+    public IMvvmContext? MvvmContext
+    {
+        get => GetValue(MvvmContextProperty);
+        set => SetValue(MvvmContextProperty, value);
+    }
+
+    public ViewLocator()
+    {
+
+        //DataContextChanged += ViewLocator_DataContextChanged;
             
-            // AttachedToVisualTree += ViewLocator_Loaded;
+        // AttachedToVisualTree += ViewLocator_Loaded;
 
 
-            //var b = new Binding
-            //{
-            //    Source = this,
-            //    Path = new PropertyPath("DataContext"),
-            //    Mode = BindingMode.OneWay,
-            //    //IsAsync = true
-            //};
-            //BindingOperations.SetBinding(this, ModelProperty, b);
-            // Update();
-        }
+        //var b = new Binding
+        //{
+        //    Source = this,
+        //    Path = new PropertyPath("DataContext"),
+        //    Mode = BindingMode.OneWay,
+        //    //IsAsync = true
+        //};
+        //BindingOperations.SetBinding(this, ModelProperty, b);
+        // Update();
+    }
 
 
-        void SetModel()
+    void SetModel()
+    {
+        var o = Content;
+
+        while (o != null)
         {
-            var o = Content;
-
-            while (o != null)
+            switch (o)
             {
-                switch (o)
-                {
-                    case StyledElement se:
-                        o = se.DataContext;
-                        if (ReferenceEquals(o, _oldModel))
-                        {
-                            _oldModel = o;
-                            se.DataContext = Model;
-                            return;
-                        }
-                        break;
-                    case IViewModel vm:
-                        o = vm.Model;
-                        if (ReferenceEquals(o, _oldModel))
-                        {
-                            _oldModel = o;
-                            vm.Model = Model;
-                            return;
-                        }
-                        break;
-                    default:
-                        o = null;
-                        break;
-                }
-
+                case StyledElement se:
+                    o = se.DataContext;
+                    if (ReferenceEquals(o, _oldModel))
+                    {
+                        _oldModel = o;
+                        se.DataContext = Model;
+                        return;
+                    }
+                    break;
+                case IViewModel vm:
+                    o = vm.Model;
+                    if (ReferenceEquals(o, _oldModel))
+                    {
+                        _oldModel = o;
+                        vm.Model = Model;
+                        return;
+                    }
+                    break;
+                default:
+                    o = null;
+                    break;
             }
 
-            Update();
         }
 
+        Update();
+    }
 
-        async void ViewLocator_Loaded(object? sender, VisualTreeAttachmentEventArgs visualTreeAttachmentEventArgs)
+
+    async void ViewLocator_Loaded(object? sender, VisualTreeAttachmentEventArgs visualTreeAttachmentEventArgs)
+    {
+        Update();
+    }
+
+    class Canceler
+    {
+        public bool State { get; private set; }
+
+        public void Cancel()
         {
-            Update();
+            State = true;
+        }
+    }
+
+    readonly ConcurrentStack<CancellationTokenSource> _cancel = new();
+
+    protected void Update()
+    {
+        var context = MvvmContext;
+        var viewMode = ViewMode;
+        var viewClass = ViewClass;
+        var model = Model;
+
+        Debug.Assert(viewMode != null);
+        Debug.Assert(viewClass != null);
+
+        if (context == null) return;
+        if(model==null) return;
+
+        if (Design.IsDesignMode) return;
+
+        //cancel current running updates
+        while (_cancel.TryPop(out var c))
+        {
+            c.Cancel();
         }
 
-        class Canceler
-        {
-            public bool State { get; private set; }
+        var cancel = new CancellationTokenSource();
+        _cancel.Push(cancel);
 
-            public void Cancel()
+        var token = cancel.Token;
+        var t = Dispatcher.UIThread.InvokeAsync(async() =>
+        {
+            if(token.IsCancellationRequested) return;
+
+            var view = await context.GetViewAsync(model, viewMode, viewClass);
+
+            var old = Content;
+
+            Content = view;
+
+            if (old is IDisposable d)
             {
-                State = true;
+                d.Dispose();
             }
-        }
 
-        readonly ConcurrentStack<CancellationTokenSource> _cancel = new();
+        }, DispatcherPriority.Default, cancel.Token);
 
-        protected void Update()
-        {
-            var context = MvvmContext;
-            var viewMode = ViewMode;
-            var viewClass = ViewClass;
-            var model = Model;
-
-            Debug.Assert(viewMode != null);
-            Debug.Assert(viewClass != null);
-
-            if (context == null) return;
-            if(model==null) return;
-
-            if (Design.IsDesignMode) return;
-
-            //cancel current running updates
-            while (_cancel.TryPop(out var c))
-            {
-                c.Cancel();
-            }
-
-            var cancel = new CancellationTokenSource();
-            _cancel.Push(cancel);
-
-            var token = cancel.Token;
-            var t = Dispatcher.UIThread.InvokeAsync(async() =>
-            {
-                if(token.IsCancellationRequested) return;
-
-                var view = await context.GetViewAsync(model, viewMode, viewClass);
-
-                var old = Content;
-
-                Content = view;
-
-                if (old is IDisposable d)
-                {
-                    d.Dispose();
-                }
-
-            }, DispatcherPriority.Default, cancel.Token);
-
-        }
     }
 }

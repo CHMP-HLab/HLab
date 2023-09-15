@@ -2,83 +2,82 @@
 using System;
 
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged;
+
+public class WeakTriggerEntryNotifier : ITriggerEntry
 {
-    public class WeakTriggerEntryNotifier : ITriggerEntry
+    protected readonly IPropertyEntry PropertyEntry;
+    protected readonly WeakReference<EventHandler<ExtendedPropertyChangedEventArgs>> Handler;
+
+#if DEBUG
+    readonly string _targetName;
+#endif
+
+    public WeakTriggerEntryNotifier(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
     {
-        protected readonly IPropertyEntry PropertyEntry;
-        protected readonly WeakReference<EventHandler<ExtendedPropertyChangedEventArgs>> Handler;
-
 #if DEBUG
-        readonly string _targetName;
+        _targetName = handler?.Target?.ToString();
 #endif
+        PropertyEntry = propertyEntry;
+        if (handler == null) return;
 
-        public WeakTriggerEntryNotifier(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
-        {
-#if DEBUG
-            _targetName = handler?.Target?.ToString();
-#endif
-            PropertyEntry = propertyEntry;
-            if (handler == null) return;
-
-            Handler = new(handler);
-            propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
-        }
-
-        void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
-        {
-            if (Handler.TryGetTarget(out var handler))
-            {
-                handler.Invoke(sender, e);
-            }
-            else
-            { }
-        }
-
-        public virtual void Dispose()
-        {
-            PropertyEntry.ExtendedPropertyChanged -= OnPropertyChanged;
-        }
-
-        public override string ToString()
-        {
-            return $"{PropertyEntry.Name}";
-        }
+        Handler = new(handler);
+        propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
     }
-    public class TriggerEntryNotifier : ITriggerEntry
+
+    void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
     {
-        protected readonly IPropertyEntry PropertyEntry;
-        protected readonly EventHandler<ExtendedPropertyChangedEventArgs> Handler;
+        if (Handler.TryGetTarget(out var handler))
+        {
+            handler.Invoke(sender, e);
+        }
+        else
+        { }
+    }
+
+    public virtual void Dispose()
+    {
+        PropertyEntry.ExtendedPropertyChanged -= OnPropertyChanged;
+    }
+
+    public override string ToString()
+    {
+        return $"{PropertyEntry.Name}";
+    }
+}
+public class TriggerEntryNotifier : ITriggerEntry
+{
+    protected readonly IPropertyEntry PropertyEntry;
+    protected readonly EventHandler<ExtendedPropertyChangedEventArgs> Handler;
 
 #if DEBUG
-        readonly string _targetName;
+    readonly string _targetName;
 #endif
 
-        public TriggerEntryNotifier(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
-        {
+    public TriggerEntryNotifier(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+    {
 #if DEBUG
-            _targetName = handler?.Target?.ToString();
+        _targetName = handler?.Target?.ToString();
 #endif
-            PropertyEntry = propertyEntry;
-            if (handler == null) return;
+        PropertyEntry = propertyEntry;
+        if (handler == null) return;
 
-            Handler = new(handler);
-            propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
-        }
+        Handler = new(handler);
+        propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
+    }
 
-        void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
-        {
-                Handler.Invoke(sender, e);
-        }
+    void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
+    {
+        Handler.Invoke(sender, e);
+    }
 
-        public virtual void Dispose()
-        {
-            PropertyEntry.ExtendedPropertyChanged -= OnPropertyChanged;
-        }
+    public virtual void Dispose()
+    {
+        PropertyEntry.ExtendedPropertyChanged -= OnPropertyChanged;
+    }
 
-        public override string ToString()
-        {
-            return $"{PropertyEntry.Name}";
-        }
+    public override string ToString()
+    {
+        return $"{PropertyEntry.Name}";
     }
 }

@@ -1,3 +1,1 @@
-﻿namespace HLab.Mvvm
-{
-}
+﻿namespace HLab.Mvvm;

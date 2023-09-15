@@ -10,121 +10,120 @@ using HLab.Localization.Avalonia.Lang;
 using HLab.Mvvm.Annotations;
 using HLab.Base.Avalonia.DependencyHelpers;
 
-namespace HLab.Localization.Avalonia.Lang
+namespace HLab.Localization.Avalonia.Lang;
+
+using H = DependencyHelper<LocalizedTextBox>;
+/// <summary>
+/// Logique d'interaction pour LocalizeTextBox.xaml
+/// </summary>
+///
+public partial class LocalizedTextBox : UserControl
 {
-    using H = DependencyHelper<LocalizedTextBox>;
-    /// <summary>
-    /// Logique d'interaction pour LocalizeTextBox.xaml
-    /// </summary>
-    ///
-    public partial class LocalizedTextBox : UserControl
+    public LocalizedTextBox()
     {
-        public LocalizedTextBox()
-        {
-            InitializeComponent();
-        }
+        InitializeComponent();
+    }
 
-        void SetReadOnly(bool readOnly)
+    void SetReadOnly(bool readOnly)
+    {
+        if (readOnly)
         {
-            if (readOnly)
+            TextBoxEnabled.IsVisible = false;
+            TextBoxDisabled.IsVisible = true;
+            Button.IsVisible = false;
+            LocalizationOpened = false;
+        }
+        else
+        {
+            TextBoxEnabled.IsVisible = true;
+            TextBoxDisabled.IsVisible = true;
+            Button.IsVisible = true;
+        }
+    }
+
+    public static readonly StyledProperty<string> TextProperty =
+        H.Property<string>()
+            .BindsTwoWayByDefault
+            .OnChanged(async (e,a) =>
             {
-                TextBoxEnabled.IsVisible = false;
-                TextBoxDisabled.IsVisible = true;
-                Button.IsVisible = false;
-                LocalizationOpened = false;
-            }
-            else
+                var localize = e.GetValue(Localize.LocalizationServiceProperty);
+                e.TextBoxDisabled.Text = await localize.LocalizeAsync(e.Text).ConfigureAwait(true);
+                await e.PopulateAsync(e.Text);
+            })
+            .Register();
+
+    public static readonly StyledProperty<bool> IsReadOnlyProperty =
+        H.Property<bool>()
+            .OnChanged((e,a) =>
             {
-                TextBoxEnabled.IsVisible = true;
-                TextBoxDisabled.IsVisible = true;
-                Button.IsVisible = true;
-            }
-        }
+                e.SetReadOnly(e.IsReadOnly);
+            })
+            .Register();
 
-        public static readonly StyledProperty<string> TextProperty =
-            H.Property<string>()
-                .BindsTwoWayByDefault
-                .OnChanged(async (e,a) =>
-                {
-                    var localize = e.GetValue(Localize.LocalizationServiceProperty);
-                    e.TextBoxDisabled.Text = await localize.LocalizeAsync(e.Text).ConfigureAwait(true);
-                    await e.PopulateAsync(e.Text);
-                })
-                .Register();
-
-        public static readonly StyledProperty<bool> IsReadOnlyProperty =
-            H.Property<bool>()
-                .OnChanged((e,a) =>
-                {
-                    e.SetReadOnly(e.IsReadOnly);
-                })
-                .Register();
-
-        public static readonly StyledProperty<bool> LocalizationOpenedProperty =
-            H.Property<bool>()
-                .OnChanged((e,a) =>
-                {
-                    e.SetLocalizationOpened(e.LocalizationOpened);
-                })
-                .Register();
-
-        async void SetLocalizationOpened(bool opened)
-        {
-            if (opened)
+    public static readonly StyledProperty<bool> LocalizationOpenedProperty =
+        H.Property<bool>()
+            .OnChanged((e,a) =>
             {
-                DataGrid.IsVisible = true;
-                await PopulateAsync(Text);
-            }
-            else
-            {
-                DataGrid.IsVisible = false;
-                UnPopulate();
-            }
-        }
+                e.SetLocalizationOpened(e.LocalizationOpened);
+            })
+            .Register();
 
-        //[Content]
-        public string Text
+    async void SetLocalizationOpened(bool opened)
+    {
+        if (opened)
         {
-            get => (string) GetValue(TextProperty);
-            set => SetValue(TextProperty, value);
+            DataGrid.IsVisible = true;
+            await PopulateAsync(Text);
         }
-
-        public bool IsReadOnly
+        else
         {
-            get => (bool) GetValue(IsReadOnlyProperty);
-            set => SetValue(IsReadOnlyProperty, value);
+            DataGrid.IsVisible = false;
+            UnPopulate();
         }
+    }
 
-        public bool LocalizationOpened
+    //[Content]
+    public string Text
+    {
+        get => (string) GetValue(TextProperty);
+        set => SetValue(TextProperty, value);
+    }
+
+    public bool IsReadOnly
+    {
+        get => (bool) GetValue(IsReadOnlyProperty);
+        set => SetValue(IsReadOnlyProperty, value);
+    }
+
+    public bool LocalizationOpened
+    {
+        get => (bool) GetValue(LocalizationOpenedProperty);
+        set => SetValue(LocalizationOpenedProperty, value);
+    }
+
+
+    public ObservableCollection<ILocalizeEntry> Translations { get; } = new();
+
+    async Task PopulateAsync(string source)
+    {
+        var service = GetValue(Localize.LocalizationServiceProperty);
+        var list = source.GetInside('{', '}').ToList();
+
+        Translations.Clear();
+
+        foreach (var s in list)
         {
-            get => (bool) GetValue(LocalizationOpenedProperty);
-            set => SetValue(LocalizationOpenedProperty, value);
+            Translations.Add(await service?.GetLocalizeEntryAsync("fr-fr",s)!);
         }
+    }
 
+    void UnPopulate()
+    {
+        Translations.Clear();
+    }
 
-        public ObservableCollection<ILocalizeEntry> Translations { get; } = new();
-
-        async Task PopulateAsync(string source)
-        {
-            var service = GetValue(Localize.LocalizationServiceProperty);
-            var list = source.GetInside('{', '}').ToList();
-
-            Translations.Clear();
-
-            foreach (var s in list)
-            {
-                Translations.Add(await service?.GetLocalizeEntryAsync("fr-fr",s)!);
-            }
-        }
-
-        void UnPopulate()
-        {
-            Translations.Clear();
-        }
-
-        void Button_OnClick(object sender, RoutedEventArgs e)
-        {
-            LocalizationOpened = !LocalizationOpened;
-        }
+    void Button_OnClick(object sender, RoutedEventArgs e)
+    {
+        LocalizationOpened = !LocalizationOpened;
     }
 }

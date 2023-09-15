@@ -1,32 +1,31 @@
 ﻿using System.Threading;
 
-namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers;
+
+public class PropertyObject<T> : IPropertyValue<T>
+    where T : class
 {
-    public class PropertyObject<T> : IPropertyValue<T>
-        where T : class
+    T _value;
+    public T Get() => _value;
+
+    public bool Set(T value)
     {
-        T _value;
-        public T Get() => _value;
+        if (ReferenceEquals(_value, value)) return false;
 
-        public bool Set(T value)
+        var old = Interlocked.Exchange(ref _value, value);
+        if (!ReferenceEquals(old, value))
         {
-            if (ReferenceEquals(_value, value)) return false;
-
-            var old = Interlocked.Exchange(ref _value, value);
-            if (!ReferenceEquals(old, value))
-            {
-                _holder.OnPropertyChanged(old,value);
-                return true;
-            }
-            else return false;
+            _holder.OnPropertyChanged(old,value);
+            return true;
         }
+        else return false;
+    }
 
-        public bool Set(System.Func<object, T> setter) => Set(setter(_holder.Parent));
+    public bool Set(System.Func<object, T> setter) => Set(setter(_holder.Parent));
 
-        readonly PropertyHolder<T> _holder;
-        public PropertyObject(PropertyHolder<T> holder)
-        {
-            _holder = holder;
-        }
+    readonly PropertyHolder<T> _holder;
+    public PropertyObject(PropertyHolder<T> holder)
+    {
+        _holder = holder;
     }
 }

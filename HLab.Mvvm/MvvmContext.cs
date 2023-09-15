@@ -28,116 +28,115 @@ using System.Threading;
 using System.Threading.Tasks;
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm
+namespace HLab.Mvvm;
+
+public class MvvmContext : IMvvmContext//, IInitializer
 {
-    public class MvvmContext : IMvvmContext//, IInitializer
+    readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
+
+    readonly ViewModelCache _cache;
+
+    public IMvvmService Mvvm => _mvvm;
+    readonly MvvmService _mvvm;
+
+    public string Name { get; }
+    public IMvvmContext Parent { get; }
+
+    public MvvmContext(IMvvmContext parent, string name, MvvmService mvvm)
     {
-        readonly ConcurrentDictionary<Type, ConcurrentQueue<Action<IMvvmContext, object>>> _creators = new();
+        Name = name;
 
-        readonly ViewModelCache _cache;
+        _mvvm = mvvm;
+        Parent = parent;
 
-        public IMvvmService Mvvm => _mvvm;
-        readonly MvvmService _mvvm;
+        _cache = new ViewModelCache(this, mvvm);
+    }
 
-        public string Name { get; }
-        public IMvvmContext Parent { get; }
+    public IMvvmContext GetChildContext(string name) => new MvvmContext(this,name,_mvvm);
 
-        public MvvmContext(IMvvmContext parent, string name, MvvmService mvvm)
+    public IMvvmContext AddCreator<T>(Action<T> action)
+    {
+        var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext, object>>());
+        list.Enqueue((ctx, e) => action((T)e));
+        return this;
+    }
+    public IMvvmContext AddCreator<T>(Action<IMvvmContext, T> action)
+    {
+        var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext, object>>());
+        list.Enqueue((ctx, e) => action(ctx, (T)e));
+        return this;
+    }
+
+    /// <summary>
+    /// Initialise newly created linked using creators
+    /// </summary>
+    /// <param name="linked"></param>
+    public void CallCreators(object linked)
+    {
+        foreach (var kv in _creators.Where(t => t.Key.IsInstanceOfType(linked)))
         {
-            Name = name;
-
-            _mvvm = mvvm;
-            Parent = parent;
-
-            _cache = new ViewModelCache(this, mvvm);
-        }
-
-        public IMvvmContext GetChildContext(string name) => new MvvmContext(this,name,_mvvm);
-
-        public IMvvmContext AddCreator<T>(Action<T> action)
-        {
-            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext, object>>());
-            list.Enqueue((ctx, e) => action((T)e));
-            return this;
-        }
-        public IMvvmContext AddCreator<T>(Action<IMvvmContext, T> action)
-        {
-            var list = _creators.GetOrAdd(typeof(T), t => new ConcurrentQueue<Action<IMvvmContext, object>>());
-            list.Enqueue((ctx, e) => action(ctx, (T)e));
-            return this;
-        }
-
-        /// <summary>
-        /// Initialise newly created linked using creators
-        /// </summary>
-        /// <param name="linked"></param>
-        public void CallCreators(object linked)
-        {
-            foreach (var kv in _creators.Where(t => t.Key.IsInstanceOfType(linked)))
+            foreach (var creator in kv.Value)
             {
-                foreach (var creator in kv.Value)
-                {
-                    creator(this, linked);
-                }
+                creator(this, linked);
             }
         }
+    }
 
-        public Task<object> GetLinkedAsync(object o, Type viewMode, Type viewClass, CancellationToken token = default) 
-            => _cache.GetLinkedAsync(o, viewMode, viewClass, token);
+    public Task<object> GetLinkedAsync(object o, Type viewMode, Type viewClass, CancellationToken token = default) 
+        => _cache.GetLinkedAsync(o, viewMode, viewClass, token);
 
-        public Task<IView?> GetViewAsync(object baseObject, CancellationToken token) 
-            => GetViewAsync(baseObject, typeof(DefaultViewMode), typeof(IDefaultViewClass), token);
+    public Task<IView?> GetViewAsync(object baseObject, CancellationToken token) 
+        => GetViewAsync(baseObject, typeof(DefaultViewMode), typeof(IDefaultViewClass), token);
 
-        public Task<IView?> GetViewAsync(object baseObject, Type viewMode, Type viewClass, CancellationToken token = default)
-            => _cache.GetViewAsync(baseObject, viewMode, viewClass, token);
+    public Task<IView?> GetViewAsync(object baseObject, Type viewMode, Type viewClass, CancellationToken token = default)
+        => _cache.GetViewAsync(baseObject, viewMode, viewClass, token);
 
-        //private readonly Func<Type, object> _locate ;
-        public T Locate<T>(object baseObject = null) 
-            => (T)Locate(typeof(T), baseObject);
+    //private readonly Func<Type, object> _locate ;
+    public T Locate<T>(object baseObject = null) 
+        => (T)Locate(typeof(T), baseObject);
 
 
-        public object Locate(Type type, object baseObject = null) 
-            =>
+    public object Locate(Type type, object baseObject = null) 
+        =>
             Locate(() => _mvvm.LocateFunc?.Invoke(type), baseObject); // _locateFunc();
 
-        public T Locate<T>(Func<T> locate, object baseObject = null) 
-            => (T)Locate(new Func<object>(() => locate()), baseObject);
+    public T Locate<T>(Func<T> locate, object baseObject = null) 
+        => (T)Locate(new Func<object>(() => locate()), baseObject);
 
-        public object Locate(Func<object> locate, object baseObject = null)
+    public object Locate(Func<object> locate, object baseObject = null)
+    {
+        var obj = locate();
+        switch (obj)
         {
-            var obj = locate();
-            switch (obj)
-            {
-                case IView v:
-                    var vh = Mvvm.ViewHelperFactory.Get(v, h => h.Context = this);
-                    vh.Linked = baseObject;
-                    CallCreators(v);
-                    break;
+            case IView v:
+                var vh = Mvvm.ViewHelperFactory.Get(v, h => h.Context = this);
+                vh.Linked = baseObject;
+                CallCreators(v);
+                break;
 
-                case IViewModel vm:
-                    IMvvmContext context = this;
-                    if (vm is IMvvmContextProvider p)
-                    {
-                        context = GetChildContext(vm.GetType().Name);
-                        p.ConfigureMvvmContext(context);
-                    }
-                    vm.MvvmContext = context;
-                    vm.Model = baseObject;
+            case IViewModel vm:
+                IMvvmContext context = this;
+                if (vm is IMvvmContextProvider p)
+                {
+                    context = GetChildContext(vm.GetType().Name);
+                    p.ConfigureMvvmContext(context);
+                }
+                vm.MvvmContext = context;
+                vm.Model = baseObject;
 
-                    CallCreators(vm);
-                    break;
-            }
-            if (baseObject is IViewModel vmb)
-            {
-                vmb.SetLinked(obj);
-            }
-            return obj;
+                CallCreators(vm);
+                break;
         }
-
-        // TODO : missing
-        //public void Initialize(IRuntimeImportContext ctx, object[] args)
-        //{
-        //    Mvvm = ctx.GetTarget<IMvvmService>();
-        //}
+        if (baseObject is IViewModel vmb)
+        {
+            vmb.SetLinked(obj);
+        }
+        return obj;
     }
+
+    // TODO : missing
+    //public void Initialize(IRuntimeImportContext ctx, object[] args)
+    //{
+    //    Mvvm = ctx.GetTarget<IMvvmService>();
+    //}
 }
