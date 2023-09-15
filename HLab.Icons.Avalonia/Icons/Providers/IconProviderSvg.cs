@@ -1,5 +1,6 @@
 ﻿using System.Resources;
 using Avalonia.Media;
+using HLab.Mvvm.Annotations;
 using Svg;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;

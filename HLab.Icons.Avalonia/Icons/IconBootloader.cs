@@ -9,6 +9,7 @@ using Avalonia.Platform;
 using HLab.Base.Extensions;
 using HLab.Core.Annotations;
 using HLab.Icons.Avalonia.Icons.Providers;
+using HLab.Mvvm.Annotations;
 
 namespace HLab.Icons.Avalonia.Icons;
 

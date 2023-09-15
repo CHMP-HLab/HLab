@@ -3,11 +3,16 @@
                       xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                       xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
                       xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                      xmlns:reactiveUi="clr-namespace:HLab.Mvvm.ReactiveUI;assembly=HLab.Mvvm.ReactiveUI"
                       mc:Ignorable="d" 
                       d:DesignHeight="450" d:DesignWidth="800"
                       Width ="500"
                       Height="200"
+                      x:DataType="reactiveUi:ProgressLoadingViewModel"
 >
+    <Design.DataContext>
+        <reactiveUi:ProgressLoadingViewModel/>
+    </Design.DataContext>
     <StackPanel>
         <Label>Chargement en cours..</Label>
         <ProgressBar MinHeight="50" Minimum="0" Maximum="1" Value="{Binding Progress}" />

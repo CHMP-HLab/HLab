@@ -4,6 +4,8 @@ using Avalonia.Media;
 using Avalonia.Media.Immutable;
 using Avalonia.Platform;
 using HLab.Base.Avalonia.Extensions;
+using HLab.ColorTools.Avalonia;
+using HLab.Mvvm.Annotations;
 using Svg.Skia;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;
@@ -18,18 +20,11 @@ public class IconProviderSvgFromUri : IIconProvider
         _uri = uri;
     }
 
-    public object Get(IBrush? foreground)
+    public object Get(uint foregroundColor = 0)
     {
         //var svg = new global::Avalonia.Svg.Skia.Svg(_uri){Path = _uri.AbsoluteUri};
 
-
-        var color = (foreground switch
-        {
-            ISolidColorBrush s => s.Color,
-            IGradientBrush g => g.GradientStops.AverageColor(),
-            //ConicGradientBrush cg => cg.GradientStops.Average(),
-            _ => Colors.Red
-        });
+        var color = foregroundColor.ToAvaloniaColor();
 
         var foregroundString = $"{color.R:X2}{color.G:X2}{color.B:X2}";
 
@@ -57,12 +52,13 @@ public class IconProviderSvgFromUri : IIconProvider
         return picture;
     }
 
-    public Task<object> GetAsync(IBrush? foreground)
+    public Task<object> GetAsync(uint foreground = 0)
     {
+
         return Task.FromResult(Get(foreground));
     }
 
-    public Task<string> GetTemplateAsync(IBrush? foreground)
+    public Task<string> GetTemplateAsync(uint foreground = 0)
     {
         return Task.FromResult($"<Svg Path=\"{_uri.AbsoluteUri}\"/>");
     }

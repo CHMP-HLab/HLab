@@ -13,11 +13,11 @@ public abstract class IconProviderXaml : IconProvider
         _sourceXaml = sourceXaml;
     }
 
-    protected override object? GetIcon(IBrush? foreground) => XamlTools.FromXamlString(_sourceXaml);
+    protected override object? GetIcon(uint foreground = 0) => XamlTools.FromXamlString(_sourceXaml);
 
-    protected override async Task<object?> GetIconAsync(IBrush? foreground) => await XamlTools.FromXamlStringAsync(_sourceXaml).ConfigureAwait(true);
+    protected override async Task<object?> GetIconAsync(uint foreground = 0) => await XamlTools.FromXamlStringAsync(_sourceXaml).ConfigureAwait(true);
 
-    public override async Task<string> GetTemplateAsync(IBrush? foreground) => _sourceXaml;
+    public override async Task<string> GetTemplateAsync(uint foreground = 0) => _sourceXaml;
 
     protected void SetSource(string  source) => _sourceXaml = source;
 }
@@ -32,7 +32,7 @@ public abstract class IconProviderXamlParser : IconProviderXaml
     protected abstract object? ParseIcon();
     protected abstract Task<object?> ParseIconAsync();
         
-    protected override object? GetIcon(IBrush? foreground)
+    protected override object? GetIcon(uint foreground = 0)
     {
         if (_parsed) return base.GetIcon(foreground);
 
@@ -45,7 +45,7 @@ public abstract class IconProviderXamlParser : IconProviderXaml
         return icon;
     }
 
-    protected override async Task<object?> GetIconAsync(IBrush? foreground)
+    protected override async Task<object?> GetIconAsync(uint foreground = 0)
     {
         if (_parsed) return await base.GetIconAsync(foreground);
 
@@ -59,7 +59,7 @@ public abstract class IconProviderXamlParser : IconProviderXaml
         return icon;
     }
 
-    public override async Task<string> GetTemplateAsync(IBrush? foreground)
+    public override async Task<string> GetTemplateAsync(uint foreground = 0)
     {
         while (!_parsed)
         {

@@ -1,21 +1,22 @@
 ﻿using System.Collections.Concurrent;
 using Avalonia;
 using Avalonia.Media;
+using HLab.Mvvm.Annotations;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;
 
-public abstract class IconProvider
+public abstract class IconProvider : IIconProvider
 {
-    public object? Get(IBrush? foreground) => GetPooled(foreground)?? GetIcon(foreground);
-    public async Task<object?> GetAsync(IBrush? foreground) => GetPooled(foreground)??await GetIconAsync(foreground);
+    public object? Get(uint foreground = 0) => GetPooled(foreground)?? GetIcon(foreground);
+    public async Task<object?> GetAsync(uint foreground = 0) => GetPooled(foreground)??await GetIconAsync(foreground);
 
-    protected abstract object? GetIcon(IBrush? foreground);
-    protected abstract Task<object?> GetIconAsync(IBrush? foreground);
-    public abstract Task<string> GetTemplateAsync(IBrush? foreground);
+    protected abstract object? GetIcon(uint foreground = 0);
+    protected abstract Task<object?> GetIconAsync(uint foreground = 0);
+    public abstract Task<string> GetTemplateAsync(uint foreground = 0);
 
 
     readonly ConcurrentQueue<object> _pool = new();
-    object? GetPooled(IBrush? foreground)
+    object? GetPooled(uint foreground = 0)
     {
         // TODO Urgent : implement foreground
         while (_pool.TryDequeue(out var pooledIcon))

@@ -3,6 +3,7 @@ using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using HLab.Icons.Avalonia;
 using HLab.Icons.Avalonia.Icons;
+using HLab.Mvvm.Annotations;
 
 namespace HLab.UserNotification.Avalonia
 {

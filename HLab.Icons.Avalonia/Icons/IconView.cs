@@ -4,6 +4,8 @@ using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Threading;
 using HLab.Base.Avalonia.DependencyHelpers;
+using HLab.ColorTools.Avalonia;
+using HLab.Mvvm.Annotations;
 
 namespace HLab.Icons.Avalonia.Icons;
 
@@ -237,7 +239,7 @@ public class IconView : ContentControl
             async () =>
             {
                 if (cancel.State) return;
-                var icon = await iconService.GetIconAsync(path,Foreground);
+                var icon = await iconService.GetIconAsync(path,Foreground?.ToColor().ToUInt32()??0);
                 if (cancel.State) return;
                 _iconElement.Content = icon;
                 Update();

@@ -1,10 +1,9 @@
 ﻿using Avalonia.Controls;
-using HLab.Icons.Avalonia.Icons;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Avalonia;
 
-public class WindowViewModelDesign
+public class WindowViewModelDesign : IDesignViewModel
 {
     public WindowViewModelDesign()
     {

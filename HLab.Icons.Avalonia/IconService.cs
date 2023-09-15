@@ -1,15 +1,11 @@
 ﻿using System.Collections.Concurrent;
-using System.ComponentModel;
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.Presenters;
 using Avalonia.Markup.Xaml;
-using Avalonia.Media;
 using HLab.Base;
 using HLab.Core;
-using HLab.Icons.Avalonia.Icons;
+using HLab.Mvvm.Annotations;
 
 namespace HLab.Icons.Avalonia;
 
@@ -30,7 +26,7 @@ public class IconService : Service, IIconService
     readonly AsyncDictionary<string, object> _templates = new();
     readonly AsyncDictionary<string, string> _source = new();
 
-    public async Task<object> GetIconTemplateAsync(string path, IBrush? foreground)
+    public async Task<object?> GetIconTemplateAsync(string path, uint foreground = 0)
     {
         return await _templates.GetOrAddAsync(
             path,
@@ -39,16 +35,19 @@ public class IconService : Service, IIconService
     }
 
     //public Task<object> GetIconAsync(string path) => GetObjectAsync(path, "ContentControl");
-    public Task<object> GetIconAsync(string path,IBrush? color) => BuildIconAsync(path,color);
+    public Task<object?> GetIconAsync(string path, uint foreground = 0)
+    {
+        return BuildIconAsync(path, foreground);
+    }
 
-    async Task<object> BuildTemplateAsync(string path, IBrush? foreground)
+    async Task<object> BuildTemplateAsync(string path, uint foreground = 0)
     {
         var template = await GetObjectAsync(path, "Template", foreground);
         // await await Application.Current.Dispatcher.InvokeAsync(() => BuildIconTemplateAsync(path));
         return template;
     }
 
-    async Task<object> GetObjectAsync(string path, string container, IBrush? foreground)
+    async Task<object> GetObjectAsync(string path, string container, uint foreground = 0)
     {
         var result = await _source.GetOrAddAsync(
             path,
@@ -80,7 +79,7 @@ public class IconService : Service, IIconService
     }
 
 
-    public async Task<object?> BuildIconAsync(string path, IBrush? foreground)
+    public async Task<object?> BuildIconAsync(string path, uint foreground = 0)
     {
         if (string.IsNullOrEmpty(path)) return string.Empty;
 
@@ -119,7 +118,7 @@ public class IconService : Service, IIconService
         return icon;
     }
 
-    public async Task<string> BuildIconSourceAsync(string path, IBrush? foreground)
+    public async Task<string> BuildIconSourceAsync(string path, uint foreground = 0)
     {
         if (string.IsNullOrEmpty(path)) return string.Empty;
 
@@ -179,7 +178,7 @@ public class IconService : Service, IIconService
     }
 
 
-    object GetSingleIcon(string path, IBrush? foreground)
+    object GetSingleIcon(string path, uint foreground = 0)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
 
@@ -200,7 +199,7 @@ public class IconService : Service, IIconService
         return null;
     }
 
-    async Task<object> GetSingleIconAsync(string path, IBrush? foreground)
+    async Task<object> GetSingleIconAsync(string path, uint foreground = 0)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
 
@@ -221,7 +220,7 @@ public class IconService : Service, IIconService
         return null;
     }
 
-    async Task<string> GetSingleIconTemplateAsync(string path, IBrush? foreground)
+    async Task<string> GetSingleIconTemplateAsync(string path, uint foreground = 0)
     {
         if (string.IsNullOrWhiteSpace(path)) return null;
 

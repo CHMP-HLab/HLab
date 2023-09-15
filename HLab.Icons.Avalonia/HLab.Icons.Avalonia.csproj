@@ -18,6 +18,7 @@
   <ItemGroup>
     <ProjectReference Include="..\HLab.Base.Avalonia\HLab.Base.Avalonia.csproj" />
     <ProjectReference Include="..\HLab.Core\HLab.Core.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Annotations\HLab.Mvvm.Annotations.csproj" />
   </ItemGroup>
 
 </Project>
