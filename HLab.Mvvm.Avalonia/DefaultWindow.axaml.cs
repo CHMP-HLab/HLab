@@ -17,19 +17,19 @@ public partial class DefaultWindow : Window
         InitializeComponent();
 
     }
-    //public object? View
-    //{
-    //    get => GetValue(ViewProperty);
-    //    set => SetValue(ViewProperty, value);
-    //}
+    public object? View
+    {
+        get => GetValue(ViewProperty);
+        set => SetValue(ViewProperty, value);
+    }
 
-    //public static readonly StyledProperty<object?> ViewProperty =
-    //    H.Property<object?>()
-    //        .OnChangeBeforeNotification((e) =>
-    //        {
-    //            e.ContentControl.Content = e.View;
-    //        })
-    //        .Register();
+    public static readonly StyledProperty<object?> ViewProperty =
+        H.Property<object?>()
+            .OnChanged((w,e) =>
+            {
+                w.ContentControl.Content = e.NewValue.Value;
+            })
+            .Register();
 
 
 }

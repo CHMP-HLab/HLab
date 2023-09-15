@@ -23,6 +23,19 @@
         <avalonia:WindowViewModelDesign />
     </Design.DataContext>
 
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="{DynamicResource ThemeBackgroundColor}"
+                    TintOpacity="0.5"
+                    MaterialOpacity="0.2" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+
+        <ContentControl x:Name="ContentControl"/>
+    </Panel>
     <!--
     BorderThickness="0"
 	-->

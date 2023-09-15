@@ -17,18 +17,11 @@ public static class ViewAvaloniaExtensions
     {
         if (view is Window win) return win;
 
-        var w = new DefaultWindow
+        return  new DefaultWindow
         {
-            //Background = Brushes.Blue,
             DataContext = view?.DataContext,
-            Content = view,
-//
-            
-            //SizeToContent = SizeToContent.WidthAndHeight,
-            //WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            View = view,
         };
-
-        return w;
     }
 
     public static Window AsDialog(this IView view)
