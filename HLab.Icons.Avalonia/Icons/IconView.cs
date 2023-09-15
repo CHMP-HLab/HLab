@@ -163,6 +163,7 @@ public class IconView : ContentControl
         get => GetValue(IconMaxHeightProperty);
         set => SetValue(IconMaxHeightProperty, value);
     }
+
     public double IconMaxWidth
     {
         get => GetValue(IconMaxWidthProperty);

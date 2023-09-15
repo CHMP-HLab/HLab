@@ -34,18 +34,16 @@ public static partial class ColorExtensions
             ((uint)c.B << 24)
         );
     }
-    public static Color ToColor(this IBrush brush)
-    {
-        var color = (brush switch
+    public static Color ToColor(this IBrush brush) =>
+    (
+        brush switch
         {
             ISolidColorBrush s => s.Color,
             IGradientBrush g => g.GradientStops.AverageColor(),
             //ConicGradientBrush cg => cg.GradientStops.Average(),
             _ => Colors.Red
-        });
-
-        return Colors.Red;
-    }
+        }
+    );
 
     public static Color ToAvaloniaColor(this int? v)
     {
