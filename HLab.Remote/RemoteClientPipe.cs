@@ -14,7 +14,7 @@ namespace HLab.Remote
             _pipeName = pipeName;
         }
 
-        public async Task<string> SendMessageAsync(string message, CancellationToken token)
+        public async Task SendMessageAsync(string message, CancellationToken token)
         {
             var retry = true;
             await using var pipe = new NamedPipeClientStream(
@@ -40,7 +40,7 @@ namespace HLab.Remote
                         result = await pipe.ReadMessageAsync();
 
                         pipe.Close();
-                        return result;
+                        return;
                     }
                     else retry = true;
                 }
@@ -50,8 +50,6 @@ namespace HLab.Remote
                 }
 
             }
-
-            return "";
         }
 
 
