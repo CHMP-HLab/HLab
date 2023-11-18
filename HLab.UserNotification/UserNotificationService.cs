@@ -2,12 +2,15 @@
 
 using System;
 using System.Threading.Tasks;
+using System.Windows.Input;
 
 namespace HLab.UserNotification;
 
 public interface IUserNotificationService 
 {
-    void AddMenu(int v1, string v2, string v3, Func<Task> todo);
+    void AddMenu(int pos, string header, string icon, Func<Task> todo);
+    void AddMenu(int pos, string header, string icon, ICommand todo);
+
     event Action<object, object> Click;
     void SetIcon(string icon, int i);
 

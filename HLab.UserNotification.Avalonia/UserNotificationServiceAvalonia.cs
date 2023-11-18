@@ -1,4 +1,6 @@
 ﻿using System.Runtime.InteropServices;
+using System.Windows.Input;
+using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
 using HLab.Icons.Avalonia;
@@ -11,12 +13,15 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
 {
     // TODO : Toast implementation
     //readonly INotificationManager _manager;
-    TrayIcon _trayIcon;
+    readonly TrayIcons _trayIcons = new();
+    readonly TrayIcon _trayIcon = new();
     readonly IIconService _icons;
 
     public UserNotificationServiceAvalonia(IIconService icons)
     {
         _icons = icons;
+        _trayIcons.Add(_trayIcon);
+        TrayIcon.SetIcons(Application.Current, _trayIcons);
         //_manager = CreateManager();
     }
 
@@ -39,26 +44,39 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
 
     //    throw new PlatformNotSupportedException();
     //}
+    public void AddMenu(int pos, NativeMenuItem item)
+    {
+        _trayIcon.Menu ??= new NativeMenu();
+
+        if (pos < 0 || pos >= _trayIcon.Menu.Items.Count)
+            _trayIcon.Menu.Items.Add(item);
+        else
+            _trayIcon.Menu.Items.Insert(pos, item);
+    }
 
     public void AddMenu(int pos, string header, string iconPath, Func<Task> action)
     {
-        var contextMenu = _trayIcon?.Menu;
-        if (contextMenu == null) return;
-
-
         NativeMenuItem item = new(header.ToString())
         {
             Icon = GetImage(iconPath, 16),
             //IsChecked = chk,
         };
 
-
         item.Click += async (o,a) => await action();
 
-        if (pos < 0 || pos >= contextMenu.Items.Count)
-            contextMenu.Items.Add(item);
-        else
-            contextMenu.Items.Insert(pos, item);
+        AddMenu(pos, item);
+    }
+
+    public void AddMenu(int pos, string header, string iconPath, ICommand command)
+    {
+        NativeMenuItem item = new(header.ToString())
+        {
+            Icon = GetImage(iconPath, 16),
+            Command = command,
+            //IsChecked = chk,
+        };
+
+        AddMenu(pos, item);
     }
 
     Bitmap GetImage(string path, int size)
@@ -69,10 +87,6 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
 
         return XamlTools.GetBitmap(icon, new(size, size));
     }
-
-
-
-
 
     public event Action<object, object>? Click;
 
@@ -107,12 +121,14 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
 
     public void Show()
     {
+        /*
         _trayIcon = new TrayIcon
         {
             Icon = Icon,
             ToolTipText = ToolTipText,
                 
         };
+        */
 
     }
 

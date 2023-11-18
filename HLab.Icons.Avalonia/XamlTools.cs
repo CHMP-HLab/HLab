@@ -524,6 +524,8 @@ public static class XamlTools
         var renderBitmap =
             new RenderTargetBitmap(size);
         renderBitmap.Render(grid);
+
+        return renderBitmap;
             
         return renderBitmap.CreateScaledBitmap(size);
     }
