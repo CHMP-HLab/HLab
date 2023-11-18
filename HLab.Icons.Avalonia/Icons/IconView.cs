@@ -201,7 +201,7 @@ public class IconView : ContentControl
                 if (_designTimeService == null)
                 {
                     _designTimeService = new IconService();
-                    new IconBootloader(_designTimeService).Load(null);
+                    new IconBootloader(_designTimeService).LoadAsync(null);
                 }
 
                 IconService = _designTimeService;

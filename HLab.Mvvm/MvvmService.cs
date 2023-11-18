@@ -17,7 +17,7 @@ public class MvvmService : IMvvmService
     readonly IMessagesService _messageBus;
     readonly IMvvmPlatformImpl _platform;
 
-    readonly string _assemblyName;
+    readonly string _assemblyName = Assembly.GetAssembly(typeof(IView))?.GetName().Name??"";
 
     readonly ConcurrentDictionary<Type, MvvmBaseEntry> _entries = new();
 
@@ -34,7 +34,6 @@ public class MvvmService : IMvvmService
         _platform = platform;
         ServiceState = ServiceState.NotConfigured;
         MainContext = new MvvmContext(null,"root",this);
-        _assemblyName = Assembly.GetAssembly(typeof(IView))?.GetName().Name??"";
     }
 
     public Func<Type,object> LocateFunc {get; }
@@ -54,7 +53,8 @@ public class MvvmService : IMvvmService
         if(_entries.TryGetValue(getType, out var best))
         {
             var result = await best.GetLinkedAsync(viewClass, viewMode, token);
-            if (result.LinkedType != null) return result.LinkedType;
+            if (result.LinkedType != null) 
+                return result.LinkedType;
         }
 
         var level = int.MaxValue;
@@ -80,14 +80,14 @@ public class MvvmService : IMvvmService
         var baseMode = viewMode.BaseType;
         if (baseMode == typeof(ViewMode)) return null;
         linkedType = await GetLinkedTypeAsync(getType, baseMode, viewClass, token);
-        Register(getType, linkedType, viewClass, viewMode);
+        await RegisterAsync(getType, linkedType, viewClass, viewMode);
         return linkedType;
     }
 
     /// <summary>
     /// Register all assemblies referencing this (HLab.Mvvm).
     /// </summary>
-    public virtual void Register()
+    public virtual async Task RegisterAsync()
     {
         _platform.Register(this);
 
@@ -96,7 +96,7 @@ public class MvvmService : IMvvmService
         _perAssemblyProgress = 1.0 / assemblies.Count;
         foreach (var assembly in assemblies)
         {
-            Register(assembly);
+            await RegisterAsync(assembly);
         }
 
         ServiceState = ServiceState.Available;
@@ -105,7 +105,7 @@ public class MvvmService : IMvvmService
     double _perAssemblyProgress = 0.0;
     double _progress = 0.0;
 
-    void Register(Assembly assembly)
+    async Task RegisterAsync(Assembly assembly)
     {
         // Find all views and register it
         var views = assembly.GetTypesSafe().Where(t => typeof(IView).IsAssignableFrom(t)).ToList();
@@ -114,7 +114,7 @@ public class MvvmService : IMvvmService
         if (views.Count == 0)
         {
             _progress += _perAssemblyProgress;
-            OnProgress(_progress, assembly.GetName().Name);
+            OnProgress(_progress, assembly.GetName()?.Name??"");
         }
         else
         {
@@ -123,6 +123,7 @@ public class MvvmService : IMvvmService
             foreach (var viewType in views)
             {
                 OnProgress(_progress, viewType.Name);
+
                 foreach (var t in viewType.GetInterfaces().Where(i =>
                              i.IsGenericType &&
                              i.GetGenericTypeDefinition() == typeof(IView<,>)
@@ -138,11 +139,11 @@ public class MvvmService : IMvvmService
                     if (viewClasses.Count > 0)
                     {
                         foreach (var cls in viewClasses)
-                            RegisterAll(baseType, viewType, cls, viewMode);
+                            await RegisterAllAsync(baseType, viewType, cls, viewMode);
                     }
                     else
                     {
-                        RegisterAll(baseType, viewType, typeof(IDefaultViewClass), viewMode);
+                        await RegisterAllAsync(baseType, viewType, typeof(IDefaultViewClass), viewMode);
                     }
                 }
 
@@ -151,24 +152,24 @@ public class MvvmService : IMvvmService
         }
     }
 
-    public void RegisterAll(
+    public async Task RegisterAllAsync(
         Type baseType
         , Type linkedType
         , Type viewClass
         , Type viewMode
     )
     {
-        Register(baseType, linkedType, viewClass, viewMode);
+        await RegisterAsync(baseType, linkedType, viewClass, viewMode);
 
         var basesTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(baseType.IsAssignableFrom).Where(t => !t.IsAssignableFrom(baseType)).Where(t => !typeof(IDesignViewModel).IsAssignableFrom(t)));
         var linkedTypes = AllAssemblies().SelectMany(a => a.GetTypesSafe().Where(linkedType.IsAssignableFrom)).ToList();
 
         foreach (var bt in basesTypes)
         foreach (var lt in linkedTypes)
-            Register(bt, lt, viewClass, viewMode);
+            await RegisterAsync(bt, lt, viewClass, viewMode);
     }
 
-    public void Register(Type baseType, Type linkedType, Type viewClass, Type viewMode)
+    public async Task RegisterAsync(Type baseType, Type linkedType, Type viewClass, Type viewMode)
     {
         var type = baseType;
 

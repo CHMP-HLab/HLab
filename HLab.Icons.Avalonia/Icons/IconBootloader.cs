@@ -15,7 +15,7 @@ namespace HLab.Icons.Avalonia.Icons;
 
 public class IconBootloader(IIconService icons) : IBootloader
 {
-    public void Load(IBootContext b)
+    public async Task LoadAsync(IBootContext b)
     {
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(e => !e.IsDynamic))
         {
@@ -43,7 +43,6 @@ public class IconBootloader(IIconService icons) : IBootloader
                 }
 
             }
-
 
             var name = assembly.GetName().Name;
             var uris = AssetLoader.GetAssets(new Uri($"avares://{name}/"),null);

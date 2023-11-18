@@ -1,4 +1,6 @@
-﻿namespace HLab.Core.Annotations;
+﻿using System.Threading.Tasks;
+
+namespace HLab.Core.Annotations;
 // TODO : Progress for bootloader
 
 public interface IBootContext
@@ -25,7 +27,7 @@ public interface IBootContext
 
 public interface IBootloader
 {
-    void Load(IBootContext bootstrapper);
+    Task LoadAsync(IBootContext bootstrapper);
 }
 /*
 

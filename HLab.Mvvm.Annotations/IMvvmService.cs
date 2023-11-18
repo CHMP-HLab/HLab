@@ -40,8 +40,8 @@ public interface IMvvmService : IService
     HelperFactory<IViewHelper> ViewHelperFactory { get; }
     Task<Type> GetLinkedTypeAsync(Type getType, Type viewMode, Type viewClass, CancellationToken token = default);
 
-    void Register();
-    void Register(Type baseType, Type type, Type viewMode, Type viewClass);
+    Task RegisterAsync();
+    Task RegisterAsync(Type baseType, Type type, Type viewMode, Type viewClass);
 
     Task<IView> GetNotFoundViewAsync(Type getType, Type viewMode, Type viewClass, CancellationToken token = default);
     Task PrepareViewAsync(IView fe, CancellationToken token = default);

@@ -93,8 +93,8 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
                                       + "\n" + (viewMode?.FullName ?? "??") 
                                       + "\n" + (viewClass?.FullName ?? "??") }
             }
-            , DispatcherPriority.Default
-            ,token
+            , DispatcherPriority.Normal
+            , token
         );
 
     }

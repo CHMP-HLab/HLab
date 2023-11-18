@@ -4,15 +4,15 @@
 	<TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Platforms>x64</Platforms>
+    <Platforms>x64;x86;anycpu</Platforms>
 	<LangVersion>preview</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.0.5" />
-    <PackageReference Include="Avalonia.Controls.Skia" Version="11.0.0.2" />
+    <PackageReference Include="Avalonia.Controls.Skia" Version="11.0.0.4" />
     <PackageReference Include="Avalonia.Markup.Xaml.Loader" Version="11.0.5" />
-    <PackageReference Include="Avalonia.Svg.Skia" Version="11.0.0.2" />
+    <PackageReference Include="Avalonia.Svg.Skia" Version="11.0.0.4" />
   </ItemGroup>
 
   <ItemGroup>

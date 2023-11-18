@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using HLab.Base;
 using HLab.Core.Annotations;
 
@@ -10,40 +11,28 @@ namespace HLab.Core;
 /// <summary>
 /// 
 /// </summary>
-public class Bootstrapper
+public class Bootstrapper(Func<IEnumerable<IBootloader>> getBootloaders)
 {
-    class Context : IBootContext
+    class Context(Bootstrapper bootstrapper, string name, Func<IBootContext,Task> action) : IBootContext
     {
-        readonly Bootstrapper _bootstrapper;
-        readonly Action<IBootContext> _action;
-        public string Name { get; }
+        public string Name => name;
 
-        public Context(Bootstrapper bootstrapper, string name, Action<IBootContext> action)
-        {
-            _bootstrapper = bootstrapper;
-            _action = action;
-            Name = name;
-        }
 
-        public void Requeue() => _bootstrapper.Enqueue(this);
+        public void Requeue() => bootstrapper.Enqueue(this);
 
-        public void Enqueue(string name, Action<IBootContext> action) => _bootstrapper.Enqueue(name, action);
+        public void Enqueue(string name, Func<IBootContext,Task> a) => bootstrapper.Enqueue(name, a);
 
-        public void Invoke() => _action(this);
+        public Task InvokeAsync() => action(this);
 
-        public bool StillContains(params string[] name) => _bootstrapper.Contains(name);
+        public bool StillContains(params string[] name) => bootstrapper.Contains(name);
 
         public override string ToString() => Name;
     }
 
-    readonly Func<IEnumerable<IBootloader>> _getBootloaders;
-
-    public Bootstrapper(Func<IEnumerable<IBootloader>> getBootloaders) => _getBootloaders = getBootloaders;
-
     readonly ConcurrentQueue<Context> _queue = new();
-    public void Boot()
+    public async Task BootAsync()
     {
-        var bl = _getBootloaders();
+        var bl = getBootloaders();
 
         var bootLoaders = Sort(bl);
 
@@ -53,11 +42,12 @@ public class Bootstrapper
         {
             var name = bootLoader.GetType().FullName;
             if (done.Contains(name)) continue;
-            Enqueue(name, bs => bootLoader.Load(bs));
+            Enqueue(name, bs => bootLoader.LoadAsync(bs));
             done.Add(name);
         }
 
-        while (_queue.TryDequeue(out var context)) context.Invoke();
+        while (_queue.TryDequeue(out var context)) 
+            await context.InvokeAsync();
     }
 
     static IEnumerable<T> Sort<T>(IEnumerable<T> src)
@@ -87,7 +77,7 @@ public class Bootstrapper
     void Enqueue(Context context) 
         => _queue.Enqueue(context);
 
-    public void Enqueue(string name, Action<IBootContext> action) 
+    public void Enqueue(string name, Func<IBootContext,Task> action) 
         => Enqueue(new Context(this, name, action));
 
     public bool Contains(params string[] names) 
