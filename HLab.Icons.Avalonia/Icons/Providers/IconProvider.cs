@@ -1,6 +1,5 @@
 ﻿using System.Collections.Concurrent;
 using Avalonia;
-using Avalonia.Media;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;

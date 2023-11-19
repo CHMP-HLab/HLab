@@ -1,12 +1,10 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
-using Avalonia.Metadata;
 using HLab.Base.Extensions;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
-using HLab.Localization.Avalonia.Lang;
 using HLab.Mvvm.Annotations;
 using HLab.Base.Avalonia.DependencyHelpers;
 

@@ -7,7 +7,6 @@ using System.Linq;
 using System.Runtime.CompilerServices;
 
 using HLab.Base;
-using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.NotifyHelpers;
 

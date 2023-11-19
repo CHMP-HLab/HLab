@@ -1,8 +1,4 @@
-﻿using Avalonia;
-using Avalonia.Media;
-using Avalonia.Threading;
-
-namespace HLab.Icons.Avalonia.Icons.Providers;
+﻿namespace HLab.Icons.Avalonia.Icons.Providers;
 
 public abstract class IconProviderXaml : IconProvider
 {

@@ -3,8 +3,6 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
 using System.Threading;
-using System.Xml.Linq;
-using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.NotifyHelpers;
 

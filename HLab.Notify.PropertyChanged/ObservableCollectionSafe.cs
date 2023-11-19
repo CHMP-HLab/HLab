@@ -7,7 +7,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using HLab.Base;
-using HLab.Notify.Annotations;
 using Nito.AsyncEx;
 
 namespace HLab.Notify.PropertyChanged;

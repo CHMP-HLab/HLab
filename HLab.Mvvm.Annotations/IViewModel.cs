@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Runtime.CompilerServices;
-using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Annotations;
 

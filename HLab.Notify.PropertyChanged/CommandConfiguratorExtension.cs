@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged;
 

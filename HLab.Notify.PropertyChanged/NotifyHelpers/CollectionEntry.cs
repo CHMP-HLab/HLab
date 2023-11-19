@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.ComponentModel;
-using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.NotifyHelpers;
 

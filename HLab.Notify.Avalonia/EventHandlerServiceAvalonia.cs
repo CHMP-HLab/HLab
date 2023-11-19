@@ -8,7 +8,7 @@ using HLab.Notify.Annotations;
 
 namespace HLab.Notify.Avalonia;
 
-public class EventHandlerServiceAvalonia : IEventHandlerService
+public class EventHandlerServiceAvalonia //: IEventHandlerService
 {
     public void Invoke(Delegate eventHandler, object source, EventArgs args)
     {
@@ -152,18 +152,18 @@ public class EventHandlerServiceAvalonia : IEventHandlerService
         Dispatcher.UIThread.Post(action);
     }
 
-#if true
-    public void AddHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler) => ExtendedPropertyChangedEventEventManager.AddHandler(source,handler);
+//#if true
+//    public void AddHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler) => ExtendedPropertyChangedEventEventManager.AddHandler(source,handler);
 
-    public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler) => ExtendedPropertyChangedEventEventManager.RemoveHandler(source,handler);
-#else
-         public void AddHandler(IPropertyEntry source,
-            EventHandler<ExtendedPropertyChangedEventArgs> handler)
-            => source.ExtendedPropertyChanged += handler;
+//    public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler) => ExtendedPropertyChangedEventEventManager.RemoveHandler(source,handler);
+//#else
+//         public void AddHandler(IPropertyEntry source,
+//            EventHandler<ExtendedPropertyChangedEventArgs> handler)
+//            => source.ExtendedPropertyChanged += handler;
 
-        public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler)
-            => source.ExtendedPropertyChanged -= handler;
-#endif
+//        public void RemoveHandler(IPropertyEntry source, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+//            => source.ExtendedPropertyChanged -= handler;
+//#endif
 
     public void AddHandler(INotifyPropertyChanged source, EventHandler<PropertyChangedEventArgs> handler,string propertyName) {}
     //    => PropertyChangedEventManager.AddHandler(source, handler,propertyName);

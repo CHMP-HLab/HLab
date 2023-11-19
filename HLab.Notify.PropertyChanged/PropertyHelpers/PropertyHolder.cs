@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
 using System.Threading;
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged.NotifyHelpers;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers;

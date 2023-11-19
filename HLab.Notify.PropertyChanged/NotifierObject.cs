@@ -1,6 +1,4 @@
-﻿using HLab.Notify.Annotations;
-
-namespace HLab.Notify.PropertyChanged;
+﻿namespace HLab.Notify.PropertyChanged;
 
 public class Boxed<T>
 {

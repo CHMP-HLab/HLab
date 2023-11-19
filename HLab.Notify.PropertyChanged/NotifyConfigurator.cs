@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq.Expressions;
-using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged;
 

@@ -2,7 +2,6 @@
 using System.Management;
 using System.Security.Principal;
 using Avalonia.Controls;
-using Avalonia.Markup.Xaml.MarkupExtensions;
 using Avalonia.Markup.Xaml.Styling;
 using Avalonia.Media;
 using HLab.ColorTools.Avalonia;

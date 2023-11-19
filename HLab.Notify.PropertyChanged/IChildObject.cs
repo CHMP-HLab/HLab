@@ -1,5 +1,4 @@
 ﻿using System;
-using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged;
 

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.IO.Pipes;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 

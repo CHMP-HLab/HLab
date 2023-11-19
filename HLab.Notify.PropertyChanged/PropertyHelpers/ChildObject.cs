@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged.NotifyHelpers;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers;

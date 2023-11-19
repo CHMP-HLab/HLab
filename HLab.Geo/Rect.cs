@@ -1,16 +1,13 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Numerics;
-using System.Windows.Markup;
+﻿using System.Diagnostics;
 
 namespace HLab.Geo;
 
-    /// <summary>
-    /// Rect - The primitive which represents a rectangle.  Rects are stored as
-    /// X, Y (Location) and Width and Height (Size).  As a result, Rects cannot have negative
-    /// Width or Height.
-    /// </summary>
-    public partial struct Rect
+/// <summary>
+/// Rect - The primitive which represents a rectangle.  Rects are stored as
+/// X, Y (Location) and Width and Height (Size).  As a result, Rects cannot have negative
+/// Width or Height.
+/// </summary>
+public partial struct Rect
     {
         #region Constructors
 

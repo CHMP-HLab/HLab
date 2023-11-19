@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HLab.Base.Avalonia.Controls;
+﻿namespace HLab.Base.Avalonia.Controls;
 
 public enum Location
 {

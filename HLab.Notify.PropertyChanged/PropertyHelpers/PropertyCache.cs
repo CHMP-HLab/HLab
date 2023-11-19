@@ -2,7 +2,6 @@
 using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
-using HLab.Notify.Annotations;
 
 namespace HLab.Notify.PropertyChanged.PropertyHelpers;
 

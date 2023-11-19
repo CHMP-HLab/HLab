@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace HLab.Mvvm.Annotations;
+﻿namespace HLab.Mvvm.Annotations;
 
 public interface IMainViewModel
 {

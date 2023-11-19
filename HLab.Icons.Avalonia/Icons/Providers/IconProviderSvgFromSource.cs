@@ -1,6 +1,4 @@
-﻿using HLab.Mvvm.Annotations;
-
-namespace HLab.Icons.Avalonia.Icons.Providers;
+﻿namespace HLab.Icons.Avalonia.Icons.Providers;
 
 public class IconProviderSvgFromSource(string source, string name, int? foreColor) : IconProviderXamlParser
 {

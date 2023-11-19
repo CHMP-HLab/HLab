@@ -25,7 +25,6 @@ using System.Collections.Concurrent;
 using System.Diagnostics;
 using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Styling;
 using Avalonia.Threading;
 using HLab.Base.Avalonia.DependencyHelpers;
 using HLab.Mvvm.Annotations;

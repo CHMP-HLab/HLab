@@ -30,7 +30,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using HLab.Base;
-using HLab.Notify.Annotations;
 using HLab.Notify.PropertyChanged.PropertyHelpers;
 using Nito.AsyncEx;
 
