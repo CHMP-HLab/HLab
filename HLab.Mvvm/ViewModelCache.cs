@@ -61,6 +61,7 @@ public class ViewModelCache
 
     public async Task<object?> GetLinkedAsync(object? baseObject,Type viewMode, Type viewClass, CancellationToken token = default)
     {
+        //We cannot retrieve a view for a null object
         if(baseObject==null) return null;
 
         var context = _context;
@@ -91,7 +92,7 @@ public class ViewModelCache
         }
 
         // we don't want to cache views cause they cannot be used twice
-        if (baseObject == null || typeof(IView).IsAssignableFrom(linkedType))
+        if (typeof(IView).IsAssignableFrom(linkedType))
         {
             //linkedObject is View
             return context.Locate(linkedType, baseObject);
@@ -102,7 +103,7 @@ public class ViewModelCache
         return cache.GetOrAdd(linkedType, (t) => context.Locate(t, baseObject));
     }
 
-    public async Task<object> GetLinkedAsync(object baseObject,Type viewMode, Type viewClass)
+    public async Task<object?> GetLinkedAsync(object? baseObject,Type viewMode, Type viewClass)
     {
         if(baseObject==null) return null;
 
@@ -134,7 +135,7 @@ public class ViewModelCache
         }
 
         // we don't want to cache views cause they cannot be used twice
-        if (baseObject == null || typeof(IView).IsAssignableFrom(linkedType))
+        if (typeof(IView).IsAssignableFrom(linkedType))
         {
             //linkedObject is View
             return context.Locate(linkedType, baseObject);
@@ -156,21 +157,36 @@ public class ViewModelCache
 
         while (true)
         {
-            var linked = await GetLinkedAsync(baseObject,viewMode,viewClass, token);
-            if(token.IsCancellationRequested) return null;
-
-            switch (linked)
+            try
             {
-                case null:
-                    return await _mvvm.GetNotFoundViewAsync(baseObject?.GetType(),viewMode,viewClass, token);
+                var linked = await GetLinkedAsync(baseObject, viewMode, viewClass, token);
+                if (token.IsCancellationRequested) return null;
 
-                case IView fe:
-                    await _mvvm.PrepareViewAsync(fe, token);
-                    return fe;
-                    
-                default:
-                    baseObject = linked;
-                    break;
+                switch (linked)
+                {
+                    case null:
+                        return await _mvvm.GetNotFoundViewAsync(baseObject.GetType(), viewMode, viewClass, token);
+
+                    case IView fe:
+                        await _mvvm.PrepareViewAsync(fe, token);
+                        return fe;
+
+                    default:
+                        baseObject = linked;
+                        break;
+                }
+
+            }
+            catch (Exception e)
+            {
+                if (e is OperationCanceledException)
+                {
+                    return null;
+                }
+                else
+                {
+                    throw;
+                }
             }
         }
     }

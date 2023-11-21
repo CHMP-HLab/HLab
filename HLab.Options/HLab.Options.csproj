@@ -2,9 +2,9 @@
 
   <PropertyGroup>
     <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
-    <Platforms>AnyCPU;x64</Platforms>
+    <Platforms>AnyCPU;x64;x86</Platforms>
     <Version>2.1.0.0</Version>
-    <Configurations>Debug;Release;ReleaseDebug;DebugRelease</Configurations>
+    <Configurations>Debug;Release</Configurations>
     <LangVersion>preview</LangVersion>
   </PropertyGroup>
 

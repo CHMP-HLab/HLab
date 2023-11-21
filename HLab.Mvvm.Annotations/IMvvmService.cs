@@ -38,7 +38,7 @@ public interface IMvvmService : IService
 {
     IMvvmContext MainContext { get; }
     HelperFactory<IViewHelper> ViewHelperFactory { get; }
-    Task<Type> GetLinkedTypeAsync(Type getType, Type viewMode, Type viewClass, CancellationToken token = default);
+    Task<Type?> GetLinkedTypeAsync(Type getType, Type viewMode, Type viewClass, CancellationToken token = default);
 
     Task RegisterAsync();
     Task RegisterAsync(Type baseType, Type type, Type viewMode, Type viewClass);

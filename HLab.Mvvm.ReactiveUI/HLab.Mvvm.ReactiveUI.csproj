@@ -1,14 +1,15 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <ImplicitUsings>enable</ImplicitUsings>
     <Nullable>enable</Nullable>
-    <Platforms>x64;x86;anycpu</Platforms>
+    <Platforms>x64;x86;AnyCpu</Platforms>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.5" />
+	  <PackageReference Include="Avalonia" Version="11.0.5" />
+	  <PackageReference Include="Avalonia.ReactiveUI" Version="11.0.5" />
   </ItemGroup>
 
   <ItemGroup>
