@@ -140,12 +140,10 @@ public class ViewModelCache
             //linkedObject is View
             return context.Locate(linkedType, baseObject);
         }
-        else
-        {
-            // baseObject is ViewModel
-            var cache = _linked.GetOrCreateValue(baseObject);
-            return cache.GetOrAdd(linkedType, (t) => context.Locate(t, baseObject));
-        }
+
+        // baseObject is ViewModel
+        var cache = _linked.GetOrCreateValue(baseObject);
+        return cache.GetOrAdd(linkedType, (t) => context.Locate(t, baseObject));
     }
     public async Task<IView?> GetViewAsync(object? baseObject, Type? viewMode, Type? viewClass, CancellationToken token = default)
     {

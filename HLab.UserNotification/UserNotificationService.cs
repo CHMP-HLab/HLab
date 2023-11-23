@@ -6,11 +6,11 @@ namespace HLab.UserNotification;
 
 public interface IUserNotificationService 
 {
-    void AddMenu(int pos, string header, string icon, Func<Task> todo);
-    void AddMenu(int pos, string header, string icon, ICommand todo);
+    Task AddMenuAsync(int pos, string header, string icon, Func<Task> todo);
+    Task AddMenuAsync(int pos, string header, string icon, ICommand todo);
 
     event Action<object, object> Click;
-    void SetIcon(string icon, int i);
+    Task SetIconAsync(string icon, int i);
 
     public string ToolTipText { get; set; }
     void Show();

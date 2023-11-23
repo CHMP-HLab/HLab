@@ -55,6 +55,14 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
     {
         if (view is not AvaloniaObject obj) throw new InvalidCastException("IView objects should be AvaloniaObject in Avalonia implementation");
 
+        if (Dispatcher.UIThread.CheckAccess())
+        {
+            ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));
+            ViewLocator.SetViewMode(obj,typeof(DefaultViewMode));
+            
+            return Task.CompletedTask;
+        }
+
         return Dispatcher.UIThread.InvokeAsync(() =>
         {
             ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));

@@ -22,10 +22,12 @@ public class RemoteClientSocket(string hostname, int port) : IRemoteClient
         Task.Run(ListenThread);
     }
 
+
     void ListenThread()
     {
         while (!Stopping)
         {
+            //if client is not connected, try to connect
             while (!(_client?.Connected??false))
             {
                 var wait = 500;
@@ -51,17 +53,16 @@ public class RemoteClientSocket(string hostname, int port) : IRemoteClient
                     {
 
                     }
-
                 }
             }
 
-            var r = new StreamReader(_client.GetStream());
+            var reader = new StreamReader(_client.GetStream());
 
             while (_client?.Connected??false)
             {
                 try
                 {
-                    var msg = r.ReadLine();
+                    var msg = reader.ReadLine();
                     if (msg != null) MessageReceived?.Invoke(this, msg);
                 }
                 catch (SocketException) { }

@@ -1,7 +1,10 @@
 ﻿using System.Windows.Input;
 using Avalonia;
 using Avalonia.Controls;
+using Avalonia.Media;
 using Avalonia.Media.Imaging;
+using Avalonia.Platform;
+using Avalonia.Threading;
 using HLab.Icons.Avalonia;
 using HLab.Icons.Avalonia.Icons;
 using HLab.Mvvm.Annotations;
@@ -21,28 +24,10 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
         _icons = icons;
         _trayIcons.Add(_trayIcon);
         TrayIcon.SetIcons(Application.Current, _trayIcons);
-        //_manager = CreateManager();
+
+        _trayIcon.Clicked += (o, a) => Click?.Invoke(o, a);
     }
 
-    //private static INotificationManager CreateManager()
-    //{
-    //    if (RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-    //    {
-    //        return new FreeDesktopNotificationManager();
-    //    }
-
-    //    if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-    //    {
-    //        return new WindowsNotificationManager();
-    //    }
-
-    //    if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-    //    {
-    //        //return new AppleNotificationManager();
-    //    }
-
-    //    throw new PlatformNotSupportedException();
-    //}
     public void AddMenu(int pos, NativeMenuItem item)
     {
         _trayIcon.Menu ??= new NativeMenu();
@@ -53,11 +38,14 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
             _trayIcon.Menu.Items.Insert(pos, item);
     }
 
-    public void AddMenu(int pos, string header, string iconPath, Func<Task> action)
+    public async Task AddMenuAsync(int pos, string header, string iconPath, Func<Task> action)
     {
+        var icon = await GetImageAsync(iconPath, 32);
+
         NativeMenuItem item = new(header.ToString())
         {
-            Icon = GetImage(iconPath, 16),
+            //Icon = new Bitmap(AssetLoader.Open(new Uri("avares://LittleBigMouse.Ui.Avalonia/Assets/MainIcon.ico"))),
+            Icon = icon,
             //IsChecked = chk,
         };
 
@@ -66,11 +54,13 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
         AddMenu(pos, item);
     }
 
-    public void AddMenu(int pos, string header, string iconPath, ICommand command)
+    public async Task AddMenuAsync(int pos, string header, string iconPath, ICommand command)
     {
+        var icon = await GetImageAsync(iconPath, 256);
+
         NativeMenuItem item = new(header.ToString())
         {
-            Icon = GetImage(iconPath, 16),
+            Icon = icon,
             Command = command,
             //IsChecked = chk,
         };
@@ -78,19 +68,29 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
         AddMenu(pos, item);
     }
 
-    Bitmap GetImage(string path, int size)
+    async Task<Bitmap?> GetImageAsync(string path, int size)
     {
-        var icon = new IconView {Path = path};// _iconService.GetIcon(path);}
+        if (await _icons.GetIconAsync(path) is not Control c) return null;
 
-        IconView.SetIconService(icon,_icons);
+        if (Dispatcher.UIThread.CheckAccess())
+            return XamlTools.GetBitmap(c, new(size, size));
 
-        return XamlTools.GetBitmap(icon, new(size, size));
+        return await Dispatcher.UIThread.InvokeAsync(() => XamlTools.GetBitmap(c, new(size, size))) ;
+
     }
 
-    public event Action<object, object>? Click;
+    public event Action<object?, object>? Click;
 
-    public void SetIcon(string icon, int i)
+    public async Task SetIconAsync(string iconPath, int i)
     {
+        var icon = await GetImageAsync(iconPath, i);
+
+        using var memory = new MemoryStream();
+        icon.Save(memory);
+
+        memory.Position = 0;
+
+        Icon = new WindowIcon(memory);
     }
 
     public string ToolTipText
@@ -99,23 +99,22 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
         set
         {
             _toolTipText = value;
-            if (_trayIcon != null)
-                _trayIcon.ToolTipText = value;
+            _trayIcon.ToolTipText = value;
         }
     }
 
-    public WindowIcon Icon
+    public WindowIcon? Icon
     {
         get => _icon;
         set
         {
             _icon = value;
-            if(_trayIcon!=null)
-                _trayIcon.Icon = value;
+
+            Dispatcher.UIThread.InvokeAsync(() => _trayIcon.Icon = value);
         }
     }
+    WindowIcon? _icon;
 
-    WindowIcon _icon;
     string _toolTipText;
 
     public void Show()

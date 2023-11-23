@@ -521,13 +521,17 @@ public static class XamlTools
         grid.Measure(wSize);
         grid.Arrange(new Rect(wSize));
 
-        var renderBitmap =
-            new RenderTargetBitmap(size);
+        var renderBitmap = new RenderTargetBitmap(size, new Vector(96, 96));
+
         renderBitmap.Render(grid);
 
         return renderBitmap;
-            
-        return renderBitmap.CreateScaledBitmap(size);
+
+        using var memory = new MemoryStream();
+        renderBitmap.Save(memory);
+
+        memory.Position = 0;
+        return new Bitmap(memory);
     }
 
 }

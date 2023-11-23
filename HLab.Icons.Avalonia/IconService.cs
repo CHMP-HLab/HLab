@@ -107,8 +107,8 @@ public class IconService : Service, IIconService
                     i,
                     new Grid
                     {
-                        ColumnDefinitions = new ColumnDefinitions{new (GridLength.Star),new (GridLength.Star)},
-                        RowDefinitions = new RowDefinitions{new (GridLength.Star),new (GridLength.Star)},
+                        ColumnDefinitions = [new (GridLength.Star),new (GridLength.Star)],
+                        RowDefinitions = [new (GridLength.Star),new (GridLength.Star)],
                         Children = { icon }
                     }
                 }
