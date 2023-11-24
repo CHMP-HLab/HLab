@@ -22,7 +22,6 @@ public class RemoteClientSocket(string hostname, int port) : IRemoteClient
         Task.Run(ListenThread);
     }
 
-
     void ListenThread()
     {
         while (!Stopping)
@@ -72,11 +71,11 @@ public class RemoteClientSocket(string hostname, int port) : IRemoteClient
         }
     }
 
-    public async Task SendMessageAsync(string message, CancellationToken token)
+    async Task<bool> TrySendMessageAsync(string message, CancellationToken token)
     {
-        if (_client is null) return;
+        if (_client is null) return false;
 
-        var w = new StreamWriter(_client.GetStream());
+        await using var w = new StreamWriter(_client.GetStream());
 
         var sb = new StringBuilder(message+'\n');
 
@@ -87,5 +86,26 @@ public class RemoteClientSocket(string hostname, int port) : IRemoteClient
 #else
             await w.FlushAsync();
 #endif
+        return true;
+    }
+
+
+    public async Task SendMessageAsync(string message, CancellationToken token)
+    {
+        var delay = 500;
+        for (var i = 0; i < 10; i++)
+        {
+            try
+            {
+                if(await TrySendMessageAsync(message, token))
+                    return;
+            }
+            catch (Exception ex)
+            {
+            }
+
+            await Task.Delay(delay, token);
+            delay *= 2;
+        }
     }
 }
