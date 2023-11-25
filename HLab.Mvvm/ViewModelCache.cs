@@ -92,7 +92,7 @@ public class ViewModelCache
         }
 
         // we don't want to cache views cause they cannot be used twice
-        if (typeof(IView).IsAssignableFrom(linkedType))
+        if (true || typeof(IView).IsAssignableFrom(linkedType))
         {
             //linkedObject is View
             return context.Locate(linkedType, baseObject);
