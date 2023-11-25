@@ -45,13 +45,14 @@ public class RemoteClientSocket(string hostname, int port) : IRemoteClient
                     try
                     {
                         ConnectionFailed?.Invoke(this, EventArgs.Empty);
-                        if (wait>0) Thread.Sleep(wait);
-                        if (wait<10000) wait *= 2;
                     }
                     catch(Exception ex)
                     {
 
                     }
+
+                    if (wait>0) Thread.Sleep(wait);
+                    if (wait<10000) wait *= 2;
                 }
             }
 
