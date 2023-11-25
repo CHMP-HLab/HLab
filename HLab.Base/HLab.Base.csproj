@@ -9,7 +9,7 @@
     <OutputType>Library</OutputType>
     <StartupObject />
     <Deterministic>false</Deterministic>
-    <Version>2.1.0.0</Version>
+    <Version>2.2.0.0</Version>
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 

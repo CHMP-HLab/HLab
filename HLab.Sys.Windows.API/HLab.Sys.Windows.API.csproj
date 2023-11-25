@@ -5,6 +5,7 @@
 		<Platforms>x64;x86;AnyCpu</Platforms>
 		<Configurations>Debug;Release</Configurations>
 		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+		<Version>2.2.0.0</Version>
 	</PropertyGroup>
 
 	<ItemGroup>
