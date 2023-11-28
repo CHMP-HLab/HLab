@@ -47,8 +47,12 @@ public static partial class WinUser
     [DllImport("user32.dll")]
     public static extern DispChange ChangeDisplaySettingsEx(string lpszDeviceName, ref DevMode lpDevMode, nint hwnd, ChangeDisplaySettingsFlags dwflags, nint lParam);
 
-    [LibraryImport("user32.dll", StringMarshalling = StringMarshalling.Utf16)]
-    public static partial DispChange ChangeDisplaySettingsEx(string lpszDeviceName, nint lpDevMode, nint hwnd, ChangeDisplaySettingsFlags dwflags, nint lParam);
+//    public static extern DispChange ChangeDisplaySettingsEx(string lpszDeviceName, ref DevMode lpDevMode, IntPtr hwnd, ChangeDisplaySettingsFlags dwflags, IntPtr lParam);
+
+    [DllImport("user32.dll", CharSet = CharSet.Unicode)]
+    public static extern DispChange ChangeDisplaySettingsEx(string lpszDeviceName, nint lpDevMode, nint hwnd, ChangeDisplaySettingsFlags dwflags, nint lParam);
+    //[LibraryImport("user32.dll", StringMarshalling = StringMarshalling.Utf16)]
+    //public static partial DispChange ChangeDisplaySettingsEx(string lpszDeviceName, nint lpDevMode, nint hwnd, ChangeDisplaySettingsFlags dwflags, nint lParam);
 
     [DllImport("user32.dll")]
     [return: MarshalAs(UnmanagedType.Bool)]
