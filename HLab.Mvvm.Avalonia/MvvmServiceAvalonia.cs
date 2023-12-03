@@ -55,10 +55,13 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
     {
         if (view is not AvaloniaObject obj) throw new InvalidCastException("IView objects should be AvaloniaObject in Avalonia implementation");
 
+
         if (Dispatcher.UIThread.CheckAccess())
         {
             ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));
             ViewLocator.SetViewMode(obj,typeof(DefaultViewMode));
+
+            LinkDispose(view);
             
             return Task.CompletedTask;
         }
@@ -68,7 +71,24 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
             ViewLocator.SetViewClass(obj,typeof(IDefaultViewClass));
             ViewLocator.SetViewMode(obj,typeof(DefaultViewMode));
 
+            LinkDispose(view);
+
         }, DispatcherPriority.Default, token).GetTask();
+
+        //TODO Check if this is still needed, was a try to fix memory leak
+        void LinkDispose(IView view)
+        {
+            if (view is not StyledElement element) return;
+            element.DetachedFromLogicalTree += (a,o) =>
+            {
+                if (element.DataContext is IDisposable vm)
+                {
+                    vm.Dispose();
+                }
+                Dispatcher.UIThread.RunJobs();
+                GC.Collect();
+            };
+        }
     }
 
     public void Register(Type t)

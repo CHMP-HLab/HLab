@@ -16,12 +16,15 @@
                   
     icons:IconView.IconService="{Binding IconService}"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
-
-	TransparencyLevelHint="AcrylicBlur"
+    TransparencyLevelHint="Mica"
     Background="Transparent"
 
     x:DataType="annotations:IMainViewModel"
     >
+
+	<!--TransparencyLevelHint="AcrylicBlur"-->
+
+
     <Design.DataContext>
         <avalonia:WindowViewModelDesign />
     </Design.DataContext>

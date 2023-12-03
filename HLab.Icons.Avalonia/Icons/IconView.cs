@@ -41,14 +41,16 @@ public class IconView : ContentControl
 
         AttachedToVisualTree += IconView_Loaded;
 
-        PropertyChanged += IconView_PropertyChanged;
+        PropertyChanged += OnPropertyChanged;
     }
 
-    void IconView_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    //Rebuild icon on foreground change (Full black is replaced by foreground color)
+    static void OnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
+        if(sender is not IconView iconView) return;
         if (e.Property == ForegroundProperty)
         {
-            LoadIcon();
+            iconView.LoadIcon();
         }
     }
 
