@@ -77,12 +77,11 @@ public interface IDesktopWallpaper
     HResult GetSlideshowOptions(out DesktopSlideshowOptions options, out uint slideshowTick);
     HResult AdvanceSlideshow([MarshalAs(UnmanagedType.LPWStr)] string monitorId, DesktopSlideshowDirection direction);
     HResult GetStatus(ref DesktopSlideshowState state);
-    HResult Enable(bool benable);
+    HResult Enable(bool enable);
 }
 
 public static class WindowsWallpaperHelper
 {
-
     public struct WallpaperPerMonitorInfo
     {
         public uint Index;
@@ -133,6 +132,8 @@ public static class WindowsWallpaperHelper
                     DevicePath = devicePath,
                     Rect = rect,
                     FilePath = filePath,
+                    Position = position,
+                    Background = background,
                 });
                 
             }
@@ -218,29 +219,10 @@ public enum GetPropertyStoreFlags
 }
 
 [StructLayout(LayoutKind.Sequential, Pack = 4)]
-public struct RefPropertyKey
+public readonly struct RefPropertyKey(Guid formatId, int propertyId)
 {
-    Guid fmtid;
-    private int pid;
-    public Guid FormatId
-    {
-        get
-        {
-            return this.fmtid;
-        }
-    }
-    public int PropertyId
-    {
-        get
-        {
-            return this.pid;
-        }
-    }
-    public RefPropertyKey(Guid formatId, int propertyId)
-    {
-        this.fmtid = formatId;
-        this.pid = propertyId;
-    }
+    public Guid FormatId { get; } = formatId;
+    public int PropertyId { get; } = propertyId;
 
     public static readonly RefPropertyKey DateCreated = new RefPropertyKey(new Guid("B725F130-47EF-101A-A5F1-02608C9EEBAC"), 15);
 }
