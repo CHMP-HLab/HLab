@@ -76,9 +76,9 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
         }, DispatcherPriority.Default, token).GetTask();
 
         //TODO Check if this is still needed, was a try to fix memory leak
-        void LinkDispose(IView view)
+        void LinkDispose(IView v)
         {
-            if (view is not StyledElement element) return;
+            if (v is not StyledElement element) return;
             element.DetachedFromLogicalTree += (a,o) =>
             {
                 if (element.DataContext is IDisposable vm)
