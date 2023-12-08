@@ -27,16 +27,19 @@ public class RemoteClientSocket(string hostname, int port) : IRemoteClient
         while (!Stopping)
         {
             //if client is not connected, try to connect
-            while (!(_client?.Connected??false))
+            while (_client is null || !_client.Connected)
             {
-                var wait = 500;
+                var wait = 50;
                 while (!Stopping)
                 {
                     try
                     {
                         _client = new TcpClient(hostname, port);
-                        Connected?.Invoke(this, EventArgs.Empty);
-                        break;
+                        if (_client.Connected)
+                        {
+                            Connected?.Invoke(this, EventArgs.Empty);
+                            break;
+                        }
                     }
                     catch (SocketException)
                     {
@@ -56,19 +59,34 @@ public class RemoteClientSocket(string hostname, int port) : IRemoteClient
                 }
             }
 
-            var reader = new StreamReader(_client.GetStream());
+            if (_client is null) continue;
 
-            while (_client?.Connected??false)
+            using (var reader = new StreamReader(_client.GetStream()))
             {
-                try
+                while (_client.Connected)
                 {
-                    var msg = reader.ReadLine();
-                    if (msg != null) MessageReceived?.Invoke(this, msg);
+                    try
+                    {
+                        var msg = reader.ReadLine();
+                        if (msg != null) MessageReceived?.Invoke(this, msg);
+                    }
+                    catch (ObjectDisposedException)
+                    {
+                        break;
+                    }
+                    catch (SocketException)
+                    {
+                        break;
+                    }
+                    catch (IOException)
+                    {
+                        break;
+                    }
                 }
-                catch (SocketException) { }
-                catch (IOException) { }
+
             }
-            MessageReceived?.Invoke(this,"<DaemonMessage><State>Dead</State></DaemonMessage>");
+
+            MessageReceived?.Invoke(this,"<DaemonMessage><State>Dead</State></DaemonMessage>\n");
         }
     }
 
