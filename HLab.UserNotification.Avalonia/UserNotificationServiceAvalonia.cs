@@ -44,7 +44,6 @@ public class UserNotificationServiceAvalonia : IUserNotificationService
 
         NativeMenuItem item = new(header.ToString())
         {
-            //Icon = new Bitmap(AssetLoader.Open(new Uri("avares://LittleBigMouse.Ui.Avalonia/Assets/MainIcon.ico"))),
             Icon = icon,
             //IsChecked = chk,
         };
