@@ -89,7 +89,7 @@ public class ViewLocator : ContentControl
     public static readonly StyledProperty<object?> ModelProperty = H.Property<object?>()
         .OnChanged((e, a) =>
         {
-            e.SetModel();
+            e.SetModel(a.NewValue);
         })
         .Register();
 
@@ -144,25 +144,10 @@ public class ViewLocator : ContentControl
 
     public ViewLocator()
     {
-
-        //DataContextChanged += ViewLocator_DataContextChanged;
-            
-        // AttachedToVisualTree += ViewLocator_Loaded;
-
-
-        //var b = new Binding
-        //{
-        //    Source = this,
-        //    Path = new PropertyPath("DataContext"),
-        //    Mode = BindingMode.OneWay,
-        //    //IsAsync = true
-        //};
-        //BindingOperations.SetBinding(this, ModelProperty, b);
-        // Update();
     }
 
 
-    void SetModel()
+    void SetModel(object? model)
     {
         var o = Content;
 
@@ -174,20 +159,22 @@ public class ViewLocator : ContentControl
                     o = se.DataContext;
                     if (ReferenceEquals(o, _oldModel))
                     {
-                        _oldModel = o;
-                        se.DataContext = Model;
+                        _oldModel = model;
+                        se.DataContext = model;
                         return;
                     }
                     break;
+
                 case IViewModel vm:
                     o = vm.Model;
                     if (ReferenceEquals(o, _oldModel))
                     {
-                        _oldModel = o;
-                        vm.Model = Model;
+                        _oldModel = model;
+                        vm.Model = model;
                         return;
                     }
                     break;
+
                 default:
                     o = null;
                     break;
@@ -255,6 +242,8 @@ public class ViewLocator : ContentControl
             {
                 d.Dispose();
             }
+
+            this.InvalidateVisual();
 
         }, DispatcherPriority.Default, cancel.Token);
 

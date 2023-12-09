@@ -85,7 +85,7 @@ public class MvvmAvaloniaImpl : IMvvmPlatformImpl
                 {
                     vm.Dispose();
                 }
-                Dispatcher.UIThread.RunJobs();
+                // Dispatcher.UIThread.RunJobs();
                 GC.Collect();
             };
         }
