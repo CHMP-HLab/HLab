@@ -1,16 +1,13 @@
-﻿using System.ComponentModel;
-using System.Diagnostics;
-using System.Numerics;
-using System.Windows.Markup;
+﻿using System.Diagnostics;
 
 namespace HLab.Geo;
 
-    /// <summary>
-    /// Rect - The primitive which represents a rectangle.  Rects are stored as
-    /// X, Y (Location) and Width and Height (Size).  As a result, Rects cannot have negative
-    /// Width or Height.
-    /// </summary>
-    public partial struct Rect
+/// <summary>
+/// Rect - The primitive which represents a rectangle.  Rects are stored as
+/// X, Y (Location) and Width and Height (Size).  As a result, Rects cannot have negative
+/// Width or Height.
+/// </summary>
+public partial struct Rect
     {
         #region Constructors
 
@@ -233,10 +230,7 @@ namespace HLab.Geo;
         /// </summary>
         public double Width
         {
-            get
-            {
-                return _width;
-            }
+            get => _width;
             set
             {
                 if (IsEmpty)
@@ -260,10 +254,7 @@ namespace HLab.Geo;
         /// </summary>
         public double Height
         {
-            get
-            {
-                return _height;
-            }
+            get => _height;
             set
             {
                 if (IsEmpty)
@@ -284,25 +275,13 @@ namespace HLab.Geo;
         /// Left Property - This is a read-only alias for X
         /// If this is the empty rectangle, the value will be positive infinity.
         /// </summary>
-        public double Left
-        {
-            get
-            {
-                return _x;
-            }
-        }
+        public double Left => _x;
 
         /// <summary>
         /// Top Property - This is a read-only alias for Y
         /// If this is the empty rectangle, the value will be positive infinity.
         /// </summary>
-        public double Top
-        {
-            get
-            {
-                return _y;
-            }
-        }
+        public double Top => _y;
 
         /// <summary>
         /// Right Property - This is a read-only alias for X + Width
@@ -314,7 +293,7 @@ namespace HLab.Geo;
             {
                 if (IsEmpty)
                 {
-                    return Double.NegativeInfinity;
+                    return double.NegativeInfinity;
                 }
 
                 return _x + _width;
@@ -331,7 +310,7 @@ namespace HLab.Geo;
             {
                 if (IsEmpty)
                 {
-                    return Double.NegativeInfinity;
+                    return double.NegativeInfinity;
                 }
 
                 return _y + _height;
@@ -342,49 +321,26 @@ namespace HLab.Geo;
         /// TopLeft Property - This is a read-only alias for the Point which is at X, Y
         /// If this is the empty rectangle, the value will be positive infinity, positive infinity.
         /// </summary>
-        public Point TopLeft
-        {
-            get
-            {
-                return new Point(Left, Top);
-            }
-        }
+        public Point TopLeft => new(Left, Top);
 
         /// <summary>
         /// TopRight Property - This is a read-only alias for the Point which is at X + Width, Y
         /// If this is the empty rectangle, the value will be negative infinity, positive infinity.
         /// </summary>
-        public Point TopRight
-        {
-            get
-            {
-                return new Point(Right, Top);
-            }
-        }
+        public Point TopRight => new(Right, Top);
 
         /// <summary>
         /// BottomLeft Property - This is a read-only alias for the Point which is at X, Y + Height
         /// If this is the empty rectangle, the value will be positive infinity, negative infinity.
         /// </summary>
-        public Point BottomLeft
-        {
-            get
-            {
-                return new Point(Left, Bottom);
-            }
-        }
+        public Point BottomLeft => new(Left, Bottom);
 
         /// <summary>
         /// BottomRight Property - This is a read-only alias for the Point which is at X + Width, Y + Height
         /// If this is the empty rectangle, the value will be negative infinity, negative infinity.
         /// </summary>
-        public Point BottomRight
-        {
-            get
-            {
-                return new Point(Right, Bottom);
-            }
-        }
+        public Point BottomRight => new(Right, Bottom);
+
         #endregion Public Properties
 
         #region Public Methods
@@ -413,15 +369,7 @@ namespace HLab.Geo;
         /// Returns true if the Point represented by x,y is within the rectangle.
         /// Returns false otherwise.
         /// </returns>
-        public bool Contains(double x, double y)
-        {
-            if (IsEmpty)
-            {
-                return false;
-            }
-
-            return ContainsInternal(x,y);
-        }
+        public bool Contains(double x, double y) => !IsEmpty && ContainsInternal(x,y);
 
         /// <summary>
         /// Contains - Returns true if the Rect non-Empty and is entirely contained within the

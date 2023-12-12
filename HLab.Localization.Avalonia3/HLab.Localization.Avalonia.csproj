@@ -2,24 +2,15 @@
   <PropertyGroup>
 	<TargetFrameworks>net7.0;net8.0</TargetFrameworks>
     <Nullable>enable</Nullable>
-    <Platforms>x64</Platforms>
+    <Platforms>x64;x86;anycpu</Platforms>
+	<Version>2.2.0.0</Version>
   </PropertyGroup>
   <ItemGroup>
     <None Remove=".gitignore" />
-    <None Remove="Lang\LocalizedLabel.xaml" />
-    <None Remove="Lang\LocalizedTextBox.xaml" />
-  </ItemGroup>
-  <ItemGroup>
-    <AvaloniaXaml Include="Lang\LocalizedLabel.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaXaml>
-    <AvaloniaXaml Include="Lang\LocalizedTextBox.xaml">
-      <Generator>MSBuild:Compile</Generator>
-    </AvaloniaXaml>
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Avalonia" Version="11.0.0" />
+    <PackageReference Include="Avalonia" Version="11.0.6" />
     <!--Condition below is needed to remove Avalonia.Diagnostics package from build output in Release configuration.-->
   </ItemGroup>
 
@@ -30,11 +21,20 @@
   </ItemGroup>
 
   <ItemGroup>
+    <AvaloniaXaml Update="Lang\LocalizedLabel.axaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+    <AvaloniaXaml Update="Lang\LocalizedTextBox.axaml">
+      <Generator>MSBuild:Compile</Generator>
+    </AvaloniaXaml>
+  </ItemGroup>
+
+  <ItemGroup>
     <Compile Update="Lang\LocalizedLabel.xaml.cs">
-      <DependentUpon>LocalizedLabel.xaml</DependentUpon>
+      <DependentUpon>LocalizedLabel.axaml</DependentUpon>
     </Compile>
     <Compile Update="Lang\LocalizedTextBox.xaml.cs">
-      <DependentUpon>LocalizedTextBox.xaml</DependentUpon>
+      <DependentUpon>LocalizedTextBox.axaml</DependentUpon>
     </Compile>
   </ItemGroup>
 </Project>

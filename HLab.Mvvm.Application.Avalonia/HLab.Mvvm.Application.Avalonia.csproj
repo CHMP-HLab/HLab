@@ -1,0 +1,33 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net7.0;net8.0</TargetFrameworks>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <LangVersion>preview</LangVersion>
+    <Platforms>AnyCPU;x64</Platforms>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Avalonia" Version="11.0.4" />
+    <PackageReference Include="Dock.Avalonia" Version="11.0.0" />
+    <PackageReference Include="Dock.Model.Avalonia" Version="11.0.0" />
+  </ItemGroup>
+
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\HLab.Erp\HLab.Erp.Acl\HLab.Erp.Acl.csproj" />
+    <ProjectReference Include="..\HLab.Icons.Avalonia\HLab.Icons.Avalonia.csproj" />
+    <ProjectReference Include="..\HLab.Localization.Avalonia3\HLab.Localization.Avalonia.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Application\HLab.Mvvm.Application.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.Avalonia\HLab.Mvvm.Avalonia.csproj" />
+    <ProjectReference Include="..\HLab.Mvvm.ReactiveUI\HLab.Mvvm.ReactiveUI.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Update="AvaloniaApplicationView.axaml.cs">
+      <DependentUpon>AvaloniaApplicationView.axaml</DependentUpon>
+    </Compile>
+  </ItemGroup>
+
+</Project>

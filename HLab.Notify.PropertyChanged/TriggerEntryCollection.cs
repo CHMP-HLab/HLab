@@ -1,41 +1,39 @@
 ﻿#define DONT_USE_WEAK_HANDLERS
 
 
-using HLab.Notify.Annotations;
 using System;
 using System.Collections.Generic;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged;
+
+public static class CollectionExtension
 {
-    public static class CollectionExtension
+    public static T Item<T>(this IEnumerable<T> col)
     {
-        public static T Item<T>(this IEnumerable<T> col)
-        {
-            return default(T);
-        }
+        return default(T);
+    }
+}
+
+internal class TriggerEntryCollection : ITriggerEntry
+{
+    protected IPropertyEntry PropertyEntry;
+    protected string Debug;
+
+    protected EventHandler<ExtendedPropertyChangedEventArgs> Handler;
+    public TriggerEntryCollection(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+    {
+        PropertyEntry = propertyEntry;
+        Handler = handler;
+        propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
     }
 
-    internal class TriggerEntryCollection : ITriggerEntry
+    public virtual void Dispose()
     {
-        protected IPropertyEntry PropertyEntry;
-        protected string Debug;
+        PropertyEntry.ExtendedPropertyChanged -= OnPropertyChanged;
+    }
 
-        protected EventHandler<ExtendedPropertyChangedEventArgs> Handler;
-        public TriggerEntryCollection(IPropertyEntry propertyEntry, EventHandler<ExtendedPropertyChangedEventArgs> handler)
-        {
-            PropertyEntry = propertyEntry;
-            Handler = handler;
-            propertyEntry.ExtendedPropertyChanged += OnPropertyChanged;
-        }
-
-        public virtual void Dispose()
-        {
-            PropertyEntry.ExtendedPropertyChanged -= OnPropertyChanged;
-        }
-
-        void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
-        {
-            Handler?.Invoke(sender,e);
-        }
+    void OnPropertyChanged(object sender, ExtendedPropertyChangedEventArgs e)
+    {
+        Handler?.Invoke(sender,e);
     }
 }

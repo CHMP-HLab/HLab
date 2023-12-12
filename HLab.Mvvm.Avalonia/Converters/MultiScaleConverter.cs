@@ -25,38 +25,37 @@ using System.Globalization;
 using Avalonia;
 using Avalonia.Data.Converters;
 
-namespace HLab.Mvvm.Avalonia.Converters
+namespace HLab.Mvvm.Avalonia.Converters;
+
+public class MultiScaleConverter : IMultiValueConverter
 {
-    public class MultiScaleConverter : IMultiValueConverter
+    public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
     {
-        public object? Convert(IList<object?> values, Type targetType, object? parameter, CultureInfo culture)
-        {
-            var vs = values.OfType<double>().ToList();
+        var vs = values.OfType<double>().ToList();
 
-            if (!vs.Any()) return 0.1;
+        if (!vs.Any()) return 0.1;
 
-            var v = vs.Min();
+        var v = vs.Min();
 
-            var scale = double.Parse((string)parameter, CultureInfo.InvariantCulture);
-            var result = v * scale;
+        var scale = double.Parse((string)parameter, CultureInfo.InvariantCulture);
+        var result = v * scale;
 
-            if (double.IsNaN(result) || double.IsInfinity(result)) result = 0.1;
-            else if (result < 0.1) result = 0.1;
-            else if (result > 35791) result = 35791;
+        if (double.IsNaN(result) || double.IsInfinity(result)) result = 0.1;
+        else if (result < 0.1) result = 0.1;
+        else if (result > 35791) result = 35791;
 
-            if(targetType == typeof(CornerRadius))
-                return new CornerRadius(result);
+        if(targetType == typeof(CornerRadius))
+            return new CornerRadius(result);
 
-            if(targetType == typeof(double))
-                return result;
+        if(targetType == typeof(double))
+            return result;
 
-            return null;
-        }
-
-        public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
-        {
-            throw new NotImplementedException("MultiScaleConverter : ConvertBack");
-        }
-
+        return null;
     }
+
+    public object[] ConvertBack(object value, Type[] targetTypes, object parameter, CultureInfo culture)
+    {
+        throw new NotImplementedException("MultiScaleConverter : ConvertBack");
+    }
+
 }

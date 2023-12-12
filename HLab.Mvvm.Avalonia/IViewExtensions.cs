@@ -1,11 +1,10 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Media;
 using HLab.Mvvm.Annotations;
 
 namespace HLab.Mvvm.Avalonia;
 
-public static class ViewWpfExtensions
+public static class ViewAvaloniaExtensions
 {
     public static Window AsWindow<T>(this T view) where T : IView
     {
@@ -18,18 +17,11 @@ public static class ViewWpfExtensions
     {
         if (view is Window win) return win;
 
-        var w = new DefaultWindow
+        return  new DefaultWindow
         {
-            //Background = Brushes.Blue,
             DataContext = view?.DataContext,
-            Content = view,
-//
-            
-            //SizeToContent = SizeToContent.WidthAndHeight,
-            //WindowStartupLocation = WindowStartupLocation.CenterOwner,
+            View = view,
         };
-
-        return w;
     }
 
     public static Window AsDialog(this IView view)

@@ -1,35 +1,34 @@
 ﻿using System;
 using System.Threading;
 
-namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers
+namespace HLab.Notify.PropertyChanged.PropertyHelpers.Helpers;
+
+public class PropertyLong : IPropertyValue<long>
 {
-    public class PropertyLong : IPropertyValue<long>
+    long _value;
+    public long Get() => _value;
+
+    public bool Set(long value)
     {
-        long _value;
-        public long Get() => _value;
+        if (_value == value) return false;
 
-        public bool Set(long value)
+        var old = Interlocked.Exchange(ref _value, value);
+        if (old != value)
         {
-            if (_value == value) return false;
-
-            var old = Interlocked.Exchange(ref _value, value);
-            if (old != value)
-            {
-                _holder.OnPropertyChanged(old,value);
-                return true;
-            }
-            else return false;
+            _holder.OnPropertyChanged(old,value);
+            return true;
         }
+        else return false;
+    }
 
-        public bool Set(Func<object, long> setter)
-        {
-            return Set(setter(_holder.Parent));
-        }
+    public bool Set(Func<object, long> setter)
+    {
+        return Set(setter(_holder.Parent));
+    }
 
-        readonly PropertyHolder<long> _holder;
-        public PropertyLong(PropertyHolder<long> holder)
-        {
-            _holder = holder;
-        }
+    readonly PropertyHolder<long> _holder;
+    public PropertyLong(PropertyHolder<long> holder)
+    {
+        _holder = holder;
     }
 }

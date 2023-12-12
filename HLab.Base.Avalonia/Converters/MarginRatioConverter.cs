@@ -25,37 +25,35 @@ using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Data.Converters;
 
-namespace HLab.Base.Avalonia.Converters
+namespace HLab.Base.Avalonia.Converters;
+
+public class MarginRatioConverter : IValueConverter
 {
-    public class MarginRatioConverter : IValueConverter
+    public Rect PhysicalRect { get; set; }
+    public Control? Element { get; set; }
+
+    double Ratio => Math.Min(
+        Element?.Bounds.Width??0 / PhysicalRect.Width,
+        Element?.Bounds.Height??0 / PhysicalRect.Height
+    );
+    public double PhysicalToUiX(double x)
+        => (x - PhysicalRect.Left) * Ratio
+           + (Element?.Bounds.Width??0
+               - PhysicalRect.Width * Ratio) / 2;
+    public double PhysicalToUiY(double y)
+        => (y - PhysicalRect.Top) * Ratio
+           + (Element?.Bounds.Height??0
+               - PhysicalRect.Height * Ratio) / 2;
+
+    public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
     {
-        public Rect PhysicalRect { get; set; }
-        public Control? Element { get; set; }
+        var rect = (Rect) value;
 
-        double Ratio => Math.Min(
-            Element?.Bounds.Width??0 / PhysicalRect.Width,
-            Element?.Bounds.Height??0 / PhysicalRect.Height
-        );
-            public double PhysicalToUiX(double x)
-                => (x - PhysicalRect.Left) * Ratio
-                   + (Element?.Bounds.Width??0
-                      - PhysicalRect.Width * Ratio) / 2;
-            public double PhysicalToUiY(double y)
-                => (y - PhysicalRect.Top) * Ratio
-                   + (Element?.Bounds.Height??0
-                      - PhysicalRect.Height * Ratio) / 2;
-
-        public object Convert(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            var rect = (Rect) value;
-
-            return new Thickness(PhysicalToUiX(rect.X), PhysicalToUiY(rect.Y),0,0);
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
-        {
-            return ((GridLength)value).Value / Ratio;
-        }
+        return new Thickness(PhysicalToUiX(rect.X), PhysicalToUiY(rect.Y),0,0);
     }
 
+    public object ConvertBack(object value, Type targetType, object parameter, System.Globalization.CultureInfo culture)
+    {
+        return ((GridLength)value).Value / Ratio;
+    }
 }

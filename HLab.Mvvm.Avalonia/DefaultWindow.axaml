@@ -7,21 +7,41 @@
     xmlns:icons="clr-namespace:HLab.Icons.Avalonia.Icons;assembly=HLab.Icons.Avalonia"
     xmlns:lang="clr-namespace:HLab.Localization.Avalonia.Lang;assembly=HLab.Localization.Avalonia"
     xmlns:avalonia="clr-namespace:HLab.Mvvm.Avalonia"
+    xmlns:annotations="clr-namespace:HLab.Mvvm.Annotations;assembly=HLab.Mvvm.Annotations"
     mc:Ignorable="d"
     d:DesignHeight="450" d:DesignWidth="800"
 
     Title ="{Binding Title}"
+    Icon="{Binding MainIcon}"
                   
     icons:IconView.IconService="{Binding IconService}"
     lang:Localize.LocalizationService="{Binding LocalizationService}"
-
-	TransparencyLevelHint="AcrylicBlur"
+    TransparencyLevelHint="Mica"
     Background="Transparent"
+
+    x:DataType="annotations:IMainViewModel"
     >
+
+	<!--TransparencyLevelHint="AcrylicBlur"-->
+
+
     <Design.DataContext>
         <avalonia:WindowViewModelDesign />
     </Design.DataContext>
 
+    <Panel>
+        <ExperimentalAcrylicBorder IsHitTestVisible="False">
+            <ExperimentalAcrylicBorder.Material>
+                <ExperimentalAcrylicMaterial
+                    BackgroundSource="Digger"
+                    TintColor="{DynamicResource ThemeBackgroundColor}"
+                    TintOpacity="0.5"
+                    MaterialOpacity="0.2" />
+            </ExperimentalAcrylicBorder.Material>
+        </ExperimentalAcrylicBorder>
+
+        <ContentControl x:Name="ContentControl"/>
+    </Panel>
     <!--
     BorderThickness="0"
 	-->

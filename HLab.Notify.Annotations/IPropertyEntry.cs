@@ -1,24 +1,23 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace HLab.Notify.Annotations
+namespace HLab.Notify.Annotations;
+
+public interface IPropertyEntry// : IDisposable: INotifyPropertyChanged
 {
-    public interface IPropertyEntry// : IDisposable: INotifyPropertyChanged
-    {
-        event EventHandler<ExtendedPropertyChangedEventArgs> ExtendedPropertyChanged;
+    event EventHandler<ExtendedPropertyChangedEventArgs> ExtendedPropertyChanged;
 
-        void Link(EventHandler<ExtendedPropertyChangedEventArgs> handler);
-        void Unlink(EventHandler<ExtendedPropertyChangedEventArgs> handler);
+    void Link(EventHandler<ExtendedPropertyChangedEventArgs> handler);
+    void Unlink(EventHandler<ExtendedPropertyChangedEventArgs> handler);
 
-        void TargetPropertyChanged(object sender, PropertyChangedEventArgs args);
+    void TargetPropertyChanged(object sender, PropertyChangedEventArgs args);
 
-        ITriggerEntry BuildTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler);
-        ITriggerEntry BuildTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
+    ITriggerEntry BuildTrigger(EventHandler<ExtendedPropertyChangedEventArgs> handler);
+    ITriggerEntry BuildTrigger(TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler);
 
-        bool IsLinked();
+    bool IsLinked();
         
-        string Name { get; }
+    string Name { get; }
         
-        void InitialRegisterValue(Type type);
-    }
+    void InitialRegisterValue(Type type);
 }

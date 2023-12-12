@@ -24,40 +24,39 @@
 using System;
 using System.ComponentModel;
 
-namespace HLab.Notify.Annotations
+namespace HLab.Notify.Annotations;
+
+public class NotifierPropertyChangedEventArgs : PropertyChangedEventArgs
 {
-    public class NotifierPropertyChangedEventArgs : PropertyChangedEventArgs
+    public INotifierPropertyEntry Entry { get; }
+    public object OldValue { get; }
+    public object NewValue { get; set; }
+    public NotifierPropertyChangedEventArgs(INotifierPropertyEntry entry, object oldValue, object newValue):base(entry.Property.Name)
     {
-        public INotifierPropertyEntry Entry { get; }
-        public object OldValue { get; }
-        public object NewValue { get; set; }
-        public NotifierPropertyChangedEventArgs(INotifierPropertyEntry entry, object oldValue, object newValue):base(entry.Property.Name)
-        {
-            Entry = entry;
-            OldValue = oldValue;
-            NewValue = newValue;
-        }
-        public NotifierPropertyChangedEventArgs(string propertyName, object oldValue, object newValue) : base(propertyName)
-        {
-            Entry = null;
-            OldValue = oldValue;
-            NewValue = newValue;
-        }
+        Entry = entry;
+        OldValue = oldValue;
+        NewValue = newValue;
+    }
+    public NotifierPropertyChangedEventArgs(string propertyName, object oldValue, object newValue) : base(propertyName)
+    {
+        Entry = null;
+        OldValue = oldValue;
+        NewValue = newValue;
+    }
 
-        public override string ToString()
-        {
-            var name = Entry.Property.Name;
-            string oldValue = "?";
-            string newValue = "?";
+    public override string ToString()
+    {
+        var name = Entry.Property.Name;
+        string oldValue = "?";
+        string newValue = "?";
 
-            try { 
-                oldValue = OldValue?.ToString() ?? "";
-                newValue = NewValue?.ToString() ?? "";
-            }
-            catch(InvalidOperationException)
-            { }
-
-            return name + " ( " + oldValue + " , " + newValue + " )";
+        try { 
+            oldValue = OldValue?.ToString() ?? "";
+            newValue = NewValue?.ToString() ?? "";
         }
+        catch(InvalidOperationException)
+        { }
+
+        return name + " ( " + oldValue + " , " + newValue + " )";
     }
 }

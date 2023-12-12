@@ -2,19 +2,19 @@
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Layout;
-using Avalonia.Media;
-using Avalonia.Styling;
 using Avalonia.Threading;
-using HLab.Base.Avalonia;
+using HLab.Base.Avalonia.DependencyHelpers;
+using HLab.ColorTools.Avalonia;
+using HLab.Mvvm.Annotations;
 
 namespace HLab.Icons.Avalonia.Icons;
 
 using H = DependencyHelper<IconView>;
 
 
-public class IconView : ContentControl, IStyleable
+public class IconView : ContentControl
 {
-    Type IStyleable.StyleKey => typeof(ContentControl);
+    protected override Type StyleKeyOverride => typeof(ContentControl);
 
     #if DEBUG
     static IIconService? _designTimeService;
@@ -41,14 +41,16 @@ public class IconView : ContentControl, IStyleable
 
         AttachedToVisualTree += IconView_Loaded;
 
-        PropertyChanged += IconView_PropertyChanged;
+        PropertyChanged += OnPropertyChanged;
     }
 
-    void IconView_PropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
+    //Rebuild icon on foreground change (Full black is replaced by foreground color)
+    static void OnPropertyChanged(object? sender, AvaloniaPropertyChangedEventArgs e)
     {
+        if(sender is not IconView iconView) return;
         if (e.Property == ForegroundProperty)
         {
-            LoadIcon();
+            iconView.LoadIcon();
         }
     }
 
@@ -163,6 +165,7 @@ public class IconView : ContentControl, IStyleable
         get => GetValue(IconMaxHeightProperty);
         set => SetValue(IconMaxHeightProperty, value);
     }
+
     public double IconMaxWidth
     {
         get => GetValue(IconMaxWidthProperty);
@@ -200,7 +203,7 @@ public class IconView : ContentControl, IStyleable
                 if (_designTimeService == null)
                 {
                     _designTimeService = new IconService();
-                    new IconBootloader(_designTimeService).Load(null);
+                    new IconBootloader(_designTimeService).LoadAsync(null);
                 }
 
                 IconService = _designTimeService;
@@ -239,7 +242,7 @@ public class IconView : ContentControl, IStyleable
             async () =>
             {
                 if (cancel.State) return;
-                var icon = await iconService.GetIconAsync(path,Foreground);
+                var icon = await iconService.GetIconAsync(path,Foreground?.ToColor().ToUInt32()??0);
                 if (cancel.State) return;
                 _iconElement.Content = icon;
                 Update();

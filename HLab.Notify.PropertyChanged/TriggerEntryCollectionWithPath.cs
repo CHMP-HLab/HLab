@@ -2,46 +2,44 @@
 
 using System;
 using System.Collections.Concurrent;
-using HLab.Notify.Annotations;
 using NotifyClassHelper = HLab.Notify.PropertyChanged.NotifyHelpers.NotifyClassHelper;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged;
+
+internal class TriggerEntryCollectionWithPath : TriggerEntryCollection
 {
-    internal class TriggerEntryCollectionWithPath : TriggerEntryCollection
+    readonly TriggerPath _path;
+
+    public TriggerEntryCollectionWithPath(IPropertyEntry propertyEntry, TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
+        : base(propertyEntry, handler)
     {
-        readonly TriggerPath _path;
+        _path = path;
+        PropertyEntry.Link(OnPropertyChangedWithPath);
+    }
 
-        public TriggerEntryCollectionWithPath(IPropertyEntry propertyEntry, TriggerPath path, EventHandler<ExtendedPropertyChangedEventArgs> handler)
-            : base(propertyEntry, handler)
+    void OnPropertyChangedWithPath(object sender, ExtendedPropertyChangedEventArgs e)
+    {
+        if (e.OldValue != null && _next.TryRemove(e.OldValue, out var oldTrigger))
         {
-            _path = path;
-            PropertyEntry.Link(OnPropertyChangedWithPath);
+            oldTrigger.Dispose();
         }
-
-        void OnPropertyChangedWithPath(object sender, ExtendedPropertyChangedEventArgs e)
+        if (e.NewValue != null)
         {
-            if (e.OldValue != null && _next.TryRemove(e.OldValue, out var oldTrigger))
-            {
-                oldTrigger.Dispose();
-            }
-            if (e.NewValue != null)
-            {
-                var handler = Handler;
+            var handler = Handler;
 
-                _next.GetOrAdd(e.NewValue,
-                    o => _path.GetTrigger(NotifyClassHelper.GetHelper(o),handler));
-            }
+            _next.GetOrAdd(e.NewValue,
+                o => _path.GetTrigger(NotifyClassHelper.GetHelper(o),handler));
         }
+    }
 
 
-        readonly ConcurrentDictionary<object, ITriggerEntry> _next = new ConcurrentDictionary<object, ITriggerEntry>();
-        public override void Dispose()
+    readonly ConcurrentDictionary<object, ITriggerEntry> _next = new ConcurrentDictionary<object, ITriggerEntry>();
+    public override void Dispose()
+    {
+        PropertyEntry.Unlink(OnPropertyChangedWithPath);
+        foreach (var triggerEntry in _next.Values)
         {
-            PropertyEntry.Unlink(OnPropertyChangedWithPath);
-            foreach (var triggerEntry in _next.Values)
-            {
-                triggerEntry.Dispose();
-            }
+            triggerEntry.Dispose();
         }
     }
 }

@@ -26,17 +26,16 @@ using System;
 
 ////using System.Data.Model;
 
-namespace HLab.Mvvm.Annotations
-{
-    public class ProgressEventArgs : EventArgs
-    {
-        public ProgressEventArgs(double progress, string progressText)
-        {
-            Progress = progress;
-            ProgressText = progressText;
-        }
+namespace HLab.Mvvm.Annotations;
 
-        public double Progress { get; }
-        public string ProgressText { get; }
+public class ProgressEventArgs : EventArgs
+{
+    public ProgressEventArgs(double progress, string progressText)
+    {
+        Progress = progress;
+        ProgressText = progressText;
     }
+
+    public double Progress { get; }
+    public string ProgressText { get; }
 }

@@ -20,7 +20,6 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
-using System;
 using System.Runtime.InteropServices;
 using System.Text;
 // ReSharper disable InconsistentNaming

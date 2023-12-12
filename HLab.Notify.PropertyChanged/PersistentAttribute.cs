@@ -23,19 +23,14 @@
 
 using System;
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged;
+
+[AttributeUsage(AttributeTargets.Property)]
+public class PersistentAttribute : Attribute
 {
-    [AttributeUsage(AttributeTargets.Property)]
-    public class PersistentAttribute : Attribute
+    public  Persistency Persistency { get; } 
+    public PersistentAttribute(Persistency persistency)
     {
-        public  Persistency Persistency { get; } 
-        public PersistentAttribute(Persistency persistency)
-        {
-            Persistency = persistency;
-        }
+        Persistency = persistency;
     }
-
-
-
-
 }

@@ -22,58 +22,57 @@
 */
 using System;
 
-namespace HLab.Base
+namespace HLab.Base;
+
+public class Token
 {
-    public class Token
+    readonly object _locked = new object();
+    int _count = 0;
+
+    public Token(int nb = 1)
     {
-        readonly object _locked = new object();
-        int _count = 0;
-
-        public Token(int nb = 1)
-        {
-            _count = nb;
-        }
-
-        public TokenGetter TryGet(int nb = 1)
-        {
-            lock (_locked)
-            {
-                if (nb <= _count)
-                {
-                    _count -= nb;
-                    return new TokenGetter(this,nb);
-                }
-                return null;
-            }
-        }
-        public TokenGetter Get(int nb = 1)
-        {
-            TokenGetter r = null;
-            while (r == null) r = TryGet(nb);
-            return r;
-        }
-
-        public void Add(int nb = 1)
-        {
-            lock (_locked)
-            {
-                _count += nb;
-            }
-        }
+        _count = nb;
     }
 
-    public class TokenGetter : IDisposable
+    public TokenGetter TryGet(int nb = 1)
     {
-        readonly Token _token;
-        readonly int _nb;
-        public TokenGetter(Token t, int nb)
+        lock (_locked)
         {
-            _nb = nb;
-            _token = t;
+            if (nb <= _count)
+            {
+                _count -= nb;
+                return new TokenGetter(this,nb);
+            }
+            return null;
         }
-        public void Dispose()
+    }
+    public TokenGetter Get(int nb = 1)
+    {
+        TokenGetter r = null;
+        while (r == null) r = TryGet(nb);
+        return r;
+    }
+
+    public void Add(int nb = 1)
+    {
+        lock (_locked)
         {
-            _token.Add(_nb);
+            _count += nb;
         }
+    }
+}
+
+public class TokenGetter : IDisposable
+{
+    readonly Token _token;
+    readonly int _nb;
+    public TokenGetter(Token t, int nb)
+    {
+        _nb = nb;
+        _token = t;
+    }
+    public void Dispose()
+    {
+        _token.Add(_nb);
     }
 }

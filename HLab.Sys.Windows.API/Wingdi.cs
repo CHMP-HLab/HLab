@@ -95,6 +95,10 @@ public static partial class WinGdi
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
     public struct DevMode
     {
+        public override string ToString()
+        {
+            return $"{PixelsWidth}x{PixelsHeight}:{DisplayFrequency}";
+        }
 
         /// <summary>Specifies whether collation should be used when printing multiple copies.</summary>
         public enum CollateEnum : short
@@ -1864,7 +1868,7 @@ public static partial class WinGdi
         public DevMode()
         {
             Size = (ushort)Marshal.SizeOf(typeof(DevMode));
-            SpecVersion = SpecVersionEnum.WinXP;
+            //SpecVersion = SpecVersionEnum.WinXP;
         }
         public DevMode(SpecVersionEnum version)
         {

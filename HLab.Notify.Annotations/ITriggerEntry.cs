@@ -1,12 +1,9 @@
 ﻿using System;
 
-namespace HLab.Notify.Annotations
+namespace HLab.Notify.Annotations;
+
+public interface ITriggerEntry : IDisposable
 {
-    public interface ITriggerEntry : IDisposable
-    {
 //        PropertyChangedEventHandler Handler {get;}
 //        TriggerPath Path {get;}
-    }
-
-
 }

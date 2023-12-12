@@ -1,0 +1,615 @@
+﻿<UserControl x:Class="HLab.Mvvm.Application.Avalonia.AvaloniaApplicationView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:icons="clr-namespace:HLab.Icons.Avalonia.Icons;assembly=HLab.Icons.Avalonia"
+        xmlns:avalonia="clr-namespace:HLab.Mvvm.Avalonia;assembly=HLab.Mvvm.Avalonia"
+        xmlns:lang="clr-namespace:HLab.Localization.Avalonia.Lang;assembly=HLab.Localization.Avalonia"
+        mc:Ignorable="d"
+             
+        icons:IconView.IconService="{Binding IconService}"
+        lang:Localize.LocalizationService="{Binding LocalizationService}"
+        lang:Localize.Language="Fr-Fr"
+
+        Foreground="{DynamicResource HLab.Brushes.Foreground}"
+>
+    <!--
+    <UserControl.Resources>
+        <Style TargetType="{x:Type ContextMenu}">
+            <Setter Property="Background"
+                    Value="Red" />
+        </Style>
+    </UserControl.Resources>
+    -->
+    <Grid  Margin="2" RowDefinitions="Auto,Auto,*">
+        <!-- Menu Bar-->
+            <Grid 
+                Background="{DynamicResource MahApps.Brushes.Accent4}" 
+                ColumnDefinitions="30,Auto,*,Auto">
+
+                <Viewbox>
+                    <icons:IconView Path="icons/logo" HorizontalAlignment="Stretch"/>
+                </Viewbox>
+
+                <ContentControl 
+                    Grid.Column="1" 
+                    VerticalAlignment="Center" 
+                    FontSize="25" 
+                    Content="{Binding Menu}" 
+                    Background="{DynamicResource MahApps.Brushes.Accent4}"/>
+
+                <Label Opacity="0.5" Grid.Column="2" 
+                       HorizontalContentAlignment="Center" 
+                       VerticalAlignment="Center"
+                       Content="{Binding Title}" 
+                />
+
+                <StackPanel 
+                    Grid.Column="3" 
+                    Orientation="Horizontal" 
+                    Margin="0,0,120,0" 
+                    VerticalAlignment="Center">
+
+                    <ComboBox 
+                        SelectedItem="{Binding ApplicationInfo.Theme}" 
+                        IsVisible="{Binding AllowThemeSelection,FallbackValue=Visible}"      
+                        Grid.Row="1" 
+                        Grid.Column="1" 
+                        ItemsSource="{Binding ApplicationInfo.Themes}"
+                    >
+                    <ComboBox.ItemTemplate>
+                        <DataTemplate>
+                            <lang:LocalizedLabel Text="{Binding}"/>
+                        </DataTemplate>
+                    </ComboBox.ItemTemplate>
+
+                    </ComboBox>
+                    <Label Content="{Binding ApplicationInfo.DataSource}" 
+                           VerticalAlignment="Center"/>
+
+                    <Label Content="{Binding ApplicationInfo.Name}" 
+                           VerticalAlignment="Center"/>
+
+                    <Label Content="{Binding ApplicationInfo.Version}" 
+                           VerticalAlignment="Center"/>
+
+                    <Button Command="{Binding OpenUserCommand}" 
+                            Content ="{Binding Acl.Connection.User.Caption}" 
+                            VerticalAlignment="Center"/>
+
+                    <icons:IconView 
+                        Margin="7" 
+                        Path="Icons/Entities/User" 
+                        Height="20" 
+                        VerticalAlignment="Center"/>
+
+                    <Label Width="20"/>
+                </StackPanel>
+            </Grid>
+
+            <Viewbox Height="1000" Grid.Row="2" Opacity="0.1">
+                <icons:IconView Path="icons/LogoBackground"/>
+            </Viewbox>
+            
+            <!-- Documents-->
+            <avalonia:ViewLocator 
+                Grid.Row="2" 
+                Model="{Binding DocumentPresenter}"/>
+
+            <ContentControl Grid.Row="0" Content="{Binding DragCanvas}"/>
+            <Canvas Grid.Row="0" x:Name="DragCanvas"/>
+
+        </Grid>
+</UserControl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

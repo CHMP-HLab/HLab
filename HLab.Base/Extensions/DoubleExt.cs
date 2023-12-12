@@ -20,14 +20,13 @@
 	  mailto:mathieu@mgth.fr
 	  http://www.mgth.fr
 */
-namespace HLab.Base.Extentions
+namespace HLab.Base.Extentions;
+
+public static class DoubleExt
 {
-    public static class DoubleExt
+    public static bool IsRegular(this double d)
     {
-        public static bool IsRegular(this double d)
-        {
-            if (double.IsNaN(d)) return false;
-            return !double.IsInfinity(d);
-        }
+        if (double.IsNaN(d)) return false;
+        return !double.IsInfinity(d);
     }
 }

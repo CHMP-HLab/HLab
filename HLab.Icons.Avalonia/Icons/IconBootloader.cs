@@ -3,24 +3,18 @@ using System.Diagnostics;
 using System.Globalization;
 using System.Reflection;
 using System.Resources;
-using Avalonia;
 using Avalonia.Media;
 using Avalonia.Platform;
 using HLab.Base.Extensions;
 using HLab.Core.Annotations;
 using HLab.Icons.Avalonia.Icons.Providers;
+using HLab.Mvvm.Annotations;
 
 namespace HLab.Icons.Avalonia.Icons;
 
-public class IconBootloader : IBootloader
+public class IconBootloader(IIconService icons) : IBootloader
 {
-    readonly IIconService _icons;
-    public IconBootloader(IIconService icons)
-    {
-        _icons = icons;
-    }
-
-    public void Load(IBootContext b)
+    public async Task LoadAsync(IBootContext b)
     {
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies().Where(e => !e.IsDynamic))
         {
@@ -49,7 +43,6 @@ public class IconBootloader : IBootloader
 
             }
 
-
             var name = assembly.GetName().Name;
             var uris = AssetLoader.GetAssets(new Uri($"avares://{name}/"),null);
 
@@ -67,7 +60,7 @@ public class IconBootloader : IBootloader
 
                 foreach (var k in last.Split('.'))
                 {
-                    _icons.AddIconProvider($"{prefix}/{k}", new IconProviderSvgFromUri(uri, Colors.Black));
+                    icons.AddIconProvider($"{prefix}/{k}", new IconProviderSvgFromUri(uri, Colors.Black));
                 }
             }
         }
@@ -111,18 +104,18 @@ public class IconBootloader : IBootloader
 
         if (resource.HasSuffix(".xaml", out var xamlPath))
         {
-            _icons.AddIconProvider(xamlPath,
+            icons.AddIconProvider(xamlPath,
                 new IconProviderXamlFromResource(resourceManager, resource, Colors.Black));
         }
 
         else if (resource.HasSuffix(".svg", out var svgPath))
         {
-            _icons.AddIconProvider(svgPath, new IconProviderSvg(resourceManager, resource, Colors.Black));
+            icons.AddIconProvider(svgPath, new IconProviderSvg(resourceManager, resource, Colors.Black));
         }
 
         else if (resource.HasSuffix(".baml", out var bamlPath))
         {
-            _icons.AddIconProvider(
+            icons.AddIconProvider(
                 bamlPath,
                 new IconProviderXamlFromUri(new Uri($"/{assembly.FullName};component/{bamlPath}.xaml",
                     UriKind.Relative))
