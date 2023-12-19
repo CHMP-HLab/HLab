@@ -1,0 +1,103 @@
+﻿<Window x:Class="HLab.Bugs.Avalonia.ExceptionView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        SizeToContent ="WidthAndHeight"
+        Title="Problem report" Height="450" Width="800"
+        Foreground="White"
+        Background="Black"
+        MinWidth="500"
+        >
+    <StackPanel Margin="16">
+        <Viewbox Stretch="Uniform" Width="40" VerticalAlignment="Center">
+            <Canvas Width="512" Height="512">
+                <Canvas.RenderTransform>
+                    <TranslateTransform X="0" Y="0"/>
+                </Canvas.RenderTransform>
+                <Canvas.Resources/>
+                <Path Fill="#FFE50027">
+                    <Path.Data>
+                        <PathGeometry Figures="M501.449 368.914L320.566 66.207C306.751 43.384 282.728 29.569 256 29.569  s-50.752 13.815-64.567 36.638L10.55 368.914c-13.812 23.725-14.113 51.954-0.599 75.678c13.513 23.723 37.836 37.838 65.165 37.838  h361.766c27.329 0 51.653-14.115 65.165-37.838C515.563 420.868 515.262 392.639 501.449 368.914z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+                <Path Fill="#FFC1001F">
+                    <Path.Data>
+                        <PathGeometry Figures="M502.049 444.592c-13.513 23.723-37.836 37.838-65.165 37.838H256V29.57  c26.727 0 50.752 13.815 64.567 36.638L501.45 368.915C515.262 392.639 515.563 420.868 502.049 444.592z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+                <Path Fill="#FFFD003A">
+                    <Path.Data>
+                        <PathGeometry Figures="M75.109 452.4c-16.628 0-30.851-8.27-39.063-22.669c-8.211-14.414-8.065-31.087 0.469-45.72  L217.23 81.549c8.27-13.666 22.816-21.951 38.769-21.951s30.5 8.284 38.887 22.157l180.745 302.49  c8.388 14.4 8.534 31.072 0.322 45.485c-8.211 14.4-22.435 22.669-39.063 22.669H75.109V452.4z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+                <Path Fill="#FFE50027">
+                    <Path.Data>
+                        <PathGeometry Figures="M436.891 452.4c16.628 0 30.851-8.27 39.063-22.669c8.211-14.414 8.065-31.087-0.322-45.485  L294.886 81.754c-8.388-13.871-22.933-22.157-38.887-22.157V452.4H436.891z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+                <Path Fill="#FFE1E4FB">
+                    <Path.Data>
+                        <PathGeometry Figures="M286.03 152.095v120.122c0 16.517-13.514 30.03-30.03 30.03s-30.031-13.514-30.031-30.03V152.095  c0-16.517 13.514-30.031 30.031-30.031S286.03 135.578 286.03 152.095z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+                <Path Fill="#FFC5C9F7">
+                    <Path.Data>
+                        <PathGeometry Figures="M286.03 152.095v120.122c0 16.517-13.514 30.03-30.03 30.03V122.064  C272.516 122.064 286.03 135.578 286.03 152.095z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+                <Path Fill="#FFE1E4FB">
+                    <Path.Data>
+                        <PathGeometry Figures="M256 332.278c-24.926 0-45.046 20.119-45.046 45.046c0 24.924 20.119 45.046 45.046 45.046  s45.046-20.121 45.046-45.046C301.046 352.398 280.925 332.278 256 332.278z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+                <Path Fill="#FFC5C9F7">
+                    <Path.Data>
+                        <PathGeometry Figures="M301.046 377.323c0 24.924-20.119 45.046-45.046 45.046v-90.091  C280.925 332.278 301.046 352.398 301.046 377.323z" FillRule="NonZero"/>
+                    </Path.Data>
+                </Path>
+            </Canvas>
+        </Viewbox>
+        <TextBlock VerticalAlignment="Bottom" x:Name="MessageTextBlock" Foreground="{DynamicResource HLab.Brushes.Foreground}" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"> Your application quit unexpectedly.</TextBlock>
+        <TextBlock VerticalAlignment="Bottom" x:Name="ErrorMessageTextBlock" Foreground="{DynamicResource HLab.Brushes.Foreground}" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,0,0,20"/>
+        <TextBlock x:Name="SubMessageTextBlock" Foreground="{DynamicResource HLab.Brushes.Foreground}" FontStyle="Italic">Click Reopen to open the application again. </TextBlock>
+        <CheckBox 
+            x:Name="ReportCheckBox" 
+            Margin="0,20,0,20" 
+            IsChecked="True" 
+            Foreground="{DynamicResource HLab.Brushes.Foreground}"
+            Content="Send report"
+            Checked="ReportCheckBox_OnChecked"
+            Unchecked="ReportCheckBox_OnUnchecked"
+            />
+        <TextBlock x:Name="CommentTextBlock" Margin="0,10,0,0" Foreground="{DynamicResource HLab.Brushes.Foreground}">Comments :</TextBlock>
+        <TextBox x:Name="CommentTextBox" MinHeight="100" Margin="0,20">No comment</TextBox>
+        <DockPanel>
+            <ToggleButton 
+                x:Name="ShowDetailButton"
+                DockPanel.Dock="Left" 
+                Width="100" 
+                IsChecked="false" 
+                IsCheckedChanged="ShowDetailButton_OnIsCheckedChanged"
+                >Show Detail</ToggleButton> 
+
+            <StackPanel HorizontalAlignment="Right" DockPanel.Dock="Right" Orientation="Horizontal">
+                <Button x:Name="OkButton" FontWeight="Bold" Click="OkButton_OnClick" Margin="0,0,20,0"  Width="100" IsDefault="True">Ok</Button>
+                <Button Foreground="{DynamicResource HLab.Brushes.Foreground}" Background="Green" x:Name="ReopenButton" Click="ReopenButton_OnClick" Width="100" IsDefault="True">Reopen</Button> 
+                <Button Foreground="{DynamicResource HLab.Brushes.Foreground}" Background="Green" x:Name="ThrowButton" Click="ThrowButton_OnClick" Width="100" IsDefault="True">Throw</Button> 
+            </StackPanel>
+        </DockPanel>
+        <ScrollViewer
+            MaxWidth="800"
+            MaxHeight="400"
+            x:Name="ScrollViewer"
+            IsVisible="false"
+        >
+            <TextBlock 
+            Foreground="{DynamicResource HLab.Brushes.Foreground}"
+            x:Name="DetailTextBlock" 
+            IsVisible="false"/>
+        </ScrollViewer>
+    </StackPanel>
+</Window>

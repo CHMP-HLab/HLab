@@ -1,0 +1,85 @@
+﻿<UserControl x:Class="HLab.Bugs.Avalonia.GithubLogin"
+             xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:avalonia="clr-namespace:HLab.Bugs.Avalonia"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="500" 
+             x:DataType="avalonia:BugReportViewModel"
+             >
+    <Grid VerticalAlignment="Center" HorizontalAlignment="Center">
+        <!--<Viewbox Opacity="0.1">
+            <icons:IconView Path="icons/Logo"/>
+        </Viewbox>-->
+        <Border Background="{DynamicResource MahApps.Brushes.ThemeBackground}" CornerRadius="10"/>
+
+        <StackPanel Margin="30,20,20,0" VerticalAlignment="Center" HorizontalAlignment="Center">
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <!--<icons:IconView Path="Icons/Logo" IconMaxWidth="NaN"/>
+                <icons:IconView Margin="20" Path="Icons/AppName" IconMaxWidth="NaN"/>-->
+            </StackPanel>
+            
+
+            <Grid VerticalAlignment="Center" HorizontalAlignment="Center"
+                  RowDefinitions="Auto,Auto,Auto,Auto,Auto,Auto" 
+                  ColumnDefinitions="Auto,Auto">
+
+                <!-- Name -->
+
+                <Label 
+                Content="Name : " 
+                Grid.Row="1" 
+                HorizontalAlignment="Right"
+                />
+
+                <TextBox 
+                Text="{Binding Login}"
+                Grid.Row="1" 
+                Grid.Column="1" 
+                MinWidth="200"
+                />
+
+<!-- Password -->
+
+                <Label 
+                Content="Password : " 
+                Grid.Row="2" 
+                HorizontalAlignment="Right"
+                />
+                <TextBox 
+                x:Name="PasswordBox" 
+                Grid.Column="1" 
+                Grid.Row="2" 
+                PasswordChar="•"
+                TextChanged="PasswordBox_OnTextChanged"
+                />
+
+<!-- Message -->
+                <TextBlock 
+                    Margin="10"
+                HorizontalAlignment="Center"
+                Grid.Row="4" 
+                Grid.Column="0" 
+                Grid.ColumnSpan="2"   
+                Background="{DynamicResource MahApps.Brushes.Accent}"
+                TextWrapping="Wrap" 
+                Text="{Binding Message}"/>
+
+<!-- Connection -->
+                <Button 
+                IsDefault="True" 
+                Width="100" 
+                Grid.ColumnSpan="2" 
+                Grid.Column="0" 
+                Grid.Row="5" 
+                Margin="10" 
+                Command="{Binding LoginCommand}">
+                    Connection
+                </Button>
+            </Grid>
+        </StackPanel>
+    </Grid>
+</UserControl>
+
