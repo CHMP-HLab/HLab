@@ -2,11 +2,12 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Interactivity;
+using Avalonia.Threading;
 using MantisBTRestAPIClient;
 
 namespace HLab.Bugs.Avalonia
@@ -139,12 +140,12 @@ namespace HLab.Bugs.Avalonia
         async Task PostGithub()
         {
             if (ReportCheckBox.IsChecked != true) return;
-            //if (string.IsNullOrWhiteSpace(Token)) return;
+            if (string.IsNullOrWhiteSpace(Token)) return;
 
             var client = new Octokit.GitHubClient(new Octokit.ProductHeaderValue(ProductHeaderValue));
 
-            //var tokenAuth = new Octokit.Credentials(Token); 
-            //client.Credentials = tokenAuth;
+            var tokenAuth = new Octokit.Credentials(Token); 
+            client.Credentials = tokenAuth;
 
             var user = await client.User.Current();
 
@@ -159,28 +160,31 @@ namespace HLab.Bugs.Avalonia
         async void OkButton_OnClick(object sender, RoutedEventArgs e)
         {
             await Post();
-            // TODO : Application.Current.Shutdown();
+            Dispatcher.UIThread.BeginInvokeShutdown(DispatcherPriority.Normal);
         }
 
         async void ReopenButton_OnClick(object sender, RoutedEventArgs e)
         {
             await Post();
-            // TODO : Process.Start(Application.ResourceAssembly.Location);
-            // TODO : Application.Current.Shutdown();
+
+            Process.Start(Assembly.GetEntryAssembly()?.Location.Replace(".dll",".exe"));
+            Dispatcher.UIThread.BeginInvokeShutdown(DispatcherPriority.Normal);
         }
 
-        void ReportCheckBox_OnChecked(object sender, RoutedEventArgs e)
+        void ReportCheckBox_OnIsCheckedChanged(object? sender, RoutedEventArgs e)
         {
             if (CommentTextBox == null) return;
-            CommentTextBlock.IsVisible = true;
-            CommentTextBox.IsVisible = true;
-        }
 
-        void ReportCheckBox_OnUnchecked(object sender, RoutedEventArgs e)
-        {
-            if (CommentTextBox == null) return;
-            CommentTextBlock.IsVisible = false;
-            CommentTextBox.IsVisible = false;
+            if (ReportCheckBox.IsChecked == true)
+            {
+                CommentTextBlock.IsVisible = true;
+                CommentTextBox.IsVisible = true;
+            }
+            else
+            {
+                CommentTextBlock.IsVisible = false;
+                CommentTextBox.IsVisible = false;
+            }
         }
 
         void ThrowButton_OnClick(object? sender, RoutedEventArgs e)
@@ -188,5 +192,21 @@ namespace HLab.Bugs.Avalonia
             Close();
         }
 
+        async void CopyDetailButton_OnClick(object? sender, RoutedEventArgs e)
+        {
+            try
+            {
+                var clipboard = TopLevel.GetTopLevel(this)?.Clipboard;
+                if (clipboard != null)
+                {
+                    await clipboard.SetTextAsync(Exception.ToString());
+                }
+          
+            }
+            catch (Exception ex)
+            {
+
+            }
+        }
     }
 }

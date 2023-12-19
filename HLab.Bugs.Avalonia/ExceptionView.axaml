@@ -64,12 +64,12 @@
         <TextBlock x:Name="SubMessageTextBlock" Foreground="{DynamicResource HLab.Brushes.Foreground}" FontStyle="Italic">Click Reopen to open the application again. </TextBlock>
         <CheckBox 
             x:Name="ReportCheckBox" 
+            IsVisible="False"
             Margin="0,20,0,20" 
             IsChecked="True" 
             Foreground="{DynamicResource HLab.Brushes.Foreground}"
             Content="Send report"
-            Checked="ReportCheckBox_OnChecked"
-            Unchecked="ReportCheckBox_OnUnchecked"
+            IsCheckedChanged="ReportCheckBox_OnIsCheckedChanged"
             />
         <TextBlock x:Name="CommentTextBlock" Margin="0,10,0,0" Foreground="{DynamicResource HLab.Brushes.Foreground}">Comments :</TextBlock>
         <TextBox x:Name="CommentTextBox" MinHeight="100" Margin="0,20">No comment</TextBox>
@@ -81,6 +81,12 @@
                 IsChecked="false" 
                 IsCheckedChanged="ShowDetailButton_OnIsCheckedChanged"
                 >Show Detail</ToggleButton> 
+            <Button 
+                x:Name="CopyDetailButton"
+                DockPanel.Dock="Left" 
+                Width="100" 
+                Click="CopyDetailButton_OnClick"
+                >Copy Detail</Button> 
 
             <StackPanel HorizontalAlignment="Right" DockPanel.Dock="Right" Orientation="Horizontal">
                 <Button x:Name="OkButton" FontWeight="Bold" Click="OkButton_OnClick" Margin="0,0,20,0"  Width="100" IsDefault="True">Ok</Button>
@@ -89,15 +95,13 @@
             </StackPanel>
         </DockPanel>
         <ScrollViewer
-            MaxWidth="800"
-            MaxHeight="400"
-            x:Name="ScrollViewer"
+           x:Name="ScrollViewer"
             IsVisible="false"
         >
-            <TextBlock 
+            <TextBox 
             Foreground="{DynamicResource HLab.Brushes.Foreground}"
             x:Name="DetailTextBlock" 
-            IsVisible="false"/>
+            IsVisible="true"/>
         </ScrollViewer>
     </StackPanel>
 </Window>
