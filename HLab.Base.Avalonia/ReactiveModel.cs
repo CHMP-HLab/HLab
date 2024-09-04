@@ -15,7 +15,7 @@ public abstract class ReactiveModel : ReactiveObject, IDisposable
     public bool Saved
     {
         get => _saved;
-        set => this.RaiseAndSetIfChanged(ref _saved, value);
+        set => SetAndRaise(ref _saved, value);
     }
     bool _saved;
 
@@ -35,6 +35,28 @@ public abstract class ReactiveModel : ReactiveObject, IDisposable
         this.RaisePropertyChanged(propertyName);
         return true;
     }
+
+    public bool SetAndRaise<TRet>(
+        ref TRet backingField,
+        TRet newValue,
+        [CallerMemberName] string? propertyName = null)
+    {
+        if (propertyName is null)
+        {
+            throw new ArgumentNullException(nameof(propertyName));
+        }
+
+        if (EqualityComparer<TRet>.Default.Equals(backingField, newValue))
+        {
+            return false;
+        }
+
+        this.RaisePropertyChanging(propertyName);
+        backingField = newValue;
+        this.RaisePropertyChanged(propertyName);
+        return true;
+    }
+
 
     public void Dispose()
     {

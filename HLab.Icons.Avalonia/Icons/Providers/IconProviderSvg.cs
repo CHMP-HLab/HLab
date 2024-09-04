@@ -1,36 +1,24 @@
 ﻿using System.Resources;
 using Avalonia.Media;
-using Svg;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;
 
-public class IconProviderSvg : IconProviderXamlParser, IIconProvider
+public class IconProviderSvg(ResourceManager resourceManager, string name, Color? foreColor) : IconProviderXamlParser
 {
-    readonly ResourceManager _resourceManager;
-    readonly string _name;
-    readonly Color? _foreColor;
-
-    public IconProviderSvg(ResourceManager resourceManager, string name, Color? foreColor)
-    {
-        _resourceManager = resourceManager; 
-        _name = name;
-        _foreColor = foreColor;
-    }
-
     protected override async Task<object?> ParseIconAsync()
     {
-        if (string.IsNullOrWhiteSpace(_name)) return null;
+        if (string.IsNullOrWhiteSpace(name)) return null;
         AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
-        await using var svg = _resourceManager.GetStream(_name);
+        await using var svg = resourceManager.GetStream(name);
         if(svg is null) return null;
         return await XamlTools.FromSvgStreamAsync(svg).ConfigureAwait(true);
     }
 
     protected override object? ParseIcon()
     {
-        if (string.IsNullOrWhiteSpace(_name)) return null;
+        if (string.IsNullOrWhiteSpace(name)) return null;
         AppContext.SetSwitch("Switch.System.Xml.AllowDefaultResolver", true);
-        using var svg = _resourceManager.GetStream(_name);
+        using var svg = resourceManager.GetStream(name);
         if (svg is null) return null;
         return XamlTools.FromSvgStream(svg);
     }

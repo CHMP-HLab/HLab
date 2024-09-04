@@ -1,69 +1,46 @@
-﻿using Avalonia;
-using Avalonia.Controls.Skia;
+﻿using Avalonia.Controls.Skia;
 using Avalonia.Media;
-using Avalonia.Media.Immutable;
 using Avalonia.Platform;
-using HLab.Base.Avalonia.Extensions;
+using Avalonia.Threading;
+using HLab.Mvvm.Annotations;
 using Svg.Skia;
 
 namespace HLab.Icons.Avalonia.Icons.Providers;
 
-public class IconProviderSvgFromUri : IIconProvider
+public class IconProviderSvgFromUri(Uri uri, Color? foreColor) : IIconProvider
 {
-    readonly Uri _uri;
-    string _source;
+    string _source ="";
 
-    public IconProviderSvgFromUri(Uri uri, Color? foreColor)
+    public object Get(uint foregroundColor = 0)
     {
-        _uri = uri;
+        return GetAsync(foregroundColor).GetAwaiter().GetResult();
     }
 
-    public object Get(IBrush? foreground)
+    public async Task<object> GetAsync(uint foregroundColor = 0)
     {
-        //var svg = new global::Avalonia.Svg.Skia.Svg(_uri){Path = _uri.AbsoluteUri};
-
-
-        var color = (foreground switch
-        {
-            ISolidColorBrush s => s.Color,
-            IGradientBrush g => g.GradientStops.AverageColor(),
-            //ConicGradientBrush cg => cg.GradientStops.Average(),
-            _ => Colors.Red
-        });
+        var color = Color.FromUInt32(foregroundColor);
 
         var foregroundString = $"{color.R:X2}{color.G:X2}{color.B:X2}";
 
-        var stream = AssetLoader.Open(_uri);
+        var stream = AssetLoader.Open(uri);
         var reader = new StreamReader(stream);
-        _source = reader.ReadToEnd();
+
+        _source = await reader.ReadToEndAsync();
 
         _source = _source.Replace("\"#000000\"",$"\"#{foregroundString}\"");
 
         _source = _source.Replace(":#000000",$":#{foregroundString}");
-        //_source = _source.Replace(":#000000",":#ffffff");
 
-        if (!_source.Contains(foregroundString))
-        {
+        var svg = new SKSvg().FromSvg(_source);
 
-        }
- 
+        if(Dispatcher.UIThread.CheckAccess()) 
+            return new SKPictureControl(){Picture = svg};
 
-
-        var svg = new SKSvg();
-
-        var picture = new SKPictureControl(){Picture = svg.FromSvg(_source)};
-
-
-        return picture;
+        return await Dispatcher.UIThread.InvokeAsync(() => new SKPictureControl(){Picture = svg});
     }
 
-    public Task<object> GetAsync(IBrush? foreground)
+    public Task<string> GetTemplateAsync(uint foreground = 0)
     {
-        return Task.FromResult(Get(foreground));
-    }
-
-    public Task<string> GetTemplateAsync(IBrush? foreground)
-    {
-        return Task.FromResult($"<Svg Path=\"{_uri.AbsoluteUri}\"/>");
+        return Task.FromResult($"<Svg Path=\"{uri.AbsoluteUri}\"/>");
     }
 }

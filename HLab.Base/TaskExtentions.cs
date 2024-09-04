@@ -1,27 +1,27 @@
 ﻿using System;
 using System.Threading.Tasks;
 
-namespace HLab.Base
+namespace HLab.Base;
+
+public interface IErrorHandler
 {
-    public interface IErrorHandler
-    {
-        void HandleError(Exception ex);
-    }
+    void HandleError(Exception ex);
+}
 
 
-    public static class TaskUtilities
-    {
+public static class TaskUtilities
+{
 #pragma warning disable RECS0165 // Asynchronous methods should return a Task instead of void
-        public static async void FireAndForgetSafeAsync(this Task task, IErrorHandler handler = null)
+    public static async void FireAndForgetSafeAsync(this Task task, IErrorHandler handler = null)
 #pragma warning restore RECS0165 // Asynchronous methods should return a Task instead of void
+    {
+        try
         {
-            try
-            {
-                await task;
-            }
-            catch (Exception ex)
-            {
-                handler?.HandleError(ex);
-            }
+            await task;
         }
-    }}
+        catch (Exception ex)
+        {
+            handler?.HandleError(ex);
+        }
+    }
+}

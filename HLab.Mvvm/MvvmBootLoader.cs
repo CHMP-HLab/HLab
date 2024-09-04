@@ -1,20 +1,13 @@
-﻿using HLab.Core.Annotations;
+﻿using System.Threading.Tasks;
+using HLab.Core.Annotations;
 using HLab.Mvvm.Annotations;
 
-namespace HLab.Mvvm
+namespace HLab.Mvvm;
+
+public class MvvmBootloader(IMvvmService mvvm) : IBootloader
 {
-    public class MvvmBootloader : IBootloader
+    public async Task LoadAsync(IBootContext b)
     {
-        readonly IMvvmService _mvvm;
-
-        public MvvmBootloader(IMvvmService mvvm)
-        {
-            _mvvm = mvvm;
-        }
-
-        public void Load(IBootContext b)
-        {
-            _mvvm.Register();
-        }
+        await mvvm.RegisterAsync();
     }
 }

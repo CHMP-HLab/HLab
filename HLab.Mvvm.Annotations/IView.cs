@@ -23,68 +23,66 @@
 
 using System;
 
-namespace HLab.Mvvm.Annotations
+namespace HLab.Mvvm.Annotations;
+
+public abstract class ViewMode { }
+public class DefaultViewMode : ViewMode { }
+public class DetailViewMode : DefaultViewMode { }
+public class EditViewMode : DefaultViewMode { }
+public class SummaryViewMode : DefaultViewMode { }
+public class StringViewMode : DefaultViewMode { }
+public class ListViewMode : DefaultViewMode { }
+public class PreviewViewMode : DefaultViewMode { }
+public class CollapsedViewMode : DefaultViewMode { }
+
+public class DocumentViewMode : ViewMode { }
+public class DraggableViewMode : ViewMode { }
+
+public interface IViewClass { }
+public interface IDefaultViewClass  : IViewClass{ }
+public interface IListItemViewClass  : IViewClass{ }
+public interface IContentViewClass  : IViewClass{ }
+
+public interface IDesignViewModel { }
+
+
+[MvvmCacheability(MvvmCacheability.NotCacheable)]
+public interface IView
 {
-    public abstract class ViewMode { }
-    public class DefaultViewMode : ViewMode { }
-    public class DetailViewMode : DefaultViewMode { }
-    public class EditViewMode : DefaultViewMode { }
-    public class SummaryViewMode : DefaultViewMode { }
-    public class StringViewMode : DefaultViewMode { }
-    public class ListViewMode : DefaultViewMode { }
-    public class PreviewViewMode : DefaultViewMode { }
-    public class CollapsedViewMode : DefaultViewMode { }
+}
 
-    public class DocumentViewMode : ViewMode { }
-    public class DraggableViewMode : ViewMode { }
-
-    public interface IViewClass { }
-    public interface IDefaultViewClass  : IViewClass{ }
-    public interface IListItemViewClass  : IViewClass{ }
-    public interface IContentViewClass  : IViewClass{ }
-
-    public interface IDesignViewModel { }
+public interface IView<TViewMode, out TViewModel> : IView
+    where TViewMode : ViewMode
+{
+}
 
 
-    [MvvmCacheability(MvvmCacheability.NotCacheable)]
-    public interface IView
+
+public interface IView<out TViewModel> : IView<DefaultViewMode,TViewModel>
+{
+}
+
+public interface IViewUnload
+{
+    void OnUnload();
+}
+
+public interface IModel
+{ }
+
+public enum MvvmCacheability
+{
+    Cacheable,
+    NotCacheable
+}
+
+[AttributeUsage(AttributeTargets.Class|AttributeTargets.Interface,Inherited = true)]
+public class MvvmCacheabilityAttribute : Attribute
+{
+    public MvvmCacheabilityAttribute(MvvmCacheability cacheability)
     {
+        Cacheability = cacheability;
     }
 
-    public interface IView<TViewMode, out TViewModel> : IView
-        where TViewMode : ViewMode
-    {
-        public object DataContext { get; }
-        public TViewModel ViewModel => (DataContext is TViewModel vm)? vm : default;
-    }
-
-    public interface IView<TViewModel> : IView<DefaultViewMode,TViewModel>
-    {
-    }
-
-    public interface IViewUnload
-    {
-        void OnUnload();
-    }
-
-    public interface IModel
-    { }
-
-    public enum MvvmCacheability
-    {
-        Cacheable,
-        NotCacheable
-    }
-
-    [AttributeUsage(AttributeTargets.Class|AttributeTargets.Interface,Inherited = true)]
-    public class MvvmCacheabilityAttribute : Attribute
-    {
-        public MvvmCacheabilityAttribute(MvvmCacheability cacheability)
-        {
-            Cacheability = cacheability;
-        }
-
-        public MvvmCacheability Cacheability { get; }
-    }
-
+    public MvvmCacheability Cacheability { get; }
 }

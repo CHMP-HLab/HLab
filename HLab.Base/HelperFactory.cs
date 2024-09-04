@@ -25,59 +25,58 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
-namespace HLab.Base
+namespace HLab.Base;
+
+public class HelperFactory<T>
+    where T : class
 {
-    public class HelperFactory<T>
-        where T : class
+    readonly ConditionalWeakTable<object, T> _weakTable = new ();
+
+    readonly ConcurrentDictionary<Type, Func<object, T>> _registered = new ();
+    readonly ConcurrentDictionary<Type, Func<object, T>> _cache = new ();
+
+    public void Register(Type type, Func<object, T> factory)
     {
-        readonly ConditionalWeakTable<object, T> _weakTable = new ();
-
-        readonly ConcurrentDictionary<Type, Func<object, T>> _registered = new ();
-        readonly ConcurrentDictionary<Type, Func<object, T>> _cache = new ();
-
-        public void Register(Type type, Func<object, T> factory)
+        if (!_registered.TryAdd(type, factory)) return;
+        foreach (var t in _cache)
         {
-            if (!_registered.TryAdd(type, factory)) return;
-            foreach (var t in _cache)
+            _cache.TryUpdate(t.Key,t.Value, GetFactory(t.Key));
+        }
+    }
+
+    public void Register<TO>(Func<TO, T> factory)
+    {
+        Register(typeof(TO),(o) => factory((TO)o));
+    }
+
+    public T Get(object target, Action<T> onCreate=null)
+    {
+        var created = false;
+
+        var obj = _weakTable.GetValue(target, t =>
+        {
+            created = true;
+            return _cache.GetOrAdd(t.GetType(), GetFactory).Invoke(target);
+        });
+
+        if (created) onCreate?.Invoke(obj);
+
+        return obj;
+
+    }
+
+    Func<object, T> GetFactory(Type type)
+    {
+        KeyValuePair<Type, Func<object, T>>? bestMatch=null;
+
+        foreach (var entry in _registered)
+        {
+            if (!entry.Key.IsAssignableFrom(type)) continue;
+            if (!bestMatch.HasValue || bestMatch.Value.Key.IsAssignableFrom(entry.Key))
             {
-                _cache.TryUpdate(t.Key,t.Value, GetFactory(t.Key));
+                bestMatch = entry;
             }
         }
-
-        public void Register<TO>(Func<TO, T> factory)
-        {
-            Register(typeof(TO),(o) => factory((TO)o));
-        }
-
-        public T Get(object target, Action<T> onCreate=null)
-        {
-            var created = false;
-
-             var obj = _weakTable.GetValue(target, t =>
-            {
-                created = true;
-                return _cache.GetOrAdd(t.GetType(), GetFactory).Invoke(target);
-            });
-
-            if (created) onCreate?.Invoke(obj);
-
-            return obj;
-
-        }
-
-        Func<object, T> GetFactory(Type type)
-        {
-            KeyValuePair<Type, Func<object, T>>? bestMatch=null;
-
-            foreach (var entry in _registered)
-            {
-                if (!entry.Key.IsAssignableFrom(type)) continue;
-                if (!bestMatch.HasValue || bestMatch.Value.Key.IsAssignableFrom(entry.Key))
-                {
-                    bestMatch = entry;
-                }
-            }
-            return bestMatch?.Value;
-        }
+        return bestMatch?.Value;
     }
 }

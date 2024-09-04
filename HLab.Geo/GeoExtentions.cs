@@ -1,7 +1,4 @@
-﻿using System.ComponentModel;
-using System.Windows.Markup;
-
-namespace HLab.Geo;
+﻿namespace HLab.Geo;
 
 public static class GeoExtensions
 {

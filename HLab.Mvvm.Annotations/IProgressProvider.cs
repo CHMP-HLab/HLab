@@ -1,9 +1,8 @@
 ﻿using System;
 
-namespace HLab.Mvvm.Annotations
+namespace HLab.Mvvm.Annotations;
+
+public interface IProgressProvider
 {
-    public interface IProgressProvider
-    {
-        event EventHandler<ProgressEventArgs> Progress;
-    }
+    event EventHandler<ProgressEventArgs> Progress;
 }

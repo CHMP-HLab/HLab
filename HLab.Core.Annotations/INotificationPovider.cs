@@ -1,8 +1,7 @@
-﻿namespace HLab.Core.Annotations
+﻿namespace HLab.Core.Annotations;
+
+public interface INotificationProvider
 {
-    public interface INotificationProvider
-    {
-        void SetIcon(object icon);
-        void Notify(string message);
-    }
+    void SetIcon(object icon);
+    void Notify(string message);
 }

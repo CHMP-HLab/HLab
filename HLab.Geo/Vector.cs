@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace HLab.Geo;
+﻿namespace HLab.Geo;
 
 [Serializable]
 //    [TypeConverter(typeof(VectorConverter))]

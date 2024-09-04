@@ -43,8 +43,8 @@ public readonly struct CIEXYZ<T> where T : INumber<T>
     /// </summary>
     public T Z { get; }
 
-    static T _0_9505 = 0.9505.N<T>();
-    static T _1_089 = 1.089.N<T>();
+    static readonly T _0_9505 = 0.9505.N<T>();
+    static readonly T _1_089 = 1.089.N<T>();
 
     public CIEXYZ(T x, T y, T z)
     {

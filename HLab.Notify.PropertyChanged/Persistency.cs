@@ -22,16 +22,11 @@
 */
 
 
-namespace HLab.Notify.PropertyChanged
+namespace HLab.Notify.PropertyChanged;
+
+public enum Persistency
 {
-    public enum Persistency
-    {
-        None,
-        OnChange,
-        OnSave
-    }
-
-
-
-
+    None,
+    OnChange,
+    OnSave
 }

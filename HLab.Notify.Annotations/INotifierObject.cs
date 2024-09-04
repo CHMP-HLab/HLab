@@ -1,9 +1,8 @@
 ﻿using System.ComponentModel;
 
-namespace HLab.Notify.Annotations
+namespace HLab.Notify.Annotations;
+
+public interface INotifierObject : INotifyPropertyChanged
 {
-    public interface INotifierObject : INotifyPropertyChanged
-    {
-        INotifier GetNotifier();
-    }
+    INotifier GetNotifier();
 }

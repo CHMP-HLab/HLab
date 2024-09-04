@@ -1,4 +1,6 @@
-﻿namespace HLab.Icons.Avalonia.Icons.Providers;
+﻿using HLab.Mvvm.Annotations;
+
+namespace HLab.Icons.Avalonia.Icons.Providers;
 
 public class IconProviderXamlFromSource : IconProviderXaml, IIconProvider
 {

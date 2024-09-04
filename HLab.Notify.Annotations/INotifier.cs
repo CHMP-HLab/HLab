@@ -28,34 +28,33 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using HLab.Base;
 
-namespace HLab.Notify.Annotations
-{
-    public interface INotifier<TClass> : INotifier
-    {
-        bool SetOneToMany<T>(T value, Func<T, IList<TClass>> getCollection, [CallerMemberName] string propertyName = null);
-    }
-    public interface INotifier
-    {
-        INotifier Subscribe();
-        Suspender Suspend { get; }
-        void Add(PropertyChangedEventHandler value);
-        void Remove(PropertyChangedEventHandler value);
-        void OnPropertyChanged(PropertyChangedEventArgs args);
-        bool Set<T>(T value, [CallerMemberName] string propertyName = null, Action<T, T> postUpdateAction = null);
-        T Get<T>(Func<T> getter, [CallerMemberName] string propertyName = null);
-        T Get<T>(Func<T, T> getter, [CallerMemberName] string propertyName = null);
-        T Locate<T>([CallerMemberName] string propertyName = null);
-        T Locate<T>(Func<T, T> func, [CallerMemberName] string propertyName = null);
-        void Subscribe(PropertyChangedEventHandler handler, TriggerPath path);
-        bool SetOneToMany<TClass,T>(T value, Func<T, IList<TClass>> getCollection, [CallerMemberName] string propertyName = null);
+namespace HLab.Notify.Annotations;
 
-        void Subscribe(INotifierProperty triggeredProperty, INotifierProperty targetProperty, TriggerPath path);
-        INotifierPropertyEntry GetPropertyEntry(string propertyName);
-        INotifierPropertyEntry<T> GetPropertyEntry<T>(string propertyName);
-        INotifierPropertyEntry<T> GetPropertyEntry<T>(PropertyInfo propertyInfo);
-        INotifierPropertyEntry GetPropertyEntry(INotifierProperty property);
-        INotifierPropertyEntry<T> GetPropertyEntry<T>(INotifierProperty<T> property);
-        bool Subscribed { get; }
-        INotifyPropertyChanged Target { get; }
-    }
+public interface INotifier<TClass> : INotifier
+{
+    bool SetOneToMany<T>(T value, Func<T, IList<TClass>> getCollection, [CallerMemberName] string propertyName = null);
+}
+public interface INotifier
+{
+    INotifier Subscribe();
+    Suspender Suspend { get; }
+    void Add(PropertyChangedEventHandler value);
+    void Remove(PropertyChangedEventHandler value);
+    void OnPropertyChanged(PropertyChangedEventArgs args);
+    bool Set<T>(T value, [CallerMemberName] string propertyName = null, Action<T, T> postUpdateAction = null);
+    T Get<T>(Func<T> getter, [CallerMemberName] string propertyName = null);
+    T Get<T>(Func<T, T> getter, [CallerMemberName] string propertyName = null);
+    T Locate<T>([CallerMemberName] string propertyName = null);
+    T Locate<T>(Func<T, T> func, [CallerMemberName] string propertyName = null);
+    void Subscribe(PropertyChangedEventHandler handler, TriggerPath path);
+    bool SetOneToMany<TClass,T>(T value, Func<T, IList<TClass>> getCollection, [CallerMemberName] string propertyName = null);
+
+    void Subscribe(INotifierProperty triggeredProperty, INotifierProperty targetProperty, TriggerPath path);
+    INotifierPropertyEntry GetPropertyEntry(string propertyName);
+    INotifierPropertyEntry<T> GetPropertyEntry<T>(string propertyName);
+    INotifierPropertyEntry<T> GetPropertyEntry<T>(PropertyInfo propertyInfo);
+    INotifierPropertyEntry GetPropertyEntry(INotifierProperty property);
+    INotifierPropertyEntry<T> GetPropertyEntry<T>(INotifierProperty<T> property);
+    bool Subscribed { get; }
+    INotifyPropertyChanged Target { get; }
 }

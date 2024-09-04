@@ -27,67 +27,65 @@ using System.Collections.Generic;
 using System.Linq;
 using HLab.Core.Annotations;
 
-namespace HLab.Core
+namespace HLab.Core;
+
+public class MessageBus : IMessagesService
 {
-    public class MessageBus : IMessagesService
+    readonly object _lockDict = new object();
+    readonly Dictionary<Type, IList> _dict = new Dictionary<Type, IList>();
+
+    readonly object _lockPayload = new object();
+    readonly Dictionary<Type, object> _payload = new Dictionary<Type, object>();
+
+    public void Publish<T>(T payload)
     {
-        readonly object _lockDict = new object();
-        readonly Dictionary<Type, IList> _dict = new Dictionary<Type, IList>();
+        _payload[typeof(T)] = payload;
 
-        readonly object _lockPayload = new object();
-        readonly Dictionary<Type, object> _payload = new Dictionary<Type, object>();
-
-        public void Publish<T>(T payload)
+        List<IList> dict;
+        lock (_lockDict)
         {
-            _payload[typeof(T)] = payload;
-
-            List<IList> dict;
-            lock (_lockDict)
-            {
-               dict = _dict.Where(t => t.Key.IsAssignableFrom(typeof(T))).Select(e => e.Value).ToList();
-            }
-
-            foreach (var list in dict)
-            {
-                if (list == null) continue;
-                foreach (var action in list.OfType<Action<T>>().ToList())
-                {
-                    action(payload);
-                }
-            }
+            dict = _dict.Where(t => t.Key.IsAssignableFrom(typeof(T))).Select(e => e.Value).ToList();
         }
 
-        public void Subscribe<T>(Action<T> action)
+        foreach (var list in dict)
         {
-            lock (_lockDict)
+            if (list == null) continue;
+            foreach (var action in list.OfType<Action<T>>().ToList())
             {
-                List<Action<T>> list = null;
-
-                if (_dict.ContainsKey(typeof(T)))
-                    list = _dict[typeof(T)] as List<Action<T>>;
-
-                if (list == null)
-                {
-                    list = new List<Action<T>>();
-                    _dict.Add(typeof(T), list);
-                }
-                list.Add(action);
-            }
-
-            if (_payload.ContainsKey(typeof(T))) action((T)_payload[typeof(T)]);
-        }
-
-        public void Unsubscribe<T>(Action<T> action)
-        {
-            lock (_lockDict)
-            {
-                if (_dict[typeof(T)] is List<Action<T>> list)
-                {
-                    list.Remove(action);
-                    if (list.Count == 0) _dict.Remove(typeof(T));
-                }
+                action(payload);
             }
         }
     }
 
+    public void Subscribe<T>(Action<T> action)
+    {
+        lock (_lockDict)
+        {
+            List<Action<T>> list = null;
+
+            if (_dict.ContainsKey(typeof(T)))
+                list = _dict[typeof(T)] as List<Action<T>>;
+
+            if (list == null)
+            {
+                list = new List<Action<T>>();
+                _dict.Add(typeof(T), list);
+            }
+            list.Add(action);
+        }
+
+        if (_payload.ContainsKey(typeof(T))) action((T)_payload[typeof(T)]);
+    }
+
+    public void Unsubscribe<T>(Action<T> action)
+    {
+        lock (_lockDict)
+        {
+            if (_dict[typeof(T)] is List<Action<T>> list)
+            {
+                list.Remove(action);
+                if (list.Count == 0) _dict.Remove(typeof(T));
+            }
+        }
+    }
 }

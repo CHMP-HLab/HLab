@@ -21,7 +21,6 @@
 	  http://www.mgth.fr
 */
 
-using System;
 using System.Runtime.InteropServices;
 using System.Security;
 

@@ -25,105 +25,104 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace HLab.Base
-{
-    public class SuspenderToken : IDisposable
-    {
-        internal readonly ConcurrentQueue<Action> Actions = new();
-        public void EnqueueAction(Action action) => Actions.Enqueue(action);
+namespace HLab.Base;
 
-        readonly Suspender _suspender;
+public class SuspenderToken : IDisposable
+{
+    internal readonly ConcurrentQueue<Action> Actions = new();
+    public void EnqueueAction(Action action) => Actions.Enqueue(action);
+
+    readonly Suspender _suspender;
 #if DEBUG_SUSPENDER
         public readonly StackTrace StackTrace;
 #endif
 
-        public SuspenderToken(Suspender suspender)
-        {
-            _suspender = suspender;
+    public SuspenderToken(Suspender suspender)
+    {
+        _suspender = suspender;
 #if DEBUG_SUSPENDER
             StackTrace = new StackTrace(true);
 #endif
-        }
-        public void Dispose()
-        {
-            _suspender.Resume(this);
-        }
     }
-    public class Suspender
+    public void Dispose()
     {
-        readonly ReaderWriterLockSlim _wLock = new();
-        readonly HashSet<SuspenderToken> _list = new();
-        readonly Action _suspendedAction;
-        readonly Action _resumeAction;
-        readonly ConcurrentQueue<Action> _resumeActions = new();
-
-        public Suspender(Action suspendedAction=null, Action resumeAction=null)
-        {
-            _suspendedAction = suspendedAction;
-            _resumeAction = resumeAction;
-        }
-        public SuspenderToken Get()
-        {
-            _wLock.EnterWriteLock();
-            try
-            {
-                if(_list.Count == 0) _suspendedAction?.Invoke();
-                var s = new SuspenderToken(this);
-                _list.Add(s);
-                return s;
-            }
-            finally
-            {
-                _wLock.ExitWriteLock();
-            }
-        }
-
-        public bool Suspended
-        {
-            get
-            {
-                _wLock.EnterReadLock();
-                try
-                {
-                    return _list.Count > 0;
-                }
-                finally
-                {
-                    _wLock.ExitReadLock();
-                }
-
-            }            
-        }
-
-        public void Resume(SuspenderToken s)
-        {
-            _wLock.EnterWriteLock();
-            try
-            {
-                _list.Remove(s);
-                while (s.Actions.TryDequeue(out var action))
-                    _resumeActions.Enqueue(action);
-
-                if (_list.Count > 0)
-                    return;
-            }
-            finally
-            {
-                _wLock.ExitWriteLock();
-            }
-
-            //            try
-            {
-                while (_resumeActions.TryDequeue(out var action))
-                    action();
-
-                _resumeAction?.Invoke();
-            }
-//            catch (Exception)
-            {
-                
-            }
-        }
-
+        _suspender.Resume(this);
     }
+}
+public class Suspender
+{
+    readonly ReaderWriterLockSlim _wLock = new();
+    readonly HashSet<SuspenderToken> _list = new();
+    readonly Action _suspendedAction;
+    readonly Action _resumeAction;
+    readonly ConcurrentQueue<Action> _resumeActions = new();
+
+    public Suspender(Action suspendedAction=null, Action resumeAction=null)
+    {
+        _suspendedAction = suspendedAction;
+        _resumeAction = resumeAction;
+    }
+    public SuspenderToken Get()
+    {
+        _wLock.EnterWriteLock();
+        try
+        {
+            if(_list.Count == 0) _suspendedAction?.Invoke();
+            var s = new SuspenderToken(this);
+            _list.Add(s);
+            return s;
+        }
+        finally
+        {
+            _wLock.ExitWriteLock();
+        }
+    }
+
+    public bool Suspended
+    {
+        get
+        {
+            _wLock.EnterReadLock();
+            try
+            {
+                return _list.Count > 0;
+            }
+            finally
+            {
+                _wLock.ExitReadLock();
+            }
+
+        }            
+    }
+
+    public void Resume(SuspenderToken s)
+    {
+        _wLock.EnterWriteLock();
+        try
+        {
+            _list.Remove(s);
+            while (s.Actions.TryDequeue(out var action))
+                _resumeActions.Enqueue(action);
+
+            if (_list.Count > 0)
+                return;
+        }
+        finally
+        {
+            _wLock.ExitWriteLock();
+        }
+
+        //            try
+        {
+            while (_resumeActions.TryDequeue(out var action))
+                action();
+
+            _resumeAction?.Invoke();
+        }
+//            catch (Exception)
+        {
+                
+        }
+    }
+
 }

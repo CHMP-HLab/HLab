@@ -1,9 +1,8 @@
 ﻿using Nito.AsyncEx;
 
-namespace HLab.Base
+namespace HLab.Base;
+
+public interface ILockable
 {
-    public interface ILockable
-    {
-        AsyncReaderWriterLock Lock { get; }
-    }
+    AsyncReaderWriterLock Lock { get; }
 }

@@ -1,12 +1,8 @@
-﻿using System.ComponentModel;
-using System.Numerics;
-using System.Windows.Markup;
-
-namespace HLab.Geo;
-    /// <summary>
-    /// Point - Defaults to 0,0
-    /// </summary>
-    /// 
+﻿namespace HLab.Geo;
+/// <summary>
+/// Point - Defaults to 0,0
+/// </summary>
+/// 
 [Serializable]
 //[TypeConverter(typeof(PointConverter))]
 //[ValueSerializer(typeof(PointValueSerializer))] // Used by MarkupWriter

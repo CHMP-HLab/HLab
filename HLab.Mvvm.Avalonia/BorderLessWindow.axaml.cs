@@ -1,7 +1,7 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
-using HLab.Base.Avalonia;
+using HLab.Base.Avalonia.DependencyHelpers;
 
 namespace HLab.Mvvm.Avalonia;
 

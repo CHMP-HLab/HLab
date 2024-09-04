@@ -25,32 +25,31 @@
 using System;
 using System.Diagnostics;
 
-namespace HLab.Core.DebugTools
+namespace HLab.Core.DebugTools;
+
+public class DebugTimer : IDisposable
 {
-    public class DebugTimer : IDisposable
+    IDebugLogger _log;
+#if TIMER
+    readonly Stopwatch _sw;
+    readonly string _name;
+#endif
+
+    public DebugTimer(string name, IDebugLogger log)
     {
-        IDebugLogger _log;
 #if TIMER
-        readonly Stopwatch _sw;
-        readonly string _name;
+        _name = name;
+        _log = log;
+        _sw = new Stopwatch();
+        _sw.Start();
 #endif
+    }
 
-        public DebugTimer(string name, IDebugLogger log)
-        {
+    public void Dispose()
+    {
 #if TIMER
-           _name = name;
-            _log = log;
-            _sw = new Stopwatch();
-            _sw.Start();
+        _sw.Stop();
+        _log.Log(_name,_sw);
 #endif
-        }
-
-        public void Dispose()
-        {
-#if TIMER
-            _sw.Stop();
-            _log.Log(_name,_sw);
-#endif
-        }
     }
 }
